@@ -5,6 +5,22 @@
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6EEB989A1C4EBE1700DD5B95"
+               BuildableName = "CloudMusicPlayer.app"
+               BlueprintName = "CloudMusicPlayer"
+               ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
@@ -12,7 +28,36 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6EEB98B11C4EBE1700DD5B95"
+               BuildableName = "CloudMusicPlayerTests.xctest"
+               BlueprintName = "CloudMusicPlayerTests"
+               ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6EEB98BC1C4EBE1700DD5B95"
+               BuildableName = "CloudMusicPlayerUITests.xctest"
+               BlueprintName = "CloudMusicPlayerUITests"
+               ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "6EEB989A1C4EBE1700DD5B95"
+            BuildableName = "CloudMusicPlayer.app"
+            BlueprintName = "CloudMusicPlayer"
+            ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -26,6 +71,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "6EEB989A1C4EBE1700DD5B95"
+            BuildableName = "CloudMusicPlayer.app"
+            BlueprintName = "CloudMusicPlayer"
+            ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -35,6 +90,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "6EEB989A1C4EBE1700DD5B95"
+            BuildableName = "CloudMusicPlayer.app"
+            BlueprintName = "CloudMusicPlayer"
+            ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
