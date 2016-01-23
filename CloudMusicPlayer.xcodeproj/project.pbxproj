@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E11F1D41C53E4F300297EBD /* LoginController.swift */; };
+		6EA500841C53E6F100B9ED11 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EA500831C53E6F100B9ED11 /* Main.storyboard */; };
 		6EB8C2F81C5019FD0064A00B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 6EB8C2F71C5019FD0064A00B /* .gitignore */; };
 		6EEB989F1C4EBE1700DD5B95 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB989E1C4EBE1700DD5B95 /* AppDelegate.swift */; };
 		6EEB98A11C4EBE1700DD5B95 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB98A01C4EBE1700DD5B95 /* ViewController.swift */; };
-		6EEB98A41C4EBE1700DD5B95 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EEB98A21C4EBE1700DD5B95 /* Main.storyboard */; };
 		6EEB98A71C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB98A51C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld */; };
 		6EEB98A91C4EBE1700DD5B95 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6EEB98A81C4EBE1700DD5B95 /* Assets.xcassets */; };
 		6EEB98AC1C4EBE1700DD5B95 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EEB98AA1C4EBE1700DD5B95 /* LaunchScreen.storyboard */; };
@@ -36,11 +37,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6E11F1D41C53E4F300297EBD /* LoginController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
+		6EA500831C53E6F100B9ED11 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		6EB8C2F71C5019FD0064A00B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		6EEB989B1C4EBE1700DD5B95 /* CloudMusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudMusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EEB989E1C4EBE1700DD5B95 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6EEB98A01C4EBE1700DD5B95 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		6EEB98A31C4EBE1700DD5B95 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		6EEB98A61C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CloudMusicPlayer.xcdatamodel; sourceTree = "<group>"; };
 		6EEB98A81C4EBE1700DD5B95 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6EEB98AB1C4EBE1700DD5B95 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -104,11 +106,12 @@
 			children = (
 				6EEB989E1C4EBE1700DD5B95 /* AppDelegate.swift */,
 				6EEB98A01C4EBE1700DD5B95 /* ViewController.swift */,
-				6EEB98A21C4EBE1700DD5B95 /* Main.storyboard */,
+				6E11F1D41C53E4F300297EBD /* LoginController.swift */,
 				6EEB98A81C4EBE1700DD5B95 /* Assets.xcassets */,
 				6EEB98AA1C4EBE1700DD5B95 /* LaunchScreen.storyboard */,
 				6EEB98AD1C4EBE1700DD5B95 /* Info.plist */,
 				6EEB98A51C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld */,
+				6EA500831C53E6F100B9ED11 /* Main.storyboard */,
 			);
 			path = CloudMusicPlayer;
 			sourceTree = "<group>";
@@ -241,7 +244,7 @@
 				6EB8C2F81C5019FD0064A00B /* .gitignore in Resources */,
 				6EEB98AC1C4EBE1700DD5B95 /* LaunchScreen.storyboard in Resources */,
 				6EEB98A91C4EBE1700DD5B95 /* Assets.xcassets in Resources */,
-				6EEB98A41C4EBE1700DD5B95 /* Main.storyboard in Resources */,
+				6EA500841C53E6F100B9ED11 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,6 +270,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6EEB98A11C4EBE1700DD5B95 /* ViewController.swift in Sources */,
+				6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */,
 				6EEB98A71C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld in Sources */,
 				6EEB989F1C4EBE1700DD5B95 /* AppDelegate.swift in Sources */,
 			);
@@ -304,14 +308,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		6EEB98A21C4EBE1700DD5B95 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				6EEB98A31C4EBE1700DD5B95 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		6EEB98AA1C4EBE1700DD5B95 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
