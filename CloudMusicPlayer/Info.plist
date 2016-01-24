@@ -48,7 +48,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>test</string>
+				<string>yad</string>
 			</array>
 		</dict>
 	</array>
