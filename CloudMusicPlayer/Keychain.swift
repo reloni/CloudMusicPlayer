@@ -6,6 +6,8 @@
 //  Copyright © 2016 Anton Efimenko. All rights reserved.
 //
 
+// Original code on: http://www.splinter.com.au/2015/06/21/swift-keychain-wrapper/
+
 import Security
 import Foundation
 
