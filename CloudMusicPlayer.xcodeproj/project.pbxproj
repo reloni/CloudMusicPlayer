@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E11F1D41C53E4F300297EBD /* LoginController.swift */; };
 		6E1F020E1C57F14800490013 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F020D1C57F14800490013 /* Keychain.swift */; };
+		6E5254481C675D8F00CA5463 /* OAuthResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254471C675D8F00CA5463 /* OAuthResource.swift */; };
+		6E52544A1C676BE900CA5463 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254491C676BE900CA5463 /* Extensions.swift */; };
 		6EA500841C53E6F100B9ED11 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EA500831C53E6F100B9ED11 /* Main.storyboard */; };
 		6EB8C2F81C5019FD0064A00B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 6EB8C2F71C5019FD0064A00B /* .gitignore */; };
 		6EE5F8761C550877004CF20C /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE5F8751C550877004CF20C /* SettingsController.swift */; };
@@ -42,6 +44,8 @@
 /* Begin PBXFileReference section */
 		6E11F1D41C53E4F300297EBD /* LoginController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
+		6E5254471C675D8F00CA5463 /* OAuthResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthResource.swift; sourceTree = "<group>"; };
+		6E5254491C676BE900CA5463 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		6EA500831C53E6F100B9ED11 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		6EB8C2F71C5019FD0064A00B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		6EE5F8751C550877004CF20C /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
@@ -86,6 +90,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6E5254461C675D7C00CA5463 /* OAuth */ = {
+			isa = PBXGroup;
+			children = (
+				6E5254471C675D8F00CA5463 /* OAuthResource.swift */,
+			);
+			name = OAuth;
+			sourceTree = "<group>";
+		};
 		6EEB98921C4EBE1700DD5B95 = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +122,7 @@
 		6EEB989D1C4EBE1700DD5B95 /* CloudMusicPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				6E5254461C675D7C00CA5463 /* OAuth */,
 				6EEB989E1C4EBE1700DD5B95 /* AppDelegate.swift */,
 				6EEB98A01C4EBE1700DD5B95 /* ViewController.swift */,
 				6E11F1D41C53E4F300297EBD /* LoginController.swift */,
@@ -121,6 +134,7 @@
 				6EE5F8751C550877004CF20C /* SettingsController.swift */,
 				6EE5F8771C5509DF004CF20C /* SharedSettings.swift */,
 				6E1F020D1C57F14800490013 /* Keychain.swift */,
+				6E5254491C676BE900CA5463 /* Extensions.swift */,
 			);
 			path = CloudMusicPlayer;
 			sourceTree = "<group>";
@@ -279,12 +293,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				6EEB98A11C4EBE1700DD5B95 /* ViewController.swift in Sources */,
+				6E52544A1C676BE900CA5463 /* Extensions.swift in Sources */,
 				6EE5F8761C550877004CF20C /* SettingsController.swift in Sources */,
 				6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */,
 				6EE5F8781C5509DF004CF20C /* SharedSettings.swift in Sources */,
 				6EEB98A71C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld in Sources */,
 				6EEB989F1C4EBE1700DD5B95 /* AppDelegate.swift in Sources */,
 				6E1F020E1C57F14800490013 /* Keychain.swift in Sources */,
+				6E5254481C675D8F00CA5463 /* OAuthResource.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

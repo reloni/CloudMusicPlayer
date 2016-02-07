@@ -20,25 +20,25 @@ class LoginController: UIViewController {
 //			webView.loadRequest(NSURLRequest(URL: nsUrl))
 //		}
 		
-		let url = "https://cloud-api.yandex.net:443/v1/disk"
-		if let nsUrl = NSURL(string: url), yaResource = SharedSettings.Instance.getCloudResource("yandexDisk") {
-			let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
-			let req = NSMutableURLRequest(URL: nsUrl)
-			req.setValue(yaResource.token, forHTTPHeaderField: "Authorization")
-			let task = session.dataTaskWithRequest(req, completionHandler: { (data, response, error) -> Void in
-				if let content = data {
-					do {
-						let result = try NSJSONSerialization.JSONObjectWithData(content, options: .MutableContainers)
-						let a = result["system_folders"]!!["applications"]!
-						print(a)
-					}
-					catch {
-						
-					}
-				}
-			})
-			task.resume()
-		}
+//		let url = "https://cloud-api.yandex.net:443/v1/disk"
+//		if let nsUrl = NSURL(string: url), yaResource = SharedSettings.Instance.getCloudResource("yandexDisk") {
+//			let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+//			let req = NSMutableURLRequest(URL: nsUrl)
+//			req.setValue(yaResource.token, forHTTPHeaderField: "Authorization")
+//			let task = session.dataTaskWithRequest(req, completionHandler: { (data, response, error) -> Void in
+//				if let content = data {
+//					do {
+//						let result = try NSJSONSerialization.JSONObjectWithData(content, options: .MutableContainers)
+//						let a = result["system_folders"]!!["applications"]!
+//						print(a)
+//					}
+//					catch {
+//						
+//					}
+//				}
+//			})
+//			task.resume()
+//		}
 	}
 	
 	override func didReceiveMemoryWarning() {

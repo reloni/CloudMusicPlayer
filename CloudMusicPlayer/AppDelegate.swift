@@ -29,13 +29,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		//let start = str.substringFromIndex((str.rangeOfString("access_token=")?.endIndex)!)
 		//start.substringToIndex((start.rangeOfString("&token_type=")?.startIndex)!)
-		if let start = url.absoluteString.rangeOfString("access_token=")?.endIndex, end = url.absoluteString.rangeOfString("&token_type=")?.startIndex {
-			let token = url.absoluteString.substringWithRange(Range<String.Index>(start: start, end: end))
-			SharedSettings.Instance.addCloudResource("yandexDisk", token: token)
-		}
+//		if let start = url.absoluteString.rangeOfString("access_token=")?.endIndex, end = url.absoluteString.rangeOfString("&token_type=")?.startIndex {
+//			let token = url.absoluteString.substringWithRange(Range<String.Index>(start: start, end: end))
+//			SharedSettings.Instance.addCloudResource("yandexDisk", token: token)
+//		}
 		
+		//OAuthResource.parseCallbackUrl(url.absoluteString)
+		OAuthResourceBase.parseCallbackUrl(url.absoluteString)
 		// [1] Dismiss webview once url is passed to extract authorization code
-		//UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
+		UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
 		
 		return true
 	}
@@ -48,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func applicationDidEnterBackground(application: UIApplication) {
 		// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
 		// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-		SharedSettings.Instance.saveData()
+		//SharedSettings.Instance.saveData()
 	}
 
 	func applicationWillEnterForeground(application: UIApplication) {
@@ -62,7 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func applicationWillTerminate(application: UIApplication) {
 		// Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 		// Saves changes in the application's managed object context before the application terminates.
-		SharedSettings.Instance.saveData()
+		//SharedSettings.Instance.saveData()
 		self.saveContext()
 	}
 

@@ -48,7 +48,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>yad</string>
+				<string>oauthYandex</string>
 			</array>
 		</dict>
 	</array>

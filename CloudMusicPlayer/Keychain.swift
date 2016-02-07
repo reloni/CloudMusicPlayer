@@ -160,19 +160,23 @@ struct Keychain {
 			}
 	}
 	
-	static func setString(string: String,
+	static func setString(string: String?,
 		forAccount account: String,
 		synchronizable: Bool,
 		background: Bool) {
-			let data = string.dataUsingEncoding(NSUTF8StringEncoding)!
-			setData(data,
-				forAccount: account,
-				synchronizable: synchronizable,
-				background: background)
+			if let string = string {
+				let data = string.dataUsingEncoding(NSUTF8StringEncoding)!
+				setData(data,
+					forAccount: account,
+					synchronizable: synchronizable,
+					background: background)
+			} else {
+				deleteAccount(account)
+			}
 	}
 	
 	struct Constants {
 		// FIXME: Change this to the name of your app or company!
-		static let service = "MyService"
+		static let service = "CloudMusicPlayer"
 	}
 }
