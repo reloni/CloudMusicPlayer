@@ -13,10 +13,14 @@ import UIKit
 class SettingsController: UIViewController {
 	@IBOutlet weak var logInButton: UIButton!
 	
+	@IBOutlet weak var logOutButton: UIButton!
+	
+	private unowned let yandexOauth: YandexOAuthResource = OAuthResourceBase.Yandex as! YandexOAuthResource
+	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		// Do any additional setup after loading the view, typically from a nib.
-		logInButton.enabled = OAuthResourceBase.Yandex.tokenId == nil
+
 	}
 	
 	override func didReceiveMemoryWarning() {
@@ -24,17 +28,21 @@ class SettingsController: UIViewController {
 		// Dispose of any resources that can be recreated.
 	}
 	
+	override func viewWillAppear(animated: Bool) {
+		logInButton.enabled = yandexOauth.tokenId == nil
+		logOutButton.enabled = yandexOauth.tokenId != nil
+	}
+	
 	@IBAction func logIn(sender: AnyObject) {
-//		let url = "https://oauth.yandex.ru/authorize?response_type=token&client_id=6556b9ed6fb146ea824d2e1f0d98f09b"
-//		if let nsUrl = NSURL(string: url) {
-//			UIApplication.sharedApplication().openURL(nsUrl)
-//		}
-		if let url = OAuthResourceBase.getResourceById(CloudResourceType.Yandex)?.getAuthUrl() {
+		if let url = yandexOauth.getAuthUrl() {
 			UIApplication.sharedApplication().openURL(url)
 		}
 	}
 	
 	@IBAction func logOut(sender: AnyObject) {
+		yandexOauth.tokenId = nil
+		yandexOauth.saveResource()
+		logInButton.enabled = yandexOauth.tokenId == nil
+		logOutButton.enabled = yandexOauth.tokenId != nil
 	}
-	
 }

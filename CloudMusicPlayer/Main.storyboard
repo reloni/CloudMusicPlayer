@@ -147,7 +147,7 @@
                                 </constraints>
                                 <state key="normal" title="Log out"/>
                                 <connections>
-                                    <action selector="logOut:" destination="ZIg-ge-mcq" eventType="touchUpInside" id="VTb-YE-bTf"/>
+                                    <action selector="logOut:" destination="ZIg-ge-mcq" eventType="touchUpInside" id="DLN-df-Ole"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -192,6 +192,7 @@
                     <tabBarItem key="tabBarItem" title="Settings" id="hae-Id-lbw"/>
                     <connections>
                         <outlet property="logInButton" destination="soC-Ii-Uy8" id="NOH-jO-SGl"/>
+                        <outlet property="logOutButton" destination="tdn-Sh-xKE" id="juJ-k1-oOy"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Mp-qw-vTn" userLabel="First Responder" sceneMemberID="firstResponder"/>

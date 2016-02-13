@@ -17,17 +17,31 @@ public enum OAuthError: ErrorType {
 	case NotImplemented
 }
 
+public protocol OAuthResource {
+	var id: CloudResourceType { get }
+	var authBaseUrl: String { get }
+	var clientId: String? { get set }
+	var tokenId: String? { get set }
+	func getAuthUrl() -> NSURL?
+	func saveResource()
+}
+
 public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
+	private static var resources = [String: OAuthResource]()
 	public let id: CloudResourceType
 	public let authBaseUrl: String
 	public var clientId: String?
 	public var tokenId: String?
 	
-	private init(id: CloudResourceType, authUrl: String, clientId: String?, tokenId: String?) {
+	public init(id: CloudResourceType, authUrl: String, clientId: String?, tokenId: String?) {
 		self.id = id
 		self.authBaseUrl = authUrl
 		self.clientId = clientId
 		self.tokenId = tokenId
+	}
+	
+	deinit {
+		print("deinit")
 	}
 	
 	@objc required public init?(coder aDecoder: NSCoder) {
@@ -47,52 +61,35 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 	public func getAuthUrl() -> NSURL? {
 		return nil
 	}
-}
-
-public protocol OAuthResource {
-	var id: CloudResourceType { get }
-	var authBaseUrl: String { get }
-	var clientId: String? { get set }
-	var tokenId: String? { get set }
-	func getAuthUrl() -> NSURL?
-}
-
-public class YandexOAuthResource : OAuthResourceBase {
-	init() {
-		super.init(id: .Yandex, authUrl: "https://oauth.yandex.ru/authorize?response_type=token", clientId: "6556b9ed6fb146ea824d2e1f0d98f09b", tokenId: nil)
-	}
-
-	@objc required public init?(coder aDecoder: NSCoder) {
-	    super.init(coder: aDecoder)
-	}
 	
-	public override func getAuthUrl() -> NSURL? {
-		if let clientId = clientId {
-			return NSURL(string: "\(authBaseUrl)&client_id=\(clientId)")
-		}
-		return nil
+	public func saveResource() {
+		NSUserDefaults.saveData(self, forKey: self.id.rawValue)
 	}
 }
 
 extension OAuthResourceBase {
-	static public var Yandex: OAuthResource {
-//		return OAuthResourceBase(id: .Yandex,
-//			authUrl: "https://oauth.yandex.ru/authorize?response_type=token",
-//			clientId: "6556b9ed6fb146ea824d2e1f0d98f09b",
-//			tokenId: nil)
-		return getResourceById(.Yandex) ?? YandexOAuthResource()
-	}
-	
 	private static func loadResourceById(id: CloudResourceType) -> OAuthResource? {
-		//if let resource: OAuthResourceBase? = NSUserDefaults.loadData(id.rawValue) {
-		if let resource = NSUserDefaults.loadData(id.rawValue) as? OAuthResource {
-			return resource
+		var resource: OAuthResource?
+		
+		resource = resources[id.rawValue]
+		
+		if resource == nil {
+			resource = NSUserDefaults.loadData(id.rawValue) as? OAuthResource
 		}
-		if id == .Yandex {
-			return self.Yandex
-		} else {
-			return nil
+		
+		if resource == nil {
+			if id == .Yandex {
+				resource = self.Yandex
+			} else {
+				return nil
+			}
 		}
+		if resource != nil && !resources.keys.contains(id.rawValue)
+		{
+			resources[id.rawValue] = resource
+		}
+		
+		return resource
 	}
 	
 	public static func getResourceById(id: CloudResourceType) -> OAuthResource? {
@@ -103,19 +100,6 @@ extension OAuthResourceBase {
 		if url.lowercaseString.hasPrefix(CloudResourceType.Yandex.rawValue.lowercaseString) {
 			return parseYandexCallbackUrl(url)
 		}
-		return nil
-	}
-	
-	public static func parseYandexCallbackUrl(url: String) -> OAuthResource? {
-		if let start = url.rangeOfString("access_token=")?.endIndex, end = url.rangeOfString("&token_type=")?.startIndex {
-			let token = url.substringWithRange(Range<String.Index>(start: start, end: end))
-			if let resource = getResourceById(.Yandex) as? OAuthResourceBase {
-				resource.tokenId = token
-				NSUserDefaults.saveData(resource, forKey: resource.id.rawValue)
-				return resource
-			}
-		}
-		
 		return nil
 	}
 }

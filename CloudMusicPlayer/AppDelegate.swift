@@ -34,10 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //			SharedSettings.Instance.addCloudResource("yandexDisk", token: token)
 //		}
 		
+		//OAuthResource.parseCallbackUrl("")
 		//OAuthResource.parseCallbackUrl(url.absoluteString)
 		OAuthResourceBase.parseCallbackUrl(url.absoluteString)
 		// [1] Dismiss webview once url is passed to extract authorization code
-		UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
+		//UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
 		
 		return true
 	}
