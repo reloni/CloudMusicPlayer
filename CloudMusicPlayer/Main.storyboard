@@ -136,7 +136,7 @@
                                 </constraints>
                                 <state key="normal" title="Log in"/>
                                 <connections>
-                                    <action selector="logIn:" destination="ZIg-ge-mcq" eventType="touchUpInside" id="8qP-xV-7X7"/>
+                                    <action selector="logIn:" destination="ZIg-ge-mcq" eventType="touchUpInside" id="6uQ-Kc-FL3"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tdn-Sh-xKE">
@@ -147,7 +147,7 @@
                                 </constraints>
                                 <state key="normal" title="Log out"/>
                                 <connections>
-                                    <action selector="logOut:" destination="ZIg-ge-mcq" eventType="touchUpInside" id="DLN-df-Ole"/>
+                                    <action selector="logOut:" destination="ZIg-ge-mcq" eventType="touchUpInside" id="8Ta-8D-Jpy"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -191,8 +191,8 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Settings" id="hae-Id-lbw"/>
                     <connections>
-                        <outlet property="logInButton" destination="soC-Ii-Uy8" id="NOH-jO-SGl"/>
-                        <outlet property="logOutButton" destination="tdn-Sh-xKE" id="juJ-k1-oOy"/>
+                        <outlet property="logInButton" destination="soC-Ii-Uy8" id="gtB-gf-enc"/>
+                        <outlet property="logOutButton" destination="tdn-Sh-xKE" id="NAQ-G8-9xw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Mp-qw-vTn" userLabel="First Responder" sceneMemberID="firstResponder"/>

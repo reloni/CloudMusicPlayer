@@ -15,7 +15,7 @@ class SettingsController: UIViewController {
 	
 	@IBOutlet weak var logOutButton: UIButton!
 	
-	private unowned let yandexOauth: YandexOAuthResource = OAuthResourceBase.Yandex as! YandexOAuthResource
+	private let yandexOauth: YandexOAuthResource = OAuthResourceBase.Yandex as! YandexOAuthResource
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
