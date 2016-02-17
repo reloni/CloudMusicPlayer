@@ -27,7 +27,7 @@ public protocol OAuthResource {
 }
 
 public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
-	private static var resources = [String: OAuthResource]()
+	internal static var resources = [String: OAuthResource]()
 	public let id: CloudResourceType
 	public let authBaseUrl: String
 	public var clientId: String?
@@ -38,10 +38,6 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 		self.authBaseUrl = authUrl
 		self.clientId = clientId
 		self.tokenId = tokenId
-	}
-	
-	deinit {
-		print("deinit")
 	}
 	
 	@objc required public init?(coder aDecoder: NSCoder) {
@@ -68,32 +64,24 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 }
 
 extension OAuthResourceBase {
-	private static func loadResourceById(id: CloudResourceType) -> OAuthResource? {
-		var resource: OAuthResource?
-		
-		resource = resources[id.rawValue]
-		
-		if resource == nil {
-			resource = NSUserDefaults.loadData(id.rawValue) as? OAuthResource
-		}
-		
-		if resource == nil {
-			if id == .Yandex {
-				resource = self.Yandex
-			} else {
-				return nil
+	public static func loadResourceById(id: CloudResourceType) -> OAuthResource? {
+		return resources[id.rawValue] ?? {
+			if let loaded = NSUserDefaults.loadData(id.rawValue) as? OAuthResource {
+				resources[id.rawValue] = loaded
+				return loaded
 			}
-		}
-		if resource != nil && !resources.keys.contains(id.rawValue)
-		{
-			resources[id.rawValue] = resource
-		}
-		
-		return resource
+			return nil
+		}()
 	}
 	
 	public static func getResourceById(id: CloudResourceType) -> OAuthResource? {
-		return loadResourceById(id)
+		return loadResourceById(id) ?? {
+			if id == .Yandex {
+				return YandexOAuthResource.Yandex
+			} else {
+				return nil
+			}
+		}()
 	}
 	
 	public static func parseCallbackUrl(url: String) -> OAuthResource? {

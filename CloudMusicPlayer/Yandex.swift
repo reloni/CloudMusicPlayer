@@ -9,8 +9,10 @@
 import Foundation
 
 public class YandexOAuthResource : OAuthResourceBase {
-	init() {
+	private init() {
 		super.init(id: .Yandex, authUrl: "https://oauth.yandex.ru/authorize?response_type=token", clientId: "6556b9ed6fb146ea824d2e1f0d98f09b", tokenId: nil)
+		OAuthResourceBase.resources[CloudResourceType.Yandex.rawValue] = self
+		self.saveResource()
 	}
 	
 	@objc required public init?(coder aDecoder: NSCoder) {
@@ -27,7 +29,9 @@ public class YandexOAuthResource : OAuthResourceBase {
 
 extension OAuthResourceBase {
 	public static var Yandex: OAuthResource {
-		return getResourceById(.Yandex) ?? YandexOAuthResource()
+		return loadResourceById(.Yandex) ?? {
+			return YandexOAuthResource()
+		}()
 	}
 	
 	public static func parseYandexCallbackUrl(url: String) -> OAuthResource? {
