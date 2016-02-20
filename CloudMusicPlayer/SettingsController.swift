@@ -34,7 +34,7 @@ class SettingsController: UIViewController {
 			self.model.yandexOauth.saveResource()
 		}.addDisposableTo(bag)
 		
-		model.isSetUp.asDriver().asDriver(onErrorJustReturn: false).debug().map { !$0 }.drive(logInButton.rx_enabled).addDisposableTo(bag)
+		model.isSetUp.asDriver().asDriver(onErrorJustReturn: false).map { !$0 }.drive(logInButton.rx_enabled).addDisposableTo(bag)
 		model.isSetUp.asDriver().asDriver(onErrorJustReturn: false).drive(logOutButton.rx_enabled).addDisposableTo(bag)
 	}
 	
