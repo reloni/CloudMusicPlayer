@@ -22,7 +22,8 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 	public let id: String
 	public let authBaseUrl: String
 	public var clientId: String?
-	public var tokenId: String?
+	// dynamic requered to enable KVO observing
+	public dynamic var tokenId: String?
 	
 	public init(id: String, authUrl: String, clientId: String?, tokenId: String?) {
 		self.id = id
@@ -62,7 +63,6 @@ extension OAuthResourceBase {
 	
 	public static func parseCallbackUrlAndSaveToken(url: String) -> OAuthResource? {
 		if let schemeEnding = url.rangeOfString(":")?.first {
-			print(url.substringToIndex(schemeEnding))
 			if let resource = loadResourceById(url.substringToIndex(schemeEnding)) {
 				resource.parseCallbackUrlAndSaveToken?(url)
 				return resource

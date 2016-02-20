@@ -7,7 +7,8 @@
 //
 
 import Foundation
-
+import RxSwift
+import RxCocoa
 import UIKit
 
 class SettingsController: UIViewController {
@@ -15,34 +16,30 @@ class SettingsController: UIViewController {
 	
 	@IBOutlet weak var logOutButton: UIButton!
 	
-	private let yandexOauth = OAuthResourceBase.Yandex
+	let model = SettingsModel()
+	
+	private let bag = DisposeBag()
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		// Do any additional setup after loading the view, typically from a nib.
-
+		logInButton.rx_tap.bindNext { [unowned self] in
+			if let url = self.model.yandexOauth.getAuthUrl?() {
+				UIApplication.sharedApplication().openURL(url)
+			}
+		}.addDisposableTo(bag)
+		
+		logOutButton.rx_tap.bindNext { [unowned self] in
+			self.model.yandexOauth.tokenId = nil
+			self.model.yandexOauth.saveResource()
+		}.addDisposableTo(bag)
+		
+		model.isSetUp.asDriver().asDriver(onErrorJustReturn: false).debug().map { !$0 }.drive(logInButton.rx_enabled).addDisposableTo(bag)
+		model.isSetUp.asDriver().asDriver(onErrorJustReturn: false).drive(logOutButton.rx_enabled).addDisposableTo(bag)
 	}
 	
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
 		// Dispose of any resources that can be recreated.
-	}
-	
-	override func viewWillAppear(animated: Bool) {
-		logInButton.enabled = yandexOauth.tokenId == nil
-		logOutButton.enabled = yandexOauth.tokenId != nil
-	}
-	
-	@IBAction func logIn(sender: AnyObject) {
-		if let url = yandexOauth.getAuthUrl?() {
-			UIApplication.sharedApplication().openURL(url)
-		}
-	}
-	
-	@IBAction func logOut(sender: AnyObject) {
-		yandexOauth.tokenId = nil
-		yandexOauth.saveResource()
-		logInButton.enabled = yandexOauth.tokenId == nil
-		logOutButton.enabled = yandexOauth.tokenId != nil
 	}
 }
