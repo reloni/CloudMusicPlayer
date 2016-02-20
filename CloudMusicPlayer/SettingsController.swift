@@ -15,7 +15,7 @@ class SettingsController: UIViewController {
 	
 	@IBOutlet weak var logOutButton: UIButton!
 	
-	private let yandexOauth: YandexOAuthResource = OAuthResourceBase.Yandex as! YandexOAuthResource
+	private let yandexOauth = OAuthResourceBase.Yandex
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -34,7 +34,7 @@ class SettingsController: UIViewController {
 	}
 	
 	@IBAction func logIn(sender: AnyObject) {
-		if let url = yandexOauth.getAuthUrl() {
+		if let url = yandexOauth.getAuthUrl?() {
 			UIApplication.sharedApplication().openURL(url)
 		}
 	}
