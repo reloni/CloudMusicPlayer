@@ -16,13 +16,13 @@ extension NSUserDefaults {
 	
 	public static func loadData<T>(forKey: String) -> T? {
 		if let loadedData = NSUserDefaults.standardUserDefaults().objectForKey(forKey) {
-			let data = NSKeyedUnarchiver.unarchiveObjectWithData(loadedData as! NSData) as! T!
+			let data = NSKeyedUnarchiver.unarchiveObjectWithData(loadedData as! NSData) as! T
 			return data
 		}
 		return nil
 	}
 	
-	public static func loadData(forKey: String) -> AnyObject? {
+	public static func loadRawData(forKey: String) -> AnyObject? {
 		if let loadedData = NSUserDefaults.standardUserDefaults().objectForKey(forKey) {
 			return NSKeyedUnarchiver.unarchiveObjectWithData(loadedData as! NSData)
 		}

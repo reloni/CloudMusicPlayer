@@ -52,7 +52,7 @@ extension OAuthResourceBase {
 	/// If not exists in NSUserDefaults too, returns nil.
 	public static func loadResourceById(id: String) -> OAuthResource? {
 		return resources[id] ?? {
-			if let loaded = NSUserDefaults.loadData(id) as? OAuthResource {
+			if let loaded: OAuthResource = NSUserDefaults.loadData(id) {
 				resources[id] = loaded
 				return loaded
 			}
