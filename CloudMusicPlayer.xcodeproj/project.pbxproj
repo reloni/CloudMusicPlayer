@@ -147,11 +147,19 @@
 			path = CloudMusicPlayer/OAuth;
 			sourceTree = SOURCE_ROOT;
 		};
-		6E8AFD841C78E15600091B53 /* Models */ = {
+		6E8AFD841C78E15600091B53 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
 				6E8AFD851C78E17C00091B53 /* SettingsModel.swift */,
 				6EA638771C7A002200DD85A6 /* CloudResourcesModel.swift */,
+			);
+			name = ViewModels;
+			path = CloudMusicPlayer/ViewModels;
+			sourceTree = SOURCE_ROOT;
+		};
+		6EA638791C7A02E500DD85A6 /* Models */ = {
+			isa = PBXGroup;
+			children = (
 			);
 			name = Models;
 			path = CloudMusicPlayer/Models;
@@ -184,7 +192,8 @@
 		6EEB989D1C4EBE1700DD5B95 /* CloudMusicPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				6E8AFD841C78E15600091B53 /* Models */,
+				6EA638791C7A02E500DD85A6 /* Models */,
+				6E8AFD841C78E15600091B53 /* ViewModels */,
 				6E12B9151C6F83AB00E93FFB /* Keychain */,
 				6E12B9141C6F838300E93FFB /* Controllers */,
 				6E12B9131C6F835C00E93FFB /* Extensions */,
