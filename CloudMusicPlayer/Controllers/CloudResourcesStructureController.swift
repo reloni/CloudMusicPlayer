@@ -56,7 +56,7 @@ class CloudResourcesStructureController: UIViewController {
 
 extension CloudResourcesStructureController : UITableViewDelegate {
 	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		if let data = resourceContent as? Dictionary<String, AnyObject> {
+		if let data = resourceContent?["_embedded"]??["items"] as? [AnyObject] {
 			return data.count
 		}
 		
@@ -66,7 +66,7 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "Cell")
 		//cell.textLabel?.text = "test"
-		if let data = resourceContent!["_embedded"]??["items"] as? [AnyObject] {
+		if let data = resourceContent?["_embedded"]??["items"] as? [AnyObject] {
 			if let directory = data[indexPath.row]["name"] as? String {
 				cell.textLabel?.text = directory
 			}
