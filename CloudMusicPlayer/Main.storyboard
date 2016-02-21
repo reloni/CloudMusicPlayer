@@ -135,9 +135,6 @@
                                     <constraint firstAttribute="height" constant="30" id="7tg-L4-iXT"/>
                                 </constraints>
                                 <state key="normal" title="Log in"/>
-                                <connections>
-                                    <action selector="logIn:" destination="ZIg-ge-mcq" eventType="touchUpInside" id="6uQ-Kc-FL3"/>
-                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tdn-Sh-xKE">
                                 <rect key="frame" x="194" y="53" width="71" height="30"/>
@@ -146,9 +143,6 @@
                                     <constraint firstAttribute="width" constant="71" id="bOB-bP-pBt"/>
                                 </constraints>
                                 <state key="normal" title="Log out"/>
-                                <connections>
-                                    <action selector="logOut:" destination="ZIg-ge-mcq" eventType="touchUpInside" id="8Ta-8D-Jpy"/>
-                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>

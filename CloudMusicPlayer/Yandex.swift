@@ -27,7 +27,7 @@ public class YandexOAuthResource : OAuthResourceBase {
 	
 	public func parseCallbackUrlAndSaveToken(url: String) {
 		if let start = url.rangeOfString("access_token=")?.endIndex, end = url.rangeOfString("&token_type=")?.startIndex {
-			tokenId = url.substringWithRange(Range<String.Index>(start: start, end: end))
+			self.tokenId = url.substringWithRange(Range<String.Index>(start: start, end: end))
 			saveResource()
 		}
 	}
