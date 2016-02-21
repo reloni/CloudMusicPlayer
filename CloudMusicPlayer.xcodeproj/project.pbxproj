@@ -47,22 +47,22 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		6E11F1D41C53E4F300297EBD /* LoginController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
+		6E11F1D41C53E4F300297EBD /* LoginController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginController.swift; path = CloudMusicPlayer/Controllers/LoginController.swift; sourceTree = SOURCE_ROOT; };
 		6E12B9111C6F6CB200E93FFB /* Yandex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Yandex.swift; sourceTree = "<group>"; };
-		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
+		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
 		6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthResourceBase.swift; sourceTree = "<group>"; };
 		6E5254491C676BE900CA5463 /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
 		6E8AFD7C1C78DA7300091B53 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = ../ReactiveMVVM/Carthage/Build/iOS/Result.framework; sourceTree = "<group>"; };
 		6E8AFD801C78DBC200091B53 /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
 		6E8AFD811C78DBC200091B53 /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxCocoa.framework; path = Carthage/Build/iOS/RxCocoa.framework; sourceTree = "<group>"; };
-		6E8AFD851C78E17C00091B53 /* SettingsModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SettingsModel.swift; path = Models/SettingsModel.swift; sourceTree = "<group>"; };
+		6E8AFD851C78E17C00091B53 /* SettingsModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsModel.swift; sourceTree = "<group>"; };
 		6EA500831C53E6F100B9ED11 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		6EB8C2F71C5019FD0064A00B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		6EE5F8751C550877004CF20C /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
+		6EE5F8751C550877004CF20C /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SettingsController.swift; path = CloudMusicPlayer/Controllers/SettingsController.swift; sourceTree = SOURCE_ROOT; };
 		6EE5F8771C5509DF004CF20C /* SharedSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharedSettings.swift; sourceTree = "<group>"; };
 		6EEB989B1C4EBE1700DD5B95 /* CloudMusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudMusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EEB989E1C4EBE1700DD5B95 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		6EEB98A01C4EBE1700DD5B95 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		6EEB98A01C4EBE1700DD5B95 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = CloudMusicPlayer/Controllers/ViewController.swift; sourceTree = SOURCE_ROOT; };
 		6EEB98A61C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CloudMusicPlayer.xcdatamodel; sourceTree = "<group>"; };
 		6EEB98A81C4EBE1700DD5B95 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6EEB98AB1C4EBE1700DD5B95 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -109,7 +109,8 @@
 				6E5254491C676BE900CA5463 /* NSUserDefaults.swift */,
 			);
 			name = Extensions;
-			sourceTree = "<group>";
+			path = CloudMusicPlayer/Extensions;
+			sourceTree = SOURCE_ROOT;
 		};
 		6E12B9141C6F838300E93FFB /* Controllers */ = {
 			isa = PBXGroup;
@@ -119,7 +120,8 @@
 				6EE5F8751C550877004CF20C /* SettingsController.swift */,
 			);
 			name = Controllers;
-			sourceTree = "<group>";
+			path = CloudMusicPlayer/Controllers;
+			sourceTree = SOURCE_ROOT;
 		};
 		6E12B9151C6F83AB00E93FFB /* Keychain */ = {
 			isa = PBXGroup;
@@ -127,7 +129,8 @@
 				6E1F020D1C57F14800490013 /* Keychain.swift */,
 			);
 			name = Keychain;
-			sourceTree = "<group>";
+			path = CloudMusicPlayer/Keychain;
+			sourceTree = SOURCE_ROOT;
 		};
 		6E5254461C675D7C00CA5463 /* OAuth */ = {
 			isa = PBXGroup;
@@ -136,7 +139,8 @@
 				6E12B9111C6F6CB200E93FFB /* Yandex.swift */,
 			);
 			name = OAuth;
-			sourceTree = "<group>";
+			path = CloudMusicPlayer/OAuth;
+			sourceTree = SOURCE_ROOT;
 		};
 		6E8AFD841C78E15600091B53 /* Models */ = {
 			isa = PBXGroup;
@@ -144,7 +148,8 @@
 				6E8AFD851C78E17C00091B53 /* SettingsModel.swift */,
 			);
 			name = Models;
-			sourceTree = "<group>";
+			path = CloudMusicPlayer/Models;
+			sourceTree = SOURCE_ROOT;
 		};
 		6EEB98921C4EBE1700DD5B95 = {
 			isa = PBXGroup;
