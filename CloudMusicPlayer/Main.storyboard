@@ -9,7 +9,7 @@
         <!--Test-->
         <scene sceneID="a8B-KO-EZH">
             <objects>
-                <viewController storyboardIdentifier="RootViewController" id="lvF-3G-Ygz" customClass="ViewController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="RootViewController" id="lvF-3G-Ygz" customClass="CloudResourcesStructureController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="B9R-JR-NY2"/>
                         <viewControllerLayoutGuide type="bottom" id="iTI-rb-mls"/>
@@ -17,7 +17,19 @@
                     <view key="view" contentMode="scaleToFill" id="JxX-bk-7M3">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="u5o-Qa-vvN">
+                                <rect key="frame" x="0.0" y="64" width="600" height="487"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </tableView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="u5o-Qa-vvN" secondAttribute="trailing" constant="-20" id="9Uo-uU-wuV"/>
+                            <constraint firstItem="u5o-Qa-vvN" firstAttribute="top" secondItem="B9R-JR-NY2" secondAttribute="bottom" id="d2U-V0-i0k"/>
+                            <constraint firstItem="iTI-rb-mls" firstAttribute="top" secondItem="u5o-Qa-vvN" secondAttribute="bottom" id="dcO-HA-HKP"/>
+                            <constraint firstItem="u5o-Qa-vvN" firstAttribute="leading" secondItem="JxX-bk-7M3" secondAttribute="leadingMargin" constant="-20" id="eW5-rf-qMR"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Test" id="Knr-k4-Tw4">
                         <barButtonItem key="rightBarButtonItem" title="Services" id="48A-qM-Gcs">
