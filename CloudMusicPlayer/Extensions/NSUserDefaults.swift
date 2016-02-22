@@ -15,11 +15,7 @@ extension NSUserDefaults {
 	}
 	
 	public static func loadData<T>(forKey: String) -> T? {
-		if let loadedData = NSUserDefaults.standardUserDefaults().objectForKey(forKey) {
-			let data = NSKeyedUnarchiver.unarchiveObjectWithData(loadedData as! NSData) as! T
-			return data
-		}
-		return nil
+		return loadRawData(forKey) as? T
 	}
 	
 	public static func loadRawData(forKey: String) -> AnyObject? {
