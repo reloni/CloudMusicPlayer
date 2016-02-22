@@ -8,44 +8,38 @@
 
 import Foundation
 import UIKit
+import SwiftyJSON
+import Alamofire
 
 class CloudResourcesStructureController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 	
-	var resourceContent: AnyObject?
+	var resourceContent: JSON?
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		automaticallyAdjustsScrollViewInsets = false
 	}
 
 	override func viewDidAppear(animated: Bool) {
 		//let url = "https://cloud-api.yandex.net:443/v1/disk"
-		let url = "https://cloud-api.yandex.net:443/v1/disk/resources?path=%2F"
-		let yaResource = OAuthResourceBase.Yandex
-		if let nsUrl = NSURL(string: url), token = yaResource.tokenId {
-			let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
-			let req = NSMutableURLRequest(URL: nsUrl)
-			req.setValue(token, forHTTPHeaderField: "Authorization")
-			let task = session.dataTaskWithRequest(req, completionHandler: { (data, response, error) -> Void in
-				if let content = data {
-					//let result = try NSJSONSerialization.JSONObjectWithData(content, options: .MutableContainers)
-					//let a = result["system_folders"]!!["applications"]!
-					if let result = try? NSJSONSerialization.JSONObjectWithData(content, options: .MutableContainers) {
-						self.resourceContent = result
-//						let a = ((result as? Dictionary<String, AnyObject>)!["_embedded"] as? Dictionary<String, AnyObject>)!["items"] as? Dictionary<String, AnyObject>
-//						for b in (a?.keys)! {
-//							print(b)
-//						}
-						//self.tableView.reloadData()
-						//let a = result["_embedded"]!!["items"] as! [AnyObject]
-						//print((a[0] as! Dictionary<String, String>)["name"])
-						dispatch_async(dispatch_get_main_queue()) {
-							self.tableView.reloadData()
-						}
-					}
-				}
-			})
-			task.resume()
+//		let url = "https://cloud-api.yandex.net:443/v1/disk/resources?path=%2F"
+		let url = "https://cloud-api.yandex.net:443/v1/disk/resources?path=/"
+		guard let token = OAuthResourceBase.Yandex.tokenId else {
+			return
+		}
+		let headers = [
+			"Authorization": token
+		]
+		
+		Alamofire.request(.GET, url, headers: headers).responseData { response in
+			guard let data = response.data else {
+				return
+			}
+			self.resourceContent = JSON(data: data)
+			dispatch_async(dispatch_get_main_queue()) {
+				self.tableView.reloadData()
+			}
 		}
 	}
 	
@@ -56,28 +50,13 @@ class CloudResourcesStructureController: UIViewController {
 
 extension CloudResourcesStructureController : UITableViewDelegate {
 	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		if let data = resourceContent?["_embedded"]??["items"] as? [AnyObject] {
-			return data.count
-		}
-		
-		return 0
+		return resourceContent?["_embedded"]["items"].count ?? 0
 	}
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "Cell")
-		//cell.textLabel?.text = "test"
-		if let data = resourceContent?["_embedded"]??["items"] as? [AnyObject] {
-			if let directory = data[indexPath.row]["name"] as? String {
-				cell.textLabel?.text = directory
-			}
-			
-		}
+		cell.textLabel?.text = resourceContent?["_embedded"]["items"][indexPath.row]["name"].string ?? "unresolved"
 		return cell
-		
-//		let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
-//		cell.textLabel?.font = UIFont.systemFontOfSize(12)
-//		cell.textLabel?.text = places[indexPath.row].placeDescription
-//		return cell
 	}
 	
 //	func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle,

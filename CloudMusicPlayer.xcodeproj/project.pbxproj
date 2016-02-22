@@ -10,12 +10,14 @@
 		6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E11F1D41C53E4F300297EBD /* LoginController.swift */; };
 		6E12B9121C6F6CB200E93FFB /* Yandex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E12B9111C6F6CB200E93FFB /* Yandex.swift */; };
 		6E1F020E1C57F14800490013 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F020D1C57F14800490013 /* Keychain.swift */; };
+		6E2E90A11C7B6CCF006D5A83 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */; };
 		6E5254481C675D8F00CA5463 /* OAuthResourceBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */; };
 		6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254491C676BE900CA5463 /* NSUserDefaults.swift */; };
 		6E8AFD7E1C78DA7300091B53 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8AFD7C1C78DA7300091B53 /* Result.framework */; };
 		6E8AFD821C78DBC200091B53 /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8AFD801C78DBC200091B53 /* RxSwift.framework */; };
 		6E8AFD831C78DBC200091B53 /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8AFD811C78DBC200091B53 /* RxCocoa.framework */; };
 		6E8AFD861C78E17C00091B53 /* SettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8AFD851C78E17C00091B53 /* SettingsModel.swift */; };
+		6E94918C1C7B7218006B7696 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */; };
 		6EA500841C53E6F100B9ED11 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EA500831C53E6F100B9ED11 /* Main.storyboard */; };
 		6EA638761C79FF4C00DD85A6 /* CloudResourcesStructureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA638751C79FF4C00DD85A6 /* CloudResourcesStructureController.swift */; };
 		6EA638781C7A002200DD85A6 /* CloudResourcesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA638771C7A002200DD85A6 /* CloudResourcesModel.swift */; };
@@ -52,12 +54,14 @@
 		6E11F1D41C53E4F300297EBD /* LoginController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginController.swift; path = CloudMusicPlayer/Controllers/LoginController.swift; sourceTree = SOURCE_ROOT; };
 		6E12B9111C6F6CB200E93FFB /* Yandex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Yandex.swift; sourceTree = "<group>"; };
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
+		6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
 		6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthResourceBase.swift; sourceTree = "<group>"; };
 		6E5254491C676BE900CA5463 /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
 		6E8AFD7C1C78DA7300091B53 /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = ../ReactiveMVVM/Carthage/Build/iOS/Result.framework; sourceTree = "<group>"; };
 		6E8AFD801C78DBC200091B53 /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
 		6E8AFD811C78DBC200091B53 /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxCocoa.framework; path = Carthage/Build/iOS/RxCocoa.framework; sourceTree = "<group>"; };
 		6E8AFD851C78E17C00091B53 /* SettingsModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsModel.swift; sourceTree = "<group>"; };
+		6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = Carthage/Build/iOS/SwiftyJSON.framework; sourceTree = "<group>"; };
 		6EA500831C53E6F100B9ED11 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		6EA638751C79FF4C00DD85A6 /* CloudResourcesStructureController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourcesStructureController.swift; sourceTree = "<group>"; };
 		6EA638771C7A002200DD85A6 /* CloudResourcesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourcesModel.swift; sourceTree = "<group>"; };
@@ -84,6 +88,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E94918C1C7B7218006B7696 /* SwiftyJSON.framework in Frameworks */,
+				6E2E90A11C7B6CCF006D5A83 /* Alamofire.framework in Frameworks */,
 				6E8AFD821C78DBC200091B53 /* RxSwift.framework in Frameworks */,
 				6E8AFD831C78DBC200091B53 /* RxCocoa.framework in Frameworks */,
 				6E8AFD7E1C78DA7300091B53 /* Result.framework in Frameworks */,
@@ -168,6 +174,8 @@
 		6EEB98921C4EBE1700DD5B95 = {
 			isa = PBXGroup;
 			children = (
+				6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */,
+				6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */,
 				6E8AFD801C78DBC200091B53 /* RxSwift.framework */,
 				6E8AFD811C78DBC200091B53 /* RxCocoa.framework */,
 				6E8AFD7C1C78DA7300091B53 /* Result.framework */,
@@ -368,6 +376,8 @@
 				"$(SRCROOT)/Carthage/Build/iOS/Result.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RxSwift.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RxCocoa.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/Alamofire.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/SwiftyJSON.framework",
 			);
 			outputPaths = (
 			);
