@@ -6,10 +6,10 @@
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
-        <!--Test-->
+        <!--Folders-->
         <scene sceneID="a8B-KO-EZH">
             <objects>
-                <viewController storyboardIdentifier="RootViewController" id="lvF-3G-Ygz" customClass="CloudResourcesStructureController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="RootViewController" title="Folders" id="lvF-3G-Ygz" customClass="CloudResourcesStructureController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="B9R-JR-NY2"/>
                         <viewControllerLayoutGuide type="bottom" id="iTI-rb-mls"/>
@@ -22,7 +22,7 @@
                                 <rect key="frame" x="0.0" y="64" width="600" height="487"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="fUN-8H-VVp">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="SimpleCell" id="fUN-8H-VVp">
                                         <rect key="frame" x="0.0" y="92" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="fUN-8H-VVp" id="Qhc-Es-NUa">
@@ -30,7 +30,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="I9E-fu-lWa" kind="show" id="2XL-ua-Ajm"/>
+                                            <segue destination="hoa-id-YWg" kind="show" identifier="ItemDetails" id="Mwc-8r-3QD"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -48,7 +48,7 @@
                             <constraint firstItem="u5o-Qa-vvN" firstAttribute="leading" secondItem="JxX-bk-7M3" secondAttribute="leadingMargin" constant="-20" id="eW5-rf-qMR"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Test" id="Knr-k4-Tw4">
+                    <navigationItem key="navigationItem" title="Folders" id="Knr-k4-Tw4">
                         <barButtonItem key="rightBarButtonItem" title="Services" id="48A-qM-Gcs">
                             <connections>
                                 <segue destination="I9E-fu-lWa" kind="show" id="R1y-Aq-xYG"/>
@@ -63,10 +63,28 @@
             </objects>
             <point key="canvasLocation" x="543" y="1960"/>
         </scene>
-        <!--Login Controller-->
+        <!--Details-->
+        <scene sceneID="CXb-uA-Ucg">
+            <objects>
+                <viewController title="Details" id="hoa-id-YWg" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="jDd-xb-bVs"/>
+                        <viewControllerLayoutGuide type="bottom" id="J27-Ei-paQ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Qkx-ai-HS9">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="xuh-gk-eru" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1181" y="2601"/>
+        </scene>
+        <!--Shit-->
         <scene sceneID="ng5-OG-1Hk">
             <objects>
-                <viewController id="I9E-fu-lWa" customClass="LoginController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Shit" id="I9E-fu-lWa" customClass="LoginController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Xpi-MA-IIP"/>
                         <viewControllerLayoutGuide type="bottom" id="BtZ-sf-rcx"/>
@@ -244,7 +262,4 @@
             <point key="canvasLocation" x="-804" y="1960"/>
         </scene>
     </scenes>
-    <inferredMetricsTieBreakers>
-        <segue reference="R1y-Aq-xYG"/>
-    </inferredMetricsTieBreakers>
 </document>

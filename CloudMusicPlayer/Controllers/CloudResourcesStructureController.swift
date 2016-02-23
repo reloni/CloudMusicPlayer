@@ -26,6 +26,8 @@ class CloudResourcesStructureController: UIViewController {
 //		let url = "https://cloud-api.yandex.net:443/v1/disk/resources?path=%2F"
 		let url = "https://cloud-api.yandex.net:443/v1/disk/resources?path=/"
 		guard let token = OAuthResourceBase.Yandex.tokenId else {
+            resourceContent = nil
+            self.tableView.reloadData()
 			return
 		}
 		let headers = [
@@ -54,7 +56,8 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 	}
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-		let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "Cell")
+		//let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "Cell")
+        let cell = tableView.dequeueReusableCellWithIdentifier("SimpleCell", forIndexPath: indexPath)
 		cell.textLabel?.text = resourceContent?["_embedded"]["items"][indexPath.row]["name"].string ?? "unresolved"
 		return cell
 	}
