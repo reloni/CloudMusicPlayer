@@ -22,17 +22,18 @@ class DetailsController: UIViewController {
 		guard let directory = directory else {
 			return
 		}
-		let url = "https://cloud-api.yandex.net:443/v1/disk/resources?path=" + directory
+		let url = "https://cloud-api.yandex.net:443/v1/disk/resources"
 		guard let token = OAuthResourceBase.Yandex.tokenId else {
 			resourceContent = nil
 			self.tableView.reloadData()
 			return
 		}
-		let headers = [
-			"Authorization": token
-		]
+
+		let headers = ["Authorization": token]
+		let parameters: [String: AnyObject] = ["path": directory]
 		
-		Alamofire.request(.GET, url, headers: headers).responseData { response in
+		//Alamofire.request(.GET, url, headers: headers).responseData { response in
+		Alamofire.request(.GET, url, parameters: parameters, encoding: .URL, headers: headers).responseData { response in
 			guard let data = response.data else {
 				return
 			}
