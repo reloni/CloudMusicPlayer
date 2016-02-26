@@ -45,13 +45,7 @@
                             <constraint firstItem="u5o-Qa-vvN" firstAttribute="leading" secondItem="JxX-bk-7M3" secondAttribute="leadingMargin" constant="-20" id="eW5-rf-qMR"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Folders" id="Knr-k4-Tw4">
-                        <barButtonItem key="rightBarButtonItem" title="Services" id="48A-qM-Gcs">
-                            <connections>
-                                <segue destination="I9E-fu-lWa" kind="show" id="R1y-Aq-xYG"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Folders" id="Knr-k4-Tw4"/>
                     <connections>
                         <outlet property="tableView" destination="u5o-Qa-vvN" id="kW1-ij-nbi"/>
                     </connections>
@@ -59,100 +53,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1NM-oQ-V3v" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="543" y="1960"/>
-        </scene>
-        <!--Details-->
-        <scene sceneID="CXb-uA-Ucg">
-            <objects>
-                <viewController storyboardIdentifier="DetailsView" title="Details" id="hoa-id-YWg" customClass="DetailsController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="jDd-xb-bVs"/>
-                        <viewControllerLayoutGuide type="bottom" id="J27-Ei-paQ"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="Qkx-ai-HS9">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="quN-1u-N7o">
-                                <rect key="frame" x="0.0" y="20" width="600" height="580"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="SimpleCell" id="mMT-9j-Xte">
-                                        <rect key="frame" x="0.0" y="28" width="600" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="mMT-9j-Xte" id="qCh-Tc-RYc">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </tableViewCellContentView>
-                                    </tableViewCell>
-                                </prototypes>
-                                <connections>
-                                    <outlet property="dataSource" destination="hoa-id-YWg" id="nXG-nM-Nbw"/>
-                                    <outlet property="delegate" destination="hoa-id-YWg" id="VFN-YE-O7A"/>
-                                </connections>
-                            </tableView>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstAttribute="trailingMargin" secondItem="quN-1u-N7o" secondAttribute="trailing" constant="-20" id="9dL-Tq-YLS"/>
-                            <constraint firstItem="J27-Ei-paQ" firstAttribute="top" secondItem="quN-1u-N7o" secondAttribute="bottom" id="NUa-e0-mYZ"/>
-                            <constraint firstItem="quN-1u-N7o" firstAttribute="top" secondItem="jDd-xb-bVs" secondAttribute="bottom" id="iHo-p5-4ff"/>
-                            <constraint firstItem="quN-1u-N7o" firstAttribute="leading" secondItem="Qkx-ai-HS9" secondAttribute="leadingMargin" constant="-20" id="quJ-Sq-Y51"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <outlet property="tableView" destination="quN-1u-N7o" id="N1O-Rz-SEz"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="xuh-gk-eru" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="543" y="2631"/>
-        </scene>
-        <!--Shit-->
-        <scene sceneID="ng5-OG-1Hk">
-            <objects>
-                <viewController title="Shit" id="I9E-fu-lWa" customClass="LoginController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="Xpi-MA-IIP"/>
-                        <viewControllerLayoutGuide type="bottom" id="BtZ-sf-rcx"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="uLg-Xg-854">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <webView contentMode="top" scalesPageToFit="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vf4-ag-Qq8">
-                                <rect key="frame" x="127" y="161" width="346" height="277"/>
-                                <color key="backgroundColor" red="0.36078431372549019" green="0.38823529411764707" blue="0.40392156862745099" alpha="1" colorSpace="deviceRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="277" id="255-NM-Dos"/>
-                                    <constraint firstAttribute="width" constant="346" id="lms-yr-y4C"/>
-                                </constraints>
-                            </webView>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="vf4-ag-Qq8" firstAttribute="centerX" secondItem="uLg-Xg-854" secondAttribute="centerX" id="237-8Y-v1X"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="vf4-ag-Qq8" secondAttribute="trailing" constant="-20" id="MLc-1b-bhV"/>
-                            <constraint firstItem="vf4-ag-Qq8" firstAttribute="leading" secondItem="uLg-Xg-854" secondAttribute="leadingMargin" constant="-20" id="Uae-mk-psb"/>
-                            <constraint firstItem="vf4-ag-Qq8" firstAttribute="centerY" secondItem="uLg-Xg-854" secondAttribute="centerY" id="ht9-HB-sxb"/>
-                            <constraint firstItem="BtZ-sf-rcx" firstAttribute="top" secondItem="vf4-ag-Qq8" secondAttribute="bottom" id="t2R-aP-8oV"/>
-                            <constraint firstItem="vf4-ag-Qq8" firstAttribute="top" secondItem="Xpi-MA-IIP" secondAttribute="bottom" id="zMz-8V-9Vc"/>
-                        </constraints>
-                        <variation key="default">
-                            <mask key="constraints">
-                                <exclude reference="MLc-1b-bhV"/>
-                                <exclude reference="Uae-mk-psb"/>
-                                <exclude reference="zMz-8V-9Vc"/>
-                                <exclude reference="t2R-aP-8oV"/>
-                            </mask>
-                        </variation>
-                    </view>
-                    <connections>
-                        <outlet property="webView" destination="vf4-ag-Qq8" id="nWg-GQ-MGQ"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="mye-hh-kP5" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1275" y="1960"/>
         </scene>
         <!--Music-->
         <scene sceneID="5kX-4Z-yuj">

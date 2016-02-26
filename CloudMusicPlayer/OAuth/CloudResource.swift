@@ -16,6 +16,7 @@ public protocol CloudResource {
 	var childs: [CloudResource]? { get }
 	var name: String { get }
 	var path: String { get }
+	var type: String { get }
 	var baseUrl: String { get }
 	func getRequestHeaders() -> [String: String]?
 	func getRequestParameters() -> [String: AnyObject]?
@@ -41,6 +42,10 @@ public class YandexCloudJsonResource : CloudJsonResource {
 		return raw["path"].stringValue
 	}
 	
+	public var type: String {
+		return raw["type"].stringValue
+	}
+	
 	public var baseUrl: String {
 		return YandexCloudJsonResource.apiUrl
 	}
@@ -52,7 +57,7 @@ public class YandexCloudJsonResource : CloudJsonResource {
 	}
 	
 	public func getRequestHeaders() -> [String : String]? {
-		return ["Authentication": oAuthResource.tokenId ?? ""]
+		return ["Authorization": oAuthResource.tokenId ?? ""]
 	}
 	
 	public func getRequestParameters() -> [String : AnyObject]? {
@@ -61,20 +66,16 @@ public class YandexCloudJsonResource : CloudJsonResource {
 	
 	public func loadChilds(completion: ([CloudResource]?) -> ()) {
 		CloudResourceManager.loadDataForCloudResource(self) { json in
-			completion(YandexCloudJsonResource.deserializeResponseData(json, oAuthResource: self.oAuthResource))
+			completion(YandexCloudJsonResource.deserializeResponseData(json, res: self.oAuthResource))
 		}
 	}
 	
-	public static func deserializeResponseData(json: JSON?, oAuthResource: OAuthResource) -> [CloudResource]? {
-		//json?["asdfsdf"]["asdfdsf"].isExists()
-		guard let items = json?["_embedded"]["items"] else {
+	public static func deserializeResponseData(json: JSON?, res: OAuthResource) -> [CloudResource]? {
+		guard let items = json?["_embedded"]["items"].array else {
 			return nil
 		}
-		var children = [CloudResource]()
-		for (_,subJson):(String, JSON) in items {
-			children.append(YandexCloudJsonResource(raw: subJson, oAuthResource: oAuthResource, parent: nil))
-		}
-		return children
+	
+		return items.map { YandexCloudJsonResource(raw: $0, oAuthResource: res, parent: nil) }
 	}
 	
 	public static func loadRootResources(res: OAuthResource, completion: ([CloudResource]?) -> ()) {
@@ -85,8 +86,7 @@ public class YandexCloudJsonResource : CloudJsonResource {
 		
 		CloudResourceManager.loadDataForCloudResource(Alamofire.request(.GET, apiUrl, parameters: ["path": "/"],
 			encoding: .URL, headers: ["Authorization": token])) { json in
-				print(json)
-				completion(YandexCloudJsonResource.deserializeResponseData(json, oAuthResource: res))
+				completion(YandexCloudJsonResource.deserializeResponseData(json, res: res))
 		}
 	}
 }
