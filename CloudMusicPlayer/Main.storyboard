@@ -22,13 +22,126 @@
                                 <rect key="frame" x="0.0" y="64" width="600" height="487"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="SimpleCell" id="fUN-8H-VVp">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="CloudFolderCell" id="fUN-8H-VVp" customClass="CloudFolderCell" customModule="CloudMusicPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="92" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="fUN-8H-VVp" id="Qhc-Es-NUa">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="567" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="BS4-8w-1BK">
+                                                    <rect key="frame" x="18" y="0.0" width="541" height="36"/>
+                                                    <subviews>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="FolderName" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ohf-N6-NQR">
+                                                            <rect key="frame" x="0.0" y="9" width="541" height="18"/>
+                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="15"/>
+                                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                    </subviews>
+                                                </stackView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="BS4-8w-1BK" firstAttribute="trailing" secondItem="Qhc-Es-NUa" secondAttribute="trailingMargin" id="Gaz-dk-VxL"/>
+                                                <constraint firstAttribute="bottomMargin" secondItem="BS4-8w-1BK" secondAttribute="bottom" constant="-0.5" id="GgH-kc-HEo"/>
+                                                <constraint firstItem="BS4-8w-1BK" firstAttribute="leading" secondItem="Qhc-Es-NUa" secondAttribute="leadingMargin" constant="10" id="L0j-ez-DRg"/>
+                                                <constraint firstItem="BS4-8w-1BK" firstAttribute="top" secondItem="Qhc-Es-NUa" secondAttribute="topMargin" constant="-8" id="a5K-rp-Vh3"/>
+                                            </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="folderNameLabel" destination="Ohf-N6-NQR" id="l66-ri-dqV"/>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="CloudTrackCell" rowHeight="46" id="R6T-bx-7jG" customClass="CloudTrackCell" customModule="CloudMusicPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="136" width="600" height="46"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="R6T-bx-7jG" id="tbd-4A-VV9">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="45.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="fQz-d1-xZ4">
+                                                    <rect key="frame" x="18" y="8" width="574" height="29"/>
+                                                    <subviews>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="qT0-Zr-cfw">
+                                                            <rect key="frame" x="0.0" y="0.0" width="509" height="29"/>
+                                                            <subviews>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TrackName" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JCT-gd-Fn8">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="509" height="17"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="13"/>
+                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                                <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="9LR-rc-45M">
+                                                                    <rect key="frame" x="0.0" y="17" width="509" height="12"/>
+                                                                    <subviews>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ArtistName" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bc8-Co-jGg">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="117" height="12"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
+                                                                            <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AlbumYear" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hXT-57-UdC">
+                                                                            <rect key="frame" x="121" y="0.0" width="111" height="12"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
+                                                                            <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AlbumName" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="afU-Kv-Jxf">
+                                                                            <rect key="frame" x="236" y="0.0" width="126" height="12"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
+                                                                            <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TrackLength" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zlJ-Hm-yuQ">
+                                                                            <rect key="frame" x="366" y="0.0" width="144" height="12"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
+                                                                            <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                    </subviews>
+                                                                </stackView>
+                                                            </subviews>
+                                                        </stackView>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="iRF-W5-NEG">
+                                                            <rect key="frame" x="509" y="0.0" width="65" height="29"/>
+                                                            <subviews>
+                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dnp-mw-nf7">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="65" height="10"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="8"/>
+                                                                    <state key="normal" title="Play"/>
+                                                                </button>
+                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lih-Nd-wud">
+                                                                    <rect key="frame" x="0.0" y="10" width="65" height="10"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="8"/>
+                                                                    <state key="normal" title="Pause"/>
+                                                                </button>
+                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mBb-H5-pOm">
+                                                                    <rect key="frame" x="0.0" y="19" width="65" height="10"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="8"/>
+                                                                    <state key="normal" title="Stop"/>
+                                                                </button>
+                                                            </subviews>
+                                                        </stackView>
+                                                    </subviews>
+                                                </stackView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="bottomMargin" secondItem="fQz-d1-xZ4" secondAttribute="bottom" id="I4L-wa-Yd1"/>
+                                                <constraint firstItem="fQz-d1-xZ4" firstAttribute="leading" secondItem="tbd-4A-VV9" secondAttribute="leadingMargin" constant="10" id="U4l-df-XcD"/>
+                                                <constraint firstItem="fQz-d1-xZ4" firstAttribute="top" secondItem="tbd-4A-VV9" secondAttribute="topMargin" id="dGf-Jc-cQ6"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="fQz-d1-xZ4" secondAttribute="trailing" id="tWc-hl-T6j"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="albumNameLabel" destination="afU-Kv-Jxf" id="fNC-rc-mjf"/>
+                                            <outlet property="albumYearLabel" destination="hXT-57-UdC" id="3sr-xy-j9z"/>
+                                            <outlet property="artistNameLabel" destination="bc8-Co-jGg" id="8SR-Ow-mOG"/>
+                                            <outlet property="pauseButton" destination="Lih-Nd-wud" id="ZfE-yA-chj"/>
+                                            <outlet property="playButton" destination="Dnp-mw-nf7" id="n2E-Jr-Pn9"/>
+                                            <outlet property="stopButton" destination="mBb-H5-pOm" id="Cxy-Mj-jMo"/>
+                                            <outlet property="trackLengthLabel" destination="zlJ-Hm-yuQ" id="MSD-cX-eVc"/>
+                                            <outlet property="trackTitleLabel" destination="JCT-gd-Fn8" id="K86-ls-8Wf"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
@@ -45,7 +158,7 @@
                             <constraint firstItem="u5o-Qa-vvN" firstAttribute="leading" secondItem="JxX-bk-7M3" secondAttribute="leadingMargin" constant="-20" id="eW5-rf-qMR"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Folders" id="Knr-k4-Tw4"/>
+                    <navigationItem key="navigationItem" id="Knr-k4-Tw4"/>
                     <connections>
                         <outlet property="tableView" destination="u5o-Qa-vvN" id="kW1-ij-nbi"/>
                     </connections>

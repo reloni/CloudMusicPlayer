@@ -10,12 +10,19 @@ import Foundation
 import UIKit
 import SwiftyJSON
 import Alamofire
+import RxCocoa
+import RxSwift
+import AVFoundation
 
 class CloudResourcesStructureController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 	
 	var resources: [CloudResource]?
 	var parent: CloudResource?
+	
+	private let bag = DisposeBag()
+	
+	var player: AVAudioPlayer?
 	
 	override func viewDidLoad() {
 		automaticallyAdjustsScrollViewInsets = false
@@ -33,7 +40,7 @@ class CloudResourcesStructureController: UIViewController {
 				}
 			}
 		} else if navigationController?.viewControllers.first == self {
-			YandexCloudJsonResource.loadRootResources(OAuthResourceBase.Yandex) { res in
+			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceBase.Yandex) { res in
 				self.resources = res
 				dispatch_async(dispatch_get_main_queue()) {
 					self.tableView.reloadData()
@@ -44,6 +51,24 @@ class CloudResourcesStructureController: UIViewController {
 	
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
+	}
+	
+	func play(track: CloudAudioResource) {
+		track.getFile { url in
+			guard let url = url else {
+				return
+			}
+			dispatch_async(dispatch_get_main_queue()) {
+				self.player = try? AVAudioPlayer(contentsOfURL: url)
+				self.player?.play()
+			}
+		}
+	}
+	
+	func stop() {
+		dispatch_async(dispatch_get_main_queue()) {
+			self.player?.stop()
+		}
 	}
 }
 
@@ -63,11 +88,28 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 	}
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCellWithIdentifier("SimpleCell", forIndexPath: indexPath)
-		cell.textLabel?.text = resources?[indexPath.row].name ?? "unresolved"
+		let resource = resources![indexPath.row]
+		
+		if let resource = resource as? CloudAudioResource {
+			let cell = tableView.dequeueReusableCellWithIdentifier("CloudTrackCell", forIndexPath: indexPath) as! CloudTrackCell
+			cell.track = resource
+			cell.playButton.rx_tap.bindNext { [unowned self] in
+				guard let track = cell.track else {
+					return
+				}
+				self.play(track)
+				}.addDisposableTo(bag)
+			cell.stopButton.rx_tap.bindNext { [unowned self] in
+				self.stop()
+			}.addDisposableTo(bag)
+			return cell
+		}
+		
+		let cell = tableView.dequeueReusableCellWithIdentifier("CloudFolderCell", forIndexPath: indexPath) as! CloudFolderCell
+		cell.folderNameLabel.text = resources?[indexPath.row].name ?? "unresolved"
 		return cell
 	}
-	
+
 	//	func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle,
 	//		forRowAtIndexPath indexPath: NSIndexPath) {
 	//			if(editingStyle == UITableViewCellEditingStyle.Delete) {
