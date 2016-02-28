@@ -10,15 +10,28 @@ import Foundation
 import UIKit
 import SwiftyJSON
 import Alamofire
+import AVFoundation
+import RxSwift
 
 class CloudResourcesStructureController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
+	@IBOutlet weak var playTestButton: UIBarButtonItem!
 	
 	var resources: [CloudResource]?
 	var parent: CloudResource?
 	
+	var player: AVPlayer?
+	var bag = DisposeBag()
+	
 	override func viewDidLoad() {
 		automaticallyAdjustsScrollViewInsets = false
+		
+		playTestButton.rx_tap.bindNext {
+			if let url = NSURL(string: "https://freemusicarchive.org/music/download/5320ffff3f02dcdfaa77ead96d3833b68e3c0ef3") {
+				self.player = AVPlayer(URL: url)
+				self.player?.play()
+			}
+		}.addDisposableTo(bag)
 		
 		super.viewDidLoad()
 	}

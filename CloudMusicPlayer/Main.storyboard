@@ -45,8 +45,11 @@
                             <constraint firstItem="u5o-Qa-vvN" firstAttribute="leading" secondItem="JxX-bk-7M3" secondAttribute="leadingMargin" constant="-20" id="eW5-rf-qMR"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Folders" id="Knr-k4-Tw4"/>
+                    <navigationItem key="navigationItem" title="Folders" id="Knr-k4-Tw4">
+                        <barButtonItem key="rightBarButtonItem" title="Play test" id="3dd-fw-169"/>
+                    </navigationItem>
                     <connections>
+                        <outlet property="playTestButton" destination="3dd-fw-169" id="No9-9j-noa"/>
                         <outlet property="tableView" destination="u5o-Qa-vvN" id="kW1-ij-nbi"/>
                     </connections>
                 </viewController>
