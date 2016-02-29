@@ -24,6 +24,7 @@ class CloudResourcesStructureController: UIViewController {
 	
 	var player: AVPlayer?
 	var bag = DisposeBag()
+	var respondedLength: Int64 = 0
 	
 	var delegateQueue: dispatch_queue_t?
 	
@@ -42,7 +43,7 @@ class CloudResourcesStructureController: UIViewController {
 		automaticallyAdjustsScrollViewInsets = false
 		
 		playTestButton.rx_tap.bindNext {
-//			if let url = NSURL(string: "https://freemusicarchive.org/music/download/5320ffff3f02dcdfaa77ead96d3833b68e3c0ef3") {
+//			if let url = NSURL(string: "http://freemusicarchive.org/music/download/ee7f72ac94c50d8d570d24d6bb91522dba1ed061") {
 //				self.player = AVPlayer(URL: url)
 //				self.player?.play()
 //			}
@@ -83,7 +84,7 @@ class CloudResourcesStructureController: UIViewController {
 		//dispatch_sync(delegateQueue!) {
 		//dispatch_async(dispatch_get_main_queue()) {
 		//print("main thread \(NSThread.isMainThread())")
-			if let url = NSURL(string: "shit://freemusicarchive.org/music/download/5320ffff3f02dcdfaa77ead96d3833b68e3c0ef3") {
+			if let url = NSURL(string: "shit://freemusicarchive.org/music/download/ee7f72ac94c50d8d570d24d6bb91522dba1ed061") {
 				let asset = AVURLAsset(URL: url)
 				asset.resourceLoader.setDelegate(self, queue: dispatch_get_main_queue())
 				//asset.resourceLoader.setDelegate(self, queue: self.delegateQueue)
@@ -92,6 +93,7 @@ class CloudResourcesStructureController: UIViewController {
 				//if player?.status == .ReadyToPlay
 				playerItem.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
 					if let strong = self {
+						print("player status: \(status?.rawValue)")
 						if status == .ReadyToPlay {
 							strong.player?.play()
 						}
@@ -167,6 +169,8 @@ class CloudResourcesStructureController: UIViewController {
 		let range = NSMakeRange(Int(startOffset), Int(responseLength))
 		print("start offset: \(startOffset) response len: \(responseLength) data len: \(data.length)")
 		print("Respond range: \(range)")
+		respondedLength += responseLength
+		print("respondedLength \(respondedLength)")
 		request.respondWithData(data.subdataWithRange(range))
 		
 		//if startOffset > 0 {
@@ -185,7 +189,7 @@ extension CloudResourcesStructureController : AVAssetResourceLoaderDelegate {
 		print("shouldWaitForLoadingOfRequestedResource")
 		
 		if dataTask == nil {
-			if let url = NSURL(string: "https://s47e.storage.yandex.net/rdisk/159ee8382a00f7ef18e42e2b85f7e9ba175d303b297e58526c1ca7c1dc7a28c2/56d4e44b/QKTqe3GDLh-4PtytpeEIZ5IjCI3Yj9uZxqgfzYgc5T7yfvenWqjWtVB1ooLD0GeLOtSPU0Cw5tZfVUCVi3WS5Q%3D%3D?uid=0&filename=01.+Ancient+Legend.mp3&disposition=attachment&hash=FbC5aoU6v00n6tA5ptSZGuV0e8LnTtwSK2tsfYFwHUM%3D&limit=0&content_type=audio%2Fmpeg&fsize=9582041&hid=3d58edb0c372a71e7f3839a8b6f1781f&media_type=audio&tknv=v2&rtoken=buHey6L3lnJN&force_default=no&ycrid=na-1d7a15b014b2b06bab77396255ee2df1-downloader13e&ts=52cf1f87968c0&s=265e27ba07ade613994f2e3c17510d5f013527defe3c53457b020ab3036e0366&bp=/2/3/data-0.13:5664240216:9582041") {
+			if let url = NSURL(string: "http://freemusicarchive.org/music/download/ee7f72ac94c50d8d570d24d6bb91522dba1ed061") {
 				let request = NSURLRequest(URL: url)
 				let task = session.dataTaskWithRequest(request)
 //				let task = session.dataTaskWithRequest(request) {
