@@ -4,6 +4,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
         <!--Folders-->
@@ -46,10 +47,14 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Folders" id="Knr-k4-Tw4">
-                        <barButtonItem key="rightBarButtonItem" title="Play test" id="3dd-fw-169"/>
+                        <rightBarButtonItems>
+                            <barButtonItem title="Play test" id="3dd-fw-169"/>
+                            <barButtonItem title="StreamTest" id="Acl-yy-ueU"/>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <connections>
                         <outlet property="playTestButton" destination="3dd-fw-169" id="No9-9j-noa"/>
+                        <outlet property="streamTestButton" destination="Acl-yy-ueU" id="LCq-qL-ThS"/>
                         <outlet property="tableView" destination="u5o-Qa-vvN" id="kW1-ij-nbi"/>
                     </connections>
                 </viewController>

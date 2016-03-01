@@ -19,6 +19,7 @@ class CloudResourcesStructureController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var playTestButton: UIBarButtonItem!
 	
+	@IBOutlet weak var streamTestButton: UIBarButtonItem!
 	var resources: [CloudResource]?
 	var parent: CloudResource?
 	
@@ -39,6 +40,9 @@ class CloudResourcesStructureController: UIViewController {
 			delegateQueue: NSOperationQueue.mainQueue())
 	}()
 	
+	var streamPlayer: StreamPlayer?
+	var streamItem: StreamAudioItem?
+	
 	override func viewDidLoad() {
 		automaticallyAdjustsScrollViewInsets = false
 		
@@ -48,6 +52,18 @@ class CloudResourcesStructureController: UIViewController {
 //				self.player?.play()
 //			}
 			self.playSong()
+		}.addDisposableTo(bag)
+		
+		streamPlayer = StreamPlayer()
+		streamItem = streamPlayer?.play("")
+		streamItem?.cachedData.asObservable().subscribeNext { nsUrl in
+			if let nsUrl = nsUrl {
+				print(nsUrl)
+			}
+		}.addDisposableTo(bag)
+		
+		streamTestButton.rx_tap.bindNext {
+			self.streamItem?.cache()
 		}.addDisposableTo(bag)
 		
 		super.viewDidLoad()
@@ -84,7 +100,8 @@ class CloudResourcesStructureController: UIViewController {
 		//dispatch_sync(delegateQueue!) {
 		//dispatch_async(dispatch_get_main_queue()) {
 		//print("main thread \(NSThread.isMainThread())")
-			if let url = NSURL(string: "shit://freemusicarchive.org/music/download/ee7f72ac94c50d8d570d24d6bb91522dba1ed061") {
+		//http://dl.last.fm/static/1456816420/131211148/d1e9456afc281248f1ff73e4e16891a2032bfdbd485f700a35fe94cdcd29848f/Death+Grips+-+Get+Got.mp3
+		if let url = NSURL(string: "shit://freemusicarchive.org/music/download/ee7f72ac94c50d8d570d24d6bb91522dba1ed061") {
 				let asset = AVURLAsset(URL: url)
 				asset.resourceLoader.setDelegate(self, queue: dispatch_get_main_queue())
 				//asset.resourceLoader.setDelegate(self, queue: self.delegateQueue)
@@ -145,9 +162,9 @@ class CloudResourcesStructureController: UIViewController {
 		guard let data = self.data else {
 			return false
 		}
-		print("requestedLength: \(request.requestedLength)")
-		print("requestedOffset: \(request.requestedOffset)")
-		print("currentOffset\(request.currentOffset)")
+		//print("requestedLength: \(request.requestedLength)")
+		//print("requestedOffset: \(request.requestedOffset)")
+		//print("currentOffset\(request.currentOffset)")
 		
 		let startOffset = request.currentOffset != 0 ? request.currentOffset : request.requestedOffset
 		
@@ -167,10 +184,10 @@ class CloudResourcesStructureController: UIViewController {
 			return false
 		}
 		let range = NSMakeRange(Int(startOffset), Int(responseLength))
-		print("start offset: \(startOffset) response len: \(responseLength) data len: \(data.length)")
-		print("Respond range: \(range)")
+		//print("start offset: \(startOffset) response len: \(responseLength) data len: \(data.length)")
+		//print("Respond range: \(range)")
 		respondedLength += responseLength
-		print("respondedLength \(respondedLength)")
+		//print("respondedLength \(respondedLength)")
 		request.respondWithData(data.subdataWithRange(range))
 		
 		//if startOffset > 0 {
@@ -179,17 +196,17 @@ class CloudResourcesStructureController: UIViewController {
 		
 		let endOffset = startOffset + request.requestedLength
 		let didRespondFully = (Int64(data.length) >= endOffset)
-		print(didRespondFully)
+		//print(didRespondFully)
 		return didRespondFully
 	}
 }
 
 extension CloudResourcesStructureController : AVAssetResourceLoaderDelegate {
 	func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
-		print("shouldWaitForLoadingOfRequestedResource")
+		//print("shouldWaitForLoadingOfRequestedResource")
 		
 		if dataTask == nil {
-			if let url = NSURL(string: "http://freemusicarchive.org/music/download/ee7f72ac94c50d8d570d24d6bb91522dba1ed061") {
+			if let url = NSURL(string: "http://dl.last.fm/static/1456816420/131211148/d1e9456afc281248f1ff73e4e16891a2032bfdbd485f700a35fe94cdcd29848f/Death+Grips+-+Get+Got.mp3") {
 				let request = NSURLRequest(URL: url)
 				let task = session.dataTaskWithRequest(request)
 //				let task = session.dataTaskWithRequest(request) {
@@ -217,7 +234,7 @@ extension CloudResourcesStructureController : AVAssetResourceLoaderDelegate {
 
 extension CloudResourcesStructureController : NSURLSessionDataDelegate {
 	func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void) {
-		print("didReceiveResponse")
+		//print("didReceiveResponse")
 		self.data = NSMutableData()
 		//totalDataLengthReceived = 0
 		self.response = response as? NSHTTPURLResponse
@@ -228,10 +245,10 @@ extension CloudResourcesStructureController : NSURLSessionDataDelegate {
 	}
 	
 	func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-		print("didReceiveData")
+		//print("didReceiveData")
 		//print("Received data len:\(data.length)")
 		self.data?.appendData(data)
-		print("Current data len: \(self.data?.length)")
+		//print("Current data len: \(self.data?.length)")
 		//totalDataLengthReceived += data.length
 		
 		processPendingRequests()
@@ -241,7 +258,9 @@ extension CloudResourcesStructureController : NSURLSessionDataDelegate {
 	
 	func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
 		print("didCompleteWithError")
-		print("error: \(error)")
+		if let error = error {
+			print("Complete with error: \(error)")
+		}
 		processPendingRequests()
 		//delegate?.resourceLoader(self, didFinishLoadingWithError: error)
 	
