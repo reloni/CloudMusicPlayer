@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6E103AD61C8581AF004B8847 /* StreamPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E103AD51C8581AF004B8847 /* StreamPlayer.swift */; };
+		6E103AD61C8581AF004B8847 /* StreamAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E103AD51C8581AF004B8847 /* StreamAudioPlayer.swift */; };
 		6E103AD81C858872004B8847 /* StreamAudioItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E103AD71C858872004B8847 /* StreamAudioItem.swift */; };
-		6E103ADA1C8592C6004B8847 /* StreamPlayerCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E103AD91C8592C6004B8847 /* StreamPlayerCacheManager.swift */; };
+		6E103ADA1C8592C6004B8847 /* StreamDataCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E103AD91C8592C6004B8847 /* StreamDataCache.swift */; };
 		6E103ADC1C859E60004B8847 /* StreamDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E103ADB1C859E60004B8847 /* StreamDataTask.swift */; };
 		6E11835A1C7EF48400E71CC5 /* CloudResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1183591C7EF48400E71CC5 /* CloudResource.swift */; };
 		6E11835C1C7EF6A000E71CC5 /* CloudResourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E11835B1C7EF6A000E71CC5 /* CloudResourceManager.swift */; };
@@ -57,9 +57,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		6E103AD51C8581AF004B8847 /* StreamPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayer.swift; sourceTree = "<group>"; };
+		6E103AD51C8581AF004B8847 /* StreamAudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamAudioPlayer.swift; sourceTree = "<group>"; };
 		6E103AD71C858872004B8847 /* StreamAudioItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamAudioItem.swift; sourceTree = "<group>"; };
-		6E103AD91C8592C6004B8847 /* StreamPlayerCacheManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerCacheManager.swift; sourceTree = "<group>"; };
+		6E103AD91C8592C6004B8847 /* StreamDataCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDataCache.swift; sourceTree = "<group>"; };
 		6E103ADB1C859E60004B8847 /* StreamDataTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDataTask.swift; sourceTree = "<group>"; };
 		6E1183591C7EF48400E71CC5 /* CloudResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResource.swift; sourceTree = "<group>"; };
 		6E11835B1C7EF6A000E71CC5 /* CloudResourceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourceManager.swift; sourceTree = "<group>"; };
@@ -127,9 +127,9 @@
 		6E103AD41C8580F3004B8847 /* StreamPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				6E103AD51C8581AF004B8847 /* StreamPlayer.swift */,
+				6E103AD51C8581AF004B8847 /* StreamAudioPlayer.swift */,
 				6E103AD71C858872004B8847 /* StreamAudioItem.swift */,
-				6E103AD91C8592C6004B8847 /* StreamPlayerCacheManager.swift */,
+				6E103AD91C8592C6004B8847 /* StreamDataCache.swift */,
 				6E103ADB1C859E60004B8847 /* StreamDataTask.swift */,
 			);
 			name = StreamPlayer;
@@ -426,10 +426,10 @@
 				6EA638781C7A002200DD85A6 /* CloudResourcesModel.swift in Sources */,
 				6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */,
 				6E103AD81C858872004B8847 /* StreamAudioItem.swift in Sources */,
-				6E103AD61C8581AF004B8847 /* StreamPlayer.swift in Sources */,
+				6E103AD61C8581AF004B8847 /* StreamAudioPlayer.swift in Sources */,
 				6EE5F8761C550877004CF20C /* SettingsController.swift in Sources */,
 				6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */,
-				6E103ADA1C8592C6004B8847 /* StreamPlayerCacheManager.swift in Sources */,
+				6E103ADA1C8592C6004B8847 /* StreamDataCache.swift in Sources */,
 				6EE5F8781C5509DF004CF20C /* SharedSettings.swift in Sources */,
 				6EEB98A71C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld in Sources */,
 				6E11835A1C7EF48400E71CC5 /* CloudResource.swift in Sources */,

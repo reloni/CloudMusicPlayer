@@ -13,7 +13,7 @@ import RxCocoa
 
 @objc public class StreamAudioItem : NSObject {
 	public let url: String
-	public unowned let player: StreamPlayer
+	public unowned let player: StreamAudioPlayer
 	public private (set) var cachedData = Variable<NSURL?>(nil)
 	public lazy var playerItem: AVPlayerItem? = {
 		guard let nsUrl = NSURL(string: self.url) else {
@@ -24,7 +24,7 @@ import RxCocoa
 		return AVPlayerItem(asset: asset)
 	}()
 
-	init(player: StreamPlayer, url: String) {
+	init(player: StreamAudioPlayer, url: String) {
 		self.player = player
 		self.url = url
 	}

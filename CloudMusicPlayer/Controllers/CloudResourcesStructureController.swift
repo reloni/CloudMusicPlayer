@@ -40,7 +40,7 @@ class CloudResourcesStructureController: UIViewController {
 			delegateQueue: NSOperationQueue.mainQueue())
 	}()
 	
-	var streamPlayer: StreamPlayer?
+	var streamPlayer: StreamAudioPlayer?
 	var streamItem: StreamAudioItem?
 	
 	override func viewDidLoad() {
@@ -54,7 +54,7 @@ class CloudResourcesStructureController: UIViewController {
 			self.playSong()
 		}.addDisposableTo(bag)
 		
-		streamPlayer = StreamPlayer()
+		streamPlayer = StreamAudioPlayer()
 		streamItem = streamPlayer?.play("")
 		streamItem?.cachedData.asObservable().subscribeNext { nsUrl in
 			if let nsUrl = nsUrl {
@@ -102,6 +102,7 @@ class CloudResourcesStructureController: UIViewController {
 		//print("main thread \(NSThread.isMainThread())")
 		//http://dl.last.fm/static/1456816420/131211148/d1e9456afc281248f1ff73e4e16891a2032bfdbd485f700a35fe94cdcd29848f/Death+Grips+-+Get+Got.mp3
 		if let url = NSURL(string: "shit://freemusicarchive.org/music/download/ee7f72ac94c50d8d570d24d6bb91522dba1ed061") {
+		//if let url = NSURL(string: "https://s92e.storage.yandex.net/rdisk/bcc27bd267cf0fe9afb62937c9f6e13c3604116d3482e39f9ee8b47161a475bc/56d6056b/QKTqe3GDLh-4PtytpeEIZ5SzLjd_2SVhkNB-GQaQoKZLqfwgiAjoatjZeKjOFK2TfgfCtqPQuDdLxC-1qiKBqg%3D%3D?uid=0&filename=01.+Call+Of+The+East.mp3&disposition=attachment&hash=d70IeSdnSrgn48IqrVKkbdpAi%2BQbRdLxTXtbxmaETPo%3D&limit=0&content_type=audio%2Fmpeg&fsize=10316279&hid=8e4889fa713ff0796a0ee6202559fb57&media_type=audio&tknv=v2&rtoken=lPmBcGWWQJVy&force_default=no&ycrid=na-be6354f07aa9dc7bd1e9106f732064b4-downloader13g&ts=52d03342bf0c0&s=207a1697b6468d6281ad5f69c460800f89251b7c15955f70dfc5f79c17883a19&bp=/60/2/data-0.9:369348464:10316279") {
 				let asset = AVURLAsset(URL: url)
 				asset.resourceLoader.setDelegate(self, queue: dispatch_get_main_queue())
 				//asset.resourceLoader.setDelegate(self, queue: self.delegateQueue)
@@ -206,7 +207,7 @@ extension CloudResourcesStructureController : AVAssetResourceLoaderDelegate {
 		//print("shouldWaitForLoadingOfRequestedResource")
 		
 		if dataTask == nil {
-			if let url = NSURL(string: "http://dl.last.fm/static/1456816420/131211148/d1e9456afc281248f1ff73e4e16891a2032bfdbd485f700a35fe94cdcd29848f/Death+Grips+-+Get+Got.mp3") {
+			if let url = NSURL(string: "https://freemusicarchive.org/music/download/344f461538d66849f69542ff58f2a87d812aa1f4") {
 				let request = NSURLRequest(URL: url)
 				let task = session.dataTaskWithRequest(request)
 //				let task = session.dataTaskWithRequest(request) {

@@ -17,12 +17,12 @@ public enum StreamResult {
 	case Success
 }
 
-public struct UrlStreamManager {
-	private static var tasks = [String: UrlStreamDataTask]()
+public struct StreamDataTaskManager {
+	private static var tasks = [String: StreamDataTask]()
 	
-	private static func task(session: NSURLSession, request: NSMutableURLRequest) -> Observable<StreamResult>? {
+	public static func createTask(session: NSURLSession, request: NSMutableURLRequest) -> Observable<StreamResult>? {
 		return Observable.create { observer in
-			let task = UrlStreamDataTask(session: session, request: request)
+			let task = StreamDataTask(session: session, request: request)
 			tasks[task.uid] = task
 			
 			task.latestReceivedData.asObservable().bindNext { data in
@@ -53,7 +53,7 @@ public struct UrlStreamManager {
 	}
 }
 
-@objc public class UrlStreamDataTask : NSObject {
+@objc public class StreamDataTask : NSObject {
 	private var bag = DisposeBag()
 	private let request: NSMutableURLRequest
 	private var response = Variable<NSHTTPURLResponse?>(nil)
@@ -79,7 +79,7 @@ public struct UrlStreamManager {
 	}
 }
 
-extension UrlStreamDataTask : NSURLSessionDataDelegate {
+extension StreamDataTask : NSURLSessionDataDelegate {
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void) {
 		//print("didReceiveResponse")
 		self.response.value = response as? NSHTTPURLResponse
