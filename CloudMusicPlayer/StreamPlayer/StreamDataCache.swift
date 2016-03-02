@@ -22,6 +22,11 @@ public struct StreamDataCacheManager {
 	private static var tasks = [String: StreamDataCacheTask]()
 	
 	public static func createTask(internalRequest: NSMutableURLRequest, resourceLoadingRequest: AVAssetResourceLoadingRequest) -> Observable<CacheDataResult>? {
+		if let runningTask = tasks[internalRequest.URLString] {
+			runningTask.resourceLoadingRequests.append(resourceLoadingRequest)
+			return runningTask.taskResult
+		}
+		
 		guard let task = StreamDataCacheTask(internalRequest: internalRequest, resourceLoadingRequest: resourceLoadingRequest) else {
 			return nil
 		}
@@ -31,7 +36,7 @@ public struct StreamDataCacheManager {
 			case .Success:
 				tasks[task.uid] = nil
 			case .SuccessWithCache(let url):
-				tasks[task.uid] = nil
+				tasks.removeValueForKey(task.uid)
 			default: break
 			}
 		}.addDisposableTo(task.bag)
@@ -43,7 +48,8 @@ public struct StreamDataCacheManager {
 public class StreamDataCacheTask {
 	private var bag = DisposeBag()
 	private var response: NSHTTPURLResponse?
-	private let resourceLoadingRequest: AVAssetResourceLoadingRequest
+	//private let resourceLoadingRequest: AVAssetResourceLoadingRequest
+	private var resourceLoadingRequests = [AVAssetResourceLoadingRequest]()
 	private let streamTask: Observable<StreamDataResult>
 	private let taskResult = PublishSubject<CacheDataResult>()
 	public let uid: String
@@ -59,25 +65,16 @@ public class StreamDataCacheTask {
 	private init(uid: String, resourceLoadingRequest: AVAssetResourceLoadingRequest, streamTask: Observable<StreamDataResult>) {
 		self.streamTask = streamTask
 		self.uid = uid
-		self.resourceLoadingRequest = resourceLoadingRequest
+		//self.resourceLoadingRequest = resourceLoadingRequest
+		self.resourceLoadingRequests.append(resourceLoadingRequest)
 	}
 	
 	public func resume() {
 		streamTask.bindNext { response in
 			switch response {
 			case .StreamedData(let data):
-				if let contentRequest = self.resourceLoadingRequest.contentInformationRequest {
-					self.setResponseContentInformation(contentRequest)
-				}
-				if let dataRequest = self.resourceLoadingRequest.dataRequest {
-					self.cacheData.appendData(data)
-					print("Current offset: \(dataRequest.currentOffset) Requested length: \(dataRequest.requestedLength) Requested offset: \(dataRequest.requestedOffset)")
-					//dataRequest.respondWithData(data)
-					self.respondWithData(self.cacheData, respondingDataRequest: dataRequest)
-					if (dataRequest.currentOffset + data.length) >= Int64(dataRequest.requestedLength) {
-						self.resourceLoadingRequest.finishLoading()
-					}
-				}
+				self.cacheData.appendData(data)
+				self.processRequests()
 			case .StreamedResponse(let response):
 				self.response = response
 			case .Error(let error):
@@ -88,6 +85,38 @@ public class StreamDataCacheTask {
 				self.taskResult.onCompleted()
 			}
 		}.addDisposableTo(bag)
+	}
+	
+	private func processRequests() {
+//		for request in self.resourceLoadingRequests {
+//			if let contentRequest = request.contentInformationRequest {
+//				self.setResponseContentInformation(contentRequest)
+//			}
+//			if let dataRequest = request.dataRequest {
+//				
+//				print("Current offset: \(dataRequest.currentOffset) Requested length: \(dataRequest.requestedLength) Requested offset: \(dataRequest.requestedOffset)")
+//				//dataRequest.respondWithData(data)
+//				self.respondWithData(self.cacheData, respondingDataRequest: dataRequest)
+//				if (dataRequest.currentOffset + data.length) >= Int64(dataRequest.requestedLength) {
+//					request.finishLoading()
+//					resourceLoadingRequests.
+//				}
+//			}
+//		}
+		self.self.resourceLoadingRequests = self.self.resourceLoadingRequests.filter { request in
+			if let contentInformationRequest = request.contentInformationRequest {
+				self.setResponseContentInformation(contentInformationRequest)
+			}
+			
+			if let dataRequest = request.dataRequest {
+				//print("Current offset: \(dataRequest.currentOffset) Requested length: \(dataRequest.requestedLength) Requested offset: \(dataRequest.requestedOffset)")
+				if self.respondWithData(self.cacheData, respondingDataRequest: dataRequest) {
+					request.finishLoading()
+					return false
+				}
+			}
+			return true
+		}
 	}
 	
 	deinit {

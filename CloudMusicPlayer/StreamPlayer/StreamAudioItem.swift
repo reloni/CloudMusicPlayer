@@ -42,7 +42,6 @@ import RxCocoa
 
 extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, didCancelLoadingRequest loadingRequest: AVAssetResourceLoadingRequest) {
-		cachingTask = nil
 	}
 	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {

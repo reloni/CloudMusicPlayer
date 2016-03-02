@@ -34,14 +34,14 @@ public class StreamAudioPlayer {
 		
 		internalPlayer = AVPlayer(playerItem: playerItem)
 		
-//		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
-//			if let strong = self {
-//				print("player status: \(status?.rawValue)")
-//				if status == .ReadyToPlay {
-//					strong.internalPlayer?.play()
-//				}
-//			}
-//			}.addDisposableTo(self.bag)
+		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
+			if let strong = self {
+				print("player status: \(status?.rawValue)")
+				if status == .ReadyToPlay {
+					strong.internalPlayer?.play()
+				}
+			}
+			}.addDisposableTo(self.bag)
 
 		
 		return currentItem

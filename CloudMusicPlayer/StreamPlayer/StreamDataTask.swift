@@ -49,7 +49,7 @@ public struct StreamDataTaskManager {
 			
 			return AnonymousDisposable {
 				task.dataTask?.cancel()
-				tasks[task.uid] = nil
+				tasks.removeValueForKey(task.uid)
 			}
 		}.shareReplay(1)
 	}
@@ -111,7 +111,6 @@ extension StreamDataTask : NSURLSessionDataDelegate {
 	}
 	
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-		//print("didCompleteWithError")
 		//self.error.value = error
 		self.error.onNext(error)
 		self.error.onCompleted()
