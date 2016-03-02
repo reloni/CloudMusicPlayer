@@ -16,7 +16,7 @@ public class StreamAudioPlayer {
 	public let allowCaching: Bool
 	private var internalPlayer: AVPlayer?
 	private var currentItem: StreamAudioItem?
-	private var session: NSURLSession?
+	internal var session: NSURLSession?
 	
 	init(session: NSURLSession? = nil, allowCaching: Bool = true) {
 		self.session = session
@@ -24,21 +24,28 @@ public class StreamAudioPlayer {
 	}
 	
 	public func play(url: String) -> StreamAudioItem? {
-		guard let playerItem = currentItem?.playerItem else {
+		let newAudioItem = StreamAudioItem(player: self, url: url)
+		
+		
+		guard let playerItem = newAudioItem.playerItem else {
+			currentItem = nil
 			return nil
 		}
 		
-		currentItem = StreamAudioItem(player: self, url: url)
+		currentItem = newAudioItem
+		
 		internalPlayer = AVPlayer(playerItem: playerItem)
-		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
-			if let strong = self {
-				print("player status: \(status?.rawValue)")
-				if status == .ReadyToPlay {
-					strong.internalPlayer?.play()
-				}
-			}
-			}.addDisposableTo(self.bag)
+		
+//		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
+//			if let strong = self {
+//				print("player status: \(status?.rawValue)")
+//				if status == .ReadyToPlay {
+//					strong.internalPlayer?.play()
+//				}
+//			}
+//			}.addDisposableTo(self.bag)
 
-		return currentItem!
+		
+		return currentItem
 	}
 }

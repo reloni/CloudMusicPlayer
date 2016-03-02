@@ -43,8 +43,13 @@ class CloudResourcesStructureController: UIViewController {
 	var streamPlayer: StreamAudioPlayer?
 	var streamItem: StreamAudioItem?
 	
+	var testObs = PublishSubject<Int>()
+	
 	override func viewDidLoad() {
 		automaticallyAdjustsScrollViewInsets = false
+		testObs.subscribeNext { next in
+				print(next)
+		}.addDisposableTo(bag)
 		
 		playTestButton.rx_tap.bindNext {
 //			if let url = NSURL(string: "http://freemusicarchive.org/music/download/ee7f72ac94c50d8d570d24d6bb91522dba1ed061") {
@@ -63,7 +68,8 @@ class CloudResourcesStructureController: UIViewController {
 		}.addDisposableTo(bag)
 		
 		streamTestButton.rx_tap.bindNext {
-			self.streamItem?.cache()
+			//self.streamItem?.cache()
+			self.testObs.onNext(2)
 		}.addDisposableTo(bag)
 		
 		super.viewDidLoad()

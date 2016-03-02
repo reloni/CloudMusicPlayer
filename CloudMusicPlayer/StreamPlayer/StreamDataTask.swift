@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-public enum StreamResult {
+public enum StreamDataResult {
 	case StreamedData(NSData)
 	case StreamedResponse(NSHTTPURLResponse)
 	case Error(NSError)
@@ -20,9 +20,9 @@ public enum StreamResult {
 public struct StreamDataTaskManager {
 	private static var tasks = [String: StreamDataTask]()
 	
-	public static func createTask(session: NSURLSession, request: NSMutableURLRequest) -> Observable<StreamResult>? {
+	public static func createTask(request: NSMutableURLRequest) -> Observable<StreamDataResult>? {
 		return Observable.create { observer in
-			let task = StreamDataTask(session: session, request: request)
+			let task = StreamDataTask(request: request)
 			tasks[task.uid] = task
 			
 			task.latestReceivedData.asObservable().bindNext { data in
@@ -45,11 +45,13 @@ public struct StreamDataTaskManager {
 				observer.onNext(.StreamedResponse(response))
 				}.addDisposableTo(task.bag)
 			
+			task.resume()
+			
 			return AnonymousDisposable {
-				task.dataTask.cancel()
+				task.dataTask?.cancel()
 				tasks[task.uid] = nil
 			}
-		}
+		}.shareReplay(1)
 	}
 }
 
@@ -57,25 +59,40 @@ public struct StreamDataTaskManager {
 	private var bag = DisposeBag()
 	private let request: NSMutableURLRequest
 	private var response = Variable<NSHTTPURLResponse?>(nil)
-	private var latestReceivedData = Variable<NSData>(NSData())
-	private var error = Variable<NSError?>(nil)
-	private var dataTask: NSURLSessionDataTask
+	private var latestReceivedData = PublishSubject<NSData>()//Variable<NSData>(NSData())
+	private var error = PublishSubject<NSError?>()//Variable<NSError?>(nil)
+	private var dataTask: NSURLSessionDataTask?
 	private var uid: String {
 		return request.URLString
 	}
+//	private var session: NSURLSession {
+//		return NSURLSession(configuration: .defaultSessionConfiguration(),
+//			delegate: self,
+//			delegateQueue: NSOperationQueue.mainQueue())
+//	}
 	
-	private init(session: NSURLSession, request: NSMutableURLRequest) {
+	private init(request: NSMutableURLRequest) {
 		self.request = request
-		dataTask = session.dataTaskWithRequest(request)
-		dataTask.resume()
 	}
 	
-	private convenience init(session: NSURLSession, url: NSURL, headers: [String: String]? = nil) {
+	deinit {
+		print("StreamDataTask deinit")
+	}
+	
+	private convenience init(url: NSURL, headers: [String: String]? = nil) {
 		let newRequest = NSMutableURLRequest(URL: url)
 		headers?.forEach { header, value in
 			newRequest.addValue(value, forHTTPHeaderField: header)
 		}
-		self.init(session: session, request: newRequest)
+		self.init(request: newRequest)
+	}
+	
+	public func resume() {
+		let session = NSURLSession(configuration: .defaultSessionConfiguration(),
+			delegate: self,
+			delegateQueue: NSOperationQueue.mainQueue())
+		dataTask = session.dataTaskWithRequest(request)
+		dataTask?.resume()
 	}
 }
 
@@ -89,11 +106,15 @@ extension StreamDataTask : NSURLSessionDataDelegate {
 	
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
 		//print("didReceiveData")
-		latestReceivedData.value = data
+		//latestReceivedData.value = data
+		latestReceivedData.onNext(data)
 	}
 	
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
 		//print("didCompleteWithError")
-		self.error.value = error
+		//self.error.value = error
+		self.error.onNext(error)
+		self.error.onCompleted()
+		latestReceivedData.onCompleted()
 	}
 }

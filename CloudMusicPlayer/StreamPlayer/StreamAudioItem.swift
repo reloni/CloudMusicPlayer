@@ -33,6 +33,8 @@ import RxCocoa
 	
 	public func cache() {
 		cachedData.value = NSURL(string: "https://ya.ru")
+		//NSURLComponents *components = [[NSURLComponents alloc] initWithURL:[self songURL] resolvingAgainstBaseURL:NO];
+		//components.scheme = scheme;
 	}
 }
 
@@ -42,6 +44,11 @@ extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 	}
 	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+		if let nsUrl = NSURL(string: url), component = NSURLComponents(URL: nsUrl, resolvingAgainstBaseURL: false) {
+			//let task = StreamDataCacheManager.createTask(NSMutableURLRequest(URL: nsUrl), resourceLoadingRequest: loadingRequest)
+			
+		}
+		
 		return true
 	}
 }
