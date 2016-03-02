@@ -18,7 +18,7 @@ public enum StreamDataResult {
 }
 
 public struct StreamDataTaskManager {
-	private static var tasks = [String: StreamDataTask]()
+	public static var tasks = [String: StreamDataTask]()
 	
 	public static func createTask(request: NSMutableURLRequest) -> Observable<StreamDataResult>? {
 		return Observable.create { observer in
@@ -36,6 +36,7 @@ public struct StreamDataTaskManager {
 					observer.onNext(.Success)
 				}
 				observer.onCompleted()
+				tasks.removeValueForKey(task.uid)
 				}.addDisposableTo(task.bag)
 			
 			task.response.asObservable().bindNext { response in
@@ -65,13 +66,14 @@ public struct StreamDataTaskManager {
 	private var uid: String {
 		return request.URLString
 	}
+	private var session: NSURLSession?
 //	private var session: NSURLSession {
 //		return NSURLSession(configuration: .defaultSessionConfiguration(),
 //			delegate: self,
 //			delegateQueue: NSOperationQueue.mainQueue())
 //	}
 	
-	private init(request: NSMutableURLRequest) {
+	public init(request: NSMutableURLRequest) {
 		self.request = request
 	}
 	
@@ -79,7 +81,7 @@ public struct StreamDataTaskManager {
 		print("StreamDataTask deinit")
 	}
 	
-	private convenience init(url: NSURL, headers: [String: String]? = nil) {
+	public convenience init(url: NSURL, headers: [String: String]? = nil) {
 		let newRequest = NSMutableURLRequest(URL: url)
 		headers?.forEach { header, value in
 			newRequest.addValue(value, forHTTPHeaderField: header)
@@ -92,6 +94,7 @@ public struct StreamDataTaskManager {
 			delegate: self,
 			delegateQueue: NSOperationQueue.mainQueue())
 		dataTask = session.dataTaskWithRequest(request)
+		self.session = session
 		dataTask?.resume()
 	}
 }
@@ -115,5 +118,6 @@ extension StreamDataTask : NSURLSessionDataDelegate {
 		self.error.onNext(error)
 		self.error.onCompleted()
 		latestReceivedData.onCompleted()
+		session.invalidateAndCancel()
 	}
 }

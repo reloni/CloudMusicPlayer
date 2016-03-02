@@ -65,9 +65,27 @@ class CloudResourcesStructureController: UIViewController {
 //				print(nsUrl)
 //			}
 //		}.addDisposableTo(bag)
-		
+		testClass.newTask().bindNext { data in
+			print(data)
+		}.addDisposableTo(bag)
 		streamTestButton.rx_tap.bindNext {
 			self.streamPlayer?.play("https://freemusicarchive.org/music/download/ae92b938ecb20ce7121401f0f61fa56579ff9f0e")
+			//testClass.push(1)
+			//testClass.push(2)
+//			let req = NSMutableURLRequest(URL: NSURL(string: "https://freemusicarchive.org/music/download/ae92b938ecb20ce7121401f0f61fa56579ff9f0e")!)
+//			StreamDataTaskManager.createTask(req)?.bindNext { response in
+//				switch response {
+//				case .StreamedData(let data):
+//					print("streamed data")
+//				case .StreamedResponse(let response):
+//					print("response")
+//				case .Error(let error):
+//					print("error")
+//				case .Success:
+//					print("success")
+//					print(StreamDataTaskManager.tasks.count)
+//				}
+//			}.addDisposableTo(self.bag)
 		}.addDisposableTo(bag)
 		
 		super.viewDidLoad()

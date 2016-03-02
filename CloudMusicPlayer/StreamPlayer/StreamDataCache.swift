@@ -34,7 +34,8 @@ public struct StreamDataCacheManager {
 		task.taskResult.bindNext { next in
 			switch next {
 			case .Success:
-				tasks[task.uid] = nil
+				tasks.removeValueForKey(task.uid)
+				print("tasks \(tasks.count)")
 			case .SuccessWithCache(let url):
 				tasks.removeValueForKey(task.uid)
 			default: break
@@ -88,21 +89,6 @@ public class StreamDataCacheTask {
 	}
 	
 	private func processRequests() {
-//		for request in self.resourceLoadingRequests {
-//			if let contentRequest = request.contentInformationRequest {
-//				self.setResponseContentInformation(contentRequest)
-//			}
-//			if let dataRequest = request.dataRequest {
-//				
-//				print("Current offset: \(dataRequest.currentOffset) Requested length: \(dataRequest.requestedLength) Requested offset: \(dataRequest.requestedOffset)")
-//				//dataRequest.respondWithData(data)
-//				self.respondWithData(self.cacheData, respondingDataRequest: dataRequest)
-//				if (dataRequest.currentOffset + data.length) >= Int64(dataRequest.requestedLength) {
-//					request.finishLoading()
-//					resourceLoadingRequests.
-//				}
-//			}
-//		}
 		self.self.resourceLoadingRequests = self.self.resourceLoadingRequests.filter { request in
 			if let contentInformationRequest = request.contentInformationRequest {
 				self.setResponseContentInformation(contentInformationRequest)

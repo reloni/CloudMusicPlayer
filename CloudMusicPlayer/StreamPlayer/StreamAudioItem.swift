@@ -49,7 +49,7 @@ extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 			return false
 		}
 		
-		cachingTask = StreamDataCacheManager.createTask(NSMutableURLRequest(URL: nsUrl), resourceLoadingRequest: loadingRequest)
+		StreamDataCacheManager.createTask(NSMutableURLRequest(URL: nsUrl), resourceLoadingRequest: loadingRequest)
 		
 		return true
 	}
