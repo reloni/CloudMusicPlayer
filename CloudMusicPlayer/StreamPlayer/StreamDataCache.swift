@@ -47,6 +47,7 @@ public class StreamDataCacheTask {
 	private let streamTask: Observable<StreamDataResult>
 	private let taskResult = PublishSubject<CacheDataResult>()
 	public let uid: String
+	private var cacheData = NSMutableData()
 
 	private convenience init?(internalRequest: NSMutableURLRequest, resourceLoadingRequest: AVAssetResourceLoadingRequest) {
 		guard let streamTask = StreamDataTaskManager.createTask(internalRequest) else {
@@ -69,8 +70,10 @@ public class StreamDataCacheTask {
 					self.setResponseContentInformation(contentRequest)
 				}
 				if let dataRequest = self.resourceLoadingRequest.dataRequest {
-					//self.respondWithData(data, respondingDataRequest: dataRequest)
-					dataRequest.respondWithData(data)
+					self.cacheData.appendData(data)
+					print("Current offset: \(dataRequest.currentOffset) Requested length: \(dataRequest.requestedLength) Requested offset: \(dataRequest.requestedOffset)")
+					//dataRequest.respondWithData(data)
+					self.respondWithData(self.cacheData, respondingDataRequest: dataRequest)
 					if (dataRequest.currentOffset + data.length) >= Int64(dataRequest.requestedLength) {
 						self.resourceLoadingRequest.finishLoading()
 					}
@@ -91,27 +94,27 @@ public class StreamDataCacheTask {
 		print("StreamDataCacheTask deinit")
 	}
 	
-//	private func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequest) -> Bool {
-//		let startOffset = respondingDataRequest.currentOffset != 0 ? respondingDataRequest.currentOffset : respondingDataRequest.requestedOffset
-//		
-//		if Int64(data.length) < startOffset {
-//			return false
-//		}
-//		
-//		let unreadBytesLength = Int64(data.length) - startOffset
-//		let responseLength = min(Int64(respondingDataRequest.requestedLength), unreadBytesLength)
-//
-//		if responseLength == 0 {
-//			return false
-//		}
-//		let range = NSMakeRange(Int(startOffset), Int(responseLength))
-//
-//		respondingDataRequest.respondWithData(data.subdataWithRange(range))
-//		
-//		let endOffset = startOffset + respondingDataRequest.requestedLength
-//		//let didRespondFully = (Int64(data.length) >= endOffset)
-//		return Int64(data.length) >= endOffset ? true : false
-//	}
+	private func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequest) -> Bool {
+		let startOffset = respondingDataRequest.currentOffset != 0 ? respondingDataRequest.currentOffset : respondingDataRequest.requestedOffset
+		
+		if Int64(data.length) < startOffset {
+			return false
+		}
+		
+		let unreadBytesLength = Int64(data.length) - startOffset
+		let responseLength = min(Int64(respondingDataRequest.requestedLength), unreadBytesLength)
+
+		if responseLength == 0 {
+			return false
+		}
+		let range = NSMakeRange(Int(startOffset), Int(responseLength))
+
+		respondingDataRequest.respondWithData(data.subdataWithRange(range))
+		
+		let endOffset = startOffset + respondingDataRequest.requestedLength
+		//let didRespondFully = (Int64(data.length) >= endOffset)
+		return Int64(data.length) >= endOffset ? true : false
+	}
 	
 	private func setResponseContentInformation(request: AVAssetResourceLoadingContentInformationRequest) {
 		guard let MIMEType = response?.MIMEType, contentLength = response?.expectedContentLength else {

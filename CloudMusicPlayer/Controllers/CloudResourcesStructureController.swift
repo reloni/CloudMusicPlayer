@@ -60,16 +60,14 @@ class CloudResourcesStructureController: UIViewController {
 		}.addDisposableTo(bag)
 		
 		streamPlayer = StreamAudioPlayer()
-		streamItem = streamPlayer?.play("")
-		streamItem?.cachedData.asObservable().subscribeNext { nsUrl in
-			if let nsUrl = nsUrl {
-				print(nsUrl)
-			}
-		}.addDisposableTo(bag)
+//		streamItem?.cachedData.asObservable().subscribeNext { nsUrl in
+//			if let nsUrl = nsUrl {
+//				print(nsUrl)
+//			}
+//		}.addDisposableTo(bag)
 		
 		streamTestButton.rx_tap.bindNext {
-			//self.streamItem?.cache()
-			self.testObs.onNext(2)
+			self.streamPlayer?.play("https://freemusicarchive.org/music/download/ae92b938ecb20ce7121401f0f61fa56579ff9f0e")
 		}.addDisposableTo(bag)
 		
 		super.viewDidLoad()
@@ -213,7 +211,7 @@ extension CloudResourcesStructureController : AVAssetResourceLoaderDelegate {
 		//print("shouldWaitForLoadingOfRequestedResource")
 		
 		if dataTask == nil {
-			if let url = NSURL(string: "https://freemusicarchive.org/music/download/344f461538d66849f69542ff58f2a87d812aa1f4") {
+			if let url = NSURL(string: "https://freemusicarchive.org/music/download/ae92b938ecb20ce7121401f0f61fa56579ff9f0e") {
 				let request = NSURLRequest(URL: url)
 				let task = session.dataTaskWithRequest(request)
 //				let task = session.dataTaskWithRequest(request) {

@@ -16,10 +16,8 @@ public class StreamAudioPlayer {
 	public let allowCaching: Bool
 	private var internalPlayer: AVPlayer?
 	private var currentItem: StreamAudioItem?
-	internal var session: NSURLSession?
-	
-	init(session: NSURLSession? = nil, allowCaching: Bool = true) {
-		self.session = session
+		
+	init(allowCaching: Bool = true) {
 		self.allowCaching = allowCaching
 	}
 	
