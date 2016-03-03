@@ -14,37 +14,25 @@ public enum StreamDataResult {
 	case StreamedData(NSData)
 	case StreamedResponse(NSHTTPURLResponse)
 	case Error(NSError)
-	case Success
+	case Success(UInt64)
 }
 
 public struct StreamDataTaskManager {
-	public static var tasks = [String: StreamDataTask]()
+	private static var tasks = [String: StreamDataTask]()
 	
 	public static func createTask(request: NSMutableURLRequest) -> Observable<StreamDataResult>? {
 		return Observable.create { observer in
 			let task = StreamDataTask(request: request)
 			tasks[task.uid] = task
 			
-			task.latestReceivedData.asObservable().bindNext { data in
-				observer.on(.Next(.StreamedData(data)))
-				}.addDisposableTo(task.bag)
-			
-			task.error.asObservable().bindNext { error in
-				if let error = error {
-					observer.onNext(.Error(error))
-				} else {
-					observer.onNext(.Success)
+			task.taskProgress.bindNext { result in
+				observer.onNext(result)
+				switch result {
+				case .Success:
+					tasks.removeValueForKey(task.uid)
+				default: break
 				}
-				observer.onCompleted()
-				tasks.removeValueForKey(task.uid)
-				}.addDisposableTo(task.bag)
-			
-			task.response.asObservable().bindNext { response in
-				guard let response = response else {
-					return
-				}
-				observer.onNext(.StreamedResponse(response))
-				}.addDisposableTo(task.bag)
+			}.addDisposableTo(task.bag)
 			
 			task.resume()
 			
@@ -59,9 +47,8 @@ public struct StreamDataTaskManager {
 @objc public class StreamDataTask : NSObject {
 	private var bag = DisposeBag()
 	private let request: NSMutableURLRequest
-	private var response = Variable<NSHTTPURLResponse?>(nil)
-	private var latestReceivedData = PublishSubject<NSData>()//Variable<NSData>(NSData())
-	private var error = PublishSubject<NSError?>()//Variable<NSError?>(nil)
+	private var totalDataReceived: UInt64 = 0
+	private let taskProgress = PublishSubject<StreamDataResult>()
 	private var dataTask: NSURLSessionDataTask?
 	private var uid: String {
 		return request.URLString
@@ -96,19 +83,25 @@ public struct StreamDataTaskManager {
 
 extension StreamDataTask : NSURLSessionDataDelegate {
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void) {
-		self.response.value = response as? NSHTTPURLResponse
+		if let response = response as? NSHTTPURLResponse {
+			taskProgress.onNext(.StreamedResponse(response))
+		}
 		
 		completionHandler(.Allow)
 	}
 
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-		latestReceivedData.onNext(data)
+		totalDataReceived += UInt64(data.length)
+		taskProgress.onNext(.StreamedData(data))
 	}
 	
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-		self.error.onNext(error)
-		self.error.onCompleted()
-		latestReceivedData.onCompleted()
+		if let error = error {
+			taskProgress.onNext(.Error(error))
+		} else {
+			taskProgress.onNext(.Success(totalDataReceived))
+		}
+		taskProgress.onCompleted()
 		session.invalidateAndCancel()
 	}
 }

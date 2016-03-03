@@ -24,7 +24,7 @@ class CloudResourcesStructureController: UIViewController {
 	var parent: CloudResource?
 	
 	var player: AVPlayer?
-	var bag = DisposeBag()
+	var bag: DisposeBag? = DisposeBag()
 	var respondedLength: Int64 = 0
 	
 	var delegateQueue: dispatch_queue_t?
@@ -49,7 +49,7 @@ class CloudResourcesStructureController: UIViewController {
 		automaticallyAdjustsScrollViewInsets = false
 		testObs.subscribeNext { next in
 				print(next)
-		}.addDisposableTo(bag)
+		}.addDisposableTo(bag!)
 		
 		playTestButton.rx_tap.bindNext {
 //			if let url = NSURL(string: "http://freemusicarchive.org/music/download/ee7f72ac94c50d8d570d24d6bb91522dba1ed061") {
@@ -57,7 +57,7 @@ class CloudResourcesStructureController: UIViewController {
 //				self.player?.play()
 //			}
 			self.playSong()
-		}.addDisposableTo(bag)
+		}.addDisposableTo(bag!)
 		
 		streamPlayer = StreamAudioPlayer()
 //		streamItem?.cachedData.asObservable().subscribeNext { nsUrl in
@@ -67,12 +67,13 @@ class CloudResourcesStructureController: UIViewController {
 //		}.addDisposableTo(bag)
 		testClass.newTask().bindNext { data in
 			print(data)
-		}.addDisposableTo(bag)
+		}.addDisposableTo(bag!)
 		streamTestButton.rx_tap.bindNext {
-			self.streamPlayer?.play("http://freemusicarchive.org/music/download/be5f259aef67af5972df1aa470ee75a23f16d9fd")
+			let urlString = "https://freemusicarchive.org/music/download/be5f259aef67af5972df1aa470ee75a23f16d9fd"
+			self.streamPlayer?.play(urlString)
 			//testClass.push(1)
 			//testClass.push(2)
-//			let req = NSMutableURLRequest(URL: NSURL(string: "https://freemusicarchive.org/music/download/ae92b938ecb20ce7121401f0f61fa56579ff9f0e")!)
+			//let req = NSMutableURLRequest(URL: NSURL(string: urlString)!)
 //			StreamDataTaskManager.createTask(req)?.bindNext { response in
 //				switch response {
 //				case .StreamedData(let data):
@@ -81,12 +82,13 @@ class CloudResourcesStructureController: UIViewController {
 //					print("response")
 //				case .Error(let error):
 //					print("error")
-//				case .Success:
-//					print("success")
+//				case .Success(let total):
+//					print("success. total data: \(total)")
 //					print(StreamDataTaskManager.tasks.count)
+//					self.bag = nil
 //				}
-//			}.addDisposableTo(self.bag)
-		}.addDisposableTo(bag)
+//			}.addDisposableTo(self.bag!)
+		}.addDisposableTo(bag!)
 		
 		super.viewDidLoad()
 	}
@@ -138,7 +140,7 @@ class CloudResourcesStructureController: UIViewController {
 							strong.player?.play()
 						}
 					}
-					}.addDisposableTo(self.bag)
+					}.addDisposableTo(self.bag!)
 			}
 		//}
 	}

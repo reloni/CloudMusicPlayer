@@ -19,30 +19,35 @@ public enum CacheDataResult {
 }
 
 public struct StreamDataCacheManager {
-	private static var tasks = [String: StreamDataCacheTask]()
+	private static var tasks = [String: (StreamDataCacheTask, Observable<CacheDataResult>)]()
 	
 	public static func createTask(internalRequest: NSMutableURLRequest, resourceLoadingRequest: AVAssetResourceLoadingRequest) -> Observable<CacheDataResult>? {
-		if let runningTask = tasks[internalRequest.URLString] {
-			runningTask.resourceLoadingRequests.append(resourceLoadingRequest)
-			return runningTask.taskResult
+		if let (task, observable) = tasks[internalRequest.URLString] {
+			task.resourceLoadingRequests.append(resourceLoadingRequest)
+			return observable
 		}
 		
-		guard let task = StreamDataCacheTask(internalRequest: internalRequest, resourceLoadingRequest: resourceLoadingRequest) else {
+		guard let newTask = StreamDataCacheTask(internalRequest: internalRequest, resourceLoadingRequest: resourceLoadingRequest) else {
 			return nil
 		}
-		tasks[task.uid] = task
-		task.taskResult.bindNext { next in
-			switch next {
-			case .Success:
-				tasks.removeValueForKey(task.uid)
-				print("tasks \(tasks.count)")
-			case .SuccessWithCache(let url):
-				tasks.removeValueForKey(task.uid)
-			default: break
+		
+		let newObservable = Observable<CacheDataResult>.create { observer in
+			newTask.taskProgress.bindNext { progress in
+				observer.onNext(progress)
+				tasks.removeValueForKey(newTask.uid)
+			}.addDisposableTo(newTask.bag)
+			
+			newTask.resume()
+			
+			return AnonymousDisposable {
+				newTask.cancel()
+				tasks.removeValueForKey(newTask.uid)
 			}
-		}.addDisposableTo(task.bag)
-		task.resume()
-		return task.taskResult
+		}.shareReplay(1)
+		
+		tasks[newTask.uid] = (newTask, newObservable)
+		
+		return newObservable
 	}
 }
 
@@ -51,7 +56,7 @@ public class StreamDataCacheTask {
 	private var response: NSHTTPURLResponse?
 	private var resourceLoadingRequests = [AVAssetResourceLoadingRequest]()
 	private let streamTask: Observable<StreamDataResult>
-	private let taskResult = PublishSubject<CacheDataResult>()
+	private let taskProgress = PublishSubject<CacheDataResult>()
 	public let uid: String
 	private var cacheData = NSMutableData()
 
@@ -65,7 +70,6 @@ public class StreamDataCacheTask {
 	private init(uid: String, resourceLoadingRequest: AVAssetResourceLoadingRequest, streamTask: Observable<StreamDataResult>) {
 		self.streamTask = streamTask
 		self.uid = uid
-		//self.resourceLoadingRequest = resourceLoadingRequest
 		self.resourceLoadingRequests.append(resourceLoadingRequest)
 	}
 	
@@ -78,27 +82,29 @@ public class StreamDataCacheTask {
 			case .StreamedResponse(let response):
 				self.response = response
 			case .Error(let error):
-				self.taskResult.onNext(CacheDataResult.Error(error))
-				self.taskResult.onCompleted()
+				self.processRequests()
+				self.taskProgress.onNext(CacheDataResult.Error(error))
+				self.taskProgress.onCompleted()
 			case .Success:
 				self.processRequests()
-				self.taskResult.onNext(CacheDataResult.Success)
-				self.taskResult.onCompleted()
+				self.taskProgress.onNext(CacheDataResult.Success)
+				self.taskProgress.onCompleted()
 			}
 		}.addDisposableTo(bag)
 	}
 	
+	public func cancel() {
+	}
+	
 	private func processRequests() {
-		self.self.resourceLoadingRequests = self.self.resourceLoadingRequests.filter { request in
+		self.resourceLoadingRequests = self.resourceLoadingRequests.filter { request in
 			if let contentInformationRequest = request.contentInformationRequest {
 				self.setResponseContentInformation(contentInformationRequest)
 			}
 			
 			if let dataRequest = request.dataRequest {
-				//print("Current offset: \(dataRequest.currentOffset) Requested length: \(dataRequest.requestedLength) Requested offset: \(dataRequest.requestedOffset)")
 				if self.respondWithData(self.cacheData, respondingDataRequest: dataRequest) {
 					request.finishLoading()
-					print("Received data \(self.cacheData.length)")
 					return false
 				}
 			}
@@ -112,12 +118,15 @@ public class StreamDataCacheTask {
 	
 	private func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequest) -> Bool {
 		let startOffset = respondingDataRequest.currentOffset != 0 ? respondingDataRequest.currentOffset : respondingDataRequest.requestedOffset
+		let dataLength = Int64(data.length)
 		
-		if Int64(data.length) < startOffset {
+		if startOffset >= dataLength {
+			return true
+		} else if dataLength < startOffset {
 			return false
 		}
 		
-		let unreadBytesLength = Int64(data.length) - startOffset
+		let unreadBytesLength = dataLength - startOffset
 		let responseLength = min(Int64(respondingDataRequest.requestedLength), unreadBytesLength)
 
 		if responseLength == 0 {
@@ -128,7 +137,7 @@ public class StreamDataCacheTask {
 		respondingDataRequest.respondWithData(data.subdataWithRange(range))
 		
 		let endOffset = startOffset + respondingDataRequest.requestedLength
-		return Int64(data.length) >= endOffset ? true : false
+		return dataLength >= endOffset
 	}
 	
 	private func setResponseContentInformation(request: AVAssetResourceLoadingContentInformationRequest) {

@@ -31,7 +31,7 @@ public class StreamAudioPlayer {
 		}
 		
 		currentItem = newAudioItem
-		
+		print(playerItem)
 		internalPlayer = AVPlayer(playerItem: playerItem)
 		
 		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in

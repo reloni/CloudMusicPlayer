@@ -12,7 +12,8 @@ import RxSwift
 import RxCocoa
 
 @objc public class StreamAudioItem : NSObject {
-	private var cachingTask: Observable<CacheDataResult>?
+	private var cachingTask: Disposable?//Observable<CacheDataResult>?
+	private var bag = DisposeBag()
 	public let url: String
 	public unowned let player: StreamAudioPlayer
 	
@@ -42,14 +43,31 @@ import RxCocoa
 
 extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, didCancelLoadingRequest loadingRequest: AVAssetResourceLoadingRequest) {
+		
 	}
 	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
 		guard player.allowCaching, let nsUrl = NSURL(string: url) else {
 			return false
 		}
-		print("shouldWait")
-		StreamDataCacheManager.createTask(NSMutableURLRequest(URL: nsUrl), resourceLoadingRequest: loadingRequest)
+		
+		if let newTask = StreamDataCacheManager.createTask(NSMutableURLRequest(URL: nsUrl), resourceLoadingRequest: loadingRequest)
+			where cachingTask == nil {
+			cachingTask = newTask.bindNext { [unowned self] result in
+				switch result {
+				case .Success:
+					print("success!!")
+				case .SuccessWithCache(let url):
+					print("success with url")
+				case .Error(let error):
+					print("end with error")
+				}
+				self.cachingTask?.dispose()
+				self.cachingTask = nil
+			}
+			
+			return true
+		}
 		
 		return true
 	}
