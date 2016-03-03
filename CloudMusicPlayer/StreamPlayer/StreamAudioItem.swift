@@ -48,7 +48,7 @@ extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 		guard player.allowCaching, let nsUrl = NSURL(string: url) else {
 			return false
 		}
-		
+		print("shouldWait")
 		StreamDataCacheManager.createTask(NSMutableURLRequest(URL: nsUrl), resourceLoadingRequest: loadingRequest)
 		
 		return true

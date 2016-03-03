@@ -49,7 +49,6 @@ public struct StreamDataCacheManager {
 public class StreamDataCacheTask {
 	private var bag = DisposeBag()
 	private var response: NSHTTPURLResponse?
-	//private let resourceLoadingRequest: AVAssetResourceLoadingRequest
 	private var resourceLoadingRequests = [AVAssetResourceLoadingRequest]()
 	private let streamTask: Observable<StreamDataResult>
 	private let taskResult = PublishSubject<CacheDataResult>()
@@ -71,7 +70,7 @@ public class StreamDataCacheTask {
 	}
 	
 	public func resume() {
-		streamTask.bindNext { response in
+		streamTask.bindNext { [unowned self] response in
 			switch response {
 			case .StreamedData(let data):
 				self.cacheData.appendData(data)
@@ -82,6 +81,7 @@ public class StreamDataCacheTask {
 				self.taskResult.onNext(CacheDataResult.Error(error))
 				self.taskResult.onCompleted()
 			case .Success:
+				self.processRequests()
 				self.taskResult.onNext(CacheDataResult.Success)
 				self.taskResult.onCompleted()
 			}
@@ -98,6 +98,7 @@ public class StreamDataCacheTask {
 				//print("Current offset: \(dataRequest.currentOffset) Requested length: \(dataRequest.requestedLength) Requested offset: \(dataRequest.requestedOffset)")
 				if self.respondWithData(self.cacheData, respondingDataRequest: dataRequest) {
 					request.finishLoading()
+					print("Received data \(self.cacheData.length)")
 					return false
 				}
 			}
@@ -127,7 +128,6 @@ public class StreamDataCacheTask {
 		respondingDataRequest.respondWithData(data.subdataWithRange(range))
 		
 		let endOffset = startOffset + respondingDataRequest.requestedLength
-		//let didRespondFully = (Int64(data.length) >= endOffset)
 		return Int64(data.length) >= endOffset ? true : false
 	}
 	

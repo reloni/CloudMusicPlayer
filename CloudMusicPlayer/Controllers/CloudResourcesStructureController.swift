@@ -69,7 +69,7 @@ class CloudResourcesStructureController: UIViewController {
 			print(data)
 		}.addDisposableTo(bag)
 		streamTestButton.rx_tap.bindNext {
-			self.streamPlayer?.play("https://freemusicarchive.org/music/download/ae92b938ecb20ce7121401f0f61fa56579ff9f0e")
+			self.streamPlayer?.play("http://freemusicarchive.org/music/download/be5f259aef67af5972df1aa470ee75a23f16d9fd")
 			//testClass.push(1)
 			//testClass.push(2)
 //			let req = NSMutableURLRequest(URL: NSURL(string: "https://freemusicarchive.org/music/download/ae92b938ecb20ce7121401f0f61fa56579ff9f0e")!)

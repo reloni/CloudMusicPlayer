@@ -67,11 +67,6 @@ public struct StreamDataTaskManager {
 		return request.URLString
 	}
 	private var session: NSURLSession?
-//	private var session: NSURLSession {
-//		return NSURLSession(configuration: .defaultSessionConfiguration(),
-//			delegate: self,
-//			delegateQueue: NSOperationQueue.mainQueue())
-//	}
 	
 	public init(request: NSMutableURLRequest) {
 		self.request = request
@@ -101,20 +96,16 @@ public struct StreamDataTaskManager {
 
 extension StreamDataTask : NSURLSessionDataDelegate {
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void) {
-		//print("didReceiveResponse")
 		self.response.value = response as? NSHTTPURLResponse
 		
 		completionHandler(.Allow)
 	}
-	
+
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-		//print("didReceiveData")
-		//latestReceivedData.value = data
 		latestReceivedData.onNext(data)
 	}
 	
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-		//self.error.value = error
 		self.error.onNext(error)
 		self.error.onCompleted()
 		latestReceivedData.onCompleted()
