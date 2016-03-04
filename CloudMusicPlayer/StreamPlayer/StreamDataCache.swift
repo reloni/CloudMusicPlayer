@@ -59,18 +59,20 @@ public class StreamDataCacheTask {
 	private let taskProgress = PublishSubject<CacheDataResult>()
 	public let uid: String
 	private var cacheData = NSMutableData()
+	private let saveCachedData: Bool
 
-	private convenience init?(internalRequest: NSMutableURLRequest, resourceLoadingRequest: AVAssetResourceLoadingRequest) {
+	private convenience init?(internalRequest: NSMutableURLRequest, resourceLoadingRequest: AVAssetResourceLoadingRequest, saveCachedData: Bool = true) {
 		guard let streamTask = StreamDataTaskManager.createTask(internalRequest) else {
 			return nil
 		}
-		self.init(uid: internalRequest.URLString, resourceLoadingRequest: resourceLoadingRequest, streamTask: streamTask)
+		self.init(uid: internalRequest.URLString, resourceLoadingRequest: resourceLoadingRequest, streamTask: streamTask, saveCachedData: saveCachedData)
 	}
 	
-	private init(uid: String, resourceLoadingRequest: AVAssetResourceLoadingRequest, streamTask: Observable<StreamDataResult>) {
+	private init(uid: String, resourceLoadingRequest: AVAssetResourceLoadingRequest, streamTask: Observable<StreamDataResult>, saveCachedData: Bool = true) {
 		self.streamTask = streamTask
 		self.uid = uid
 		self.resourceLoadingRequests.append(resourceLoadingRequest)
+		self.saveCachedData = saveCachedData
 	}
 	
 	public func resume() {
@@ -87,13 +89,25 @@ public class StreamDataCacheTask {
 				self.taskProgress.onCompleted()
 			case .Success:
 				self.processRequests()
-				self.taskProgress.onNext(CacheDataResult.Success)
+				if let path = self.saveData() where self.saveCachedData {
+					self.taskProgress.onNext(CacheDataResult.SuccessWithCache(path))
+				} else {
+					self.taskProgress.onNext(CacheDataResult.Success)
+				}
 				self.taskProgress.onCompleted()
 			}
 		}.addDisposableTo(bag)
 	}
 	
 	public func cancel() {
+	}
+	
+	private func saveData() -> NSURL? {
+		let path = NSFileManager.mediaCacheDirectory.URLByAppendingPathComponent(NSUUID().UUIDString + ".dat")
+		if cacheData.writeToURL(path, atomically: true) {
+			return path
+		}
+		return nil
 	}
 	
 	private func processRequests() {
