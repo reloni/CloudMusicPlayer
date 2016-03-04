@@ -27,11 +27,11 @@ public struct StreamDataTaskManager {
 			
 			task.taskProgress.bindNext { result in
 				observer.onNext(result)
-				switch result {
-				case .Success:
+
+				if case .Success = result {
 					tasks.removeValueForKey(task.uid)
-				default: break
 				}
+				
 			}.addDisposableTo(task.bag)
 			
 			task.resume()
