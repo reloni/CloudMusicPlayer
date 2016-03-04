@@ -136,9 +136,9 @@
                                             <outlet property="albumNameLabel" destination="afU-Kv-Jxf" id="fNC-rc-mjf"/>
                                             <outlet property="albumYearLabel" destination="hXT-57-UdC" id="3sr-xy-j9z"/>
                                             <outlet property="artistNameLabel" destination="bc8-Co-jGg" id="8SR-Ow-mOG"/>
-                                            <outlet property="pauseButton" destination="Lih-Nd-wud" id="ZfE-yA-chj"/>
-                                            <outlet property="playButton" destination="Dnp-mw-nf7" id="n2E-Jr-Pn9"/>
-                                            <outlet property="stopButton" destination="mBb-H5-pOm" id="Cxy-Mj-jMo"/>
+                                            <outlet property="pauseButton" destination="Lih-Nd-wud" id="PMK-2s-L8k"/>
+                                            <outlet property="playButton" destination="Dnp-mw-nf7" id="rHx-3J-OEW"/>
+                                            <outlet property="stopButton" destination="mBb-H5-pOm" id="pgY-Zs-8br"/>
                                             <outlet property="trackLengthLabel" destination="zlJ-Hm-yuQ" id="MSD-cX-eVc"/>
                                             <outlet property="trackTitleLabel" destination="JCT-gd-Fn8" id="K86-ls-8Wf"/>
                                         </connections>
