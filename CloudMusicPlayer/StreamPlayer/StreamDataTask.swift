@@ -15,6 +15,7 @@ public enum StreamDataResult {
 	case StreamedResponse(NSHTTPURLResponse)
 	case Error(NSError)
 	case Success(UInt64)
+	case StreamProgress(UInt64, Int64)
 }
 
 public struct StreamDataTaskManager {
@@ -48,6 +49,7 @@ public struct StreamDataTaskManager {
 	private var bag = DisposeBag()
 	private let request: NSMutableURLRequest
 	private var totalDataReceived: UInt64 = 0
+	private var expectedDataLength: Int64 = 0
 	private let taskProgress = PublishSubject<StreamDataResult>()
 	private var dataTask: NSURLSessionDataTask?
 	private var uid: String {
@@ -84,6 +86,7 @@ public struct StreamDataTaskManager {
 extension StreamDataTask : NSURLSessionDataDelegate {
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void) {
 		if let response = response as? NSHTTPURLResponse {
+			expectedDataLength = response.expectedContentLength
 			taskProgress.onNext(.StreamedResponse(response))
 		}
 		
@@ -93,6 +96,7 @@ extension StreamDataTask : NSURLSessionDataDelegate {
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
 		totalDataReceived += UInt64(data.length)
 		taskProgress.onNext(.StreamedData(data))
+		taskProgress.onNext(.StreamProgress(totalDataReceived, expectedDataLength))
 	}
 	
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {

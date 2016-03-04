@@ -68,8 +68,20 @@ class CloudResourcesStructureController: UIViewController {
 		testClass.newTask().bindNext { data in
 			print(data)
 		}.addDisposableTo(bag!)
+		
 		streamTestButton.rx_tap.bindNext {
 			let urlString = "https://freemusicarchive.org/music/download/fea623f81f7580b95bc670fa13fe2500746dd617"
+			//let urlString = "file:///Users/AntonEfimenko/Library/Developer/CoreSimulator/Devices/971C25DA-4539-4403-8C06-EE303C5AC3A7/data/Containers/Data/Application/3554469B-4A82-444D-B807-2DDEC0149C63/Documents/MediaCache/8F1510B8-20F0-48FE-8CE9-0BDC07955954.mp3"
+//			let nsUrl = NSFileManager.mediaCacheDirectory.URLByAppendingPathComponent("8F1510B8-20F0-48FE-8CE9-0BDC07955954.dat")
+//			
+//			if NSFileManager.defaultManager().fileExistsAtPath(nsUrl.path!) {
+//				print(nsUrl)
+//				let asset = AVURLAsset(URL: nsUrl)
+//				let playerItem = AVPlayerItem(asset: asset)
+//				self.player = AVPlayer(playerItem: playerItem)
+//				self.player?.play()
+//			}
+
 			self.streamPlayer?.play(urlString)
 			//testClass.push(1)
 			//testClass.push(2)

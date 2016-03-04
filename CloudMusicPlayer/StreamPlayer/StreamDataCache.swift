@@ -95,6 +95,7 @@ public class StreamDataCacheTask {
 					self.taskProgress.onNext(CacheDataResult.Success)
 				}
 				self.taskProgress.onCompleted()
+			default: break
 			}
 		}.addDisposableTo(bag)
 	}

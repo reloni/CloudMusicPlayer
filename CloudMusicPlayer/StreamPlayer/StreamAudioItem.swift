@@ -58,7 +58,7 @@ extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 				case .Success:
 					print("success!!")
 				case .SuccessWithCache(let url):
-					print("success with url: \(url)")
+					print("success with url: \(url.path)")
 				case .Error(let error):
 					print("end with error: \(error)")
 				}
