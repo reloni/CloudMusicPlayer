@@ -16,14 +16,16 @@ public class StreamAudioPlayer {
 	public let allowCaching: Bool
 	private var internalPlayer: AVPlayer?
 	private var currentItem: StreamAudioItem?
+	public var customHttpHeaders: [String: String]?
 		
 	init(allowCaching: Bool = true) {
 		self.allowCaching = allowCaching
 	}
 	
 	public func play(url: String) -> StreamAudioItem? {
-		let newAudioItem = StreamAudioItem(player: self, url: url)
+		stop()
 		
+		let newAudioItem = StreamAudioItem(player: self, url: url)
 		
 		guard let playerItem = newAudioItem.playerItem else {
 			currentItem = nil
@@ -31,7 +33,6 @@ public class StreamAudioPlayer {
 		}
 		
 		currentItem = newAudioItem
-
 		internalPlayer = AVPlayer(playerItem: playerItem)
 		
 		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
@@ -45,5 +46,15 @@ public class StreamAudioPlayer {
 
 		
 		return currentItem
+	}
+	
+//	public func pause() {
+//		internalPlayer?.pause()
+//	}
+//	
+	public func stop() {
+		internalPlayer?.rate = 0.0
+		internalPlayer?.replaceCurrentItemWithPlayerItem(nil)
+		internalPlayer = nil
 	}
 }

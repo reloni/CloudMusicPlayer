@@ -27,17 +27,22 @@ import RxCocoa
 	}()
 	
 	public lazy var fakeUrl: NSURL? = {
-		guard let nsUrl = NSURL(string: self.url), component = NSURLComponents(URL: nsUrl, resolvingAgainstBaseURL: false) else {
-			return nil
-		}
-		
-		component.scheme = "streamPlayerFakeScheme"
-		return component.URL
+//		guard let nsUrl = NSURL(string: self.url), component = NSURLComponents(URL: nsUrl, resolvingAgainstBaseURL: false) else {
+//			return nil
+//		}
+//		
+//		component.scheme = "streamPlayerFakeScheme"
+		//return component.URL
+		return NSURL(string: "fake://url.com")
 	}()
 
 	init(player: StreamAudioPlayer, url: String) {
 		self.player = player
 		self.url = url
+	}
+	
+	deinit {
+		print("StreamAudioItem deinit")
 	}
 }
 
@@ -51,9 +56,12 @@ extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 			return false
 		}
 		
-		if let newTask = StreamDataCacheManager.createTask(NSMutableURLRequest(URL: nsUrl), resourceLoadingRequest: loadingRequest)
+		let request = NSMutableURLRequest(URL: nsUrl)
+		player.customHttpHeaders?.forEach { request.addValue($1, forHTTPHeaderField: $1) }
+		
+		if let newTask = StreamDataCacheManager.createTask(request, resourceLoadingRequest: loadingRequest)
 			where cachingTask == nil {
-			cachingTask = newTask.bindNext { [unowned self] result in
+			cachingTask = newTask.bindNext { [weak self] result in
 				switch result {
 				case .Success:
 					print("success!!")
@@ -62,10 +70,13 @@ extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 				case .Error(let error):
 					print("end with error: \(error)")
 				}
-				self.cachingTask?.dispose()
-				self.cachingTask = nil
+				if let strongSelf = self {
+					strongSelf.cachingTask?.dispose()
+					strongSelf.cachingTask = nil
+				}
 			}
-			
+			cachingTask?.addDisposableTo(bag)
+				
 			return true
 		}
 		

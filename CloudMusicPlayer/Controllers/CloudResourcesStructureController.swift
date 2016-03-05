@@ -22,7 +22,8 @@ class CloudResourcesStructureController: UIViewController {
 	
 	private let bag = DisposeBag()
 	
-	var player: AVAudioPlayer?
+	var player = StreamAudioPlayer()
+	var avPlayer = AVPlayer()
 	
 	override func viewDidLoad() {
 		automaticallyAdjustsScrollViewInsets = false
@@ -54,21 +55,19 @@ class CloudResourcesStructureController: UIViewController {
 	}
 	
 	func play(track: CloudAudioResource) {
-		track.getFile { url in
+		track.getDownloadUrl { url in
 			guard let url = url else {
 				return
 			}
-			dispatch_async(dispatch_get_main_queue()) {
-				self.player = try? AVAudioPlayer(contentsOfURL: url)
-				self.player?.play()
-			}
+			self.player.customHttpHeaders = track.getRequestHeaders()
+			//self.player.play("http://freemusicarchive.org/music/download/d93cc6c7058b32441eaef7ea0715be244ba9b293")
+			self.player.play(url)
+			//self.player.play("https://drive.google.com/file/d/0ByhKrpwk2445ZFdWcEwyLUNVSFE/view?usp=sharing")
 		}
 	}
 	
 	func stop() {
-		dispatch_async(dispatch_get_main_queue()) {
-			self.player?.stop()
-		}
+		player.stop()
 	}
 }
 
@@ -93,13 +92,13 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		if let resource = resource as? CloudAudioResource {
 			let cell = tableView.dequeueReusableCellWithIdentifier("CloudTrackCell", forIndexPath: indexPath) as! CloudTrackCell
 			cell.track = resource
-			cell.playButton.rx_tap.bindNext { [unowned self] in
+			cell.playButton.rx_tap.observeOn(MainScheduler.instance).bindNext { [unowned self] in
 				guard let track = cell.track else {
 					return
 				}
 				self.play(track)
 				}.addDisposableTo(bag)
-			cell.stopButton.rx_tap.bindNext { [unowned self] in
+			cell.stopButton.rx_tap.observeOn(MainScheduler.instance).bindNext { [unowned self] in
 				self.stop()
 			}.addDisposableTo(bag)
 			return cell
@@ -109,17 +108,4 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		cell.folderNameLabel.text = resources?[indexPath.row].name ?? "unresolved"
 		return cell
 	}
-
-	//	func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle,
-	//		forRowAtIndexPath indexPath: NSIndexPath) {
-	//			if(editingStyle == UITableViewCellEditingStyle.Delete) {
-	//				places.removeAtIndex(indexPath.row)
-	//				self.placesTable.reloadData()
-	//			}
-	//	}
-	
-	//	func tableView(tableView: UITableView, willSelectRowAtIndexPath indexPath: NSIndexPath) -> NSIndexPath? {
-	//		selectedPlace = places[indexPath.row]
-	//		return indexPath
-	//	}
 }

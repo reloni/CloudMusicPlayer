@@ -104,7 +104,7 @@ public class StreamDataCacheTask {
 	}
 	
 	private func saveData() -> NSURL? {
-		let path = NSFileManager.mediaCacheDirectory.URLByAppendingPathComponent(NSUUID().UUIDString + ".dat")
+		let path = NSFileManager.mediaCacheDirectory.URLByAppendingPathComponent(NSUUID().UUIDString + ".mp3")
 		if cacheData.writeToURL(path, atomically: true) {
 			return path
 		}
@@ -163,7 +163,10 @@ public class StreamDataCacheTask {
 		request.byteRangeAccessSupported = true
 		request.contentLength = contentLength
 		if let contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, MIMEType, nil) {
-			request.contentType = contentType.takeUnretainedValue() as String
+			//request.contentType = contentType.takeUnretainedValue() as String
+			//print(UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, "audio/mpeg", nil)?.takeUnretainedValue())
+			
+			request.contentType = "public.mp3"
 		}
 	}
 }
