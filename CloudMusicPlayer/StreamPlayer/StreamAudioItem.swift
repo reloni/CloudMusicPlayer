@@ -12,13 +12,14 @@ import RxSwift
 import RxCocoa
 
 @objc public class StreamAudioItem : NSObject {
-	private var cachingTask: Disposable?//Observable<CacheDataResult>?
+	private var cachingTask: Disposable?
 	private var bag = DisposeBag()
 	public let url: String
-	public unowned let player: StreamAudioPlayer
+	public weak var player: StreamAudioPlayer?
+	private let customHttpHeaders: [String: String]?
 	
 	public lazy var playerItem: AVPlayerItem? = {
-		guard let nsUrl = self.fakeUrl else {
+		guard let nsUrl = self.fakeUrl ?? NSURL(string: self.url) else {
 			return nil
 		}
 		let asset = AVURLAsset(URL: nsUrl)
@@ -27,18 +28,21 @@ import RxCocoa
 	}()
 	
 	public lazy var fakeUrl: NSURL? = {
-//		guard let nsUrl = NSURL(string: self.url), component = NSURLComponents(URL: nsUrl, resolvingAgainstBaseURL: false) else {
-//			return nil
-//		}
-//		
-//		component.scheme = "streamPlayerFakeScheme"
-		//return component.URL
-		return NSURL(string: "fake://url.com")
+		guard let nsUrl = NSURL(string: self.url), component = NSURLComponents(URL: nsUrl, resolvingAgainstBaseURL: false) else {
+			return nil
+		}
+
+		if (component.scheme == "http" || component.scheme == "https") {
+				return NSURL(string: "fake://url.com")
+		}
+		
+		return nil
 	}()
 
-	init(player: StreamAudioPlayer, url: String) {
+	init(player: StreamAudioPlayer, url: String, customHttpHeaders: [String: String]? = nil) {
 		self.player = player
 		self.url = url
+		self.customHttpHeaders = customHttpHeaders
 	}
 	
 	deinit {
@@ -52,12 +56,12 @@ extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 	}
 	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
-		guard player.allowCaching, let nsUrl = NSURL(string: url) else {
+		guard player?.allowCaching == true, let nsUrl = NSURL(string: url) else {
 			return false
 		}
 		
 		let request = NSMutableURLRequest(URL: nsUrl)
-		player.customHttpHeaders?.forEach { request.addValue($1, forHTTPHeaderField: $1) }
+		customHttpHeaders?.forEach { request.addValue($1, forHTTPHeaderField: $1) }
 		
 		if let newTask = StreamDataCacheManager.createTask(request, resourceLoadingRequest: loadingRequest)
 			where cachingTask == nil {

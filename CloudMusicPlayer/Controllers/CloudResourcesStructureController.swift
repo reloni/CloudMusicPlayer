@@ -51,8 +51,8 @@ class CloudResourcesStructureController: UIViewController {
 			guard let url = url else {
 				return
 			}
-			streamPlayer.customHttpHeaders = track.getRequestHeaders()
-			streamPlayer.play(url)
+
+			streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
 		}
 	}
 	

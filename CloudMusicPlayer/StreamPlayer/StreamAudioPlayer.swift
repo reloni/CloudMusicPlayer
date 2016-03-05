@@ -16,13 +16,12 @@ public class StreamAudioPlayer {
 	public let allowCaching: Bool
 	private var internalPlayer: AVPlayer?
 	private var currentItem: StreamAudioItem?
-	public var customHttpHeaders: [String: String]?
 		
 	init(allowCaching: Bool = true) {
 		self.allowCaching = allowCaching
 	}
 	
-	public func play(url: String) -> StreamAudioItem? {
+	public func play(url: String, customHttpHeaders: [String: String]? = nil) -> StreamAudioItem? {
 		stop()
 		
 		let newAudioItem = StreamAudioItem(player: self, url: url)
