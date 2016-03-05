@@ -23,7 +23,8 @@ import RxCocoa
 			return nil
 		}
 		let asset = AVURLAsset(URL: nsUrl)
-		asset.resourceLoader.setDelegate(self, queue: dispatch_get_main_queue())
+		asset.resourceLoader.setDelegate(self, queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
+		//asset.resourceLoader.setDelegate(self, queue: dispatch_get_main_queue())
 		return AVPlayerItem(asset: asset)
 	}()
 	
