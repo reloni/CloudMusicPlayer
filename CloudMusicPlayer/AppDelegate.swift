@@ -9,6 +9,8 @@
 import UIKit
 import CoreData
 
+var streamPlayer = StreamAudioPlayer()
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 

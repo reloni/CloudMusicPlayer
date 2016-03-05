@@ -16,7 +16,7 @@ class SettingsController: UIViewController {
 	
 	@IBOutlet weak var logOutButton: UIButton!
 	
-	let model = SettingsModel()
+	let model = SettingsViewModel()
 	
 	private let bag = DisposeBag()
 	

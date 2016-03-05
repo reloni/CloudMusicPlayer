@@ -48,12 +48,15 @@ public class StreamAudioPlayer {
 		return currentItem
 	}
 	
-//	public func pause() {
-//		internalPlayer?.pause()
-//	}
-//	
-	public func stop() {
+	public func pause() {
 		internalPlayer?.rate = 0.0
+	}
+	
+	public func resume() {
+		internalPlayer?.rate = 1.0
+	}
+
+	public func stop() {
 		internalPlayer?.replaceCurrentItemWithPlayerItem(nil)
 		internalPlayer = nil
 	}
