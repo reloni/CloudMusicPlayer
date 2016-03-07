@@ -11,27 +11,34 @@ import AVFoundation
 import RxSwift
 import RxCocoa
 
+public enum PlayerStatus {
+	case Playing
+	case Stopped
+	case Paused
+}
+
 public class StreamAudioPlayer {
 	private var bag = DisposeBag()
 	public let allowCaching: Bool
 	private var internalPlayer: AVPlayer?
-	private var currentItem: StreamAudioItem?
+	public var currentItem = Variable<StreamAudioItem?>(nil)
+	public let status = Variable<PlayerStatus>(PlayerStatus.Stopped)
 		
 	init(allowCaching: Bool = true) {
 		self.allowCaching = allowCaching
 	}
 	
-	public func play(url: String, customHttpHeaders: [String: String]? = nil) -> StreamAudioItem? {
+	public func play(url: String, customHttpHeaders: [String: String]? = nil) {
 		stop()
 		
 		let newAudioItem = StreamAudioItem(player: self, url: url)
 		
 		guard let playerItem = newAudioItem.playerItem else {
-			currentItem = nil
-			return nil
+			currentItem.value = nil
+			return
 		}
 		
-		currentItem = newAudioItem
+		currentItem.value = newAudioItem
 		internalPlayer = AVPlayer(playerItem: playerItem)
 		
 		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
@@ -39,24 +46,25 @@ public class StreamAudioPlayer {
 				print("player status: \(status?.rawValue)")
 				if status == .ReadyToPlay {
 					strong.internalPlayer?.play()
+					strong.status.value = .Playing
 				}
 			}
 			}.addDisposableTo(self.bag)
-
-		
-		return currentItem
 	}
 	
 	public func pause() {
 		internalPlayer?.rate = 0.0
+		status.value = .Paused
 	}
 	
 	public func resume() {
 		internalPlayer?.rate = 1.0
+		status.value = .Playing
 	}
 
 	public func stop() {
 		internalPlayer?.replaceCurrentItemWithPlayerItem(nil)
 		internalPlayer = nil
+		status.value = .Stopped
 	}
 }

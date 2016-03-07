@@ -21,13 +21,16 @@ public enum CacheDataResult {
 public struct StreamDataCacheManager {
 	private static var tasks = [String: (StreamDataCacheTask, Observable<CacheDataResult>)]()
 	
-	public static func createTask(internalRequest: NSMutableURLRequest, resourceLoadingRequest: AVAssetResourceLoadingRequest) -> Observable<CacheDataResult>? {
+	public static func createTask(internalRequest: NSMutableURLRequest, resourceLoadingRequest:
+		AVAssetResourceLoadingRequest, saveCachedData: Bool = true) -> Observable<CacheDataResult>? {
+		
 		if let (task, observable) = tasks[internalRequest.URLString] {
 			task.resourceLoadingRequests.append(resourceLoadingRequest)
 			return observable
 		}
 		
-		guard let newTask = StreamDataCacheTask(internalRequest: internalRequest, resourceLoadingRequest: resourceLoadingRequest) else {
+		guard let newTask = StreamDataCacheTask(internalRequest: internalRequest,
+			resourceLoadingRequest: resourceLoadingRequest, saveCachedData: saveCachedData) else {
 			return nil
 		}
 		
@@ -89,7 +92,7 @@ public class StreamDataCacheTask {
 				self.taskProgress.onCompleted()
 			case .Success:
 				self.processRequests()
-				if let path = self.saveData() where self.saveCachedData {
+				if self.saveCachedData, let path = self.saveData() {
 					self.taskProgress.onNext(CacheDataResult.SuccessWithCache(path))
 				} else {
 					self.taskProgress.onNext(CacheDataResult.Success)
@@ -163,7 +166,7 @@ public class StreamDataCacheTask {
 		request.byteRangeAccessSupported = true
 		request.contentLength = contentLength
 		if let contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, MIMEType, nil) {
-			//request.contentType = contentType.takeUnretainedValue() as String
+			request.contentType = contentType.takeUnretainedValue() as String
 			//print(UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, "audio/mpeg", nil)?.takeUnretainedValue())
 			
 			request.contentType = "public.mp3"
