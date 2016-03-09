@@ -41,7 +41,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		//OAuthResource.parseCallbackUrl("")
 		//OAuthResource.parseCallbackUrl(url.absoluteString)
-		OAuthResourceBase.parseCallbackUrlAndSaveToken(url.absoluteString)
+		if let result = OAuthResourceManager.parseCallbackUrl(url.absoluteString) {
+			result.resource.tokenId = result.token
+			result.resource.saveResource()
+		}
 		// [1] Dismiss webview once url is passed to extract authorization code
 		//UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
 		
