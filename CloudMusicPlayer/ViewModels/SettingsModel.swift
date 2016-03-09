@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 internal class SettingsModel {
-	internal let yandexOauth = OAuthResourceBase.Yandex
+	internal let yandexOauth = OAuthResourceManager.Yandex
 	internal let isSetUp: Variable<Bool>
 	private let bag = DisposeBag()
 	init() {

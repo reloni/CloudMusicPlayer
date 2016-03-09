@@ -25,19 +25,21 @@ public class YandexOAuthResource : OAuthResourceBase {
 		return nil
 	}
 	
-	public func parseCallbackUrlAndSaveToken(url: String) {
-		if let start = url.rangeOfString("access_token=")?.endIndex, end = url.rangeOfString("&token_type=")?.startIndex {
-			self.tokenId = url.substringWithRange(Range<String.Index>(start: start, end: end))
-			saveResource()
+	public func parseCallbackUrl(url: String) -> String? {
+		if let start = url.rangeOfString("access_token=")?.endIndex {
+			let substring = url.substringFromIndex(start)
+			let end = substring.rangeOfString("&")?.startIndex ?? substring.endIndex
+			return substring.substringWithRange(Range<String.Index>(start: substring.startIndex, end: end))
 		}
+		return nil
 	}
 }
 
-extension OAuthResourceBase {
+extension OAuthResourceManager {
 	public static var Yandex: OAuthResource {
-		return loadResourceById(YandexOAuthResource.id) ?? {
+		return OAuthResourceManager.loadResource(YandexOAuthResource.id) ?? {
 			let newResource = YandexOAuthResource()
-			OAuthResourceBase.resources[YandexOAuthResource.id] = newResource
+			OAuthResourceManager.addResource(newResource)
 			newResource.saveResource()
 			return newResource
 		}()

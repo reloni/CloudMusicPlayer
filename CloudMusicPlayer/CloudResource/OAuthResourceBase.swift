@@ -14,11 +14,10 @@ import Foundation
 	var clientId: String? { get set }
 	var tokenId: String? { get set }
 	optional func getAuthUrl() -> NSURL?
-	optional func parseCallbackUrlAndSaveToken(url: String)
+	optional func parseCallbackUrl(url: String) -> String?
 }
 
 public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
-	internal static var resources = [String: OAuthResource]()
 	public let id: String
 	public let authBaseUrl: String
 	public var clientId: String?
@@ -47,26 +46,41 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 	}
 }
 
-extension OAuthResourceBase {
+public struct OAuthResourceManager {
+	private static var resources = [String: OAuthResource]()
+	
+	public static func addResource(resource: OAuthResource) {
+		resources[resource.id] = resource
+	}
+	
 	/// Load OAuth resource from local cache.
 	/// If not exists in cache load from NSUserDefaults and save in local cache and return.
 	/// If not exists in NSUserDefaults too, returns nil.
-	public static func loadResourceById(id: String) -> OAuthResource? {
-		return resources[id] ?? {
-			if let loaded: OAuthResource = NSUserDefaults.loadData(id) {
-				resources[id] = loaded
+	public static func loadResource(id: String) -> OAuthResource? {
+		return getResourceFromLocalCache(id) ?? {
+			if let loaded: OAuthResource = loadResourceFromUserDefaults(id) {
+				addResource(loaded)
 				return loaded
 			}
 			return nil
 		}()
 	}
 	
-	public static func parseCallbackUrlAndSaveToken(url: String) -> OAuthResource? {
-		if let schemeEnding = url.rangeOfString(":")?.first {
-			if let resource = loadResourceById(url.substringToIndex(schemeEnding)) {
-				resource.parseCallbackUrlAndSaveToken?(url)
-				return resource
-			}
+	public static func getResourceFromLocalCache(id: String) -> OAuthResource? {
+		return resources[id]
+	}
+	
+	public static func loadResourceFromUserDefaults(id: String) -> OAuthResource? {
+		if let loaded: OAuthResource = NSUserDefaults.loadData(id) {
+			return loaded
+		}
+		return nil
+	}
+	
+	public static func parseCallbackUrl(url: String) -> (token: String, resource: OAuthResource)? {
+		if let schemeEnding = url.rangeOfString(":")?.first, resource = loadResource(url.substringToIndex(schemeEnding)),
+			token = resource.parseCallbackUrl?(url) {
+				return (token, resource)
 		}
 		return nil
 	}
