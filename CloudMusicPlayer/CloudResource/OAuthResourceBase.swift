@@ -47,12 +47,16 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 }
 
 public struct OAuthResourceManager {
-	private static var resources = [String: OAuthResource]()
+	private static var resourcesCache = [String: OAuthResource]()
 	
 	public static func addResource(resource: OAuthResource) {
-		resources[resource.id] = resource
+		resourcesCache[resource.id] = resource
 	}
 	
+	public static var resources: [OAuthResource] {
+		return resourcesCache.map { $0.1 }
+	}
+
 	/// Load OAuth resource from local cache.
 	/// If not exists in cache load from NSUserDefaults and save in local cache and return.
 	/// If not exists in NSUserDefaults too, returns nil.
@@ -67,7 +71,7 @@ public struct OAuthResourceManager {
 	}
 	
 	public static func getResourceFromLocalCache(id: String) -> OAuthResource? {
-		return resources[id]
+		return resourcesCache[id]
 	}
 	
 	public static func loadResourceFromUserDefaults(id: String) -> OAuthResource? {

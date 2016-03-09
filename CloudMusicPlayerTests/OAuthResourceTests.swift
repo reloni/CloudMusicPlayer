@@ -32,6 +32,19 @@ class OAuthResourceTests: XCTestCase {
 		let resource = YandexOAuthResource()
 		let token = "b1f893dee2394a85ab1fa90f4a356b2e"
 		let url = "oauthyandex://com.AntonEfimenko.CloudMusicPlayer#attr1=asdf&wrong_token=\(token)&attr2=test"
-		XCTAssertEqual(nil, resource.parseCallbackUrl(url))
+		XCTAssertNil(resource.parseCallbackUrl(url))
+	}
+	
+	func testCheckNotCachedResource() {
+		XCTAssertNil(OAuthResourceManager.getResourceFromLocalCache("notexisted"))
+	}
+	
+	func testAddNewResource() {
+		OAuthResourceManager.addResource(YandexOAuthResource())
+		XCTAssertEqual(1, OAuthResourceManager.resources.count)
+	}
+	
+	func testLoadNotExistedResource() {
+		XCTAssertNil(OAuthResourceManager.loadResourceFromUserDefaults("notexisted"))
 	}
 }
