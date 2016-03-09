@@ -10,7 +10,7 @@ import Foundation
 
 public class YandexOAuthResource : OAuthResourceBase {
 	public static let id = "oauthyandex"
-	private init() {
+	internal init() {
 		super.init(id: YandexOAuthResource.id, authUrl: "https://oauth.yandex.ru/authorize?response_type=token", clientId: "6556b9ed6fb146ea824d2e1f0d98f09b", tokenId: nil)
 	}
 	
