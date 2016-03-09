@@ -60,9 +60,9 @@ public struct OAuthResourceManager {
 	/// Load OAuth resource from local cache.
 	/// If not exists in cache load from NSUserDefaults and save in local cache and return.
 	/// If not exists in NSUserDefaults too, returns nil.
-	public static func loadResource(id: String) -> OAuthResource? {
+	public static func loadResource(id: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> OAuthResource? {
 		return getResourceFromLocalCache(id) ?? {
-			if let loaded: OAuthResource = loadResourceFromUserDefaults(id) {
+			if let loaded: OAuthResource = loadResourceFromUserDefaults(id, userDefaults: userDefaults) {
 				addResource(loaded)
 				return loaded
 			}
@@ -74,15 +74,15 @@ public struct OAuthResourceManager {
 		return resourcesCache[id]
 	}
 	
-	public static func loadResourceFromUserDefaults(id: String) -> OAuthResource? {
-		if let loaded: OAuthResource = NSUserDefaults.loadData(id) {
+	public static func loadResourceFromUserDefaults(id: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> OAuthResource? {
+		if let loaded: OAuthResource = userDefaults.loadData(id) {
 			return loaded
 		}
 		return nil
 	}
 	
-	public static func parseCallbackUrl(url: String) -> (token: String, resource: OAuthResource)? {
-		if let schemeEnding = url.rangeOfString(":")?.first, resource = loadResource(url.substringToIndex(schemeEnding)),
+	public static func parseCallbackUrl(url: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> (token: String, resource: OAuthResource)? {
+		if let schemeEnding = url.rangeOfString(":")?.first, resource = loadResource(url.substringToIndex(schemeEnding), userDefaults: userDefaults),
 			token = resource.parseCallbackUrl?(url) {
 				return (token, resource)
 		}
@@ -91,7 +91,7 @@ public struct OAuthResourceManager {
 }
 
 extension OAuthResource {
-	public func saveResource() {
-		NSUserDefaults.saveData(self, forKey: id)
+	public func saveResource(userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) {
+		userDefaults.saveData(self, forKey: id)
 	}
 }

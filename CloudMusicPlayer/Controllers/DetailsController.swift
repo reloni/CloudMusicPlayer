@@ -23,7 +23,7 @@ class DetailsController: UIViewController {
 			return
 		}
 		let url = "https://cloud-api.yandex.net:443/v1/disk/resources"
-		guard let token = OAuthResourceManager.Yandex.tokenId else {
+		guard let token = OAuthResourceManager.getYandexResource().tokenId else {
 			resourceContent = nil
 			self.tableView.reloadData()
 			return

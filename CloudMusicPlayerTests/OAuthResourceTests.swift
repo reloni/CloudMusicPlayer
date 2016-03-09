@@ -9,6 +9,31 @@
 import XCTest
 @testable import CloudMusicPlayer
 
+class FakeNSUserDefaults: NSUserDefaultsProtocol {
+	var localCache: [String: AnyObject] = ["testResource": OAuthResourceBase(id: "testResource", authUrl: "https://test", clientId: nil, tokenId: nil)]
+	
+	func saveData(object: AnyObject, forKey: String) {
+		localCache[forKey] = object
+	}
+	
+	func loadData<T>(forKey: String) -> T? {
+		return loadRawData(forKey) as? T
+	}
+	
+	func loadRawData(forKey: String) -> AnyObject? {
+		return localCache[forKey]
+	}
+	
+	func setObject(value: AnyObject?, forKey: String) {
+		guard let value = value else { return }
+		saveData(value, forKey: forKey)
+	}
+	
+	func objectForKey(forKey: String) -> AnyObject? {
+		return loadRawData(forKey)
+	}
+}
+
 class OAuthResourceTests: XCTestCase {
 	
 	override func setUp() {
@@ -45,6 +70,19 @@ class OAuthResourceTests: XCTestCase {
 	}
 	
 	func testLoadNotExistedResource() {
-		XCTAssertNil(OAuthResourceManager.loadResourceFromUserDefaults("notexisted"))
+		let userDefaults = FakeNSUserDefaults()
+		XCTAssertNil(OAuthResourceManager.loadResourceFromUserDefaults("notExisted", userDefaults: userDefaults))
 	}
+	
+	func testLoadExistedResource() {
+		let defaults = FakeNSUserDefaults()
+		XCTAssertEqual("testResource", OAuthResourceManager.loadResourceFromUserDefaults("testResource", userDefaults: defaults)?.id)
+	}
+	
+//	func testCreatingYandexResource() {
+//		let defaults = FakeNSUserDefaults()
+//		let yandex = OAuthResourceManager.getYandexResource(defaults)
+//		XCTAssertEqual(2, defaults.localCache.count)
+//		XCTAssertEqual(yandex.id, OAuthResourceManager.loadResourceFromUserDefaults(yandex.id, userDefaults: defaults)?.id)
+//	}
 }
