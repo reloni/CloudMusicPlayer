@@ -76,7 +76,7 @@ public struct StreamDataTaskManager {
 	public func resume() {
 		let session = NSURLSession(configuration: .defaultSessionConfiguration(),
 			delegate: self,
-			delegateQueue: NSOperationQueue.mainQueue())
+			delegateQueue: nil)
 		dataTask = session.dataTaskWithRequest(request)
 		self.session = session
 		dataTask?.resume()

@@ -176,7 +176,6 @@ struct Keychain {
 	}
 	
 	struct Constants {
-		// FIXME: Change this to the name of your app or company!
 		static let service = "CloudMusicPlayer"
 	}
 }

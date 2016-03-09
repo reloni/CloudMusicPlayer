@@ -62,3 +62,4 @@ Carthage/Checkouts
 
 fastlane/report.xml
 fastlane/screenshots
+.idea/.name

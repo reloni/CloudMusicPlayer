@@ -69,8 +69,8 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		return items.map { item in
 			if item["media_type"].stringValue == "audio" {
 				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: nil)
-		} else {
-			return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: nil) }
+			} else {
+				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: nil) }
 		}
 	}
 	
