@@ -8,18 +8,44 @@
 
 import Foundation
 
-extension NSUserDefaults {
-	public static func saveData(object: AnyObject, forKey: String) {
+public protocol NSUserDefaultsProtocol {
+	func saveData(object: AnyObject, forKey: String)
+	func loadData<T>(forKey: String) -> T?
+	func loadRawData(forKey: String) -> AnyObject?
+	func setObject(value: AnyObject?, forKey: String)
+	func objectForKey(forKey: String) -> AnyObject?
+}
+
+extension NSUserDefaults : NSUserDefaultsProtocol {
+	public func saveData(object: AnyObject, forKey: String) {
 		let data = NSKeyedArchiver.archivedDataWithRootObject(object)
 		NSUserDefaults.standardUserDefaults().setObject(data, forKey: forKey)
 	}
 	
-	public static func loadData<T>(forKey: String) -> T? {
+	public func loadData<T>(forKey: String) -> T? {
 		return loadRawData(forKey) as? T
 	}
 	
-	public static func loadRawData(forKey: String) -> AnyObject? {
+	public func loadRawData(forKey: String) -> AnyObject? {
 		if let loadedData = NSUserDefaults.standardUserDefaults().objectForKey(forKey) {
+			return NSKeyedUnarchiver.unarchiveObjectWithData(loadedData as! NSData)
+		}
+		return nil
+	}
+}
+
+extension NSUserDefaults {
+	public static func saveData(object: AnyObject, forKey: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) {
+		let data = NSKeyedArchiver.archivedDataWithRootObject(object)
+		userDefaults.setObject(data, forKey: forKey)
+	}
+	
+	public static func loadData<T>(forKey: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> T? {
+		return loadRawData(forKey) as? T
+	}
+	
+	public static func loadRawData(forKey: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> AnyObject? {
+		if let loadedData = userDefaults.objectForKey(forKey) {
 			return NSKeyedUnarchiver.unarchiveObjectWithData(loadedData as! NSData)
 		}
 		return nil

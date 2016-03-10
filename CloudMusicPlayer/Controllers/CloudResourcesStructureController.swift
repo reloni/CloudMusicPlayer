@@ -33,7 +33,7 @@ class CloudResourcesStructureController: UIViewController {
 				}
 			}
 		} else if navigationController?.viewControllers.first == self {
-			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.Yandex) { res in
+			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource()) { res in
 				self.viewModel.resources = res
 				dispatch_async(dispatch_get_main_queue()) {
 					self.tableView.reloadData()
