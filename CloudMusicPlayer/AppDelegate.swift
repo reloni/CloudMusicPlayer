@@ -11,7 +11,6 @@ import CoreData
 
 var streamPlayer = StreamAudioPlayer(allowCaching: false)
 
-@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	var window: UIWindow?
@@ -21,6 +20,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		#if DEBUG
 			NSLog("Documents Path: %@", NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first ?? "")
 		#endif
+		
+		window = UIWindow(frame: UIScreen.mainScreen().bounds)
+		let storyboard = UIStoryboard(name: "Main", bundle: nil)
+		let initialController = storyboard.instantiateViewControllerWithIdentifier("RootTabBarController")
+		window?.rootViewController = initialController
+		window?.makeKeyAndVisible()
+		
 		return true
 	}
 	

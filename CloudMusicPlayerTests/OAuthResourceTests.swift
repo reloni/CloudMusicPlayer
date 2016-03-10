@@ -79,10 +79,10 @@ class OAuthResourceTests: XCTestCase {
 		XCTAssertEqual("testResource", OAuthResourceManager.loadResourceFromUserDefaults("testResource", userDefaults: defaults)?.id)
 	}
 	
-//	func testCreatingYandexResource() {
-//		let defaults = FakeNSUserDefaults()
-//		let yandex = OAuthResourceManager.getYandexResource(defaults)
-//		XCTAssertEqual(2, defaults.localCache.count)
-//		XCTAssertEqual(yandex.id, OAuthResourceManager.loadResourceFromUserDefaults(yandex.id, userDefaults: defaults)?.id)
-//	}
+	func testCreatingYandexResource() {
+		let defaults = FakeNSUserDefaults()
+		let yandex = OAuthResourceManager.getYandexResource(defaults)
+		XCTAssertEqual(2, defaults.localCache.count)
+		XCTAssertEqual(yandex.id, OAuthResourceManager.loadResourceFromUserDefaults(yandex.id, userDefaults: defaults)?.id)
+	}
 }
