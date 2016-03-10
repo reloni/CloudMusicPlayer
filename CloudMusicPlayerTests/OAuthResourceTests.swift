@@ -53,44 +53,39 @@ class OAuthResourceTests: XCTestCase {
 		let url = "oauthyandex://com.AntonEfimenko.CloudMusicPlayer#attr1=asdf&access_token=\(token)&attr2=test"
 		XCTAssertEqual(token, resource.parseCallbackUrl(url))
 	}
-//
+
 	func testYandexIncorrectUrlParse() {
 		let resource = YandexOAuthResource()
 		let token = "b1f893dee2394a85ab1fa90f4a356b2e"
 		let url = "oauthyandex://com.AntonEfimenko.CloudMusicPlayer#attr1=asdf&wrong_token=\(token)&attr2=test"
 		XCTAssertNil(resource.parseCallbackUrl(url))
 	}
-//
+
 	func testCheckNotCachedResource() {
-		XCTAssertNil(OAuthResourceManager.getResourceFromLocalCache("notexisted"))
+		XCTAssertNil(OAuthResourceManager.instance.getResourceFromLocalCache("notexisted"))
 	}
-//
+
 	func testAddNewResource() {
-		OAuthResourceManager.addResource(YandexOAuthResource())
-		XCTAssertEqual(1, OAuthResourceManager.resources.count)
+		let manager = OAuthResourceManager()
+		manager.addResource(YandexOAuthResource())
+		XCTAssertEqual(1, manager.resources.count)
 	}
 	
 	func testLoadNotExistedResource() {
 		let userDefaults = FakeNSUserDefaults()
-		dispatch_async(dispatch_get_main_queue()) {
-			XCTAssertNil(OAuthResourceManager.loadResourceFromUserDefaults("notExisted", userDefaults: userDefaults))
-		}
+			XCTAssertNil(OAuthResourceManager.instance.loadResourceFromUserDefaults("notExisted", userDefaults: userDefaults))
 	}
-//
+
 	func testLoadExistedResource() {
 		let defaults = FakeNSUserDefaults()
-		dispatch_async(dispatch_get_main_queue()) {
-			XCTAssertEqual("testResource", OAuthResourceManager.loadResourceFromUserDefaults("testResource", userDefaults: defaults)?.id)
-		}
+			XCTAssertEqual("testResource", OAuthResourceManager.instance.loadResourceFromUserDefaults("testResource", userDefaults: defaults)?.id)
 	}
 	
 	func testCreatingYandexResource() {
 		let defaults = FakeNSUserDefaults()
-		dispatch_async(dispatch_get_main_queue()) {
 			let yandex = OAuthResourceManager.getYandexResource(defaults)
 			XCTAssertEqual(2, defaults.localCache.count)
-			XCTAssertEqual(1, OAuthResourceManager.resources.count)
-			XCTAssertEqual(yandex.id, OAuthResourceManager.loadResourceFromUserDefaults(yandex.id, userDefaults: defaults)?.id)
-		}
+			XCTAssertEqual(1, OAuthResourceManager.instance.resources.count)
+			XCTAssertEqual(yandex.id, OAuthResourceManager.instance.loadResourceFromUserDefaults(yandex.id, userDefaults: defaults)?.id)
 	}
 }

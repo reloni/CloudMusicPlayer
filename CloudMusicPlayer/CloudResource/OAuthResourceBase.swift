@@ -46,21 +46,34 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 	}
 }
 
-public struct OAuthResourceManager {
-	private static var resourcesCache = [String: OAuthResource]()
+public class OAuthResourceManager {
+	private static var _instance: OAuthResourceManager?
+	private static var token: dispatch_once_t = 0
+	public static var instance: OAuthResourceManager  {
+		dispatch_once(&token) {
+			OAuthResourceManager._instance = OAuthResourceManager()
+		}
+		return OAuthResourceManager._instance!
+	}
 	
-	public static func addResource(resource: OAuthResource) {
+	private var resourcesCache = [String: OAuthResource]()
+	
+	internal init() {
+		
+	}
+	
+	public func addResource(resource: OAuthResource) {
 		resourcesCache[resource.id] = resource
 	}
 	
-	public static var resources: [OAuthResource] {
+	public var resources: [OAuthResource] {
 		return resourcesCache.map { $0.1 }
 	}
 
 	/// Load OAuth resource from local cache.
 	/// If not exists in cache load from NSUserDefaults and save in local cache and return.
 	/// If not exists in NSUserDefaults too, returns nil.
-	public static func loadResource(id: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> OAuthResource? {
+	public func loadResource(id: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> OAuthResource? {
 		return getResourceFromLocalCache(id) ?? {
 			if let loaded: OAuthResource = loadResourceFromUserDefaults(id, userDefaults: userDefaults) {
 				addResource(loaded)
@@ -70,18 +83,18 @@ public struct OAuthResourceManager {
 		}()
 	}
 	
-	public static func getResourceFromLocalCache(id: String) -> OAuthResource? {
+	public func getResourceFromLocalCache(id: String) -> OAuthResource? {
 		return resourcesCache[id]
 	}
 	
-	public static func loadResourceFromUserDefaults(id: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> OAuthResource? {
+	public func loadResourceFromUserDefaults(id: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> OAuthResource? {
 		if let loaded: OAuthResource = userDefaults.loadData(id) {
 			return loaded
 		}
 		return nil
 	}
 	
-	public static func parseCallbackUrl(url: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> (token: String, resource: OAuthResource)? {
+	public func parseCallbackUrl(url: String, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> (token: String, resource: OAuthResource)? {
 		if let schemeEnding = url.rangeOfString(":")?.first, resource = loadResource(url.substringToIndex(schemeEnding), userDefaults: userDefaults),
 			token = resource.parseCallbackUrl?(url) {
 				return (token, resource)

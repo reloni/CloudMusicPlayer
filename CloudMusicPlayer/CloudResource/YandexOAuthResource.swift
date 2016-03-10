@@ -37,9 +37,9 @@ public class YandexOAuthResource : OAuthResourceBase {
 
 extension OAuthResourceManager {
 	public static func getYandexResource(userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) -> OAuthResource {
-		return OAuthResourceManager.loadResource(YandexOAuthResource.id, userDefaults: userDefaults) ?? {
+		return OAuthResourceManager.instance.loadResource(YandexOAuthResource.id, userDefaults: userDefaults) ?? {
 			let newResource = YandexOAuthResource()
-			OAuthResourceManager.addResource(newResource)
+			OAuthResourceManager.instance.addResource(newResource)
 			newResource.saveResource(userDefaults)
 			return newResource
 		}()
