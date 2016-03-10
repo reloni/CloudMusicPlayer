@@ -46,7 +46,6 @@
 		6EEB98A71C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB98A51C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld */; };
 		6EEB98A91C4EBE1700DD5B95 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6EEB98A81C4EBE1700DD5B95 /* Assets.xcassets */; };
 		6EEB98AC1C4EBE1700DD5B95 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EEB98AA1C4EBE1700DD5B95 /* LaunchScreen.storyboard */; };
-		6EEB98C21C4EBE1700DD5B95 /* CloudMusicPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB98C11C4EBE1700DD5B95 /* CloudMusicPlayerUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -111,7 +110,6 @@
 		6EEB98B21C4EBE1700DD5B95 /* CloudMusicPlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudMusicPlayerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EEB98B81C4EBE1700DD5B95 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6EEB98BD1C4EBE1700DD5B95 /* CloudMusicPlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudMusicPlayerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		6EEB98C11C4EBE1700DD5B95 /* CloudMusicPlayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudMusicPlayerUITests.swift; sourceTree = "<group>"; };
 		6EEB98C31C4EBE1700DD5B95 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -294,7 +292,6 @@
 		6EEB98C01C4EBE1700DD5B95 /* CloudMusicPlayerUITests */ = {
 			isa = PBXGroup;
 			children = (
-				6EEB98C11C4EBE1700DD5B95 /* CloudMusicPlayerUITests.swift */,
 				6EEB98C31C4EBE1700DD5B95 /* Info.plist */,
 			);
 			path = CloudMusicPlayerUITests;
@@ -501,7 +498,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6EEB98C21C4EBE1700DD5B95 /* CloudMusicPlayerUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
