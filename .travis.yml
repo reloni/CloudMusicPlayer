@@ -5,4 +5,4 @@ xcode_scheme: CloudMusicPlayer #4
 xcode_sdk: iphonesimulator9.2 #5
 
 before_script:
-  - carthage update  
+  - carthage bootstrap  
