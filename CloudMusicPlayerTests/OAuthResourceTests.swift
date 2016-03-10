@@ -10,7 +10,8 @@ import XCTest
 @testable import CloudMusicPlayer
 
 class FakeNSUserDefaults: NSUserDefaultsProtocol {
-	var localCache: [String: AnyObject] = ["testResource": OAuthResourceBase(id: "testResource", authUrl: "https://test", clientId: nil, tokenId: nil)]
+	var localCache: [String: AnyObject] =
+		["testResource": OAuthResourceBase(id: "testResource", authUrl: "https://test", clientId: nil, tokenId: nil)]
 	
 	func saveData(object: AnyObject, forKey: String) {
 		localCache[forKey] = object
@@ -52,18 +53,18 @@ class OAuthResourceTests: XCTestCase {
 		let url = "oauthyandex://com.AntonEfimenko.CloudMusicPlayer#attr1=asdf&access_token=\(token)&attr2=test"
 		XCTAssertEqual(token, resource.parseCallbackUrl(url))
 	}
-	
+//
 	func testYandexIncorrectUrlParse() {
 		let resource = YandexOAuthResource()
 		let token = "b1f893dee2394a85ab1fa90f4a356b2e"
 		let url = "oauthyandex://com.AntonEfimenko.CloudMusicPlayer#attr1=asdf&wrong_token=\(token)&attr2=test"
 		XCTAssertNil(resource.parseCallbackUrl(url))
 	}
-	
+//
 	func testCheckNotCachedResource() {
 		XCTAssertNil(OAuthResourceManager.getResourceFromLocalCache("notexisted"))
 	}
-	
+//
 	func testAddNewResource() {
 		OAuthResourceManager.addResource(YandexOAuthResource())
 		XCTAssertEqual(1, OAuthResourceManager.resources.count)
@@ -71,18 +72,25 @@ class OAuthResourceTests: XCTestCase {
 	
 	func testLoadNotExistedResource() {
 		let userDefaults = FakeNSUserDefaults()
-		XCTAssertNil(OAuthResourceManager.loadResourceFromUserDefaults("notExisted", userDefaults: userDefaults))
+		dispatch_async(dispatch_get_main_queue()) {
+			XCTAssertNil(OAuthResourceManager.loadResourceFromUserDefaults("notExisted", userDefaults: userDefaults))
+		}
 	}
-	
+//
 	func testLoadExistedResource() {
 		let defaults = FakeNSUserDefaults()
-		XCTAssertEqual("testResource", OAuthResourceManager.loadResourceFromUserDefaults("testResource", userDefaults: defaults)?.id)
+		dispatch_async(dispatch_get_main_queue()) {
+			XCTAssertEqual("testResource", OAuthResourceManager.loadResourceFromUserDefaults("testResource", userDefaults: defaults)?.id)
+		}
 	}
 	
 	func testCreatingYandexResource() {
 		let defaults = FakeNSUserDefaults()
-		let yandex = OAuthResourceManager.getYandexResource(defaults)
-		XCTAssertEqual(2, defaults.localCache.count)
-		XCTAssertEqual(yandex.id, OAuthResourceManager.loadResourceFromUserDefaults(yandex.id, userDefaults: defaults)?.id)
+		dispatch_async(dispatch_get_main_queue()) {
+			let yandex = OAuthResourceManager.getYandexResource(defaults)
+			XCTAssertEqual(2, defaults.localCache.count)
+			XCTAssertEqual(1, OAuthResourceManager.resources.count)
+			XCTAssertEqual(yandex.id, OAuthResourceManager.loadResourceFromUserDefaults(yandex.id, userDefaults: defaults)?.id)
+		}
 	}
 }
