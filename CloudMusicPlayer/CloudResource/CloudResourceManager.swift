@@ -9,8 +9,18 @@
 import Foundation
 import Alamofire
 import SwiftyJSON
+import RxSwift
 
-public struct CloudResourceManager {
+public class CloudResourceManager {
+	private static var _instance: CloudResourceManager?
+	private static var token: dispatch_once_t = 0
+	public static var instance: CloudResourceManager  {
+		dispatch_once(&token) {
+			CloudResourceManager._instance = CloudResourceManager()
+		}
+		return CloudResourceManager._instance!
+	}
+	
 	public static func loadDataForCloudResource(resource: CloudResource, completion: (json: JSON?) -> ()) {
 		loadDataForCloudResource(Alamofire.request(.GET, resource.baseUrl, parameters: resource.getRequestParameters(),
 			encoding: .URL, headers: resource.getRequestHeaders()), completion: completion)
@@ -25,34 +35,28 @@ public struct CloudResourceManager {
 				}
 		}
 	}
-	
-	public static func downloadData(resource: CloudAudioResource, completion: (fileUrl: NSURL?) -> ()) {
-		resource.getDownloadUrl { url in
-			guard let url = url else {
-				completion(fileUrl: nil)
-				return
+}
+
+extension CloudResourceManager : CloudResourceManagerProtocol {
+	public func loadDataForCloudResource(request: AlamofireRequestProtocol) -> Observable<JSON?> {
+		return Observable.create { observer in
+			request.getResponseData { response in
+				guard let data = response.getData() else {
+					observer.onNext(nil)
+					observer.onCompleted()
+					return
+				}
+				
+				observer.onNext(JSON(data))
+				observer.onCompleted()
 			}
-			let request = Alamofire.request(.GET, url, parameters: nil,
-				encoding: .URL, headers: resource.getRequestHeaders())
-			downloadData(request, completion: completion)
+			
+			return AnonymousDisposable { }
 		}
 	}
 	
-	public static func downloadData(request: Request, completion: (fileUrl: NSURL?) -> ()) {
-		request.responseData { response in
-			if let data = response.data {
-				let fileManager = NSFileManager.defaultManager()
-				let directoryURL = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0]
-				let pathComponent = NSUUID().UUIDString + ".mp3"
-				let url = directoryURL.URLByAppendingPathComponent(pathComponent)
-				if data.writeToURL(url, atomically: true) {
-					completion(fileUrl: url)
-				} else {
-					completion(fileUrl: nil)
-				}
-			} else {
-				completion(fileUrl: nil)
-			}
-		}
+	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON?> {
+		return loadDataForCloudResource(Alamofire.request(.GET, resource.baseUrl, parameters: resource.getRequestParameters(),
+			encoding: .URL, headers: resource.getRequestHeaders()))
 	}
 }
