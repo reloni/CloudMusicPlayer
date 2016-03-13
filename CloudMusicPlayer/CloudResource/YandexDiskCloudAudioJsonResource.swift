@@ -34,16 +34,4 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 			completion(json?["href"].string)
 		}
 	}
-	
-	public func getFile(completion: (NSURL?) -> ()) {
-		getDownloadUrl { url in
-			guard let url = url else {
-				completion(nil)
-				return
-			}
-			let request = Alamofire.request(.GET, url, parameters: nil,
-				encoding: .URL, headers: self.getRequestHeaders())
-			CloudResourceManager.downloadData(request, completion: completion)
-		}
-	}
 }

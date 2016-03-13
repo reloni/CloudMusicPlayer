@@ -9,6 +9,30 @@
 import Foundation
 import SwiftyJSON
 import Alamofire
+import RxSwift
+
+public protocol CloudResourceManagerProtocol {
+	func loadDataForCloudResource(request: AlamofireRequestProtocol) -> Observable<JSON?>
+	func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON?>
+}
+
+public protocol AlamofireRequestProtocol {
+	func getResponseData(completionHandler: AlamofireResponseProtocol -> Void) -> AlamofireRequestProtocol
+}
+extension Request : AlamofireRequestProtocol {
+	public func getResponseData(completionHandler: AlamofireResponseProtocol -> Void) -> AlamofireRequestProtocol {
+		return responseData(completionHandler)
+	}
+}
+
+public protocol AlamofireResponseProtocol {
+	func getData() -> NSData?
+}
+extension Response : AlamofireResponseProtocol {
+	public func getData() -> NSData? {
+		return data
+	}
+}
 
 public protocol CloudResource {
 	var oAuthResource: OAuthResource { get }
@@ -32,7 +56,6 @@ public protocol CloudAudioResource : CloudResource {
 	var albumYear: uint { get }
 	var trackLength: uint { get }
 	func getDownloadUrl(completion: (String?) -> ())
-	func getFile(completion: (NSURL?) -> ())
 }
 
 public protocol CloudJsonResource : CloudResource {
