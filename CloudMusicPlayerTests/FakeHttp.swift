@@ -23,7 +23,7 @@ public enum FakeDataTaskMethods {
 }
 
 public class FakeDataTask : NSURLSessionDataTaskProtocol {
-	let completion: DataTaskResult?
+	var completion: DataTaskResult?
 	let taskProgress = PublishSubject<FakeDataTaskMethods>()
 	
 	public init(completion: DataTaskResult?) {
@@ -40,11 +40,25 @@ public class FakeDataTask : NSURLSessionDataTaskProtocol {
 }
 
 public class FakeSession : NSURLSessionProtocol {
+	var task: FakeDataTask?
+	
+	public init(fakeTask: FakeDataTask? = nil) {
+		task = fakeTask
+	}
+	
 	public func dataTaskWithURL(url: NSURL, completionHandler: DataTaskResult) -> NSURLSessionDataTaskProtocol {
-		return FakeDataTask(completion: completionHandler)
+		guard let task = self.task else {
+			return FakeDataTask(completion: completionHandler)
+		}
+		task.completion = completionHandler
+		return task
 	}
 	
 	public func dataTaskWithRequest(request: NSMutableURLRequestProtocol, completionHandler: DataTaskResult) -> NSURLSessionDataTaskProtocol {
-		return FakeDataTask(completion: completionHandler)
+		guard let task = self.task else {
+			return FakeDataTask(completion: completionHandler)
+		}
+		task.completion = completionHandler
+		return task
 	}
 }

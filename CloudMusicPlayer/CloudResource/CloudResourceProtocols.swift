@@ -11,18 +11,6 @@ import SwiftyJSON
 import Alamofire
 import RxSwift
 
-public enum HttpRequestResult {
-	case Success
-	case SuccessData(NSData)
-	case SuccessJson(JSON)
-	case Error(NSError?)
-}
-
-public protocol HttpRequestManagerProtocol {
-	func loadJsonData(request: NSMutableURLRequestProtocol, session: NSURLSessionProtocol) -> Observable<HttpRequestResult>
-	func loadDataForCloudResource(resource: CloudResource, session: NSURLSessionProtocol) -> Observable<HttpRequestResult>?
-}
-
 public protocol CloudResource {
 	var oAuthResource: OAuthResource { get }
 	var parent: CloudResource? { get }
@@ -34,7 +22,7 @@ public protocol CloudResource {
 	var mimeType: String? { get }
 	var baseUrl: String { get }
 	func getRequestHeaders() -> [String: String]?
-	func getRequestParameters() -> [String: AnyObject]?
+	func getRequestParameters() -> [String: String]?
 	func loadChilds(completion: ([CloudResource]?) -> ())
 }
 

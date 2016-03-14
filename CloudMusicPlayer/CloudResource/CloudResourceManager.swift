@@ -12,8 +12,6 @@ import SwiftyJSON
 import RxSwift
 
 public class HttpRequestManager {
-	public static let sharedInstance: HttpRequestManagerProtocol = HttpRequestManager()
-	
 	public static func loadDataForCloudResource(resource: CloudResource, completion: (json: JSON?) -> ()) {
 		loadDataForCloudResource(Alamofire.request(.GET, resource.baseUrl, parameters: resource.getRequestParameters(),
 			encoding: .URL, headers: resource.getRequestHeaders()), completion: completion)
@@ -30,41 +28,3 @@ public class HttpRequestManager {
 	}
 }
 
-extension HttpRequestManager : HttpRequestManagerProtocol {
-	public func loadJsonData(request: NSMutableURLRequestProtocol, session: NSURLSessionProtocol = NSURLSession.sharedSession())
-		-> Observable<HttpRequestResult> {
-		return Observable.create { observer in
-			
-			let task = session.dataTaskWithRequest(request) { data, response, error in
-				if let error = error {
-					observer.onNext(.Error(error))
-					observer.onCompleted()
-					return
-				}
-				
-				guard let data = data else {
-					observer.onNext(.Success)
-					observer.onCompleted()
-					return
-				}
-				
-				observer.onNext(.SuccessJson(JSON(data: data)))
-				observer.onCompleted()
-			}
-			
-			task.resume()
-			
-			return AnonymousDisposable {
-				task.suspend()
-			}
-		}
-	}
-	
-	public func loadDataForCloudResource(resource: CloudResource, session: NSURLSessionProtocol = NSURLSession.sharedSession()) -> Observable<HttpRequestResult>? {
-		guard let url = NSURL(string: resource.baseUrl) else {
-			return nil
-		}
-		
-		return loadJsonData(NSMutableURLRequest(URL: url), session: session)
-	}
-}

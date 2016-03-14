@@ -51,8 +51,8 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		return ["Authorization": oAuthResource.tokenId ?? ""]
 	}
 	
-	public func getRequestParameters() -> [String : AnyObject]? {
-		return ["path": path as AnyObject]
+	public func getRequestParameters() -> [String : String]? {
+		return ["path": path]
 	}
 	
 	public func loadChilds(completion: ([CloudResource]?) -> ()) {
