@@ -30,7 +30,7 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 	public func getDownloadUrl(completion: (String?) -> ()) {
 		let request = Alamofire.request(.GET, "https://cloud-api.yandex.net:443/v1/disk/resources/download", parameters: getRequestParameters(),
 			encoding: .URL, headers: getRequestHeaders())
-		CloudResourceManager.loadDataForCloudResource(request) { json in
+		HttpRequestManager.loadDataForCloudResource(request) { json in
 			completion(json?["href"].string)
 		}
 	}

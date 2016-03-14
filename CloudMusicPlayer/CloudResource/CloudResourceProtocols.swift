@@ -11,27 +11,16 @@ import SwiftyJSON
 import Alamofire
 import RxSwift
 
-public protocol CloudResourceManagerProtocol {
-	func loadDataForCloudResource(request: AlamofireRequestProtocol) -> Observable<JSON?>
-	func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON?>
+public enum HttpRequestResult {
+	case Success
+	case SuccessData(NSData)
+	case SuccessJson(JSON)
+	case Error(NSError?)
 }
 
-public protocol AlamofireRequestProtocol {
-	func getResponseData(completionHandler: AlamofireResponseProtocol -> Void) -> AlamofireRequestProtocol
-}
-extension Request : AlamofireRequestProtocol {
-	public func getResponseData(completionHandler: AlamofireResponseProtocol -> Void) -> AlamofireRequestProtocol {
-		return responseData(completionHandler)
-	}
-}
-
-public protocol AlamofireResponseProtocol {
-	func getData() -> NSData?
-}
-extension Response : AlamofireResponseProtocol {
-	public func getData() -> NSData? {
-		return data
-	}
+public protocol HttpRequestManagerProtocol {
+	func loadJsonData(request: NSMutableURLRequestProtocol, session: NSURLSessionProtocol) -> Observable<HttpRequestResult>
+	func loadDataForCloudResource(resource: CloudResource, session: NSURLSessionProtocol) -> Observable<HttpRequestResult>?
 }
 
 public protocol CloudResource {

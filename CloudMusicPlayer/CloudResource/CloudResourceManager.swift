@@ -11,15 +11,8 @@ import Alamofire
 import SwiftyJSON
 import RxSwift
 
-public class CloudResourceManager {
-	private static var _instance: CloudResourceManager?
-	private static var token: dispatch_once_t = 0
-	public static var instance: CloudResourceManager  {
-		dispatch_once(&token) {
-			CloudResourceManager._instance = CloudResourceManager()
-		}
-		return CloudResourceManager._instance!
-	}
+public class HttpRequestManager {
+	public static let sharedInstance: HttpRequestManagerProtocol = HttpRequestManager()
 	
 	public static func loadDataForCloudResource(resource: CloudResource, completion: (json: JSON?) -> ()) {
 		loadDataForCloudResource(Alamofire.request(.GET, resource.baseUrl, parameters: resource.getRequestParameters(),
@@ -37,26 +30,41 @@ public class CloudResourceManager {
 	}
 }
 
-extension CloudResourceManager : CloudResourceManagerProtocol {
-	public func loadDataForCloudResource(request: AlamofireRequestProtocol) -> Observable<JSON?> {
+extension HttpRequestManager : HttpRequestManagerProtocol {
+	public func loadJsonData(request: NSMutableURLRequestProtocol, session: NSURLSessionProtocol = NSURLSession.sharedSession())
+		-> Observable<HttpRequestResult> {
 		return Observable.create { observer in
-			request.getResponseData { response in
-				guard let data = response.getData() else {
-					observer.onNext(nil)
+			
+			let task = session.dataTaskWithRequest(request) { data, response, error in
+				if let error = error {
+					observer.onNext(.Error(error))
 					observer.onCompleted()
 					return
 				}
 				
-				observer.onNext(JSON(data))
+				guard let data = data else {
+					observer.onNext(.Success)
+					observer.onCompleted()
+					return
+				}
+				
+				observer.onNext(.SuccessJson(JSON(data: data)))
 				observer.onCompleted()
 			}
 			
-			return AnonymousDisposable { }
+			task.resume()
+			
+			return AnonymousDisposable {
+				task.suspend()
+			}
 		}
 	}
 	
-	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON?> {
-		return loadDataForCloudResource(Alamofire.request(.GET, resource.baseUrl, parameters: resource.getRequestParameters(),
-			encoding: .URL, headers: resource.getRequestHeaders()))
+	public func loadDataForCloudResource(resource: CloudResource, session: NSURLSessionProtocol = NSURLSession.sharedSession()) -> Observable<HttpRequestResult>? {
+		guard let url = NSURL(string: resource.baseUrl) else {
+			return nil
+		}
+		
+		return loadJsonData(NSMutableURLRequest(URL: url), session: session)
 	}
 }

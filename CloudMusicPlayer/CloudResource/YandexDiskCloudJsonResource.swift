@@ -56,7 +56,7 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}
 	
 	public func loadChilds(completion: ([CloudResource]?) -> ()) {
-		CloudResourceManager.loadDataForCloudResource(self) { json in
+		HttpRequestManager.loadDataForCloudResource(self) { json in
 			completion(YandexDiskCloudJsonResource.deserializeResponseData(json, res: self.oAuthResource))
 		}
 	}
@@ -80,7 +80,7 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 			return
 		}
 		
-		CloudResourceManager.loadDataForCloudResource(Alamofire.request(.GET, apiUrl, parameters: ["path": "/"],
+		HttpRequestManager.loadDataForCloudResource(Alamofire.request(.GET, apiUrl, parameters: ["path": "/"],
 			encoding: .URL, headers: ["Authorization": token])) { json in
 				completion(YandexDiskCloudJsonResource.deserializeResponseData(json, res: res))
 		}
