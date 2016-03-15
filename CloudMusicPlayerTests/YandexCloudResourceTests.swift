@@ -81,6 +81,15 @@ class CloudResourceTests: XCTestCase {
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
+//	func testPaths() {
+//		
+//		print(NSBundle(forClass: self.dynamicType).pathForResource("test", ofType: "txt"))
+//		print(NSBundle(forClass: self.dynamicType).pathForResource("test", ofType: "txt", inDirectory: "/CloudMusicPlayerTests/JsonFiles"))
+//		print(NSBundle(forClass: self.dynamicType).pathForResource("test", ofType: "txt", inDirectory: NSBundle(forClass: self.dynamicType).resourcePath! + "/CloudMusicPlayerTests/JsonFiles"))
+//		print(NSBundle(forClass: self.dynamicType).resourcePath)
+//		print(NSBundle(forClass: self.dynamicType).executablePath)
+//	}
+	
 //	func testGetJSONData() {
 //		let bag = DisposeBag()
 //		let request = FakeRequest()
