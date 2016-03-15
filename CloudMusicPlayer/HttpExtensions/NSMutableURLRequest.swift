@@ -10,6 +10,7 @@ import Foundation
 
 public protocol NSMutableURLRequestProtocol {
 	func addValue(value: String, forHTTPHeaderField: String)
+	var URL: NSURL? { get }
 }
 
 extension NSMutableURLRequest : NSMutableURLRequestProtocol { }

@@ -11,7 +11,11 @@ import Foundation
 extension NSURL {
 	public convenience init?(baseUrl: String, parameters: [String: String]?) {
 		if let parameters = parameters, components = NSURLComponents(string: baseUrl) {
-			components.queryItems = parameters.map { NSURLQueryItem(name: $0, value: $1) }
+			components.queryItems = [NSURLQueryItem]()
+			parameters.forEach { key, value in
+				components.queryItems?.append(NSURLQueryItem(name: key, value: value))
+				//value.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())))
+			}
 			self.init(string: components.URLString)
 		} else {
 			self.init(string: baseUrl)

@@ -11,6 +11,11 @@ import SwiftyJSON
 import Alamofire
 import RxSwift
 
+public enum CloudRequestResult {
+	case Success([CloudResource]?)
+	case Error(NSError?)
+}
+
 public protocol CloudResource {
 	var oAuthResource: OAuthResource { get }
 	var parent: CloudResource? { get }
@@ -20,10 +25,12 @@ public protocol CloudResource {
 	var type: String { get }
 	var mediaType: String? { get }
 	var mimeType: String? { get }
-	var baseUrl: String { get }
+	var rootUrl: String { get }
+	var resourcesUrl: String { get }
 	func getRequestHeaders() -> [String: String]?
 	func getRequestParameters() -> [String: String]?
 	func loadChilds(completion: ([CloudResource]?) -> ())
+	func loadChilds() -> Observable<CloudRequestResult>?
 }
 
 public protocol CloudAudioResource : CloudResource {

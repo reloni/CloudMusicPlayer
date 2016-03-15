@@ -13,7 +13,7 @@ import RxSwift
 
 public class HttpRequestManager {
 	public static func loadDataForCloudResource(resource: CloudResource, completion: (json: JSON?) -> ()) {
-		loadDataForCloudResource(Alamofire.request(.GET, resource.baseUrl, parameters: resource.getRequestParameters(),
+		loadDataForCloudResource(Alamofire.request(.GET, resource.resourcesUrl, parameters: resource.getRequestParameters(),
 			encoding: .URL, headers: resource.getRequestHeaders()), completion: completion)
 	}
 	

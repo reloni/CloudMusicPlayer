@@ -12,6 +12,12 @@ import RxSwift
 
 public class FakeRequest : NSMutableURLRequestProtocol {
 	var headers = [String: String]()
+	public var URL: NSURL?
+	
+	public init(url: NSURL? = nil) {
+		self.URL = url
+	}
+	
 	public func addValue(value: String, forHTTPHeaderField: String) {
 		headers[forHTTPHeaderField] = value
 	}
@@ -60,5 +66,11 @@ public class FakeSession : NSURLSessionProtocol {
 		}
 		task.completion = completionHandler
 		return task
+	}
+}
+
+public class FakeHttpUtilities : HttpUtilitiesProtocol {
+	public func createUrlRequest(baseUrl: String, parameters: [String : String]?) -> NSMutableURLRequestProtocol? {
+		return FakeRequest(url: NSURL(baseUrl: baseUrl, parameters: parameters))
 	}
 }
