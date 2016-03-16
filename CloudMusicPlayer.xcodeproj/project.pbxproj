@@ -25,6 +25,8 @@
 		6E1F020E1C57F14800490013 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F020D1C57F14800490013 /* Keychain.swift */; };
 		6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E235DA51C9833DB00351034 /* YandexRoot.json */; };
 		6E2E90A11C7B6CCF006D5A83 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */; };
+		6E3A3F6C1C9981C9001975C8 /* YandexAudioDownloadResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */; };
+		6E3A3F6E1C99823B001975C8 /* YandexAudioItem.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */; };
 		6E5254481C675D8F00CA5463 /* OAuthResourceBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */; };
 		6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254491C676BE900CA5463 /* NSUserDefaults.swift */; };
 		6E6555F91C7E3CBB0088E650 /* DetailsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6555F81C7E3CBB0088E650 /* DetailsController.swift */; };
@@ -99,6 +101,8 @@
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
 		6E235DA51C9833DB00351034 /* YandexRoot.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexRoot.json; sourceTree = "<group>"; };
 		6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
+		6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioDownloadResponse.json; sourceTree = "<group>"; };
+		6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioItem.json; sourceTree = "<group>"; };
 		6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthResourceBase.swift; sourceTree = "<group>"; };
 		6E5254491C676BE900CA5463 /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
 		6E6555F81C7E3CBB0088E650 /* DetailsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsController.swift; sourceTree = "<group>"; };
@@ -328,9 +332,11 @@
 		6EEB98B51C4EBE1700DD5B95 /* CloudMusicPlayerTests */ = {
 			isa = PBXGroup;
 			children = (
+				6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */,
 				6EA3A2521C9969B30042E851 /* YandexMusicDirItem.json */,
 				6EA3A2501C9967FC0042E851 /* YandexMusicFolderContents.json */,
 				6E235DA51C9833DB00351034 /* YandexRoot.json */,
+				6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */,
 				6EECECD31C982369007B37CC /* Support */,
 				6EEB98B81C4EBE1700DD5B95 /* Info.plist */,
 				6E80F8B81C903CA200102A9C /* OAuthResourceTests.swift */,
@@ -479,9 +485,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E3A3F6C1C9981C9001975C8 /* YandexAudioDownloadResponse.json in Resources */,
 				6EA3A2511C9967FC0042E851 /* YandexMusicFolderContents.json in Resources */,
 				6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */,
 				6EA3A2531C9969B30042E851 /* YandexMusicDirItem.json in Resources */,
+				6E3A3F6E1C99823B001975C8 /* YandexAudioItem.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

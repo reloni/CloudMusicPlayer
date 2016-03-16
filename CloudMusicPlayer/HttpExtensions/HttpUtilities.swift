@@ -11,6 +11,7 @@ import Foundation
 public protocol HttpUtilitiesProtocol {
 	func createUrlRequest(baseUrl: String, parameters: [String: String]?) -> NSMutableURLRequestProtocol?
 	func createUrlRequest(baseUrl: String, parameters: [String: String]?, headers: [String: String]?) -> NSMutableURLRequestProtocol?
+	func createUrlRequest(url: NSURL, headers: [String: String]?) -> NSMutableURLRequestProtocol?
 }
 
 public class HttpUtilities {
@@ -27,6 +28,8 @@ public class HttpUtilities {
 			_instance = instance ?? HttpUtilities()
 		}
 	}
+	
+	internal init() { }
 }
 
 extension HttpUtilities : HttpUtilitiesProtocol {
@@ -34,15 +37,20 @@ extension HttpUtilities : HttpUtilitiesProtocol {
 		guard let url = NSURL(baseUrl: baseUrl, parameters: parameters) else {
 			return nil
 		}
-		return NSMutableURLRequest(URL: url)
+		return createUrlRequest(url)
 	}
 	
 	public func createUrlRequest(baseUrl: String, parameters: [String: String]?, headers: [String: String]?) -> NSMutableURLRequestProtocol? {
-			guard let request = createUrlRequest(baseUrl, parameters: parameters) else {
-				return nil
-			}
-			
-			headers?.forEach { request.addValue($1, forHTTPHeaderField: $0) }
-			return request
+		guard let url = NSURL(baseUrl: baseUrl, parameters: parameters) else {
+			return nil
+		}
+		
+		return createUrlRequest(url, headers: headers)
+	}
+	
+	public func createUrlRequest(url: NSURL, headers: [String : String]? = nil) -> NSMutableURLRequestProtocol? {
+		let request = NSMutableURLRequest(URL: url)
+		headers?.forEach { request.addValue($1, forHTTPHeaderField: $0) }
+		return request
 	}
 }

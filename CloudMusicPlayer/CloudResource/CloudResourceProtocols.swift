@@ -36,11 +36,12 @@ public protocol CloudResource {
 }
 
 public protocol CloudAudioResource : CloudResource {
-	var title: String { get }
-	var artist: String { get }
-	var album: String { get }
-	var albumYear: uint { get }
-	var trackLength: uint { get }
+	//var title: String { get }
+	//var artist: String { get }
+	//var album: String { get }
+	//var albumYear: uint { get }
+	//var trackLength: uint { get }
+	var downloadUrl: Observable<String?>? { get }
 	func getDownloadUrl(completion: (String?) -> ())
 }
 

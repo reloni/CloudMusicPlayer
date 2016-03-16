@@ -31,6 +31,7 @@ public enum FakeDataTaskMethods {
 public class FakeDataTask : NSURLSessionDataTaskProtocol {
 	var completion: DataTaskResult?
 	let taskProgress = PublishSubject<FakeDataTaskMethods>()
+	var originalRequest: NSMutableURLRequestProtocol?
 	
 	public init(completion: DataTaskResult?) {
 		self.completion = completion
@@ -42,6 +43,10 @@ public class FakeDataTask : NSURLSessionDataTaskProtocol {
 	
 	public func suspend() {
 		taskProgress.onNext(.suspend(self))
+	}
+	
+	public func getOriginalMutableUrlRequest() -> NSMutableURLRequestProtocol? {
+		return originalRequest
 	}
 }
 
@@ -65,6 +70,7 @@ public class FakeSession : NSURLSessionProtocol {
 			return FakeDataTask(completion: completionHandler)
 		}
 		task.completion = completionHandler
+		task.originalRequest = request
 		return task
 	}
 }
@@ -77,6 +83,12 @@ public class FakeHttpUtilities : HttpUtilitiesProtocol {
 	public func createUrlRequest(baseUrl: String, parameters: [String : String]?, headers: [String : String]?) -> NSMutableURLRequestProtocol? {
 		let req = createUrlRequest(baseUrl, parameters: parameters)
 		headers?.forEach { req?.addValue($1, forHTTPHeaderField: $0) }
+		return req
+	}
+	
+	public func createUrlRequest(url: NSURL, headers: [String: String]?) -> NSMutableURLRequestProtocol? {
+		let req = FakeRequest(url: url)
+		headers?.forEach { req.addValue($1, forHTTPHeaderField: $0) }
 		return req
 	}
 }

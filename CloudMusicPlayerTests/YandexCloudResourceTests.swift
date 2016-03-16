@@ -158,24 +158,26 @@ class YandexCloudResourceTests: XCTestCase {
 	}
 	
 	func testLoadChilds() {
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(json?.rawDataSafe(), nil, nil)
-				}
-			}
-			}.addDisposableTo(bag)
-		
 		let expectation = expectationWithDescription("Should return childs")
 		
 		guard let rootItem = JSON.getJsonFromFile("YandexMusicDirItem") else {
 			waitForExpectationsWithTimeout(1, handler: nil)
 			return
 		}
+		let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpRequest: httpRequest)
+		
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(NSURL(baseUrl: item.resourcesUrl, parameters: item.getRequestParameters())?.URLString, tsk.originalRequest?.URL?.URLString, "Check invoke url")
+				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(json?.rawDataSafe(), nil, nil)
+				}
+			}
+		}.addDisposableTo(bag)
 		
 		var loadedChilds: [CloudResource]?
-		let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpRequest: httpRequest)
+		
 		item.loadChilds()?.bindNext { result in
 			if case .Success(let childs) = result {
 				loadedChilds = childs
@@ -201,6 +203,34 @@ class YandexCloudResourceTests: XCTestCase {
 			XCTAssertEqual(audioItem?.type, "file")
 			XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
 		}
+	}
+	
+	func testGetDownloadUrl() {
+		let expectation = expectationWithDescription("Should return childs")
+		
+		guard let audioItem = JSON.getJsonFromFile("YandexAudioItem"),
+			sendJson = JSON.getJsonFromFile("YandexAudioDownloadResponse"), href = sendJson["href"].string else {
+				waitForExpectationsWithTimeout(1, handler: nil)
+				return
+		}
+		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpRequest: httpRequest)
+		
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(item.downloadResourceUrl, tsk.originalRequest?.URL, "Check invoke url")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(sendJson.rawDataSafe(), nil, nil)
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		item.downloadUrl?.bindNext { result in
+			if result == href {
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
 //	func testPaths() {

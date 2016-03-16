@@ -9,22 +9,48 @@
 import Foundation
 import SwiftyJSON
 import Alamofire
+import RxSwift
 
 public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, CloudAudioResource {
-	public var title: String {
-		return "song"
+//	public var title: String {
+//		return "song"
+//	}
+//	public var artist: String {
+//		return "artist!"
+//	}
+//	public var album: String {
+//		return "album"
+//	}
+//	public var albumYear: uint {
+//		return 205
+//	}
+//	public var trackLength: uint {
+//		return 205
+//	}
+	
+	internal var downloadResourceUrl: NSURL? {
+		return NSURL(baseUrl: resourcesUrl + "/download", parameters: getRequestParameters())
 	}
-	public var artist: String {
-		return "artist!"
-	}
-	public var album: String {
-		return "album"
-	}
-	public var albumYear: uint {
-		return 205
-	}
-	public var trackLength: uint {
-		return 205
+	
+	public var downloadUrl: Observable<String?>? {
+		guard let url = downloadResourceUrl, request = httpUtilities.createUrlRequest(url, headers: getRequestHeaders()) else {
+			return nil
+		}
+		
+		return Observable.create { [unowned self] observer in
+			let task = self.httpRequest.loadJsonData(request).bindNext { result in
+				if case .SuccessJson(let json) = result, let href = json["href"].string {
+					observer.onNext(href)
+				} else {
+					observer.onNext(nil)
+				}
+				observer.onCompleted()
+			}
+			
+			return AnonymousDisposable {
+				task.dispose()
+			}
+		}
 	}
 	
 	public func getDownloadUrl(completion: (String?) -> ()) {

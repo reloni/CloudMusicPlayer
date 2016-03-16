@@ -11,6 +11,11 @@ import Foundation
 public protocol NSURLSessionDataTaskProtocol {
 	func resume()
 	func suspend()
+	func getOriginalMutableUrlRequest() -> NSMutableURLRequestProtocol?
 }
 
-extension NSURLSessionDataTask : NSURLSessionDataTaskProtocol { }
+extension NSURLSessionDataTask : NSURLSessionDataTaskProtocol {
+	public func getOriginalMutableUrlRequest() -> NSMutableURLRequestProtocol? {
+		return originalRequest as? NSMutableURLRequestProtocol
+	}
+}
