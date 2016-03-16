@@ -11,11 +11,11 @@ import UIKit
 class CloudTrackCell: UITableViewCell {
 	var track: CloudAudioResource? {
 		didSet {
-			trackTitleLabel.text = track?.title
-			albumNameLabel.text = track?.album
-			artistNameLabel.text = track?.artist
-			trackLengthLabel.text = String(track?.trackLength)
-			albumYearLabel.text = String(track?.albumYear)
+			//trackTitleLabel.text = track?.title
+			//albumNameLabel.text = track?.album
+			//artistNameLabel.text = track?.artist
+			//trackLengthLabel.text = String(track?.trackLength)
+			//albumYearLabel.text = String(track?.albumYear)
 		}
 	}
 	@IBOutlet weak var trackTitleLabel: UILabel!

@@ -1,0 +1,79 @@
+{
+  "name" : "disk",
+  "created" : "2012-04-04T20:00:00+00:00",
+  "path" : "disk:\/",
+  "_embedded" : {
+    "path" : "disk:\/",
+    "total" : 9,
+    "items" : [
+      {
+        "path" : "disk:\/Documents",
+        "created" : "2015-06-13T20:13:04+00:00",
+        "type" : "dir",
+        "name" : "Documents",
+        "modified" : "2015-06-13T20:13:04+00:00"
+      },
+      {
+        "path" : "disk:\/Lightroom Backups",
+        "created" : "2014-05-09T15:34:20+00:00",
+        "type" : "dir",
+        "name" : "Lightroom Backups",
+        "modified" : "2014-05-09T15:34:20+00:00"
+      },
+      {
+        "path" : "disk:\/MediaWikiBackUp",
+        "created" : "2015-06-30T13:05:01+00:00",
+        "type" : "dir",
+        "name" : "MediaWikiBackUp",
+        "modified" : "2015-06-30T13:05:01+00:00"
+      },
+      {
+        "path" : "disk:\/Music",
+        "created" : "2016-02-27T12:53:33+00:00",
+        "type" : "dir",
+        "name" : "Music",
+        "modified" : "2016-02-27T12:53:33+00:00"
+      },
+      {
+        "path" : "disk:\/Temp",
+        "created" : "2015-07-02T19:22:42+00:00",
+        "type" : "dir",
+        "name" : "Temp",
+        "modified" : "2015-07-02T19:22:42+00:00"
+      },
+      {
+        "path" : "disk:\/kybook",
+        "created" : "2015-06-20T12:06:55+00:00",
+        "type" : "dir",
+        "name" : "kybook",
+        "modified" : "2015-06-20T12:06:55+00:00"
+      },
+      {
+        "path" : "disk:\/Загрузки",
+        "created" : "2013-04-27T06:17:10+00:00",
+        "type" : "dir",
+        "name" : "Загрузки",
+        "modified" : "2015-12-21T16:13:56+00:00"
+      },
+      {
+        "path" : "disk:\/Скриншоты",
+        "created" : "2014-11-16T15:41:48+00:00",
+        "type" : "dir",
+        "name" : "Скриншоты",
+        "modified" : "2014-11-16T15:41:48+00:00"
+      },
+      {
+        "path" : "disk:\/Фотокамера",
+        "created" : "2013-06-13T11:07:57+00:00",
+        "type" : "dir",
+        "name" : "Фотокамера",
+        "modified" : "2013-06-13T11:07:57+00:00"
+      }
+    ],
+    "sort" : "",
+    "offset" : 0,
+    "limit" : 20
+  },
+  "modified" : "2012-04-04T20:00:00+00:00",
+  "type" : "dir"
+}

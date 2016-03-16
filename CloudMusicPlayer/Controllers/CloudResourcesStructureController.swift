@@ -17,6 +17,7 @@ import AVFoundation
 class CloudResourcesStructureController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 	let viewModel = CloudResourcesViewModel()
+	var bag: DisposeBag?
 	
 	override func viewDidLoad() {
 		automaticallyAdjustsScrollViewInsets = false
@@ -24,22 +25,28 @@ class CloudResourcesStructureController: UIViewController {
 	}
 	
 	override func viewDidAppear(animated: Bool) {
+		bag = DisposeBag()
+		
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
-			parent.loadChilds { res in
-				self.viewModel.resources = res
-				dispatch_async(dispatch_get_main_queue()) {
+			parent.loadChilds()?.observeOn(MainScheduler.instance).bindNext { [unowned self] result in
+				if case .Success(let childs) = result {
+					self.viewModel.resources = childs
 					self.tableView.reloadData()
 				}
-			}
+			}.addDisposableTo(bag!)
 		} else if navigationController?.viewControllers.first == self {
-			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource()) { res in
-				self.viewModel.resources = res
-				dispatch_async(dispatch_get_main_queue()) {
+			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource())?.observeOn(MainScheduler.instance).bindNext { [unowned self] result in
+				if case .Success(let childs) = result {
+					self.viewModel.resources = childs
 					self.tableView.reloadData()
 				}
-			}
+			}.addDisposableTo(bag!)
 		}
+	}
+	
+	override func viewWillDisappear(animated: Bool) {
+		bag = nil
 	}
 	
 	override func didReceiveMemoryWarning() {
@@ -47,13 +54,10 @@ class CloudResourcesStructureController: UIViewController {
 	}
 	
 	func play(track: CloudAudioResource) {
-		track.getDownloadUrl { url in
-			guard let url = url else {
-				return
-			}
-
+		track.downloadUrl?.bindNext { result in
+			guard let url = result else { return }
 			streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
-		}
+		}.addDisposableTo(bag!)
 	}
 	
 	func stop() {

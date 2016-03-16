@@ -1,0 +1,11 @@
+{
+	"name": "TestTrack.mp3",
+	"created": "2016-03-05T11:49:31+00:00",
+	"modified": "2016-03-05T11:49:31+00:00",
+	"media_type": "audio",
+	"path": "disk:/Music/TestTrack.mp3",
+	"md5": "33e68f0c72fd6e403c4c73e103e7e3ab",
+	"type": "file",
+	"mime_type": "audio/mpeg",
+	"size": 8293071
+}
