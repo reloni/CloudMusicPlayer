@@ -12,22 +12,6 @@ import Alamofire
 import RxSwift
 
 public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, CloudAudioResource {
-//	public var title: String {
-//		return "song"
-//	}
-//	public var artist: String {
-//		return "artist!"
-//	}
-//	public var album: String {
-//		return "album"
-//	}
-//	public var albumYear: uint {
-//		return 205
-//	}
-//	public var trackLength: uint {
-//		return 205
-//	}
-	
 	internal var downloadResourceUrl: NSURL? {
 		return NSURL(baseUrl: resourcesUrl + "/download", parameters: getRequestParameters())
 	}
@@ -50,14 +34,6 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 			return AnonymousDisposable {
 				task.dispose()
 			}
-		}
-	}
-	
-	public func getDownloadUrl(completion: (String?) -> ()) {
-		let request = Alamofire.request(.GET, "https://cloud-api.yandex.net:443/v1/disk/resources/download", parameters: getRequestParameters(),
-			encoding: .URL, headers: getRequestHeaders())
-		HttpRequestManager.loadDataForCloudResource(request) { json in
-			completion(json?["href"].string)
 		}
 	}
 }

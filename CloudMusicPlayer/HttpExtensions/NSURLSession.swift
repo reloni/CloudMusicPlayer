@@ -21,6 +21,6 @@ extension NSURLSession : NSURLSessionProtocol {
 	}
 	
 	public func dataTaskWithRequest(request: NSMutableURLRequestProtocol, completionHandler: DataTaskResult) -> NSURLSessionDataTaskProtocol {
-		return dataTaskWithRequest(request, completionHandler: completionHandler)
+		return dataTaskWithRequest(request as! NSMutableURLRequest, completionHandler: completionHandler) as NSURLSessionDataTask
 	}
 }

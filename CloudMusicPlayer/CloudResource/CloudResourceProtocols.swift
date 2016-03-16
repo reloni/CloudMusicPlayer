@@ -19,7 +19,6 @@ public enum CloudRequestResult {
 public protocol CloudResource {
 	var oAuthResource: OAuthResource { get }
 	var parent: CloudResource? { get }
-	var childs: [CloudResource]? { get }
 	var httpUtilities: HttpUtilitiesProtocol { get }
 	var httpRequest: HttpRequestProtocol { get }
 	var name: String { get }
@@ -31,18 +30,11 @@ public protocol CloudResource {
 	var resourcesUrl: String { get }
 	func getRequestHeaders() -> [String: String]?
 	func getRequestParameters() -> [String: String]?
-	func loadChilds(completion: ([CloudResource]?) -> ())
 	func loadChilds() -> Observable<CloudRequestResult>?
 }
 
 public protocol CloudAudioResource : CloudResource {
-	//var title: String { get }
-	//var artist: String { get }
-	//var album: String { get }
-	//var albumYear: uint { get }
-	//var trackLength: uint { get }
 	var downloadUrl: Observable<String?>? { get }
-	func getDownloadUrl(completion: (String?) -> ())
 }
 
 public protocol CloudJsonResource : CloudResource {

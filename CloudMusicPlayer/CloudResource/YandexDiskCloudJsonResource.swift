@@ -15,7 +15,6 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	public static let apiUrl = "https://cloud-api.yandex.net:443/v1/disk"
 	public static let resourcesApiUrl = apiUrl + "/resources"
 	public private (set) var parent: CloudResource?
-	public private (set) var childs: [CloudResource]?
 	public private (set) var httpRequest: HttpRequestProtocol
 	public private (set) var httpUtilities: HttpUtilitiesProtocol
 	public let oAuthResource: OAuthResource
@@ -66,12 +65,6 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		return ["path": path]
 	}
 	
-	public func loadChilds(completion: ([CloudResource]?) -> ()) {
-		HttpRequestManager.loadDataForCloudResource(self) { json in
-			completion(YandexDiskCloudJsonResource.deserializeResponseData(json, res: self.oAuthResource))
-		}
-	}
-	
 	public func loadChilds() -> Observable<CloudRequestResult>? {
 		guard let request = httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders()) else {
 			return nil
@@ -93,19 +86,7 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: nil, httpUtilities: httpUtilities, httpRequest: httpRequest) }
 		}
 	}
-	
-	public static func loadRootResources(res: OAuthResource, completion: ([CloudResource]?) -> ()) {
-		guard let token = res.tokenId else {
-			completion(nil)
-			return
-		}
 		
-		HttpRequestManager.loadDataForCloudResource(Alamofire.request(.GET, apiUrl, parameters: ["path": "/"],
-			encoding: .URL, headers: ["Authorization": token])) { json in
-				completion(YandexDiskCloudJsonResource.deserializeResponseData(json, res: res))
-		}
-	}
-	
 	internal static func createRequestForLoadRootResources(oauthResource: OAuthResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance)
 		-> NSMutableURLRequestProtocol? {
 			guard let token = oauthResource.tokenId else {
