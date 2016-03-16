@@ -13,7 +13,7 @@ import RxSwift
 
 extension JSON {
 	public static func getJsonFromFile(fileName: String) -> JSON? {
-		guard let path = NSBundle(forClass: CloudResourceTests.self).pathForResource(fileName, ofType: "json"),
+		guard let path = NSBundle(forClass: YandexCloudResourceTests.self).pathForResource(fileName, ofType: "json"),
 			dataStr = try? String(contentsOfFile: path), let data = dataStr.dataUsingEncoding(NSUTF8StringEncoding)else { return nil }
 		
 		return JSON(data: data)
@@ -24,11 +24,12 @@ extension JSON {
 	}
 }
 
-class CloudResourceTests: XCTestCase {
+class YandexCloudResourceTests: XCTestCase {
 	var bag: DisposeBag!
 	var request: FakeRequest!
 	var session: FakeSession!
 	var utilities: FakeHttpUtilities!
+	var oauthResource: OAuthResourceBase!
 	
 	override func setUp() {
 		super.setUp()
@@ -38,6 +39,7 @@ class CloudResourceTests: XCTestCase {
 		request = FakeRequest()
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
+		oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
 	}
 	
 	override func tearDown() {
@@ -50,11 +52,23 @@ class CloudResourceTests: XCTestCase {
 	}
 	
 	func testCreateRequest() {
-		let oAuth = OAuthResourceBase(id: "fake", authUrl: "http://test.com", clientId: nil, tokenId: "authToken")
-		let req = YandexDiskCloudJsonResource.createRequestForLoadRootResources(oAuth, httpUtilities: utilities) as? FakeRequest
+		let req = YandexDiskCloudJsonResource.createRequestForLoadRootResources(oauthResource, httpUtilities: utilities) as? FakeRequest
 		XCTAssertNotNil(req, "Should create request")
 		XCTAssertEqual(NSURL(baseUrl: YandexDiskCloudJsonResource.resourcesApiUrl, parameters: ["path": "/"]), req?.URL, "Should create correct url")
-		XCTAssertEqual("authToken", req?.headers["Authorization"], "Should set one header with correct token")
+		XCTAssertEqual(oauthResource.tokenId, req?.headers["Authorization"], "Should set one header with correct token")
+	}
+	
+	func testDeserializeJsonResponseFolder() {
+		let first = YandexDiskCloudJsonResource.deserializeResponseData(JSON.getJsonFromFile("YandexRoot"), res: oauthResource)?.first
+		XCTAssertNotNil(first)
+		XCTAssertEqual(first?.name, "Documents")
+		XCTAssertEqual(first?.path, "disk:/Documents")
+		XCTAssertNil(first?.parent)
+		XCTAssertNil(first?.mediaType)
+		XCTAssertNil(first?.mimeType)
+		XCTAssertEqual(oauthResource.id, first?.oAuthResource.id)
+		XCTAssertEqual((first?.getRequestHeaders())!, ["Authorization": oauthResource.tokenId!])
+		XCTAssertEqual((first?.getRequestParameters())!, ["path": first!.path])
 	}
 	
 	func testLoadRootData() {
@@ -68,15 +82,55 @@ class CloudResourceTests: XCTestCase {
 			}.addDisposableTo(bag)
 		
 		let expectation = expectationWithDescription("Should return correct json data from YandexRoot file")
-		let fakeRes = FakeCloudResource(oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil))
-		fakeRes.resourcesUrl = "https://test.com"
-		
-		let oAuth = OAuthResourceBase(id: "fake", authUrl: "http://test.com", clientId: nil, tokenId: "token")
-		YandexDiskCloudJsonResource.loadRootResources(oAuth, httpRequest: HttpRequest.instance, session: session, httpUtilities: utilities)?.bindNext { result in
+
+		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: HttpRequest.instance, session: session, httpUtilities: utilities)?.bindNext { result in
 			if case .Success(let json) = result where json?.count == 9 {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testErrorWhileLoadRootData() {
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		let expectation = expectationWithDescription("Should return error")
+		
+		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: HttpRequest.instance, session: session, httpUtilities: utilities)?.bindNext { result in
+			if case .Error(let error) = result where error?.code == 1 {
+				expectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testTerminateWhileLoadRootData() {
+		let expectation = expectationWithDescription("Should suspend task")
+		
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(_) = progress {
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					for _ in 0...10 {
+						sleep(1)
+					}
+				}
+			} else if case .suspend(_) = progress {
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		let request = YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: HttpRequest.instance, session: session, httpUtilities: utilities)?
+			.bindNext { _ in
+		}
+		request?.dispose()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}

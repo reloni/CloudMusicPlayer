@@ -154,10 +154,9 @@ class HttpRequestTests: XCTestCase {
 			}
 		}.addDisposableTo(bag)
 		
-		HttpRequest.instance.loadData(request, session: session).bindNext { _ in
-		}.addDisposableTo(bag)
-		
-		session.task?.suspend()
+		let loadRequest = HttpRequest.instance.loadData(request, session: session).bindNext { _ in
+		}
+		loadRequest.dispose()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
@@ -178,10 +177,9 @@ class HttpRequestTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		HttpRequest.instance.loadJsonData(request, session: session).bindNext { _ in
-			}.addDisposableTo(bag)
-		
-		session.task?.suspend()
+		let loadRequest = HttpRequest.instance.loadJsonData(request, session: session).bindNext { _ in
+		}
+		loadRequest.dispose()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}

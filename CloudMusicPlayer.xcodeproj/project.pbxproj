@@ -24,7 +24,6 @@
 		6E182EDA1C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */; };
 		6E1F020E1C57F14800490013 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F020D1C57F14800490013 /* Keychain.swift */; };
 		6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E235DA51C9833DB00351034 /* YandexRoot.json */; };
-		6E235DA81C9838F900351034 /* test.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6E235DA71C9838F900351034 /* test.txt */; };
 		6E2E90A11C7B6CCF006D5A83 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */; };
 		6E5254481C675D8F00CA5463 /* OAuthResourceBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */; };
 		6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254491C676BE900CA5463 /* NSUserDefaults.swift */; };
@@ -53,7 +52,6 @@
 		6EE0CCCE1C96F31F002F4D9D /* NSURLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE0CCCD1C96F31F002F4D9D /* NSURLTests.swift */; };
 		6EE5F8761C550877004CF20C /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE5F8751C550877004CF20C /* SettingsController.swift */; };
 		6EE857BA1C988BD3002809B5 /* HttpUtilitiesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE857B91C988BD3002809B5 /* HttpUtilitiesTest.swift */; };
-		6EE857BC1C988EA6002809B5 /* test.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6EE857BB1C988EA6002809B5 /* test.txt */; };
 		6EEB989F1C4EBE1700DD5B95 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB989E1C4EBE1700DD5B95 /* AppDelegate.swift */; };
 		6EEB98A11C4EBE1700DD5B95 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB98A01C4EBE1700DD5B95 /* ViewController.swift */; };
 		6EEB98A71C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB98A51C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld */; };
@@ -98,7 +96,6 @@
 		6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexDiskCloudAudioJsonResource.swift; sourceTree = "<group>"; };
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
 		6E235DA51C9833DB00351034 /* YandexRoot.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexRoot.json; sourceTree = "<group>"; };
-		6E235DA71C9838F900351034 /* test.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.txt; sourceTree = "<group>"; };
 		6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
 		6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthResourceBase.swift; sourceTree = "<group>"; };
 		6E5254491C676BE900CA5463 /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
@@ -127,7 +124,6 @@
 		6EE0CCCD1C96F31F002F4D9D /* NSURLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURLTests.swift; sourceTree = "<group>"; };
 		6EE5F8751C550877004CF20C /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SettingsController.swift; path = CloudMusicPlayer/Controllers/SettingsController.swift; sourceTree = SOURCE_ROOT; };
 		6EE857B91C988BD3002809B5 /* HttpUtilitiesTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpUtilitiesTest.swift; sourceTree = "<group>"; };
-		6EE857BB1C988EA6002809B5 /* test.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.txt; sourceTree = "<group>"; };
 		6EEB989B1C4EBE1700DD5B95 /* CloudMusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudMusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EEB989E1C4EBE1700DD5B95 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6EEB98A01C4EBE1700DD5B95 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = CloudMusicPlayer/Controllers/ViewController.swift; sourceTree = SOURCE_ROOT; };
@@ -230,15 +226,6 @@
 			path = CloudMusicPlayer/Controlls;
 			sourceTree = SOURCE_ROOT;
 		};
-		6E235DA41C98338B00351034 /* JsonFiles */ = {
-			isa = PBXGroup;
-			children = (
-				6EE857BB1C988EA6002809B5 /* test.txt */,
-			);
-			name = JsonFiles;
-			path = CloudMusicPlayerTests/JsonFiles;
-			sourceTree = SOURCE_ROOT;
-		};
 		6E5254461C675D7C00CA5463 /* CloudResource */ = {
 			isa = PBXGroup;
 			children = (
@@ -337,9 +324,7 @@
 		6EEB98B51C4EBE1700DD5B95 /* CloudMusicPlayerTests */ = {
 			isa = PBXGroup;
 			children = (
-				6E235DA71C9838F900351034 /* test.txt */,
 				6E235DA51C9833DB00351034 /* YandexRoot.json */,
-				6E235DA41C98338B00351034 /* JsonFiles */,
 				6EECECD31C982369007B37CC /* Support */,
 				6EEB98B81C4EBE1700DD5B95 /* Info.plist */,
 				6E80F8B81C903CA200102A9C /* OAuthResourceTests.swift */,
@@ -488,8 +473,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E235DA81C9838F900351034 /* test.txt in Resources */,
-				6EE857BC1C988EA6002809B5 /* test.txt in Resources */,
 				6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
