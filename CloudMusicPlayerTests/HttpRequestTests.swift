@@ -26,7 +26,7 @@ class HttpRequestTests: XCTestCase {
 		request = FakeRequest()
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
-		httpClient = HttpClient(urlSession: session)
+		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
 	}
 	
 	override func tearDown() {
@@ -194,7 +194,7 @@ class HttpRequestTests: XCTestCase {
 		resource.requestParameters = ["Param1": "Value with space", "Param2": "Value with / special chars"]
 		resource.requestHeaders = ["Header1": "Value1", "Header2": "Value2"]
 		// invoke with fakehttputilities
-		let createdRequest = request.createRequestForCloudResource(resource, httpUtilities: utilities) as? FakeRequest
+		let createdRequest = request.createRequestForCloudResource(resource) as? FakeRequest
 		XCTAssertNotNil(createdRequest, "Should create request")
 		XCTAssertEqual(2, createdRequest?.headers.count, "Should add 2 headers to request")
 		XCTAssertEqual("Value1", createdRequest?.headers["Header1"], "Check value of header1")
@@ -202,11 +202,11 @@ class HttpRequestTests: XCTestCase {
 	}
 	
 	func testNotCreateRequestForCloudResourceWithIncorrectUrl() {
-		let request = httpClient as! HttpClient
 		let resource = FakeCloudResource(
 			oaRes: OAuthResourceBase(id: "fake", authUrl: "oauth", clientId: nil, tokenId: nil), httpClient: httpClient, httpUtilities: utilities)
 		resource.resourcesUrl = "incorrect base url"
 		// invoke with real httputilities
+		let request = HttpClient(urlSession: session)
 		let createdRequest = request.createRequestForCloudResource(resource)
 		XCTAssertNil(createdRequest)
 	}
@@ -236,20 +236,13 @@ class HttpRequestTests: XCTestCase {
 	}
 	
 	func testNotReturnRequestForCloudResourceWithIncorrectUrl() {
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				let json: JSON =  ["Test": "Value"]
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(try? json.rawData(), nil, nil)
-				}
-			}
-			}.addDisposableTo(bag)
-		
 		// use real http utilities in this case to test that request will not created
+		let client = HttpClient(urlSession: session)
+		
 		let fakeRes = FakeCloudResource(
-			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpClient: httpClient, httpUtilities: HttpUtilities())
+			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpClient: client, httpUtilities: client.httpUtilities)
 		fakeRes.resourcesUrl = "incorrect url"
 		
-		XCTAssertNil(httpClient.loadDataForCloudResource(fakeRes), "Should not return request due to incorrect url")
+		XCTAssertNil(client.loadDataForCloudResource(fakeRes), "Should not return request due to incorrect url")
 	}
 }

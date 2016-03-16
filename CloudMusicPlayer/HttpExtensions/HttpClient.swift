@@ -19,12 +19,14 @@ public enum HttpRequestResult {
 
 public protocol HttpClientProtocol {
 	var urlSession: NSURLSessionProtocol { get }
+	var httpUtilities: HttpUtilitiesProtocol { get }
 	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
 	func loadDataForCloudResource(resource: CloudResource) -> Observable<HttpRequestResult>?
 }
 public class HttpClient {
 	public let urlSession: NSURLSessionProtocol
+	public let httpUtilities: HttpUtilitiesProtocol
 	private static var _instance: HttpClientProtocol?
 	private static var token: dispatch_once_t = 0
 	
@@ -33,17 +35,19 @@ public class HttpClient {
 		return HttpClient._instance!
 	}
 	
-	internal static func initWithInstance(instance: HttpClientProtocol? = nil, urlSession: NSURLSessionProtocol = NSURLSession.sharedSession()) {
+	internal static func initWithInstance(instance: HttpClientProtocol? = nil, urlSession: NSURLSessionProtocol = NSURLSession.sharedSession(),
+		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
 		dispatch_once(&token) {
 			_instance = instance ?? HttpClient(urlSession: urlSession)
 		}
 	}
 	
-	public init(urlSession: NSURLSessionProtocol = NSURLSession.sharedSession()) {
+	public init(urlSession: NSURLSessionProtocol = NSURLSession.sharedSession(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
 		self.urlSession = urlSession
+		self.httpUtilities = httpUtilities
 	}
 	
-	internal func createRequestForCloudResource(resource: CloudResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) -> NSMutableURLRequestProtocol? {
+	internal func createRequestForCloudResource(resource: CloudResource) -> NSMutableURLRequestProtocol? {
 		guard let request: NSMutableURLRequestProtocol =
 			httpUtilities.createUrlRequest(resource.resourcesUrl, parameters: resource.getRequestParameters()) else {
 				return nil
@@ -102,7 +106,7 @@ extension HttpClient : HttpClientProtocol {
 	}
 	
 	public func loadDataForCloudResource(resource: CloudResource) -> Observable<HttpRequestResult>? {
-		guard let request = createRequestForCloudResource(resource, httpUtilities: resource.httpUtilities) else { return nil }
+		guard let request = createRequestForCloudResource(resource) else { return nil }
 		return loadJsonData(request)
 	}
 }

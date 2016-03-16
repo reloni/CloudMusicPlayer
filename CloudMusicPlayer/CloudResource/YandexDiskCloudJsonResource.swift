@@ -16,7 +16,6 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	public static let resourcesApiUrl = apiUrl + "/resources"
 	public private (set) var parent: CloudResource?
 	public private (set) var httpClient: HttpClientProtocol
-	public private (set) var httpUtilities: HttpUtilitiesProtocol
 	public let oAuthResource: OAuthResource
 	public var raw: JSON
 	
@@ -48,12 +47,10 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		return YandexDiskCloudAudioJsonResource.resourcesApiUrl
 	}()
 	
-	init (raw: JSON, oAuthResource: OAuthResource, parent: CloudResource?,
-		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance, httpClient: HttpClientProtocol = HttpClient.instance) {
+	init (raw: JSON, oAuthResource: OAuthResource, parent: CloudResource?, httpClient: HttpClientProtocol = HttpClient.instance) {
 			self.raw = raw
 			self.parent = parent
 			self.oAuthResource = oAuthResource
-			self.httpUtilities = httpUtilities
 			self.httpClient = httpClient
 	}
 	
@@ -66,11 +63,11 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}
 	
 	public func loadChilds() -> Observable<CloudRequestResult>? {
-		guard let request = httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders()) else {
+		guard let request = httpClient.httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders()) else {
 			return nil
 		}
 		
-		return YandexDiskCloudJsonResource.loadResources(request, oauthResource: oAuthResource, httpClient: httpClient, httpUtilities: httpUtilities)
+		return YandexDiskCloudJsonResource.loadResources(request, oauthResource: oAuthResource, httpClient: httpClient)
 	}
 	
 	public static func deserializeResponseData(json: JSON?, res: OAuthResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
@@ -81,9 +78,9 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		
 		return items.map { item in
 			if item["media_type"].stringValue == "audio" {
-				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: nil, httpUtilities: httpUtilities, httpClient: httpClient)
+				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: nil, httpClient: httpClient)
 			} else {
-				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: nil, httpUtilities: httpUtilities, httpClient: httpClient) }
+				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: nil, httpClient: httpClient) }
 		}
 	}
 		
@@ -97,12 +94,11 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}
 	
 	internal static func loadResources(request: NSMutableURLRequestProtocol, oauthResource: OAuthResource,
-		httpClient: HttpClientProtocol = HttpClient.instance,
-		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) -> Observable<CloudRequestResult> {
+		httpClient: HttpClientProtocol = HttpClient.instance) -> Observable<CloudRequestResult> {
 		return Observable.create { observer in
 			let task = httpClient.loadJsonData(request).bindNext { result in
 				if case .SuccessJson(let json) = result {
-					observer.onNext(.Success(deserializeResponseData(json, res: oauthResource, httpUtilities: httpUtilities, httpClient: httpClient)))
+					observer.onNext(.Success(deserializeResponseData(json, res: oauthResource, httpClient: httpClient)))
 				} else if case .Error(let error) = result {
 					observer.onNext(.Error(error))
 				}
@@ -116,10 +112,9 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		}
 	}
 	
-	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpClientProtocol = HttpClient.instance,
-		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) -> Observable<CloudRequestResult>? {
-			guard let request = createRequestForLoadRootResources(oauthResource, httpUtilities: httpUtilities) else { return nil }
+	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpClientProtocol = HttpClient.instance) -> Observable<CloudRequestResult>? {
+			guard let request = createRequestForLoadRootResources(oauthResource) else { return nil }
 			
-			return loadResources(request, oauthResource: oauthResource, httpClient: httpRequest, httpUtilities: httpUtilities)
+			return loadResources(request, oauthResource: oauthResource, httpClient: httpRequest)
 	}
 }
