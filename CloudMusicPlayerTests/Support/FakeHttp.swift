@@ -73,4 +73,10 @@ public class FakeHttpUtilities : HttpUtilitiesProtocol {
 	public func createUrlRequest(baseUrl: String, parameters: [String : String]?) -> NSMutableURLRequestProtocol? {
 		return FakeRequest(url: NSURL(baseUrl: baseUrl, parameters: parameters))
 	}
+	
+	public func createUrlRequest(baseUrl: String, parameters: [String : String]?, headers: [String : String]?) -> NSMutableURLRequestProtocol? {
+		let req = createUrlRequest(baseUrl, parameters: parameters)
+		headers?.forEach { req?.addValue($1, forHTTPHeaderField: $0) }
+		return req
+	}
 }

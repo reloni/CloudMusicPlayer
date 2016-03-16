@@ -30,6 +30,7 @@ class YandexCloudResourceTests: XCTestCase {
 	var session: FakeSession!
 	var utilities: FakeHttpUtilities!
 	var oauthResource: OAuthResourceBase!
+	var httpRequest: HttpRequestProtocol!
 	
 	override func setUp() {
 		super.setUp()
@@ -39,6 +40,7 @@ class YandexCloudResourceTests: XCTestCase {
 		request = FakeRequest()
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
+		httpRequest = HttpRequest(urlSession: session)
 		oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
 	}
 	
@@ -58,17 +60,31 @@ class YandexCloudResourceTests: XCTestCase {
 		XCTAssertEqual(oauthResource.tokenId, req?.headers["Authorization"], "Should set one header with correct token")
 	}
 	
+	func testNotCreateRequest() {
+		let oauthResWithoutTokenId = OAuthResourceBase(id: "fake", authUrl: "https://fake.com", clientId: nil, tokenId: nil)
+		let req = YandexDiskCloudJsonResource.createRequestForLoadRootResources(oauthResWithoutTokenId, httpUtilities: utilities) as? FakeRequest
+		XCTAssertNil(req, "Should not create request")
+	}
+	
 	func testDeserializeJsonResponseFolder() {
 		let first = YandexDiskCloudJsonResource.deserializeResponseData(JSON.getJsonFromFile("YandexRoot"), res: oauthResource)?.first
 		XCTAssertNotNil(first)
 		XCTAssertEqual(first?.name, "Documents")
 		XCTAssertEqual(first?.path, "disk:/Documents")
+		XCTAssertEqual(first?.type, "dir")
+		XCTAssertTrue(first is YandexDiskCloudJsonResource)
 		XCTAssertNil(first?.parent)
 		XCTAssertNil(first?.mediaType)
 		XCTAssertNil(first?.mimeType)
 		XCTAssertEqual(oauthResource.id, first?.oAuthResource.id)
 		XCTAssertEqual((first?.getRequestHeaders())!, ["Authorization": oauthResource.tokenId!])
 		XCTAssertEqual((first?.getRequestParameters())!, ["path": first!.path])
+	}
+	
+	func testNotDeserializeIncorrectJson() {
+		let json: JSON =  ["Test": "Value"]
+		let response = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource)
+		XCTAssertNil(response)
 	}
 	
 	func testLoadRootData() {
@@ -83,13 +99,19 @@ class YandexCloudResourceTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return correct json data from YandexRoot file")
 
-		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: HttpRequest.instance, session: session, httpUtilities: utilities)?.bindNext { result in
+		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpRequest, httpUtilities: utilities)?.bindNext { result in
 			if case .Success(let json) = result where json?.count == 9 {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testNotCreateRequestForLoadRootDataForOauthResourceWithoutTokenId() {
+		let oauthResWithoutTokenId = OAuthResourceBase(id: "fake", authUrl: "https://fake.com", clientId: nil, tokenId: nil)
+		let loadRequest = YandexDiskCloudJsonResource.loadRootResources(oauthResWithoutTokenId, httpRequest: HttpRequest.instance, httpUtilities: utilities)
+		XCTAssertNil(loadRequest)
 	}
 	
 	func testErrorWhileLoadRootData() {
@@ -103,7 +125,7 @@ class YandexCloudResourceTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return error")
 		
-		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: HttpRequest.instance, session: session, httpUtilities: utilities)?.bindNext { result in
+		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpRequest, httpUtilities: utilities)?.bindNext { result in
 			if case .Error(let error) = result where error?.code == 1 {
 				expectation.fulfill()
 			}
@@ -127,12 +149,58 @@ class YandexCloudResourceTests: XCTestCase {
 			}
 		}.addDisposableTo(bag)
 		
-		let request = YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: HttpRequest.instance, session: session, httpUtilities: utilities)?
+		let request = YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpRequest, httpUtilities: utilities)?
 			.bindNext { _ in
 		}
 		request?.dispose()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testLoadChilds() {
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(json?.rawDataSafe(), nil, nil)
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		let expectation = expectationWithDescription("Should return childs")
+		
+		guard let rootItem = JSON.getJsonFromFile("YandexMusicDirItem") else {
+			waitForExpectationsWithTimeout(1, handler: nil)
+			return
+		}
+		
+		var loadedChilds: [CloudResource]?
+		let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpRequest: httpRequest)
+		item.loadChilds()?.bindNext { result in
+			if case .Success(let childs) = result {
+				loadedChilds = childs
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1) { result in
+			if result != nil { return }
+			
+			XCTAssertNotNil(loadedChilds)
+			XCTAssertEqual(4, loadedChilds?.count)
+			
+			let first = loadedChilds?.first
+			XCTAssertEqual(first?.name, "David Arkenstone")
+			XCTAssertEqual(first?.path, "disk:/Music/David Arkenstone")
+			XCTAssertEqual(first?.type, "dir")
+			XCTAssertTrue(first is YandexDiskCloudJsonResource)
+			
+			let audioItem = loadedChilds?.last as? CloudAudioResource
+			XCTAssertEqual(audioItem?.name, "TestTrack.mp3")
+			XCTAssertEqual(audioItem?.path, "disk:/Music/TestTrack.mp3")
+			XCTAssertEqual(audioItem?.type, "file")
+			XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
+		}
 	}
 	
 //	func testPaths() {

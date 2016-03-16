@@ -10,6 +10,7 @@ import Foundation
 
 public protocol HttpUtilitiesProtocol {
 	func createUrlRequest(baseUrl: String, parameters: [String: String]?) -> NSMutableURLRequestProtocol?
+	func createUrlRequest(baseUrl: String, parameters: [String: String]?, headers: [String: String]?) -> NSMutableURLRequestProtocol?
 }
 
 public class HttpUtilities {
@@ -34,5 +35,14 @@ extension HttpUtilities : HttpUtilitiesProtocol {
 			return nil
 		}
 		return NSMutableURLRequest(URL: url)
+	}
+	
+	public func createUrlRequest(baseUrl: String, parameters: [String: String]?, headers: [String: String]?) -> NSMutableURLRequestProtocol? {
+			guard let request = createUrlRequest(baseUrl, parameters: parameters) else {
+				return nil
+			}
+			
+			headers?.forEach { request.addValue($1, forHTTPHeaderField: $0) }
+			return request
 	}
 }

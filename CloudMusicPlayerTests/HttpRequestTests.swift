@@ -16,6 +16,7 @@ class HttpRequestTests: XCTestCase {
 	var request: FakeRequest!
 	var session: FakeSession!
 	var utilities: FakeHttpUtilities!
+	var httpRequest: HttpRequestProtocol!
 	
 	override func setUp() {
 		super.setUp()
@@ -25,6 +26,7 @@ class HttpRequestTests: XCTestCase {
 		request = FakeRequest()
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
+		httpRequest = HttpRequest(urlSession: session)
 	}
 	
 	override func tearDown() {
@@ -47,7 +49,7 @@ class HttpRequestTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return string as NSData")
 		
-		HttpRequest.instance.loadData(request, session: session).bindNext { result in
+		httpRequest.loadData(request).bindNext { result in
 			if case .SuccessData(let data) = result where String(data: data, encoding: NSUTF8StringEncoding) == "Test data" {
 				expectation.fulfill()
 			}
@@ -67,7 +69,7 @@ class HttpRequestTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return nil (as simple Success)")
 		
-		HttpRequest.instance.loadData(request, session: session).bindNext { result in
+		httpRequest.loadData(request).bindNext { result in
 			if case .Success = result {
 				expectation.fulfill()
 			}
@@ -87,7 +89,7 @@ class HttpRequestTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return NSError")
 		
-		HttpRequest.instance.loadData(request, session: session).bindNext { result in
+		httpRequest.loadData(request).bindNext { result in
 			if case .Error(let error) = result where error?.code == 1 {
 				expectation.fulfill()
 			}
@@ -108,7 +110,7 @@ class HttpRequestTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return json data")
 		
-		HttpRequest.instance.loadJsonData(request, session: session).bindNext { result in
+		httpRequest.loadJsonData(request).bindNext { result in
 			if case .SuccessJson(let json) = result where json["Test"] == "Value" {
 				expectation.fulfill()
 			}
@@ -128,7 +130,7 @@ class HttpRequestTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should not return json data")
 		
-		HttpRequest.instance.loadJsonData(request, session: session).bindNext { result in
+		httpRequest.loadJsonData(request).bindNext { result in
 			guard case .SuccessJson(_) = result else {
 				expectation.fulfill()
 				return
@@ -154,7 +156,7 @@ class HttpRequestTests: XCTestCase {
 			}
 		}.addDisposableTo(bag)
 		
-		let loadRequest = HttpRequest.instance.loadData(request, session: session).bindNext { _ in
+		let loadRequest = httpRequest.loadData(request).bindNext { _ in
 		}
 		loadRequest.dispose()
 		
@@ -177,7 +179,7 @@ class HttpRequestTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		let loadRequest = HttpRequest.instance.loadJsonData(request, session: session).bindNext { _ in
+		let loadRequest = httpRequest.loadJsonData(request).bindNext { _ in
 		}
 		loadRequest.dispose()
 		
@@ -185,8 +187,9 @@ class HttpRequestTests: XCTestCase {
 	}
 	
 	func testCreateRequestForCloudResource() {
-		let request = HttpRequest.instance as! HttpRequest
-		let resource = FakeCloudResource(oaRes: OAuthResourceBase(id: "fake", authUrl: "oauth", clientId: nil, tokenId: nil))
+		let request = httpRequest as! HttpRequest
+		let resource = FakeCloudResource(
+			oaRes: OAuthResourceBase(id: "fake", authUrl: "oauth", clientId: nil, tokenId: nil), httpRequest: httpRequest, httpUtilities: utilities)
 		resource.resourcesUrl = "https://test.com/restapi/1"
 		resource.requestParameters = ["Param1": "Value with space", "Param2": "Value with / special chars"]
 		resource.requestHeaders = ["Header1": "Value1", "Header2": "Value2"]
@@ -199,8 +202,9 @@ class HttpRequestTests: XCTestCase {
 	}
 	
 	func testNotCreateRequestForCloudResourceWithIncorrectUrl() {
-		let request = HttpRequest.instance as! HttpRequest
-		let resource = FakeCloudResource(oaRes: OAuthResourceBase(id: "fake", authUrl: "oauth", clientId: nil, tokenId: nil))
+		let request = httpRequest as! HttpRequest
+		let resource = FakeCloudResource(
+			oaRes: OAuthResourceBase(id: "fake", authUrl: "oauth", clientId: nil, tokenId: nil), httpRequest: httpRequest, httpUtilities: utilities)
 		resource.resourcesUrl = "incorrect base url"
 		// invoke with real httputilities
 		let createdRequest = request.createRequestForCloudResource(resource)
@@ -218,10 +222,11 @@ class HttpRequestTests: XCTestCase {
 			}.addDisposableTo(bag)
 		
 		let expectation = expectationWithDescription("Should return correct json data")
-		let fakeRes = FakeCloudResource(oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil))
+		let fakeRes = FakeCloudResource(
+			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpRequest: httpRequest, httpUtilities: utilities)
 		fakeRes.resourcesUrl = "https://test.com"
 		
-		HttpRequest.instance.loadDataForCloudResource(fakeRes, session: session, httpUtilities: utilities)?.bindNext { result in
+		httpRequest.loadDataForCloudResource(fakeRes)?.bindNext { result in
 			if case .SuccessJson(let json) = result where json["Test"] == "Value" {
 				expectation.fulfill()
 			}
@@ -240,10 +245,11 @@ class HttpRequestTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		let fakeRes = FakeCloudResource(oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil))
+		// use real http utilities in this case to test that request will not created
+		let fakeRes = FakeCloudResource(
+			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpRequest: httpRequest, httpUtilities: HttpUtilities())
 		fakeRes.resourcesUrl = "incorrect url"
 		
-		// use real httputilities in this case
-		XCTAssertNil(HttpRequest.instance.loadDataForCloudResource(fakeRes, session: session, httpUtilities: HttpUtilities.instance), "Should not return request due to incorrect url")
+		XCTAssertNil(httpRequest.loadDataForCloudResource(fakeRes), "Should not return request due to incorrect url")
 	}
 }

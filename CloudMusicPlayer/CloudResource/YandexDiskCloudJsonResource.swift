@@ -16,6 +16,8 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	public static let resourcesApiUrl = apiUrl + "/resources"
 	public private (set) var parent: CloudResource?
 	public private (set) var childs: [CloudResource]?
+	public private (set) var httpRequest: HttpRequestProtocol
+	public private (set) var httpUtilities: HttpUtilitiesProtocol
 	public let oAuthResource: OAuthResource
 	public var raw: JSON
 	
@@ -47,10 +49,13 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		return YandexDiskCloudAudioJsonResource.resourcesApiUrl
 	}()
 	
-	init (raw: JSON, oAuthResource: OAuthResource, parent: CloudResource?) {
-		self.raw = raw
-		self.parent = parent
-		self.oAuthResource = oAuthResource
+	init (raw: JSON, oAuthResource: OAuthResource, parent: CloudResource?,
+		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance, httpRequest: HttpRequestProtocol = HttpRequest.instance) {
+			self.raw = raw
+			self.parent = parent
+			self.oAuthResource = oAuthResource
+			self.httpUtilities = httpUtilities
+			self.httpRequest = httpRequest
 	}
 	
 	public func getRequestHeaders() -> [String : String]? {
@@ -68,24 +73,24 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}
 	
 	public func loadChilds() -> Observable<CloudRequestResult>? {
-		return Observable.create { observer in
-
-			return AnonymousDisposable {
-				
-			}
+		guard let request = httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders()) else {
+			return nil
 		}
+		
+		return YandexDiskCloudJsonResource.loadResources(request, oauthResource: oAuthResource, httpRequest: httpRequest, httpUtilities: httpUtilities)
 	}
 	
-	public static func deserializeResponseData(json: JSON?, res: OAuthResource) -> [CloudResource]? {
+	public static func deserializeResponseData(json: JSON?, res: OAuthResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
+		httpRequest: HttpRequestProtocol = HttpRequest.instance) -> [CloudResource]? {
 		guard let items = json?["_embedded"]["items"].array else {
 			return nil
 		}
 		
 		return items.map { item in
 			if item["media_type"].stringValue == "audio" {
-				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: nil)
+				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: nil, httpUtilities: httpUtilities, httpRequest: httpRequest)
 			} else {
-				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: nil) }
+				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: nil, httpUtilities: httpUtilities, httpRequest: httpRequest) }
 		}
 	}
 	
@@ -101,33 +106,39 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		}
 	}
 	
-	internal static func createRequestForLoadRootResources(oauthResource: OAuthResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) -> NSMutableURLRequestProtocol? {
-		guard let token = oauthResource.tokenId, request = httpUtilities.createUrlRequest(resourcesApiUrl, parameters: ["path": "/"]) else {
+	internal static func createRequestForLoadRootResources(oauthResource: OAuthResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance)
+		-> NSMutableURLRequestProtocol? {
+			guard let token = oauthResource.tokenId else {
 			return nil
 		}
-		
-		request.addValue(token, forHTTPHeaderField: "Authorization")
-		return request
+
+		return httpUtilities.createUrlRequest(resourcesApiUrl, parameters: ["path": "/"], headers: ["Authorization": token])
+	}
+	
+	internal static func loadResources(request: NSMutableURLRequestProtocol, oauthResource: OAuthResource,
+		httpRequest: HttpRequestProtocol = HttpRequest.instance,
+		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) -> Observable<CloudRequestResult> {
+		return Observable.create { observer in
+			let task = httpRequest.loadJsonData(request).bindNext { result in
+				if case .SuccessJson(let json) = result {
+					observer.onNext(.Success(deserializeResponseData(json, res: oauthResource, httpUtilities: httpUtilities, httpRequest: httpRequest)))
+				} else if case .Error(let error) = result {
+					observer.onNext(.Error(error))
+				}
+				
+				observer.onCompleted()
+			}
+			
+			return AnonymousDisposable {
+				task.dispose()
+			}
+		}
 	}
 	
 	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpRequestProtocol = HttpRequest.instance,
-		session: NSURLSessionProtocol = NSURLSession.sharedSession(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) -> Observable<CloudRequestResult>? {
+		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) -> Observable<CloudRequestResult>? {
 			guard let request = createRequestForLoadRootResources(oauthResource, httpUtilities: httpUtilities) else { return nil }
 			
-			return Observable.create { observer in
-				let task = httpRequest.loadJsonData(request, session: session).bindNext { result in
-					if case .SuccessJson(let json) = result {
-						observer.onNext(.Success(deserializeResponseData(json, res: oauthResource)))
-					} else if case .Error(let error) = result {
-						observer.onNext(.Error(error))
-					}
-					
-					observer.onCompleted()
-				}
-				
-				return AnonymousDisposable {
-					task.dispose()
-				}
-			}
+			return loadResources(request, oauthResource: oauthResource, httpRequest: httpRequest, httpUtilities: httpUtilities)
 	}
 }
