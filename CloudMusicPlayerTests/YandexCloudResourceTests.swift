@@ -206,7 +206,7 @@ class YandexCloudResourceTests: XCTestCase {
 	}
 	
 	func testGetDownloadUrl() {
-		let expectation = expectationWithDescription("Should return childs")
+		let expectation = expectationWithDescription("Should return download url")
 		
 		guard let audioItem = JSON.getJsonFromFile("YandexAudioItem"),
 			sendJson = JSON.getJsonFromFile("YandexAudioDownloadResponse"), href = sendJson["href"].string else {
@@ -233,52 +233,35 @@ class YandexCloudResourceTests: XCTestCase {
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
-//	func testPaths() {
-//		
-//		print(NSBundle(forClass: self.dynamicType).pathForResource("test", ofType: "txt"))
-//		print(NSBundle(forClass: self.dynamicType).pathForResource("test", ofType: "txt", inDirectory: "/CloudMusicPlayerTests/JsonFiles"))
-//		print(NSBundle(forClass: self.dynamicType).pathForResource("test", ofType: "txt", inDirectory: NSBundle(forClass: self.dynamicType).resourcePath! + "/CloudMusicPlayerTests/JsonFiles"))
-//		print(NSBundle(forClass: self.dynamicType).resourcePath)
-//		print(NSBundle(forClass: self.dynamicType).executablePath)
-//	}
-	
-//	func testGetJSONData() {
-//		let bag = DisposeBag()
-//		let request = FakeRequest()
-//		let expectation = expectationWithDescription("Should return json data")
-//		let session = FakeSession()
-//		let task = (session.dataTaskWithRequest(request) { data, response, error in
-//			if let data = data {
-//				print(JSON(data: data))
-//				expectation.fulfill()
-//			}
-//			}) as! FakeDataTask
-//		
-//		task.taskProgress.bindNext { progress in
-//			if case .resume(let task) = progress {
-//				let json: JSON =  ["name": "Jack", "age": 25]
-//				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-//					task.completion?(try? json.rawData(), nil, nil)
-//				}
-//			}
-//			}.addDisposableTo(bag)
-//		
-//		task.resume()
-//		
-//		waitForExpectationsWithTimeout(2, handler: nil)
-//	}
-	
-//	func test() {
-//		guard let url = NSURL(baseUrl: "https://cloud-api.yandex.net:443/v1/disk/resources", parameters: ["path": "disk:/Скриншоты"]) else { return }
-//		print(url)
-//		let req = NSMutableURLRequest(URL: url)
-//		req.addValue(OAuthResourceManager.getYandexResource().tokenId!, forHTTPHeaderField: "Authorization")
-//		let task = NSURLSession.sharedSession().dataTaskWithRequest(req) { data, response, error in
-//			if let data = data {
-//				print(JSON(data: data))
-//			}
-//		} as NSURLSessionDataTask
-//		task.resume()
-//		sleep(4)
-//	}
+	func testNotReturnDownloadUrl() {
+		let expectation = expectationWithDescription("Should not return download url")
+		
+		guard let audioItem = JSON.getJsonFromFile("YandexAudioItem"),
+			sendJson = JSON.getJsonFromFile("YandexAudioDownloadResponse") else {
+				waitForExpectationsWithTimeout(1, handler: nil)
+				return
+		}
+		
+		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpRequest: httpRequest)
+		
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(item.downloadResourceUrl, tsk.originalRequest?.URL, "Check invoke url")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					var sendingJson = sendJson
+					// modify href, so it will not return
+					sendingJson["href"] = nil
+					tsk.completion?(sendingJson.rawDataSafe(), nil, nil)
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		item.downloadUrl?.bindNext { result in
+			if result == nil {
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
 }
