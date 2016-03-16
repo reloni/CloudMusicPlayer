@@ -14,7 +14,7 @@ public class FakeCloudResource : CloudResource {
 	public var oAuthResource: OAuthResource
 	public var parent: CloudResource? = nil
 	public var childs: [CloudResource]? = nil
-	public var httpRequest: HttpRequestProtocol
+	public var httpClient: HttpClientProtocol
 	public var httpUtilities: HttpUtilitiesProtocol
 	public var name = ""
 	public var path = ""
@@ -43,9 +43,9 @@ public class FakeCloudResource : CloudResource {
 		return nil
 	}
 	
-	public init(oaRes: OAuthResource, httpRequest: HttpRequestProtocol, httpUtilities: HttpUtilitiesProtocol) {
+	public init(oaRes: OAuthResource, httpClient: HttpClientProtocol, httpUtilities: HttpUtilitiesProtocol) {
 		self.oAuthResource = oaRes
-		self.httpRequest = httpRequest
+		self.httpClient = httpClient
 		self.httpUtilities = httpUtilities
 	}
 }

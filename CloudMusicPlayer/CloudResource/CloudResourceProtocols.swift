@@ -20,7 +20,7 @@ public protocol CloudResource {
 	var oAuthResource: OAuthResource { get }
 	var parent: CloudResource? { get }
 	var httpUtilities: HttpUtilitiesProtocol { get }
-	var httpRequest: HttpRequestProtocol { get }
+	var httpClient: HttpClientProtocol { get }
 	var name: String { get }
 	var path: String { get }
 	var type: String { get }

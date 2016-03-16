@@ -50,7 +50,7 @@
 		6EE0CCBF1C96A3F2002F4D9D /* NSURLSessionDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE0CCBE1C96A3F2002F4D9D /* NSURLSessionDataTask.swift */; };
 		6EE0CCC11C96A58B002F4D9D /* NSMutableURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE0CCC01C96A58B002F4D9D /* NSMutableURLRequest.swift */; };
 		6EE0CCC31C96B85D002F4D9D /* FakeHttp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE0CCC21C96B85D002F4D9D /* FakeHttp.swift */; };
-		6EE0CCC61C96CAA4002F4D9D /* HttpRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE0CCC51C96CAA4002F4D9D /* HttpRequest.swift */; };
+		6EE0CCC61C96CAA4002F4D9D /* HttpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE0CCC51C96CAA4002F4D9D /* HttpClient.swift */; };
 		6EE0CCCA1C96CBEE002F4D9D /* HttpRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE0CCC91C96CBEE002F4D9D /* HttpRequestTests.swift */; };
 		6EE0CCCC1C96EFDE002F4D9D /* NSURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE0CCCB1C96EFDE002F4D9D /* NSURL.swift */; };
 		6EE0CCCE1C96F31F002F4D9D /* NSURLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EE0CCCD1C96F31F002F4D9D /* NSURLTests.swift */; };
@@ -126,7 +126,7 @@
 		6EE0CCBE1C96A3F2002F4D9D /* NSURLSessionDataTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURLSessionDataTask.swift; sourceTree = "<group>"; };
 		6EE0CCC01C96A58B002F4D9D /* NSMutableURLRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableURLRequest.swift; sourceTree = "<group>"; };
 		6EE0CCC21C96B85D002F4D9D /* FakeHttp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeHttp.swift; sourceTree = "<group>"; };
-		6EE0CCC51C96CAA4002F4D9D /* HttpRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpRequest.swift; sourceTree = "<group>"; };
+		6EE0CCC51C96CAA4002F4D9D /* HttpClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpClient.swift; sourceTree = "<group>"; };
 		6EE0CCC91C96CBEE002F4D9D /* HttpRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpRequestTests.swift; sourceTree = "<group>"; };
 		6EE0CCCB1C96EFDE002F4D9D /* NSURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURL.swift; sourceTree = "<group>"; };
 		6EE0CCCD1C96F31F002F4D9D /* NSURLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURLTests.swift; sourceTree = "<group>"; };
@@ -273,7 +273,7 @@
 				6EE0CCBC1C96A336002F4D9D /* NSURLSession.swift */,
 				6EE0CCBE1C96A3F2002F4D9D /* NSURLSessionDataTask.swift */,
 				6EE0CCC01C96A58B002F4D9D /* NSMutableURLRequest.swift */,
-				6EE0CCC51C96CAA4002F4D9D /* HttpRequest.swift */,
+				6EE0CCC51C96CAA4002F4D9D /* HttpClient.swift */,
 				6EE0CCCB1C96EFDE002F4D9D /* NSURL.swift */,
 				6EECECCF1C97EE54007B37CC /* HttpUtilities.swift */,
 			);
@@ -544,7 +544,7 @@
 				6EC4E6141C8D789200957D42 /* MusicPlayerController.swift in Sources */,
 				6E0A028F1C8A0CB500AD9B38 /* StreamAudioItem.swift in Sources */,
 				6EA638781C7A002200DD85A6 /* CloudResourcesViewModel.swift in Sources */,
-				6EE0CCC61C96CAA4002F4D9D /* HttpRequest.swift in Sources */,
+				6EE0CCC61C96CAA4002F4D9D /* HttpClient.swift in Sources */,
 				6E182ED61C81E14700730C59 /* CloudTrackCell.swift in Sources */,
 				6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */,
 				6EE0CCBD1C96A336002F4D9D /* NSURLSession.swift in Sources */,

@@ -15,7 +15,7 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	public static let apiUrl = "https://cloud-api.yandex.net:443/v1/disk"
 	public static let resourcesApiUrl = apiUrl + "/resources"
 	public private (set) var parent: CloudResource?
-	public private (set) var httpRequest: HttpRequestProtocol
+	public private (set) var httpClient: HttpClientProtocol
 	public private (set) var httpUtilities: HttpUtilitiesProtocol
 	public let oAuthResource: OAuthResource
 	public var raw: JSON
@@ -49,12 +49,12 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}()
 	
 	init (raw: JSON, oAuthResource: OAuthResource, parent: CloudResource?,
-		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance, httpRequest: HttpRequestProtocol = HttpRequest.instance) {
+		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance, httpClient: HttpClientProtocol = HttpClient.instance) {
 			self.raw = raw
 			self.parent = parent
 			self.oAuthResource = oAuthResource
 			self.httpUtilities = httpUtilities
-			self.httpRequest = httpRequest
+			self.httpClient = httpClient
 	}
 	
 	public func getRequestHeaders() -> [String : String]? {
@@ -70,20 +70,20 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 			return nil
 		}
 		
-		return YandexDiskCloudJsonResource.loadResources(request, oauthResource: oAuthResource, httpRequest: httpRequest, httpUtilities: httpUtilities)
+		return YandexDiskCloudJsonResource.loadResources(request, oauthResource: oAuthResource, httpClient: httpClient, httpUtilities: httpUtilities)
 	}
 	
 	public static func deserializeResponseData(json: JSON?, res: OAuthResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
-		httpRequest: HttpRequestProtocol = HttpRequest.instance) -> [CloudResource]? {
+		httpClient: HttpClientProtocol = HttpClient.instance) -> [CloudResource]? {
 		guard let items = json?["_embedded"]["items"].array else {
 			return nil
 		}
 		
 		return items.map { item in
 			if item["media_type"].stringValue == "audio" {
-				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: nil, httpUtilities: httpUtilities, httpRequest: httpRequest)
+				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: nil, httpUtilities: httpUtilities, httpClient: httpClient)
 			} else {
-				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: nil, httpUtilities: httpUtilities, httpRequest: httpRequest) }
+				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: nil, httpUtilities: httpUtilities, httpClient: httpClient) }
 		}
 	}
 		
@@ -97,12 +97,12 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}
 	
 	internal static func loadResources(request: NSMutableURLRequestProtocol, oauthResource: OAuthResource,
-		httpRequest: HttpRequestProtocol = HttpRequest.instance,
+		httpClient: HttpClientProtocol = HttpClient.instance,
 		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) -> Observable<CloudRequestResult> {
 		return Observable.create { observer in
-			let task = httpRequest.loadJsonData(request).bindNext { result in
+			let task = httpClient.loadJsonData(request).bindNext { result in
 				if case .SuccessJson(let json) = result {
-					observer.onNext(.Success(deserializeResponseData(json, res: oauthResource, httpUtilities: httpUtilities, httpRequest: httpRequest)))
+					observer.onNext(.Success(deserializeResponseData(json, res: oauthResource, httpUtilities: httpUtilities, httpClient: httpClient)))
 				} else if case .Error(let error) = result {
 					observer.onNext(.Error(error))
 				}
@@ -116,10 +116,10 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		}
 	}
 	
-	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpRequestProtocol = HttpRequest.instance,
+	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpClientProtocol = HttpClient.instance,
 		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) -> Observable<CloudRequestResult>? {
 			guard let request = createRequestForLoadRootResources(oauthResource, httpUtilities: httpUtilities) else { return nil }
 			
-			return loadResources(request, oauthResource: oauthResource, httpRequest: httpRequest, httpUtilities: httpUtilities)
+			return loadResources(request, oauthResource: oauthResource, httpClient: httpRequest, httpUtilities: httpUtilities)
 	}
 }

@@ -30,7 +30,7 @@ class YandexCloudResourceTests: XCTestCase {
 	var session: FakeSession!
 	var utilities: FakeHttpUtilities!
 	var oauthResource: OAuthResourceBase!
-	var httpRequest: HttpRequestProtocol!
+	var httpClient: HttpClientProtocol!
 	
 	override func setUp() {
 		super.setUp()
@@ -40,7 +40,7 @@ class YandexCloudResourceTests: XCTestCase {
 		request = FakeRequest()
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
-		httpRequest = HttpRequest(urlSession: session)
+		httpClient = HttpClient(urlSession: session)
 		oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
 	}
 	
@@ -99,7 +99,7 @@ class YandexCloudResourceTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return correct json data from YandexRoot file")
 
-		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpRequest, httpUtilities: utilities)?.bindNext { result in
+		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, httpUtilities: utilities)?.bindNext { result in
 			if case .Success(let json) = result where json?.count == 9 {
 				expectation.fulfill()
 			}
@@ -110,7 +110,7 @@ class YandexCloudResourceTests: XCTestCase {
 	
 	func testNotCreateRequestForLoadRootDataForOauthResourceWithoutTokenId() {
 		let oauthResWithoutTokenId = OAuthResourceBase(id: "fake", authUrl: "https://fake.com", clientId: nil, tokenId: nil)
-		let loadRequest = YandexDiskCloudJsonResource.loadRootResources(oauthResWithoutTokenId, httpRequest: HttpRequest.instance, httpUtilities: utilities)
+		let loadRequest = YandexDiskCloudJsonResource.loadRootResources(oauthResWithoutTokenId, httpRequest: HttpClient.instance, httpUtilities: utilities)
 		XCTAssertNil(loadRequest)
 	}
 	
@@ -125,7 +125,7 @@ class YandexCloudResourceTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return error")
 		
-		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpRequest, httpUtilities: utilities)?.bindNext { result in
+		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, httpUtilities: utilities)?.bindNext { result in
 			if case .Error(let error) = result where error?.code == 1 {
 				expectation.fulfill()
 			}
@@ -149,7 +149,7 @@ class YandexCloudResourceTests: XCTestCase {
 			}
 		}.addDisposableTo(bag)
 		
-		let request = YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpRequest, httpUtilities: utilities)?
+		let request = YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, httpUtilities: utilities)?
 			.bindNext { _ in
 		}
 		request?.dispose()
@@ -164,7 +164,7 @@ class YandexCloudResourceTests: XCTestCase {
 			waitForExpectationsWithTimeout(1, handler: nil)
 			return
 		}
-		let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpRequest: httpRequest)
+		let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpClient: httpClient)
 		
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
@@ -213,7 +213,7 @@ class YandexCloudResourceTests: XCTestCase {
 				waitForExpectationsWithTimeout(1, handler: nil)
 				return
 		}
-		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpRequest: httpRequest)
+		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpClient: httpClient)
 		
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
@@ -242,7 +242,7 @@ class YandexCloudResourceTests: XCTestCase {
 				return
 		}
 		
-		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpRequest: httpRequest)
+		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, oAuthResource: oauthResource, parent: nil, httpUtilities: utilities, httpClient: httpClient)
 		
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {

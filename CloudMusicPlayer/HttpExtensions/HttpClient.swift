@@ -17,25 +17,25 @@ public enum HttpRequestResult {
 	case Error(NSError?)
 }
 
-public protocol HttpRequestProtocol {
+public protocol HttpClientProtocol {
 	var urlSession: NSURLSessionProtocol { get }
 	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
 	func loadDataForCloudResource(resource: CloudResource) -> Observable<HttpRequestResult>?
 }
-public class HttpRequest {
+public class HttpClient {
 	public let urlSession: NSURLSessionProtocol
-	private static var _instance: HttpRequestProtocol?
+	private static var _instance: HttpClientProtocol?
 	private static var token: dispatch_once_t = 0
 	
-	public static var instance: HttpRequestProtocol  {
+	public static var instance: HttpClientProtocol  {
 		initWithInstance()
-		return HttpRequest._instance!
+		return HttpClient._instance!
 	}
 	
-	internal static func initWithInstance(instance: HttpRequestProtocol? = nil, urlSession: NSURLSessionProtocol = NSURLSession.sharedSession()) {
+	internal static func initWithInstance(instance: HttpClientProtocol? = nil, urlSession: NSURLSessionProtocol = NSURLSession.sharedSession()) {
 		dispatch_once(&token) {
-			_instance = instance ?? HttpRequest(urlSession: urlSession)
+			_instance = instance ?? HttpClient(urlSession: urlSession)
 		}
 	}
 	
@@ -53,7 +53,7 @@ public class HttpRequest {
 	}
 }
 
-extension HttpRequest : HttpRequestProtocol {
+extension HttpClient : HttpClientProtocol {
 	public func loadJsonData(request: NSMutableURLRequestProtocol)
 		-> Observable<HttpRequestResult> {
 			return Observable.create { [unowned self] observer in
