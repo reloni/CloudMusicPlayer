@@ -66,4 +66,4 @@ Carthage/Build/iOS/*.dSYM
 
 fastlane/report.xml
 fastlane/screenshots
-.idea/.name
+.idea

@@ -9,30 +9,31 @@
 import Foundation
 import SwiftyJSON
 import Alamofire
+import RxSwift
+
+public enum CloudRequestResult {
+	case Success([CloudResource]?)
+	case Error(NSError?)
+}
 
 public protocol CloudResource {
 	var oAuthResource: OAuthResource { get }
 	var parent: CloudResource? { get }
-	var childs: [CloudResource]? { get }
+	var httpClient: HttpClientProtocol { get }
 	var name: String { get }
 	var path: String { get }
 	var type: String { get }
 	var mediaType: String? { get }
 	var mimeType: String? { get }
-	var baseUrl: String { get }
+	var rootUrl: String { get }
+	var resourcesUrl: String { get }
 	func getRequestHeaders() -> [String: String]?
-	func getRequestParameters() -> [String: AnyObject]?
-	func loadChilds(completion: ([CloudResource]?) -> ())
+	func getRequestParameters() -> [String: String]?
+	func loadChilds() -> Observable<CloudRequestResult>?
 }
 
 public protocol CloudAudioResource : CloudResource {
-	var title: String { get }
-	var artist: String { get }
-	var album: String { get }
-	var albumYear: uint { get }
-	var trackLength: uint { get }
-	func getDownloadUrl(completion: (String?) -> ())
-	func getFile(completion: (NSURL?) -> ())
+	var downloadUrl: Observable<String?>? { get }
 }
 
 public protocol CloudJsonResource : CloudResource {
