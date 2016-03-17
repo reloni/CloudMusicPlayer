@@ -26,6 +26,7 @@ public class FakeRequest : NSMutableURLRequestProtocol {
 public enum FakeDataTaskMethods {
 	case resume(FakeDataTask)
 	case suspend(FakeDataTask)
+	case cancel(FakeDataTask)
 }
 
 public class FakeDataTask : NSURLSessionDataTaskProtocol {
@@ -43,6 +44,10 @@ public class FakeDataTask : NSURLSessionDataTaskProtocol {
 	
 	public func suspend() {
 		taskProgress.onNext(.suspend(self))
+	}
+	
+	public func cancel() {
+		taskProgress.onNext(.cancel(self))
 	}
 	
 	public func getOriginalMutableUrlRequest() -> NSMutableURLRequestProtocol? {
@@ -73,6 +78,14 @@ public class FakeSession : NSURLSessionProtocol {
 		task.originalRequest = request
 		return task
 	}
+	
+	public func dataTaskWithRequest(request: NSMutableURLRequestProtocol) -> NSURLSessionDataTaskProtocol {
+		guard let task = self.task else {
+			return FakeDataTask(completion: nil)
+		}
+		task.originalRequest = request
+		return task
+	}
 }
 
 public class FakeHttpUtilities : HttpUtilitiesProtocol {
@@ -86,9 +99,13 @@ public class FakeHttpUtilities : HttpUtilitiesProtocol {
 		return req
 	}
 	
-	public func createUrlRequest(url: NSURL, headers: [String: String]?) -> NSMutableURLRequestProtocol? {
+	public func createUrlRequest(url: NSURL, headers: [String: String]?) -> NSMutableURLRequestProtocol {
 		let req = FakeRequest(url: url)
 		headers?.forEach { req.addValue($1, forHTTPHeaderField: $0) }
 		return req
+	}
+	
+	public func createUrlSession(configuration: NSURLSessionConfiguration, delegate: NSURLSessionDelegate?, queue: NSOperationQueue?) -> NSURLSessionProtocol {
+		fatalError("Not implemented")
 	}
 }

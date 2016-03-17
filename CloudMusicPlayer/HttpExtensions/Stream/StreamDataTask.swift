@@ -10,14 +10,6 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-public enum StreamDataResult {
-	case StreamedData(NSData)
-	case StreamedResponse(NSHTTPURLResponse)
-	case Error(NSError)
-	case Success(UInt64)
-	case StreamProgress(UInt64, Int64)
-}
-
 public struct StreamDataTaskManager {
 	private static var tasks = [String: StreamDataTask]()
 	
@@ -38,7 +30,7 @@ public struct StreamDataTaskManager {
 			task.resume()
 			
 			return AnonymousDisposable {
-				task.dataTask?.cancel()
+				task.dataTask.cancel()
 				tasks.removeValueForKey(task.uid)
 			}
 		}.shareReplay(1)
@@ -47,39 +39,59 @@ public struct StreamDataTaskManager {
 
 @objc public class StreamDataTask : NSObject {
 	private var bag = DisposeBag()
-	private let request: NSMutableURLRequest
+	private let request: NSMutableURLRequestProtocol
 	private var totalDataReceived: UInt64 = 0
 	private var expectedDataLength: Int64 = 0
 	private let taskProgress = PublishSubject<StreamDataResult>()
-	private var dataTask: NSURLSessionDataTask?
+	//private var dataTask: NSURLSessionDataTask?
+
+	private let httpUtilities: HttpUtilitiesProtocol
+	private let sessionConfiguration: NSURLSessionConfiguration
 	private var uid: String {
-		return request.URLString
+		return request.URL?.URLString ?? ""
 	}
-	private var session: NSURLSession?
 	
-	public init(request: NSMutableURLRequest) {
+	private lazy var dataTask: NSURLSessionDataTaskProtocol = {
+		return self.session.dataTaskWithRequest(self.request)
+	}()
+	
+	private lazy var session: NSURLSessionProtocol = {
+		return self.httpUtilities.createUrlSession(self.sessionConfiguration, delegate: self, queue: nil)
+	}()
+	
+	public init(request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
+		sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration()) {
 		self.request = request
+		self.httpUtilities = httpUtilities
+		self.sessionConfiguration = sessionConfiguration
+	}
+	
+	public convenience init(url: NSURL, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance, headers: [String: String]? = nil,
+		sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration()) {
+			//let newRequest = NSMutableURLRequest(URL: url)
+			let newRequest = httpUtilities.createUrlRequest(url, headers: headers)
+			//headers?.forEach { header, value in
+			//	newRequest.addValue(value, forHTTPHeaderField: header)
+			//}
+			self.init(request: newRequest, httpUtilities: httpUtilities, sessionConfiguration: sessionConfiguration)
+	}
+	
+	public func resume() {
+		//let session = NSURLSession(configuration: .defaultSessionConfiguration(),
+		//	delegate: self,
+		//	delegateQueue: nil)
+		
+		//dataTask = session.dataTaskWithRequest(request)
+		//self.session = session
+		dataTask.resume()
+	}
+	
+	public func suspend() {
+		dataTask.suspend()
 	}
 	
 	deinit {
 		print("StreamDataTask deinit")
-	}
-	
-	public convenience init(url: NSURL, headers: [String: String]? = nil) {
-		let newRequest = NSMutableURLRequest(URL: url)
-		headers?.forEach { header, value in
-			newRequest.addValue(value, forHTTPHeaderField: header)
-		}
-		self.init(request: newRequest)
-	}
-	
-	public func resume() {
-		let session = NSURLSession(configuration: .defaultSessionConfiguration(),
-			delegate: self,
-			delegateQueue: nil)
-		dataTask = session.dataTaskWithRequest(request)
-		self.session = session
-		dataTask?.resume()
 	}
 }
 
