@@ -46,9 +46,9 @@ import RxSwift
 //	}
 //}
 
-class FakeUrlSessionStreamObserver : UrlSessionStreamObserverProtocol {
-	let subject = PublishSubject<StreamDataResult>()
-	var sessionProgress: Observable<StreamDataResult> {
-		return subject
-	}
-}
+//class FakeUrlSessionStreamObserver : UrlSessionStreamObserverProtocol {
+//	let subject = PublishSubject<StreamDataResult>()
+//	var sessionProgress: Observable<StreamDataResult> {
+//		return subject
+//	}
+//}

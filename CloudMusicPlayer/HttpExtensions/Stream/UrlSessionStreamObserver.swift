@@ -21,10 +21,42 @@ public protocol UrlSessionStreamObserverProtocol {
 	var sessionProgress: Observable<StreamDataResult> { get }
 }
 
-@objc public class UrlSessionStreamObserver : NSObject {
-	public let subject = PublishSubject<StreamDataResult>()
+@objc public class UrlSessionStreamObserver : NSURLSessionDataEventsObserver {
+	private let bag = DisposeBag()
+	private let publishSubject = PublishSubject<StreamDataResult>()
 	private var totalDataReceived: UInt64 = 0
 	private var expectedDataLength: Int64 = 0
+	
+	public override init() {
+		super.init()
+		bindToEvents()
+	}
+	
+	private func bindToEvents() {
+		sessionEvents.bindNext { [unowned self] response in
+		 switch response {
+				case .didReceiveResponse(_, _, let response, let completionHandler):
+					if let response = response as? NSHTTPURLResponse {
+						self.expectedDataLength = response.expectedContentLength
+						self.publishSubject.onNext(.StreamedResponse(response))
+					}
+					completionHandler(.Allow)
+				case .didReceiveData(_,_, let data):
+					self.totalDataReceived += UInt64(data.length)
+					self.publishSubject.onNext(.StreamedData(data))
+					self.publishSubject.onNext(.StreamProgress(self.totalDataReceived, self.expectedDataLength))
+				case .didCompleteWithError(let session, _, let error):
+					if let error = error {
+						self.publishSubject.onNext(.Error(error))
+					} else {
+						self.publishSubject.onNext(.Success(self.totalDataReceived))
+					}
+					self.publishSubject.onCompleted()
+					session.invalidateAndCancel()
+			}
+		}.addDisposableTo(bag)
+	}
+	
 	deinit {
 		print("UrlSessionStreamObserver deinit")
 	}
@@ -32,34 +64,6 @@ public protocol UrlSessionStreamObserverProtocol {
 
 extension UrlSessionStreamObserver : UrlSessionStreamObserverProtocol {
 	public var sessionProgress: Observable<StreamDataResult> {
-		return subject
+		return publishSubject
 	}
 }
-
-extension UrlSessionStreamObserver : NSURLSessionDataDelegate {
-	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void) {
-		if let response = response as? NSHTTPURLResponse {
-			expectedDataLength = response.expectedContentLength
-			subject.onNext(.StreamedResponse(response))
-		}
-		
-		completionHandler(.Allow)
-	}
-	
-	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-		totalDataReceived += UInt64(data.length)
-		subject.onNext(.StreamedData(data))
-		subject.onNext(.StreamProgress(totalDataReceived, expectedDataLength))
-	}
-	
-	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-		if let error = error {
-			subject.onNext(.Error(error))
-		} else {
-			subject.onNext(.Success(totalDataReceived))
-		}
-		subject.onCompleted()
-		session.invalidateAndCancel()
-	}
-}
-

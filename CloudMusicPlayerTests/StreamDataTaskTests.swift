@@ -16,19 +16,19 @@ class StreamDataTaskTests: XCTestCase {
 	var session: FakeSession!
 	var utilities: FakeHttpUtilities!
 	var httpClient: HttpClientProtocol!
-	var streamObserver: FakeUrlSessionStreamObserver!
+	var streamObserver: UrlSessionStreamObserver!
 	
 	override func setUp() {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
 		
 		bag = DisposeBag()
-		streamObserver = FakeUrlSessionStreamObserver()
+		streamObserver = UrlSessionStreamObserver()
 		request = FakeRequest()
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
 		utilities.fakeSession = session
-		utilities.fakeObserver = streamObserver
+		utilities.streamObserver = streamObserver
 		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
 	}
 	
@@ -47,9 +47,10 @@ class StreamDataTaskTests: XCTestCase {
 			if case .resume(let tsk) = progress {
 				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL)
 				
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					//tsk.completion?(nil, nil, NSError(domain: "HttpRequestTests", code: 1, userInfo: nil))
-					self.streamObserver.subject.onNext(.Error(NSError(domain: "HttpRequestTests", code: 1, userInfo: nil)))
+					//self.streamObserver.subject.onNext(.Error(NSError(domain: "HttpRequestTests", code: 1, userInfo: nil)))
+					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: NSError(domain: "HttpRequestTests", code: 1, userInfo: nil)))
 				}
 			}
 		}.addDisposableTo(bag)

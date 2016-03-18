@@ -8,19 +8,35 @@
 
 import Foundation
 
+
+// NSHTTPURLResponseProtocol
 public protocol NSHTTPURLResponseProtocol { }
 extension NSHTTPURLResponse : NSHTTPURLResponseProtocol { }
 
+
+// NSURLResponse
+public protocol NSURLResponseProtocol { }
+extension NSURLResponse : NSURLResponseProtocol { }
+
+
+// NSURLRequestProtocol
 public protocol NSURLRequestProtocol { }
 extension NSURLRequest : NSURLRequestProtocol { }
 
+
+// NSMutableURLRequestProtocol
 public protocol NSMutableURLRequestProtocol : NSURLRequestProtocol {
 	func addValue(value: String, forHTTPHeaderField: String)
 	var URL: NSURL? { get }
 }
 extension NSMutableURLRequest : NSMutableURLRequestProtocol { }
 
-public protocol NSURLSessionDataTaskProtocol {
+
+public protocol NSURLSessionTaskProtocol { }
+extension NSURLSessionTask : NSURLSessionTaskProtocol { }
+
+// NSURLSessionDataTaskProtocol
+public protocol NSURLSessionDataTaskProtocol : NSURLSessionTaskProtocol {
 	func resume()
 	func suspend()
 	func cancel()
@@ -32,8 +48,11 @@ extension NSURLSessionDataTask : NSURLSessionDataTaskProtocol {
 	}
 }
 
+
+// NSURLSessionProtocol
 public typealias DataTaskResult = (NSData?, NSURLResponse?, NSError?) -> Void
 public protocol NSURLSessionProtocol {
+	func invalidateAndCancel()
 	func dataTaskWithURL(url: NSURL, completionHandler: DataTaskResult)	-> NSURLSessionDataTaskProtocol
 	func dataTaskWithRequest(request: NSMutableURLRequestProtocol, completionHandler: DataTaskResult) -> NSURLSessionDataTaskProtocol
 	func dataTaskWithRequest(request: NSMutableURLRequestProtocol) -> NSURLSessionDataTaskProtocol
@@ -52,6 +71,8 @@ extension NSURLSession : NSURLSessionProtocol {
 	}
 }
 
+
+// NSURL
 extension NSURL {
 	public convenience init?(baseUrl: String, parameters: [String: String]?) {
 		if let parameters = parameters, components = NSURLComponents(string: baseUrl) {
