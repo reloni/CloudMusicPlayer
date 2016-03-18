@@ -46,7 +46,7 @@ public protocol StreamDataTaskProtocol {
 
 public class StreamDataTask {
 	private var bag = DisposeBag()
-	private let request: NSMutableURLRequestProtocol
+	internal let request: NSMutableURLRequestProtocol
 	private let httpUtilities: HttpUtilitiesProtocol
 	private let sessionConfiguration: NSURLSessionConfiguration
 	

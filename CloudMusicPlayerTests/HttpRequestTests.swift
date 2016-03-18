@@ -206,7 +206,7 @@ class HttpRequestTests: XCTestCase {
 			oaRes: OAuthResourceBase(id: "fake", authUrl: "oauth", clientId: nil, tokenId: nil), httpClient: httpClient, httpUtilities: utilities)
 		resource.resourcesUrl = "incorrect base url"
 		// invoke with real httputilities
-		let request = HttpClient(urlSession: session)
+		let request = HttpClient(urlSession: session, httpUtilities: HttpUtilities())
 		let createdRequest = request.createRequestForCloudResource(resource)
 		XCTAssertNil(createdRequest)
 	}
@@ -237,7 +237,7 @@ class HttpRequestTests: XCTestCase {
 	
 	func testNotReturnRequestForCloudResourceWithIncorrectUrl() {
 		// use real http utilities in this case to test that request will not created
-		let client = HttpClient(urlSession: session)
+		let client = HttpClient(urlSession: session, httpUtilities: HttpUtilities())
 		
 		let fakeRes = FakeCloudResource(
 			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpClient: client, httpUtilities: client.httpUtilities)
