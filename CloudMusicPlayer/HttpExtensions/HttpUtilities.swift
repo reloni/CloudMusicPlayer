@@ -13,6 +13,8 @@ public protocol HttpUtilitiesProtocol {
 	func createUrlRequest(baseUrl: String, parameters: [String: String]?, headers: [String: String]?) -> NSMutableURLRequestProtocol?
 	func createUrlRequest(url: NSURL, headers: [String: String]?) -> NSMutableURLRequestProtocol
 	func createUrlSession(configuration: NSURLSessionConfiguration, delegate: NSURLSessionDelegate?, queue: NSOperationQueue?) -> NSURLSessionProtocol
+	func createUrlSessionStreamObserver() -> UrlSessionStreamObserverProtocol
+	func createStreamDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration) -> StreamDataTaskProtocol
 }
 
 public class HttpUtilities {
@@ -60,5 +62,13 @@ extension HttpUtilities : HttpUtilitiesProtocol {
 		return NSURLSession(configuration: configuration,
 			delegate: delegate,
 			delegateQueue: queue)
+	}
+	
+	public func createUrlSessionStreamObserver() -> UrlSessionStreamObserverProtocol {
+		return UrlSessionStreamObserver()
+	}
+	
+	public func createStreamDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration()) -> StreamDataTaskProtocol {
+		return StreamDataTask(request: request, httpUtilities: self, sessionConfiguration: sessionConfiguration)
 	}
 }

@@ -18,11 +18,11 @@ public enum StreamDataResult {
 }
 
 public protocol UrlSessionStreamObserverProtocol {
-	var sessionProgress: PublishSubject<StreamDataResult> { get }
+	var sessionProgress: Observable<StreamDataResult> { get }
 }
 
 @objc public class UrlSessionStreamObserver : NSObject {
-	public let sessionProgress = PublishSubject<StreamDataResult>()
+	public let subject = PublishSubject<StreamDataResult>()
 	private var totalDataReceived: UInt64 = 0
 	private var expectedDataLength: Int64 = 0
 	deinit {
@@ -30,13 +30,17 @@ public protocol UrlSessionStreamObserverProtocol {
 	}
 }
 
-extension UrlSessionStreamObserver : UrlSessionStreamObserverProtocol { }
+extension UrlSessionStreamObserver : UrlSessionStreamObserverProtocol {
+	public var sessionProgress: Observable<StreamDataResult> {
+		return subject
+	}
+}
 
 extension UrlSessionStreamObserver : NSURLSessionDataDelegate {
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void) {
 		if let response = response as? NSHTTPURLResponse {
 			expectedDataLength = response.expectedContentLength
-			sessionProgress.onNext(.StreamedResponse(response))
+			subject.onNext(.StreamedResponse(response))
 		}
 		
 		completionHandler(.Allow)
@@ -44,17 +48,17 @@ extension UrlSessionStreamObserver : NSURLSessionDataDelegate {
 	
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
 		totalDataReceived += UInt64(data.length)
-		sessionProgress.onNext(.StreamedData(data))
-		sessionProgress.onNext(.StreamProgress(totalDataReceived, expectedDataLength))
+		subject.onNext(.StreamedData(data))
+		subject.onNext(.StreamProgress(totalDataReceived, expectedDataLength))
 	}
 	
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
 		if let error = error {
-			sessionProgress.onNext(.Error(error))
+			subject.onNext(.Error(error))
 		} else {
-			sessionProgress.onNext(.Success(totalDataReceived))
+			subject.onNext(.Success(totalDataReceived))
 		}
-		sessionProgress.onCompleted()
+		subject.onCompleted()
 		session.invalidateAndCancel()
 	}
 }

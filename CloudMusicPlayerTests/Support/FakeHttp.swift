@@ -89,6 +89,9 @@ public class FakeSession : NSURLSessionProtocol {
 }
 
 public class FakeHttpUtilities : HttpUtilitiesProtocol {
+	var fakeObserver: UrlSessionStreamObserverProtocol?
+	var fakeSession: NSURLSessionProtocol?
+	
 	public func createUrlRequest(baseUrl: String, parameters: [String : String]?) -> NSMutableURLRequestProtocol? {
 		return FakeRequest(url: NSURL(baseUrl: baseUrl, parameters: parameters))
 	}
@@ -106,6 +109,21 @@ public class FakeHttpUtilities : HttpUtilitiesProtocol {
 	}
 	
 	public func createUrlSession(configuration: NSURLSessionConfiguration, delegate: NSURLSessionDelegate?, queue: NSOperationQueue?) -> NSURLSessionProtocol {
-		fatalError("Not implemented")
+		guard let session = fakeSession else {
+			return FakeSession()
+		}
+		return session
+	}
+	
+	public func createUrlSessionStreamObserver() -> UrlSessionStreamObserverProtocol {
+		guard let observer = fakeObserver else {
+			return FakeUrlSessionStreamObserver()
+		}
+		return observer
+	}
+	
+	public func createStreamDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration) -> StreamDataTaskProtocol {
+		return StreamDataTask(request: request, httpUtilities: self, sessionConfiguration: sessionConfiguration)
+		//return FakeStreamDataTask(request: request, observer: createUrlSessionStreamObserver(), httpUtilities: self)
 	}
 }

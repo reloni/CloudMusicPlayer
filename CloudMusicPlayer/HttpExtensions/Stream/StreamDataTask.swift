@@ -37,26 +37,37 @@ public struct StreamDataTaskManager {
 	}
 }
 
-@objc public class StreamDataTask : NSObject {
+public protocol StreamDataTaskProtocol {
+	var taskProgress: Observable<StreamDataResult> { get }
+	func resume()
+	func suspend()
+	func cancel()
+}
+
+public class StreamDataTask {
 	private var bag = DisposeBag()
 	private let request: NSMutableURLRequestProtocol
-	private var totalDataReceived: UInt64 = 0
-	private var expectedDataLength: Int64 = 0
-	private let taskProgress = PublishSubject<StreamDataResult>()
-	//private var dataTask: NSURLSessionDataTask?
-
 	private let httpUtilities: HttpUtilitiesProtocol
 	private let sessionConfiguration: NSURLSessionConfiguration
+	
 	private var uid: String {
 		return request.URL?.URLString ?? ""
 	}
 	
-	private lazy var dataTask: NSURLSessionDataTaskProtocol = {
+	private lazy var dataTask: NSURLSessionDataTaskProtocol = { [unowned self] in
 		return self.session.dataTaskWithRequest(self.request)
 	}()
 	
-	private lazy var session: NSURLSessionProtocol = {
-		return self.httpUtilities.createUrlSession(self.sessionConfiguration, delegate: self, queue: nil)
+	private lazy var observer: UrlSessionStreamObserverProtocol = { [unowned self] in
+		let observer = self.httpUtilities.createUrlSessionStreamObserver()
+		observer.sessionProgress.bindNext { result in
+			
+			}.addDisposableTo(self.bag)
+		return observer
+	}()
+	
+	private lazy var session: NSURLSessionProtocol = { [unowned self] in
+		return self.httpUtilities.createUrlSession(self.sessionConfiguration, delegate: self.observer as? NSURLSessionDelegate, queue: nil)
 	}()
 	
 	public init(request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
@@ -68,26 +79,8 @@ public struct StreamDataTaskManager {
 	
 	public convenience init(url: NSURL, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance, headers: [String: String]? = nil,
 		sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration()) {
-			//let newRequest = NSMutableURLRequest(URL: url)
 			let newRequest = httpUtilities.createUrlRequest(url, headers: headers)
-			//headers?.forEach { header, value in
-			//	newRequest.addValue(value, forHTTPHeaderField: header)
-			//}
 			self.init(request: newRequest, httpUtilities: httpUtilities, sessionConfiguration: sessionConfiguration)
-	}
-	
-	public func resume() {
-		//let session = NSURLSession(configuration: .defaultSessionConfiguration(),
-		//	delegate: self,
-		//	delegateQueue: nil)
-		
-		//dataTask = session.dataTaskWithRequest(request)
-		//self.session = session
-		dataTask.resume()
-	}
-	
-	public func suspend() {
-		dataTask.suspend()
 	}
 	
 	deinit {
@@ -95,29 +88,20 @@ public struct StreamDataTaskManager {
 	}
 }
 
-extension StreamDataTask : NSURLSessionDataDelegate {
-	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void) {
-		if let response = response as? NSHTTPURLResponse {
-			expectedDataLength = response.expectedContentLength
-			taskProgress.onNext(.StreamedResponse(response))
-		}
-		
-		completionHandler(.Allow)
-	}
-
-	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-		totalDataReceived += UInt64(data.length)
-		taskProgress.onNext(.StreamedData(data))
-		taskProgress.onNext(.StreamProgress(totalDataReceived, expectedDataLength))
+extension StreamDataTask : StreamDataTaskProtocol {
+	public var taskProgress: Observable<StreamDataResult> {
+		return observer.sessionProgress
 	}
 	
-	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-		if let error = error {
-			taskProgress.onNext(.Error(error))
-		} else {
-			taskProgress.onNext(.Success(totalDataReceived))
-		}
-		taskProgress.onCompleted()
-		session.invalidateAndCancel()
+	public func resume() {
+		dataTask.resume()
+	}
+	
+	public func suspend() {
+		dataTask.suspend()
+	}
+	
+	public func cancel() {
+		dataTask.cancel()
 	}
 }
