@@ -57,6 +57,7 @@ public class FakeDataTask : NSURLSessionDataTaskProtocol {
 
 public class FakeSession : NSURLSessionProtocol {
 	var task: FakeDataTask?
+	var isInvalidatedAndCanceled = false
 	
 	public init(fakeTask: FakeDataTask? = nil) {
 		task = fakeTask
@@ -88,6 +89,10 @@ public class FakeSession : NSURLSessionProtocol {
 	}
 	
 	public func invalidateAndCancel() {
+		// set flag that session was invalidated and canceled
+		isInvalidatedAndCanceled = true
+		
+		// invoke cancelation of task
 		task?.cancel()
 	}
 }

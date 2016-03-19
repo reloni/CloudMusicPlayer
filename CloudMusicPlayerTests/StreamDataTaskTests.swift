@@ -38,8 +38,10 @@ class StreamDataTaskTests: XCTestCase {
 		bag = nil
 		request = nil
 		session = nil
+		//utilities.streamObserver = nil
 		utilities = nil
 		streamObserver = nil
+		
 	}
 	
 	func testReceiveCorrectData() {
@@ -48,6 +50,8 @@ class StreamDataTaskTests: XCTestCase {
 		
 		let testData = ["First", "Second", "Third", "Fourth"]
 		var dataSended:UInt64 = 0
+		
+		let expectation = expectationWithDescription("Should return correct data and invalidate session")
 		
 		session.task?.taskProgress.bindNext { [unowned self] progress in
 			if case .resume(let tsk) = progress {
@@ -59,12 +63,20 @@ class StreamDataTaskTests: XCTestCase {
 						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
 					}
 					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+					// set reference to nil (simutale seal session dispose)
+					self.utilities.streamObserver = nil
+				}
+			} else if case .cancel = progress {
+				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
+				// so fulfill expectation here after checking if session was invalidated
+				if self.session.isInvalidatedAndCanceled {
+					expectation.fulfill()
 				}
 			}
-			}.addDisposableTo(bag)
+		}.addDisposableTo(bag)
 		
 		var receiveCounter = 0
-		let expectation = expectationWithDescription("Should return correct data")
+		
 		httpClient.loadStreamData(request, sessionConfiguration: .defaultSessionConfiguration()).bindNext { result in
 			if case .StreamedData(let data) = result {
 				XCTAssertEqual(String(data: data, encoding: NSUTF8StringEncoding), testData[receiveCounter], "Check correct chunk of data received")
@@ -72,11 +84,12 @@ class StreamDataTaskTests: XCTestCase {
 			} else if case .Success(let dataReceived) = result {
 				XCTAssertEqual(dataReceived, dataSended, "Should receive correct amount of data")
 				XCTAssertEqual(receiveCounter, testData.count, "Should receive correct amount of data chuncks")
-				expectation.fulfill()
 			}
-			}.addDisposableTo(bag)
+		}.addDisposableTo(bag)
+		
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertTrue(self.session.isInvalidatedAndCanceled, "Session should be invalidated")
 	}
 	
 	func testReturnNSError() {
