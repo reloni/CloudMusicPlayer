@@ -335,6 +335,7 @@
 		6EEB989D1C4EBE1700DD5B95 /* CloudMusicPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				6E12B9131C6F835C00E93FFB /* Extensions */,
 				6EE0CCC41C96C96E002F4D9D /* HttpExtensions */,
 				6E0A028A1C8A0C8B00AD9B38 /* StreamPlayer */,
 				6E182ED21C81D60A00730C59 /* Controlls */,
@@ -342,7 +343,6 @@
 				6E8AFD841C78E15600091B53 /* ViewModels */,
 				6E12B9151C6F83AB00E93FFB /* Keychain */,
 				6E12B9141C6F838300E93FFB /* Controllers */,
-				6E12B9131C6F835C00E93FFB /* Extensions */,
 				6E5254461C675D7C00CA5463 /* CloudResource */,
 				6EEB989E1C4EBE1700DD5B95 /* AppDelegate.swift */,
 				6EEB98A81C4EBE1700DD5B95 /* Assets.xcassets */,

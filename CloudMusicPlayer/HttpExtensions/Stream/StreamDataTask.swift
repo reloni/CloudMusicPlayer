@@ -38,6 +38,7 @@ public struct StreamDataTaskManager {
 }
 
 public protocol StreamDataTaskProtocol {
+	var request: NSMutableURLRequestProtocol { get }
 	var taskProgress: Observable<StreamDataResult> { get }
 	func resume()
 	func suspend()
@@ -46,9 +47,9 @@ public protocol StreamDataTaskProtocol {
 
 public class StreamDataTask {
 	private var bag = DisposeBag()
-	internal let request: NSMutableURLRequestProtocol
-	private let httpUtilities: HttpUtilitiesProtocol
-	private let sessionConfiguration: NSURLSessionConfiguration
+	public let request: NSMutableURLRequestProtocol
+	internal let httpUtilities: HttpUtilitiesProtocol
+	internal let sessionConfiguration: NSURLSessionConfiguration
 	
 	private var uid: String {
 		return request.URL?.URLString ?? ""

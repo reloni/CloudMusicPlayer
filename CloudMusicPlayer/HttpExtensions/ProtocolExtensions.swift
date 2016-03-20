@@ -70,6 +70,11 @@ extension NSURLSession : NSURLSessionProtocol {
 		return dataTaskWithRequest(request as! NSURLRequest) as NSURLSessionDataTask
 	}
 }
+extension NSURLSession {
+	public static var defaultConfig: NSURLSessionConfiguration {
+		return .defaultSessionConfiguration()
+	}
+}
 
 
 // NSURL
