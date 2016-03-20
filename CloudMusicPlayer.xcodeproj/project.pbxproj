@@ -249,6 +249,19 @@
 			path = CloudMusicPlayer/Controlls;
 			sourceTree = SOURCE_ROOT;
 		};
+		6E36E32E1C9EFCB70039B91E /* Support JSON */ = {
+			isa = PBXGroup;
+			children = (
+				6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */,
+				6EA3A2521C9969B30042E851 /* YandexMusicDirItem.json */,
+				6EA3A2501C9967FC0042E851 /* YandexMusicFolderContents.json */,
+				6E235DA51C9833DB00351034 /* YandexRoot.json */,
+				6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */,
+			);
+			name = "Support JSON";
+			path = "CloudMusicPlayerTests/Support JSON";
+			sourceTree = SOURCE_ROOT;
+		};
 		6E5254461C675D7C00CA5463 /* CloudResource */ = {
 			isa = PBXGroup;
 			children = (
@@ -345,11 +358,7 @@
 		6EEB98B51C4EBE1700DD5B95 /* CloudMusicPlayerTests */ = {
 			isa = PBXGroup;
 			children = (
-				6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */,
-				6EA3A2521C9969B30042E851 /* YandexMusicDirItem.json */,
-				6EA3A2501C9967FC0042E851 /* YandexMusicFolderContents.json */,
-				6E235DA51C9833DB00351034 /* YandexRoot.json */,
-				6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */,
+				6E36E32E1C9EFCB70039B91E /* Support JSON */,
 				6EECECD31C982369007B37CC /* Support */,
 				6EEB98B81C4EBE1700DD5B95 /* Info.plist */,
 				6E80F8B81C903CA200102A9C /* OAuthResourceTests.swift */,
