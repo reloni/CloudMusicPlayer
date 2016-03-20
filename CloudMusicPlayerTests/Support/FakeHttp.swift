@@ -13,6 +13,9 @@ import RxSwift
 public class FakeRequest : NSMutableURLRequestProtocol {
 	var headers = [String: String]()
 	public var URL: NSURL?
+	public var allHTTPHeaderFields: [String: String]? {
+		return headers
+	}
 	
 	public init(url: NSURL? = nil) {
 		self.URL = url

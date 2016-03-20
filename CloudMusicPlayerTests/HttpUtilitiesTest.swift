@@ -43,6 +43,10 @@ class HttpUtilitiesTest: XCTestCase {
 		XCTAssertNil(HttpUtilities().createUrlRequest("wrong url", parameters: nil))
 	}
 	
+	func testNotCreateNSMutableUrlRequestWithWrongUrlAndHeaders() {
+		XCTAssertNil(HttpUtilities().createUrlRequest("wrong url", parameters: nil, headers: nil))
+	}
+	
 	func testCreateUrlSession() {
 		let session = HttpUtilities().createUrlSession(NSURLSession.defaultConfig) as? NSURLSession
 		XCTAssertNotNil(session)

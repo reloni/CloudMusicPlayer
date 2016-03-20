@@ -28,6 +28,7 @@ extension NSURLRequest : NSURLRequestProtocol { }
 public protocol NSMutableURLRequestProtocol : NSURLRequestProtocol {
 	func addValue(value: String, forHTTPHeaderField: String)
 	var URL: NSURL? { get }
+	var allHTTPHeaderFields: [String: String]? { get }
 }
 extension NSMutableURLRequest : NSMutableURLRequestProtocol { }
 
