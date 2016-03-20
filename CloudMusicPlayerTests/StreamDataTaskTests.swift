@@ -63,13 +63,13 @@ class StreamDataTaskTests: XCTestCase {
 						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
 					}
 					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
-					// set reference to nil (simutale seal session dispose)
-					self.utilities.streamObserver = nil
 				}
 			} else if case .cancel = progress {
 				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
 				// so fulfill expectation here after checking if session was invalidated
 				if self.session.isInvalidatedAndCanceled {
+					// set reference to nil (simutale real session dispose)
+					self.utilities.streamObserver = nil
 					expectation.fulfill()
 				}
 			}
