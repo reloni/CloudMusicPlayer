@@ -113,11 +113,14 @@ class StreamDataTaskTests: XCTestCase {
 	func testDidReceiveResponse() {
 		var disposition: NSURLSessionResponseDisposition?
 		let fakeResponse = FakeResponse(contentLenght: 64587)
+		let dispositionExpectation = expectationWithDescription("Should set correct completion disposition in completionHandler")
+		
 		session.task?.taskProgress.bindNext { [unowned self] progress in
 			if case .resume(let tsk) = progress {
 				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
 				let completion: (NSURLSessionResponseDisposition) -> () = { disp in
 					disposition = disp
+					dispositionExpectation.fulfill()
 				}
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: completion))
@@ -134,7 +137,7 @@ class StreamDataTaskTests: XCTestCase {
 		}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
-		XCTAssertEqual(disposition, NSURLSessionResponseDisposition.Allow, "Should set correct completion disposition in completionHandler")
+		XCTAssertEqual(disposition, NSURLSessionResponseDisposition.Allow, "Check correct completion disposition in completionHandler")
 	}
 	
 	func testCreateCorrectTask() {
