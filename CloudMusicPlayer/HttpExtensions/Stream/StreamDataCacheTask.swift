@@ -47,11 +47,11 @@ public struct StreamDataCacheManager {
 			
 			return AnonymousDisposable {
 				newTask.cancel()
-				tasks.removeValueForKey(newTask.uid)
+				tasks.removeValueForKey(internalRequest.URLString)
 			}
 		}.shareReplay(1)
 		
-		tasks[newTask.uid] = (newTask, newObservable)
+		tasks[internalRequest.URLString] = (newTask, newObservable)
 		
 		return newObservable
 	}
@@ -160,6 +160,7 @@ public class StreamDataCacheTask {
 			return false
 		}
 		let range = NSMakeRange(Int(startOffset), Int(responseLength))
+		print("Response with range \(range)")
 
 		respondingDataRequest.respondWithData(data.subdataWithRange(range))
 		
