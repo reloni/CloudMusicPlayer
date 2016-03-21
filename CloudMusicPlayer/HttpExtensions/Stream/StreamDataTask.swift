@@ -88,7 +88,7 @@ public class StreamDataTask {
 
 extension StreamDataTask : StreamDataTaskProtocol {
 	public var taskProgress: Observable<StreamDataResult> {
-		return observer.sessionProgress
+		return observer.sessionProgress.shareReplay(1)
 	}
 	
 	public func resume() {

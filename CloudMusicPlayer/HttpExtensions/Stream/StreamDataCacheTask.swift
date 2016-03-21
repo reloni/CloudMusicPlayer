@@ -60,6 +60,7 @@ public struct StreamDataCacheManager {
 public protocol StreamDataCacheTaskProtocol : StreamTaskProtocol {
 	var streamDataTask: StreamDataTaskProtocol { get }
 	var taskProgress: Observable<CacheDataResult> { get }
+	func getCachedData() -> NSData
 }
 
 public class StreamDataCacheTask {
@@ -160,7 +161,6 @@ public class StreamDataCacheTask {
 			return false
 		}
 		let range = NSMakeRange(Int(startOffset), Int(responseLength))
-		print("Response with range \(range)")
 
 		respondingDataRequest.respondWithData(data.subdataWithRange(range))
 		
@@ -195,5 +195,9 @@ extension StreamDataCacheTask : StreamDataCacheTaskProtocol {
 	
 	public func cancel() {
 		streamDataTask.cancel()
+	}
+	
+	public func getCachedData() -> NSData {
+		return cacheData
 	}
 }
