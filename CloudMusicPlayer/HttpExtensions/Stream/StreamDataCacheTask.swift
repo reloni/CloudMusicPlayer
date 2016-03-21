@@ -32,11 +32,10 @@ public struct StreamDataCacheManager {
 			task.resourceLoadingRequests.append(resourceLoadingRequest)
 			return observable
 		}
+			
+		let streamTask = HttpUtilities.instance.createStreamDataTask(internalRequest, sessionConfiguration: NSURLSession.defaultConfig)
 		
-		guard let newTask = StreamDataCacheTask(internalRequest: internalRequest,
-			resourceLoadingRequest: resourceLoadingRequest, saveCachedData: saveCachedData) else {
-			return nil
-		}
+		let newTask = StreamDataCacheTask(resourceLoadingRequest: resourceLoadingRequest, streamDataTask: streamTask, saveCachedData: saveCachedData)
 		
 		let newObservable = Observable<CacheDataResult>.create { observer in
 			newTask.taskProgress.bindNext { progress in
@@ -58,56 +57,62 @@ public struct StreamDataCacheManager {
 	}
 }
 
+public protocol StreamDataCacheTaskProtocol : StreamTaskProtocol {
+	var streamDataTask: StreamDataTaskProtocol { get }
+	var taskProgress: Observable<CacheDataResult> { get }
+}
+
 public class StreamDataCacheTask {
+	public let streamDataTask: StreamDataTaskProtocol
+	
 	private var bag = DisposeBag()
-	private var response: NSHTTPURLResponse?
-	private var resourceLoadingRequests = [AVAssetResourceLoadingRequest]()
-	private let streamTask: Observable<StreamDataResult>
-	private let taskProgress = PublishSubject<CacheDataResult>()
+	private var response: NSHTTPURLResponseProtocol?
+	private var resourceLoadingRequests = [AVAssetResourceLoadingRequestProtocol]()
+	//private let streamTask: Observable<StreamDataResult>
+	private let publishSubject = PublishSubject<CacheDataResult>()
 	public let uid: String
 	private var cacheData = NSMutableData()
 	private let saveCachedData: Bool
-
-	private convenience init?(internalRequest: NSMutableURLRequest, resourceLoadingRequest: AVAssetResourceLoadingRequest, saveCachedData: Bool = true) {
-		guard let streamTask = StreamDataTaskManager.createTask(internalRequest) else {
-			return nil
-		}
-		self.init(uid: internalRequest.URLString, resourceLoadingRequest: resourceLoadingRequest, streamTask: streamTask, saveCachedData: saveCachedData)
-	}
 	
-	private init(uid: String, resourceLoadingRequest: AVAssetResourceLoadingRequest, streamTask: Observable<StreamDataResult>, saveCachedData: Bool = true) {
-		self.streamTask = streamTask
-		self.uid = uid
-		self.resourceLoadingRequests.append(resourceLoadingRequest)
-		self.saveCachedData = saveCachedData
-	}
-	
-	public func resume() {
-		streamTask.bindNext { [unowned self] response in
+	public lazy var taskProgress: Observable<CacheDataResult> = { [unowned self] in
+		self.streamDataTask.taskProgress.bindNext { [unowned self] response in
 			switch response {
 			case .StreamedData(let data):
 				self.cacheData.appendData(data)
 				self.processRequests()
 			case .StreamedResponse(let response):
-				self.response = response as? NSHTTPURLResponse
+				self.response = response
 			case .Error(let error):
 				self.processRequests()
-				self.taskProgress.onNext(CacheDataResult.Error(error))
-				self.taskProgress.onCompleted()
+				self.publishSubject.onNext(CacheDataResult.Error(error))
+				self.publishSubject.onCompleted()
 			case .Success:
 				self.processRequests()
 				if self.saveCachedData, let path = self.saveData() {
-					self.taskProgress.onNext(CacheDataResult.SuccessWithCache(path))
+					self.publishSubject.onNext(CacheDataResult.SuccessWithCache(path))
 				} else {
-					self.taskProgress.onNext(CacheDataResult.Success)
+					self.publishSubject.onNext(CacheDataResult.Success)
 				}
-				self.taskProgress.onCompleted()
+				self.publishSubject.onCompleted()
 			default: break
 			}
-		}.addDisposableTo(bag)
-	}
+		}.addDisposableTo(self.bag)
 	
-	public func cancel() {
+		return self.publishSubject
+	}()
+
+//	private convenience init?(internalRequest: NSMutableURLRequest, resourceLoadingRequest: AVAssetResourceLoadingRequest, saveCachedData: Bool = true) {
+//		guard let streamTask = StreamDataTaskManager.createTask(internalRequest) else {
+//			return nil
+//		}
+//		self.init(uid: internalRequest.URLString, resourceLoadingRequest: resourceLoadingRequest, streamTask: streamTask, saveCachedData: saveCachedData)
+//	}
+	
+	public init(resourceLoadingRequest: AVAssetResourceLoadingRequestProtocol, streamDataTask: StreamDataTaskProtocol, saveCachedData: Bool = true) {
+		self.streamDataTask = streamDataTask
+		self.uid = NSUUID().UUIDString
+		self.resourceLoadingRequests.append(resourceLoadingRequest)
+		self.saveCachedData = saveCachedData
 	}
 	
 	private func saveData() -> NSURL? {
@@ -120,11 +125,11 @@ public class StreamDataCacheTask {
 	
 	private func processRequests() {
 		self.resourceLoadingRequests = self.resourceLoadingRequests.filter { request in
-			if let contentInformationRequest = request.contentInformationRequest {
+			if let contentInformationRequest = request.getContentInformationRequest() {
 				self.setResponseContentInformation(contentInformationRequest)
 			}
 			
-			if let dataRequest = request.dataRequest {
+			if let dataRequest = request.getDataRequest() {
 				if self.respondWithData(self.cacheData, respondingDataRequest: dataRequest) {
 					request.finishLoading()
 					return false
@@ -138,7 +143,7 @@ public class StreamDataCacheTask {
 		print("StreamDataCacheTask deinit")
 	}
 	
-	private func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequest) -> Bool {
+	private func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequestProtocol) -> Bool {
 		let startOffset = respondingDataRequest.currentOffset != 0 ? respondingDataRequest.currentOffset : respondingDataRequest.requestedOffset
 		let dataLength = Int64(data.length)
 		
@@ -162,7 +167,7 @@ public class StreamDataCacheTask {
 		return dataLength >= endOffset
 	}
 	
-	private func setResponseContentInformation(request: AVAssetResourceLoadingContentInformationRequest) {
+	private func setResponseContentInformation(request: AVAssetResourceLoadingContentInformationRequestProtocol) {
 		guard let MIMEType = response?.MIMEType, contentLength = response?.expectedContentLength else {
 			return
 		}
@@ -175,5 +180,19 @@ public class StreamDataCacheTask {
 			
 			request.contentType = "public.mp3"
 		}
+	}
+}
+
+extension StreamDataCacheTask : StreamDataCacheTaskProtocol {
+	public func resume() {
+		streamDataTask.resume()
+	}
+	
+	public func suspend() {
+		streamDataTask.suspend()
+	}
+	
+	public func cancel() {
+		streamDataTask.cancel()
 	}
 }

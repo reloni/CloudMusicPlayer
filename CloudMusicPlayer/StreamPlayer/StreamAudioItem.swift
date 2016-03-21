@@ -107,10 +107,12 @@ import UIKit
 
 extension StreamAudioItem : AVAssetResourceLoaderDelegate {
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, didCancelLoadingRequest loadingRequest: AVAssetResourceLoadingRequest) {
-		
+		print("didCancelLoadingRequest")
 	}
 	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+		print("shouldWaitForLoadingOfRequestedResource")
+		
 		guard let player = player, let nsUrl = NSURL(string: url) else {
 			return false
 		}

@@ -28,6 +28,7 @@ public class FakeRequest : NSMutableURLRequestProtocol {
 
 public class FakeResponse : NSURLResponseProtocol, NSHTTPURLResponseProtocol {
 	public var expectedContentLength: Int64
+	public var MIMEType: String?
 	public init(contentLenght: Int64) {
 		expectedContentLength = contentLenght
 	}

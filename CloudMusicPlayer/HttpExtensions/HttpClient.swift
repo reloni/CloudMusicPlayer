@@ -24,6 +24,7 @@ public protocol HttpClientProtocol {
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
 	func loadDataForCloudResource(resource: CloudResource) -> Observable<HttpRequestResult>?
 	func loadStreamData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration) -> Observable<StreamDataResult>
+	//func loadAndCacheData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, saveCachedData: Bool) -> Observable<CacheDataResult>
 }
 public class HttpClient {
 	public let urlSession: NSURLSessionProtocol

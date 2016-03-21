@@ -64,6 +64,7 @@
 		6EEB98A71C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB98A51C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld */; };
 		6EEB98A91C4EBE1700DD5B95 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6EEB98A81C4EBE1700DD5B95 /* Assets.xcassets */; };
 		6EEB98AC1C4EBE1700DD5B95 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EEB98AA1C4EBE1700DD5B95 /* LaunchScreen.storyboard */; };
+		6EEC8F791CA0393100B30B85 /* AssetResourceLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEC8F781CA0393100B30B85 /* AssetResourceLoader.swift */; };
 		6EECECD01C97EE54007B37CC /* HttpUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EECECCF1C97EE54007B37CC /* HttpUtilities.swift */; };
 		6EECECD21C97F664007B37CC /* FakeCloudResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EECECD11C97F664007B37CC /* FakeCloudResource.swift */; };
 /* End PBXBuildFile section */
@@ -149,6 +150,7 @@
 		6EEB98B81C4EBE1700DD5B95 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6EEB98BD1C4EBE1700DD5B95 /* CloudMusicPlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudMusicPlayerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EEB98C31C4EBE1700DD5B95 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6EEC8F781CA0393100B30B85 /* AssetResourceLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetResourceLoader.swift; sourceTree = "<group>"; };
 		6EECECCF1C97EE54007B37CC /* HttpUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpUtilities.swift; sourceTree = "<group>"; };
 		6EECECD11C97F664007B37CC /* FakeCloudResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeCloudResource.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -187,8 +189,8 @@
 			children = (
 				6E31A8991C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift */,
 				6E07F0EF1C9B203D001027EA /* UrlSessionStreamObserver.swift */,
-				6E0A028D1C8A0CB500AD9B38 /* StreamDataCacheTask.swift */,
 				6E0A028E1C8A0CB500AD9B38 /* StreamDataTask.swift */,
+				6E0A028D1C8A0CB500AD9B38 /* StreamDataCacheTask.swift */,
 			);
 			name = Stream;
 			path = CloudMusicPlayer/HttpExtensions/Stream;
@@ -197,6 +199,7 @@
 		6E0A028A1C8A0C8B00AD9B38 /* StreamPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				6EEC8F781CA0393100B30B85 /* AssetResourceLoader.swift */,
 				6E0A028B1C8A0CB500AD9B38 /* StreamAudioItem.swift */,
 				6E0A028C1C8A0CB500AD9B38 /* StreamAudioPlayer.swift */,
 				6E07F0E71C9ABD34001027EA /* Extensions.swift */,
@@ -569,6 +572,7 @@
 				6E0A02911C8A0CB500AD9B38 /* StreamDataCacheTask.swift in Sources */,
 				6E07F0E81C9ABD34001027EA /* Extensions.swift in Sources */,
 				6E07F0F01C9B203D001027EA /* UrlSessionStreamObserver.swift in Sources */,
+				6EEC8F791CA0393100B30B85 /* AssetResourceLoader.swift in Sources */,
 				6EC4E6141C8D789200957D42 /* MusicPlayerController.swift in Sources */,
 				6E0A028F1C8A0CB500AD9B38 /* StreamAudioItem.swift in Sources */,
 				6EA638781C7A002200DD85A6 /* CloudResourcesViewModel.swift in Sources */,

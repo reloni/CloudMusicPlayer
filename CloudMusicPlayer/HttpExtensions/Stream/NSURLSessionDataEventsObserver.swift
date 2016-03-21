@@ -16,7 +16,7 @@ public enum SessionDataEvents {
 	case didCompleteWithError(session: NSURLSessionProtocol, dataTask: NSURLSessionTaskProtocol, error: NSError?)
 }
 
-@objc public class NSURLSessionDataEventsObserver : NSObject, NSURLSessionDataDelegate {
+public class NSURLSessionDataEventsObserver : NSObject, NSURLSessionDataDelegate {
 	internal var sessionEvents = PublishSubject<SessionDataEvents>()
 }
 
