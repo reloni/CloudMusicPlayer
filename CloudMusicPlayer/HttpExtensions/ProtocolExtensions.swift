@@ -10,7 +10,9 @@ import Foundation
 
 
 // NSHTTPURLResponseProtocol
-public protocol NSHTTPURLResponseProtocol { }
+public protocol NSHTTPURLResponseProtocol {
+	var expectedContentLength: Int64 { get }
+}
 extension NSHTTPURLResponse : NSHTTPURLResponseProtocol { }
 
 

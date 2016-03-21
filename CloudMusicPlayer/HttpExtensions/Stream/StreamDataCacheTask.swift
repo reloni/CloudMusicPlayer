@@ -89,7 +89,7 @@ public class StreamDataCacheTask {
 				self.cacheData.appendData(data)
 				self.processRequests()
 			case .StreamedResponse(let response):
-				self.response = response
+				self.response = response as? NSHTTPURLResponse
 			case .Error(let error):
 				self.processRequests()
 				self.taskProgress.onNext(CacheDataResult.Error(error))

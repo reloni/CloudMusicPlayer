@@ -24,7 +24,7 @@ class StreamDataTaskTests: XCTestCase {
 		
 		bag = DisposeBag()
 		streamObserver = UrlSessionStreamObserver()
-		request = FakeRequest()
+		request = FakeRequest(url: NSURL(string: "https://test.com"))
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
 		utilities.fakeSession = session
@@ -38,16 +38,13 @@ class StreamDataTaskTests: XCTestCase {
 		bag = nil
 		request = nil
 		session = nil
-		//utilities.streamObserver = nil
+		utilities.streamObserver = nil
 		utilities = nil
 		streamObserver = nil
 		
 	}
 	
 	func testReceiveCorrectData() {
-		// set request url to check
-		request.URL = NSURL(string: "https://test.com")
-		
 		let testData = ["First", "Second", "Third", "Fourth"]
 		var dataSended:UInt64 = 0
 		
@@ -70,6 +67,7 @@ class StreamDataTaskTests: XCTestCase {
 				if self.session.isInvalidatedAndCanceled {
 					// set reference to nil (simutale real session dispose)
 					self.utilities.streamObserver = nil
+					self.streamObserver = nil
 					expectation.fulfill()
 				}
 			}
@@ -93,8 +91,6 @@ class StreamDataTaskTests: XCTestCase {
 	}
 	
 	func testReturnNSError() {
-		// set request url to check
-		request.URL = NSURL(string: "https://test.com")
 		session.task?.taskProgress.bindNext { [unowned self] progress in
 			if case .resume(let tsk) = progress {
 				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
@@ -112,5 +108,40 @@ class StreamDataTaskTests: XCTestCase {
 		}.addDisposableTo(bag)
 
 		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testDidReceiveResponse() {
+		var disposition: NSURLSessionResponseDisposition?
+		let fakeResponse = FakeResponse(contentLenght: 64587)
+		session.task?.taskProgress.bindNext { [unowned self] progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
+				let completion: (NSURLSessionResponseDisposition) -> () = { disp in
+					disposition = disp
+				}
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: completion))
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		let expectation = expectationWithDescription("Should return correct response")
+		httpClient.loadStreamData(request, sessionConfiguration: .defaultSessionConfiguration()).bindNext { result in
+			if case .StreamedResponse(let response) = result {
+				XCTAssertEqual(response.expectedContentLength, fakeResponse.expectedContentLength)
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertEqual(disposition, NSURLSessionResponseDisposition.Allow, "Should set correct completion disposition in completionHandler")
+	}
+	
+	func testCreateCorrectTask() {
+		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+		config.HTTPCookieAcceptPolicy = .Always
+		let task = StreamDataTask(request: request, httpUtilities: utilities, sessionConfiguration: config)
+		XCTAssertEqual(task.sessionConfiguration, config)
+		XCTAssertTrue(task.dataTask.getOriginalMutableUrlRequest() as? FakeRequest === request)
 	}
 }

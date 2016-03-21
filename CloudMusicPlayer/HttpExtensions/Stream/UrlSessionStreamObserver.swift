@@ -11,7 +11,7 @@ import RxSwift
 
 public enum StreamDataResult {
 	case StreamedData(NSData)
-	case StreamedResponse(NSHTTPURLResponse)
+	case StreamedResponse(NSHTTPURLResponseProtocol)
 	case Error(NSError)
 	case Success(UInt64)
 	case StreamProgress(UInt64, Int64)
@@ -36,7 +36,7 @@ public protocol UrlSessionStreamObserverProtocol {
 		sessionEvents.bindNext { [unowned self] response in
 		 switch response {
 				case .didReceiveResponse(_, _, let response, let completionHandler):
-					if let response = response as? NSHTTPURLResponse {
+					if let response = response as? NSHTTPURLResponseProtocol {
 						self.expectedDataLength = response.expectedContentLength
 						self.publishSubject.onNext(.StreamedResponse(response))
 					}

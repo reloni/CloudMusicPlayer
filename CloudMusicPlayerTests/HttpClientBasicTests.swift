@@ -11,7 +11,7 @@ import XCTest
 import RxSwift
 import SwiftyJSON
 
-class HttpRequestTests: XCTestCase {
+class HttpClientBasicTests: XCTestCase {
 	var bag: DisposeBag!
 	var request: FakeRequest!
 	var session: FakeSession!

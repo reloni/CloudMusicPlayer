@@ -26,6 +26,13 @@ public class FakeRequest : NSMutableURLRequestProtocol {
 	}
 }
 
+public class FakeResponse : NSURLResponseProtocol, NSHTTPURLResponseProtocol {
+	public var expectedContentLength: Int64
+	public init(contentLenght: Int64) {
+		expectedContentLength = contentLenght
+	}
+}
+
 public enum FakeDataTaskMethods {
 	case resume(FakeDataTask)
 	case suspend(FakeDataTask)

@@ -55,11 +55,11 @@ public class StreamDataTask {
 		return request.URL?.URLString ?? ""
 	}
 	
-	private lazy var dataTask: NSURLSessionDataTaskProtocol = { [unowned self] in
+	internal lazy var dataTask: NSURLSessionDataTaskProtocol = { [unowned self] in
 		return self.session.dataTaskWithRequest(self.request)
 	}()
 	
-	private lazy var observer: UrlSessionStreamObserverProtocol = { [unowned self] in
+	internal lazy var observer: UrlSessionStreamObserverProtocol = { [unowned self] in
 		let observer = self.httpUtilities.createUrlSessionStreamObserver()
 		observer.sessionProgress.bindNext { result in
 			
@@ -67,7 +67,7 @@ public class StreamDataTask {
 		return observer
 	}()
 	
-	private lazy var session: NSURLSessionProtocol = { [unowned self] in
+	internal lazy var session: NSURLSessionProtocol = { [unowned self] in
 		return self.httpUtilities.createUrlSession(self.sessionConfiguration, delegate: self.observer as? NSURLSessionDelegate, queue: nil)
 	}()
 	
@@ -76,12 +76,6 @@ public class StreamDataTask {
 		self.request = request
 		self.httpUtilities = httpUtilities
 		self.sessionConfiguration = sessionConfiguration
-	}
-	
-	public convenience init(url: NSURL, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance, headers: [String: String]? = nil,
-		sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration()) {
-			let newRequest = httpUtilities.createUrlRequest(url, headers: headers)
-			self.init(request: newRequest, httpUtilities: httpUtilities, sessionConfiguration: sessionConfiguration)
 	}
 	
 	deinit {

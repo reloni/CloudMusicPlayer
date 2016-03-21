@@ -10,7 +10,8 @@ import Foundation
 import RxSwift
 
 public enum SessionDataEvents {
-	case didReceiveResponse(session: NSURLSessionProtocol, dataTask: NSURLSessionDataTaskProtocol, response: NSURLResponseProtocol, completion: (NSURLSessionResponseDisposition) -> Void)
+	case didReceiveResponse(session: NSURLSessionProtocol, dataTask: NSURLSessionDataTaskProtocol, response: NSURLResponseProtocol,
+		completion: (NSURLSessionResponseDisposition) -> Void)
 	case didReceiveData(session: NSURLSessionProtocol, dataTask: NSURLSessionDataTaskProtocol, data: NSData)
 	case didCompleteWithError(session: NSURLSessionProtocol, dataTask: NSURLSessionTaskProtocol, error: NSError?)
 }
