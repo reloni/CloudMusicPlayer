@@ -10,33 +10,6 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-public struct StreamDataTaskManager {
-	private static var tasks = [String: StreamDataTask]()
-	
-	public static func createTask(request: NSMutableURLRequest) -> Observable<StreamDataResult>? {
-		return Observable.create { observer in
-			let task = StreamDataTask(request: request)
-			tasks[task.uid] = task
-			
-			task.taskProgress.bindNext { result in
-				observer.onNext(result)
-
-				if case .Success = result {
-					tasks.removeValueForKey(task.uid)
-				}
-				
-			}.addDisposableTo(task.bag)
-			
-			task.resume()
-			
-			return AnonymousDisposable {
-				task.dataTask.cancel()
-				tasks.removeValueForKey(task.uid)
-			}
-		}.shareReplay(1)
-	}
-}
-
 public protocol StreamTaskProtocol {
 	var uid: String { get }
 	func resume()

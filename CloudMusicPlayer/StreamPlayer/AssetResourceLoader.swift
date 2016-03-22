@@ -11,22 +11,16 @@ import AVFoundation
 import RxSwift
 import MobileCoreServices
 
-public protocol AssetResourceLoaderProtocol {
-	//var request: NSMutableURLRequestProtocol { get }
-	var dataTask: StreamDataTaskProtocol { get }
-	var response: NSHTTPURLResponseProtocol? { get }
-}
+public protocol AssetResourceLoaderProtocol { }
 
-public class AssetResourceLoader {
-	//public let request: NSMutableURLRequestProtocol
-	public let cacheTask: StreamDataCacheTaskProtocol
-	public var response: NSHTTPURLResponseProtocol?
+public class AssetResourceLoader : AssetResourceLoaderProtocol {
+	private let cacheTask: StreamDataCacheTaskProtocol
+	private var response: NSHTTPURLResponseProtocol?
 	
 	private let bag = DisposeBag()
 	private var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
 	
 	public init(cacheTask: StreamDataCacheTaskProtocol, assetLoaderEvents: Observable<AssetLoadingEvents>) {
-		//self.request = request
 		self.cacheTask = cacheTask
 		response = cacheTask.response
 		

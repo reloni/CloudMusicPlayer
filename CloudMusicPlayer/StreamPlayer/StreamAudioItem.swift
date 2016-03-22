@@ -29,18 +29,21 @@ public class StreamAudioItem {
 		
 		let asset = AVURLAsset(URL: nsUrl)
 		guard let req = HttpUtilities.instance.createUrlRequest(self.url, parameters: nil, headers: self.customHttpHeaders) else { return nil }
-		let cacheTask = HttpUtilities().createCacheDataTask(req, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false)
+		let cacheTask = HttpUtilities.instance.createCacheDataTask(req, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false)
 		//asset.resourceLoader.setDelegate(self, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 		self.loader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: self.observer.loaderEvents)
 		asset.resourceLoader.setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 		
-		//cacheTask.taskProgress.bindNext { [unowned self] result in
-		//	if case .Success = result {
-		//		self.loader = nil
-		//	} else if case .SuccessWithCache = result {
-		//		self.loader = nil
-		//	}
-		//}.addDisposableTo(self.bag)
+		// bind to event to dispose loader
+		cacheTask.taskProgress.bindNext { [unowned self] result in
+			if case .Success = result {
+				self.loader = nil
+			} else if case .SuccessWithCache = result {
+				self.loader = nil
+			} else if case .Error = result {
+				self.loader = nil
+			}
+		}.addDisposableTo(self.bag)
 		
 		cacheTask.resume()
 
