@@ -31,7 +31,7 @@ public class AssetResourceLoader : AssetResourceLoaderProtocol {
 			case .ShouldWaitForLoading(let loadingRequest):
 				self.resourceLoadingRequests[loadingRequest.hash] = loadingRequest
 			}
-		}.addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
 		cacheTask.taskProgress.bindNext { [unowned self] result in
 			if case .Success = result {
@@ -43,7 +43,7 @@ public class AssetResourceLoader : AssetResourceLoaderProtocol {
 			} else if case .ReceiveResponse(let resp) = result {
 				self.response = resp
 			}
-		}.addDisposableTo(bag)
+			}.addDisposableTo(bag)
 	}
 	
 	deinit {
@@ -51,9 +51,7 @@ public class AssetResourceLoader : AssetResourceLoaderProtocol {
 	}
 	
 	private func processRequests() {
-		//print("requests count: \(resourceLoadingRequests.count)")
 		resourceLoadingRequests.map { key, loadingRequest in
-			//print("Process key: \(key)")
 			if let contentInformationRequest = loadingRequest.getContentInformationRequest(), response = response {
 				setResponseContentInformation(response, request: contentInformationRequest)
 			}
@@ -68,7 +66,6 @@ public class AssetResourceLoader : AssetResourceLoaderProtocol {
 			
 			}.filter { $0 != -1 }.forEach { index in resourceLoadingRequests.removeValueForKey(index)
 		}
-		//print("requests count: \(resourceLoadingRequests.count)")
 	}
 	
 	private func setResponseContentInformation(response: NSHTTPURLResponseProtocol, request: AVAssetResourceLoadingContentInformationRequestProtocol) {
@@ -86,9 +83,7 @@ public class AssetResourceLoader : AssetResourceLoaderProtocol {
 		}
 	}
 	
-	internal func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequestProtocol) -> Bool {
-		//print("CurOffset: \(respondingDataRequest.currentOffset) ReqOffset \(respondingDataRequest.requestedOffset) ReqLen: \(respondingDataRequest.requestedLength)")
-		
+	private func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequestProtocol) -> Bool {
 		let startOffset = respondingDataRequest.currentOffset != 0 ? respondingDataRequest.currentOffset : respondingDataRequest.requestedOffset
 		let dataLength = Int64(data.length)
 		
@@ -105,7 +100,6 @@ public class AssetResourceLoader : AssetResourceLoaderProtocol {
 			return false
 		}
 		let range = NSMakeRange(Int(startOffset), Int(responseLength))
-		//print("respond with range: \(range)")
 		
 		respondingDataRequest.respondWithData(data.subdataWithRange(range))
 		

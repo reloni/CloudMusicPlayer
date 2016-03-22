@@ -155,8 +155,4 @@ public class FakeHttpUtilities : HttpUtilitiesProtocol {
 	public func createCacheDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, saveCachedData: Bool) -> StreamDataCacheTaskProtocol {
 		return StreamDataCacheTask(streamDataTask: createStreamDataTask(request, sessionConfiguration: sessionConfiguration), saveCachedData: saveCachedData)
 	}
-	
-	public func createAVAssetResourceLoaderEventsObserver() -> AVAssetResourceLoaderEventsObserverProtocol {
-		return AVAssetResourceLoaderEventsObserver()
-	}
 }

@@ -19,7 +19,6 @@ public class StreamAudioItem {
 	public weak var player: StreamAudioPlayer?
 	private let customHttpHeaders: [String: String]?
 	private var observer = AVAssetResourceLoaderEventsObserver()
-	//private var cacheTask: StreamDataCacheTaskProtocol?
 	private var loader: AssetResourceLoader?
 	
 	public lazy var playerItem: AVPlayerItem? = {
@@ -30,7 +29,6 @@ public class StreamAudioItem {
 		let asset = AVURLAsset(URL: nsUrl)
 		guard let req = HttpUtilities.instance.createUrlRequest(self.url, parameters: nil, headers: self.customHttpHeaders) else { return nil }
 		let cacheTask = HttpUtilities.instance.createCacheDataTask(req, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false)
-		//asset.resourceLoader.setDelegate(self, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 		self.loader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: self.observer.loaderEvents)
 		asset.resourceLoader.setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 		
