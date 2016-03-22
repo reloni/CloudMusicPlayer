@@ -15,6 +15,7 @@ public protocol HttpUtilitiesProtocol {
 	func createUrlSession(configuration: NSURLSessionConfiguration, delegate: NSURLSessionDelegate?, queue: NSOperationQueue?) -> NSURLSessionProtocol
 	func createUrlSessionStreamObserver() -> UrlSessionStreamObserverProtocol
 	func createStreamDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration) -> StreamDataTaskProtocol
+	func createCacheDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, saveCachedData: Bool) -> StreamDataCacheTaskProtocol
 }
 
 public class HttpUtilities {
@@ -70,5 +71,9 @@ extension HttpUtilities : HttpUtilitiesProtocol {
 	
 	public func createStreamDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration()) -> StreamDataTaskProtocol {
 		return StreamDataTask(request: request, httpUtilities: self, sessionConfiguration: sessionConfiguration)
+	}
+	
+	public func createCacheDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, saveCachedData: Bool) -> StreamDataCacheTaskProtocol {
+		return StreamDataCacheTask(streamDataTask: createStreamDataTask(request, sessionConfiguration: sessionConfiguration), saveCachedData: saveCachedData)
 	}
 }

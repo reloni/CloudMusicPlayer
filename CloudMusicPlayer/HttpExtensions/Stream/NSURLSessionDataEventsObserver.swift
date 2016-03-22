@@ -17,7 +17,7 @@ public enum SessionDataEvents {
 }
 
 public class NSURLSessionDataEventsObserver : NSObject, NSURLSessionDataDelegate {
-	internal var sessionEvents = PublishSubject<SessionDataEvents>()
+	internal let sessionEvents = PublishSubject<SessionDataEvents>()
 }
 
 extension NSURLSessionDataEventsObserver {

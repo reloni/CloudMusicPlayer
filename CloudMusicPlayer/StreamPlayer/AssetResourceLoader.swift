@@ -12,38 +12,69 @@ import RxSwift
 import MobileCoreServices
 
 public protocol AssetResourceLoaderProtocol {
-	var request: NSMutableURLRequestProtocol { get }
+	//var request: NSMutableURLRequestProtocol { get }
 	var dataTask: StreamDataTaskProtocol { get }
 	var response: NSHTTPURLResponseProtocol? { get }
 }
 
-public class AssetResourceLoader : NSObject {
-	public let request: NSMutableURLRequestProtocol
+public class AssetResourceLoader {
+	//public let request: NSMutableURLRequestProtocol
 	public let cacheTask: StreamDataCacheTaskProtocol
 	public var response: NSHTTPURLResponseProtocol?
 	
 	private let bag = DisposeBag()
-	private var resourceLoadingRequests = [AVAssetResourceLoadingRequestProtocol]()
+	private var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
 	
-	public init(request: NSMutableURLRequestProtocol, cacheTask: StreamDataCacheTaskProtocol) {
-		self.request = request
+	public init(cacheTask: StreamDataCacheTaskProtocol, assetLoaderEvents: Observable<AssetLoadingEvents>) {
+		//self.request = request
 		self.cacheTask = cacheTask
+		response = cacheTask.response
+		
+		assetLoaderEvents.bindNext { [unowned self] result in
+			switch result {
+			case .DidCancelLoading(let loadingRequest):
+				self.resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
+			case .ShouldWaitForLoading(let loadingRequest):
+				self.resourceLoadingRequests[loadingRequest.hash] = loadingRequest
+			}
+		}.addDisposableTo(bag)
+		
+		cacheTask.taskProgress.bindNext { [unowned self] result in
+			if case .Success = result {
+				self.processRequests()
+			} else if case .SuccessWithCache = result {
+				self.processRequests()
+			} else if case .CacheNewData = result {
+				self.processRequests()
+			} else if case .ReceiveResponse(let resp) = result {
+				self.response = resp
+			}
+		}.addDisposableTo(bag)
+	}
+	
+	deinit {
+		print("AssetResourceLoader deinit")
 	}
 	
 	private func processRequests() {
-		self.resourceLoadingRequests = resourceLoadingRequests.filter { request in
-			if let contentInformationRequest = request.getContentInformationRequest(), response = response {
+		//print("requests count: \(resourceLoadingRequests.count)")
+		resourceLoadingRequests.map { key, loadingRequest in
+			//print("Process key: \(key)")
+			if let contentInformationRequest = loadingRequest.getContentInformationRequest(), response = response {
 				setResponseContentInformation(response, request: contentInformationRequest)
 			}
 			
-			if let dataRequest = request.getDataRequest() {
+			if let dataRequest = loadingRequest.getDataRequest() {
 				if respondWithData(cacheTask.getCachedData(), respondingDataRequest: dataRequest) {
-					request.finishLoading()
-					return false
+					loadingRequest.finishLoading()
+					return key
 				}
 			}
-			return true
+			return -1
+			
+			}.filter { $0 != -1 }.forEach { index in resourceLoadingRequests.removeValueForKey(index)
 		}
+		//print("requests count: \(resourceLoadingRequests.count)")
 	}
 	
 	private func setResponseContentInformation(response: NSHTTPURLResponseProtocol, request: AVAssetResourceLoadingContentInformationRequestProtocol) {
@@ -62,6 +93,8 @@ public class AssetResourceLoader : NSObject {
 	}
 	
 	internal func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequestProtocol) -> Bool {
+		//print("CurOffset: \(respondingDataRequest.currentOffset) ReqOffset \(respondingDataRequest.requestedOffset) ReqLen: \(respondingDataRequest.requestedLength)")
+		
 		let startOffset = respondingDataRequest.currentOffset != 0 ? respondingDataRequest.currentOffset : respondingDataRequest.requestedOffset
 		let dataLength = Int64(data.length)
 		
@@ -78,24 +111,11 @@ public class AssetResourceLoader : NSObject {
 			return false
 		}
 		let range = NSMakeRange(Int(startOffset), Int(responseLength))
+		//print("respond with range: \(range)")
 		
 		respondingDataRequest.respondWithData(data.subdataWithRange(range))
 		
 		let endOffset = startOffset + respondingDataRequest.requestedLength
 		return dataLength >= endOffset
-	}
-}
-
-extension AssetResourceLoader : AVAssetResourceLoaderDelegate {
-	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
-		cacheTask.taskProgress.bindNext { result in
-			
-			}.addDisposableTo(bag)
-		
-		return true
-	}
-	
-	public func resourceLoader(resourceLoader: AVAssetResourceLoader, didCancelLoadingRequest loadingRequest: AVAssetResourceLoadingRequest) {
-
 	}
 }

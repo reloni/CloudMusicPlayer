@@ -29,7 +29,7 @@ extension NSURLRequest : NSURLRequestProtocol { }
 
 
 // AVAssetResourceLoadingRequestProtocol
-public protocol AVAssetResourceLoadingRequestProtocol {
+public protocol AVAssetResourceLoadingRequestProtocol : NSObjectProtocol {
 	func getContentInformationRequest() -> AVAssetResourceLoadingContentInformationRequestProtocol?
 	func getDataRequest() -> AVAssetResourceLoadingDataRequestProtocol?
 	func finishLoading()
