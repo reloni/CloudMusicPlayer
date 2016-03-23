@@ -44,11 +44,55 @@ class StreamDataCacheTaskTests: XCTestCase {
 		streamObserver = nil
 	}
 	
-	func testReceiveCorrectData() {
-		let testData = ["First", "Second", "Third", "Fourth"]
-		var dataSended:UInt64 = 0
+	func testCorrectTargetMimeTypeAndExtension() {
+		let task = utilities.createCacheDataTask(request, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false, targetMimeType: "audio/mpeg")
+		XCTAssertEqual(task.mimeType, "public.mp3", "Check correct mime type")
+		XCTAssertEqual(task.fileExtension, "mp3", "Check correct file extension")
+	}
+	
+	func testNillMimeTypeAndExtensionWithoutResponseAndTargetMimeType() {
+		let task = utilities.createCacheDataTask(request, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false, targetMimeType: nil)
+		XCTAssertNil(task.mimeType)
+		XCTAssertNil(task.fileExtension                                                                                   )
+	}
+	
+	func testCorrectMimeTypeAndExtensionAfterReceivingResponse() {
+		let task = utilities.createCacheDataTask(request, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false, targetMimeType: nil)
+	
+		session.task?.taskProgress.bindNext { [unowned self] progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
+				let completion: (NSURLSessionResponseDisposition) -> () = { _ in }
+				let fakeResponse = FakeResponse(contentLenght: 10)
+				fakeResponse.MIMEType = "audio/aac"
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: completion))
+				}
+			}
+		}.addDisposableTo(bag)
 		
-		let expectation = expectationWithDescription("Should return correct data and invalidate session")
+		let responseExpectation = expectationWithDescription("Should receive response")
+		task.taskProgress.bindNext { result in
+			if case .ReceiveResponse(let response) = result {
+				XCTAssertNotNil(task.response)
+				XCTAssertTrue(task.response as? FakeResponse === response as? FakeResponse)
+				XCTAssertEqual(task.response?.MIMEType, "audio/aac")
+				XCTAssertEqual(task.mimeType, "public.aac-audio")
+				XCTAssertEqual(task.fileExtension, "aac")
+				responseExpectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		task.resume()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testCacheCorrectData() {
+		let testData = ["First", "Second", "Third", "Fourth"]
+		var dataSended: UInt64 = 0
+		
+		let sessionInvalidationExpectation = expectationWithDescription("Should return correct data and invalidate session")
 		
 		session.task?.taskProgress.bindNext { [unowned self] progress in
 			if case .resume(let tsk) = progress {
@@ -68,25 +112,109 @@ class StreamDataCacheTaskTests: XCTestCase {
 					// set reference to nil (simutale real session dispose)
 					self.utilities.streamObserver = nil
 					self.streamObserver = nil
-					expectation.fulfill()
+					sessionInvalidationExpectation.fulfill()
 				}
 			}
-			}.addDisposableTo(bag)
+		}.addDisposableTo(bag)
 		
-		var receiveCounter = 0
+		var receiveChunkCounter = 0
 		
-		httpClient.loadStreamData(request, sessionConfiguration: .defaultSessionConfiguration()).bindNext { result in
-			if case .StreamedData(let data) = result {
-				XCTAssertEqual(String(data: data, encoding: NSUTF8StringEncoding), testData[receiveCounter], "Check correct chunk of data received")
-				receiveCounter += 1
-			} else if case .Success(let dataReceived) = result {
-				XCTAssertEqual(dataReceived, dataSended, "Should receive correct amount of data")
-				XCTAssertEqual(receiveCounter, testData.count, "Should receive correct amount of data chuncks")
+		let successExpectation = expectationWithDescription("Should successfuly cache data")
+		
+		httpClient.loadAndCacheData(request, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false, targetMimeType: nil).bindNext { result in
+			if case .CacheNewData = result {
+				receiveChunkCounter += 1
+			} else if case .Success(let cashedDataLen) = result {
+				XCTAssertEqual(cashedDataLen, dataSended, "Should cache all sended data")
+				XCTAssertEqual(testData.count, receiveChunkCounter, "Should cache correct data chunk amount")
+				successExpectation.fulfill()
+			} else if case .SuccessWithCache = result {
+				XCTFail("Shouldn't cache data on disk")
 			}
-			}.addDisposableTo(bag)
-		
+		}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		XCTAssertTrue(self.session.isInvalidatedAndCanceled, "Session should be invalidated")
+	}
+	
+	func testCacheCorrectDataOnDisk() {
+		let testData = ["First", "Second", "Third", "Fourth"]
+		let sendedData = NSMutableData()
+		
+		let sessionInvalidationExpectation = expectationWithDescription("Should return correct data and invalidate session")
+		
+		session.task?.taskProgress.bindNext { [unowned self] progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					for i in 0...testData.count - 1 {
+						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
+						sendedData.appendData(sendData)
+						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+					}
+					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+				}
+			} else if case .cancel = progress {
+				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
+				// so fulfill expectation here after checking if session was invalidated
+				if self.session.isInvalidatedAndCanceled {
+					// set reference to nil (simutale real session dispose)
+					self.utilities.streamObserver = nil
+					self.streamObserver = nil
+					sessionInvalidationExpectation.fulfill()
+				}
+			}
+		}.addDisposableTo(bag)
+		
+		var receiveChunkCounter = 0
+		
+		let successExpectation = expectationWithDescription("Should successfuly cache data")
+		
+		let task = utilities.createCacheDataTask(request, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: true, targetMimeType: nil)
+		
+		task.taskProgress.bindNext { result in
+			if case .CacheNewData = result {
+				receiveChunkCounter += 1
+			} else if case .Success = result {
+				XCTFail("Shouldn't invoke Success event")
+			} else if case .SuccessWithCache(let url) = result {
+				//NSData(contentsOfURL: url)
+				if let data = NSData(contentsOfURL: url) {
+					XCTAssertTrue(sendedData.isEqualToData(data), "Check equality of sended and received data")
+					XCTAssertEqual(sendedData, task.getCachedData(), "Check internal cached data equal to sended data")
+					try! NSFileManager.defaultManager().removeItemAtURL(url)
+				} else {
+					XCTFail("Cached data should be equal to sended data")
+				}
+				XCTAssertEqual(testData.count, receiveChunkCounter, "Should cache correct data chunk amount")
+				successExpectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		task.resume()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertTrue(self.session.isInvalidatedAndCanceled, "Session should be invalidated")
+	}
+	
+	func testReceiveError() {
+		session.task?.taskProgress.bindNext { [unowned self] progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: NSError(domain: "HttpRequestTests", code: 1, userInfo: nil)))
+				}
+			}
+		}.addDisposableTo(bag)
+		
+		let expectation = expectationWithDescription("Should return NSError")
+		
+		httpClient.loadAndCacheData(request, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false, targetMimeType: nil).bindNext { result in
+			if case .Error(let error) = result where error.code == 1 {
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 }

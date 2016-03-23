@@ -152,7 +152,7 @@ public class FakeHttpUtilities : HttpUtilitiesProtocol {
 		//return FakeStreamDataTask(request: request, observer: createUrlSessionStreamObserver(), httpUtilities: self)
 	}
 	
-	public func createCacheDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, saveCachedData: Bool) -> StreamDataCacheTaskProtocol {
-		return StreamDataCacheTask(streamDataTask: createStreamDataTask(request, sessionConfiguration: sessionConfiguration), saveCachedData: saveCachedData)
+	public func createCacheDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, saveCachedData: Bool, targetMimeType: String?) -> StreamDataCacheTaskProtocol {
+		return StreamDataCacheTask(streamDataTask: createStreamDataTask(request, sessionConfiguration: sessionConfiguration), saveCachedData: saveCachedData, targetMimeType: targetMimeType)
 	}
 }

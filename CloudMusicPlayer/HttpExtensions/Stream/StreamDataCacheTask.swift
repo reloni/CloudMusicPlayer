@@ -17,7 +17,7 @@ public protocol ResourceLoadingRequest {
 }
 
 public enum CacheDataResult {
-	case Success
+	case Success(totalCashedData: UInt64)
 	case SuccessWithCache(NSURL)
 	case CacheNewData
 	case ReceiveResponse(NSHTTPURLResponseProtocol)
@@ -71,7 +71,7 @@ public class StreamDataCacheTask {
 				if self.saveCachedData, let path = self.saveData() {
 					self.publishSubject.onNext(CacheDataResult.SuccessWithCache(path))
 				} else {
-					self.publishSubject.onNext(CacheDataResult.Success)
+					self.publishSubject.onNext(CacheDataResult.Success(totalCashedData: UInt64(self.cacheData.length)))
 				}
 				self.publishSubject.onCompleted()
 			default: break
