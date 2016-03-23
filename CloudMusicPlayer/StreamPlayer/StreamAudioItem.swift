@@ -12,12 +12,14 @@ import RxSwift
 import RxCocoa
 import UIKit
 
-@objc public class StreamAudioItem : NSObject {
+public class StreamAudioItem {
 	private var cachingTask: Disposable?
 	private var bag = DisposeBag()
 	public let url: String
 	public weak var player: StreamAudioPlayer?
 	private let customHttpHeaders: [String: String]?
+	private var observer = AVAssetResourceLoaderEventsObserver()
+	private var loader: AssetResourceLoader?
 	
 	public lazy var playerItem: AVPlayerItem? = {
 		guard let nsUrl = self.fakeUrl ?? NSURL(string: self.url) else {
@@ -25,8 +27,24 @@ import UIKit
 		}
 		
 		let asset = AVURLAsset(URL: nsUrl)
-		asset.resourceLoader.setDelegate(self, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
+		guard let req = HttpUtilities.instance.createUrlRequest(self.url, parameters: nil, headers: self.customHttpHeaders) else { return nil }
+		let cacheTask = HttpUtilities.instance.createCacheDataTask(req, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false, targetMimeType: "audio/mpeg")
+		self.loader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: self.observer.loaderEvents)
+		asset.resourceLoader.setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 		
+		// bind to event to dispose loader
+		cacheTask.taskProgress.bindNext { [unowned self] result in
+			if case .Success = result {
+				self.loader = nil
+			} else if case .SuccessWithCache = result {
+				self.loader = nil
+			} else if case .Error = result {
+				self.loader = nil
+			}
+		}.addDisposableTo(self.bag)
+		
+		cacheTask.resume()
+
 		let item = AVPlayerItem(asset: asset)
 		return item
 	}()
@@ -103,42 +121,4 @@ import UIKit
 	}()
 	
 	//public let currentTime = Variable<CMTime?>(nil)
-}
-
-extension StreamAudioItem : AVAssetResourceLoaderDelegate {
-	public func resourceLoader(resourceLoader: AVAssetResourceLoader, didCancelLoadingRequest loadingRequest: AVAssetResourceLoadingRequest) {
-		
-	}
-	
-	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
-		guard let player = player, let nsUrl = NSURL(string: url) else {
-			return false
-		}
-		
-		let request = NSMutableURLRequest(URL: nsUrl)
-		customHttpHeaders?.forEach { request.addValue($1, forHTTPHeaderField: $1) }
-		
-		if let newTask = StreamDataCacheManager.createTask(request, resourceLoadingRequest: loadingRequest, saveCachedData: player.allowCaching)
-			where cachingTask == nil {
-			cachingTask = newTask.bindNext { [weak self] result in
-				switch result {
-				case .Success:
-					print("success!!")
-				case .SuccessWithCache(let url):
-					print("success with url: \(url.path)")
-				case .Error(let error):
-					print("end with error: \(error)")
-				}
-				if let strongSelf = self {
-					strongSelf.cachingTask?.dispose()
-					strongSelf.cachingTask = nil
-				}
-			}
-			cachingTask?.addDisposableTo(bag)
-				
-			return true
-		}
-		
-		return true
-	}
 }

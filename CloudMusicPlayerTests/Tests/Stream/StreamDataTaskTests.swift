@@ -41,7 +41,6 @@ class StreamDataTaskTests: XCTestCase {
 		utilities.streamObserver = nil
 		utilities = nil
 		streamObserver = nil
-		
 	}
 	
 	func testReceiveCorrectData() {
