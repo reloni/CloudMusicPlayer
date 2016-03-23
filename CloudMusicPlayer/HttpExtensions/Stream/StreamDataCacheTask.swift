@@ -29,6 +29,8 @@ public protocol StreamDataCacheTaskProtocol : StreamTaskProtocol {
 	var taskProgress: Observable<CacheDataResult> { get }
 	func getCachedData() -> NSData
 	var response: NSHTTPURLResponseProtocol? { get }
+	var mimeType: String? { get }
+	var fileExtension: String? { get }
 }
 
 public class StreamDataCacheTask {
@@ -41,11 +43,13 @@ public class StreamDataCacheTask {
 	public let uid: String
 	private var cacheData = NSMutableData()
 	private let saveCachedData: Bool
+	private let targetMimeType: String?
 	
-	public init(streamDataTask: StreamDataTaskProtocol, saveCachedData: Bool = true) {
+	public init(streamDataTask: StreamDataTaskProtocol, saveCachedData: Bool = true, targetMimeType: String? = nil) {
 		self.streamDataTask = streamDataTask
 		self.uid = NSUUID().UUIDString
 		self.saveCachedData = saveCachedData
+		self.targetMimeType = targetMimeType
 		
 		bindToEvents()
 	}
@@ -76,7 +80,8 @@ public class StreamDataCacheTask {
 	}
 	
 	private func saveData() -> NSURL? {
-		let path = NSFileManager.mediaCacheDirectory.URLByAppendingPathComponent(NSUUID().UUIDString + ".mp3")
+		//let path = NSFileManager.streamCacheDirectory.URLByAppendingPathComponent(NSUUID().UUIDString + ".mp3")
+		let path = NSFileManager.streamCacheDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).\(fileExtension ?? "dat")")
 		if cacheData.writeToURL(path, atomically: true) {
 			return path
 		}
@@ -107,5 +112,18 @@ extension StreamDataCacheTask : StreamDataCacheTaskProtocol {
 	
 	public func getCachedData() -> NSData {
 		return cacheData
+	}
+	
+	public var mimeType: String? {
+		guard let mime = targetMimeType ?? response?.MIMEType,
+			contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, mime, nil) else { return nil }
+		
+		return contentType.takeUnretainedValue() as String
+	}
+	
+	public var fileExtension: String? {
+		guard let mime = mimeType, ext = UTTypeCopyPreferredTagWithClass(mime, kUTTagClassFilenameExtension) else { return nil }
+		
+		return ext.takeUnretainedValue() as String
 	}
 }

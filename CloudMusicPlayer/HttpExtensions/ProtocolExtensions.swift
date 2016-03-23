@@ -61,11 +61,7 @@ public protocol AVAssetResourceLoadingDataRequestProtocol {
 	var requestedLength: Int { get }
 	func respondWithData(data: NSData)
 }
-extension AVAssetResourceLoadingDataRequest : AVAssetResourceLoadingDataRequestProtocol {
-	public func test() {
-		
-	}
-}
+extension AVAssetResourceLoadingDataRequest : AVAssetResourceLoadingDataRequestProtocol { }
 
 
 // NSMutableURLRequestProtocol

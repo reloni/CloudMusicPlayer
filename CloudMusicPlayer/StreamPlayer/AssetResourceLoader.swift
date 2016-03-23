@@ -68,19 +68,10 @@ public class AssetResourceLoader : AssetResourceLoaderProtocol {
 		}
 	}
 	
-	private func setResponseContentInformation(response: NSHTTPURLResponseProtocol, request: AVAssetResourceLoadingContentInformationRequestProtocol) {
-		guard let MIMEType = response.MIMEType else {
-			return
-		}
-		
+	private func setResponseContentInformation(response: NSHTTPURLResponseProtocol, request: AVAssetResourceLoadingContentInformationRequestProtocol) {	
 		request.byteRangeAccessSupported = true
 		request.contentLength = response.expectedContentLength
-		if let contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, MIMEType, nil) {
-			request.contentType = contentType.takeUnretainedValue() as String
-			//print(UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, "audio/mpeg", nil)?.takeUnretainedValue())
-			
-			request.contentType = "public.mp3"
-		}
+		request.contentType = cacheTask.mimeType
 	}
 	
 	private func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequestProtocol) -> Bool {

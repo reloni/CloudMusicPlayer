@@ -28,7 +28,7 @@ public class StreamAudioItem {
 		
 		let asset = AVURLAsset(URL: nsUrl)
 		guard let req = HttpUtilities.instance.createUrlRequest(self.url, parameters: nil, headers: self.customHttpHeaders) else { return nil }
-		let cacheTask = HttpUtilities.instance.createCacheDataTask(req, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false)
+		let cacheTask = HttpUtilities.instance.createCacheDataTask(req, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false, targetMimeType: "audio/mpeg")
 		self.loader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: self.observer.loaderEvents)
 		asset.resourceLoader.setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 		

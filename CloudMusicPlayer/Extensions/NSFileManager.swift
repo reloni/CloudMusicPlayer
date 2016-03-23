@@ -17,8 +17,12 @@ extension NSFileManager {
 		return NSFileManager.getDirectory(.DocumentDirectory)
 	}
 	
-	public static var mediaCacheDirectory: NSURL {
-		let cache = documentsDirectory.URLByAppendingPathComponent("MediaCache")
+	public static var streamCacheDirectory: NSURL {
+		return getDocumentsSubDirectory("StreamCache")
+	}
+	
+	public static func getDocumentsSubDirectory(dirName: String) -> NSURL {
+		let cache = documentsDirectory.URLByAppendingPathComponent(dirName)
 		guard let path = cache.path else {
 			return documentsDirectory
 		}

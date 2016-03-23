@@ -1,16 +1,17 @@
 //
-//  StreamDataTaskTests.swift
+//  StreamDataCacheTaskTests.swift
 //  CloudMusicPlayer
 //
-//  Created by Anton Efimenko on 18.03.16.
+//  Created by Anton Efimenko on 23.03.16.
 //  Copyright © 2016 Anton Efimenko. All rights reserved.
 //
 
 import XCTest
+import SwiftyJSON
 import RxSwift
 @testable import CloudMusicPlayer
 
-class StreamDataTaskTests: XCTestCase {
+class StreamDataCacheTaskTests: XCTestCase {
 	var bag: DisposeBag!
 	var request: FakeRequest!
 	var session: FakeSession!
@@ -70,7 +71,7 @@ class StreamDataTaskTests: XCTestCase {
 					expectation.fulfill()
 				}
 			}
-		}.addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
 		var receiveCounter = 0
 		
@@ -82,68 +83,10 @@ class StreamDataTaskTests: XCTestCase {
 				XCTAssertEqual(dataReceived, dataSended, "Should receive correct amount of data")
 				XCTAssertEqual(receiveCounter, testData.count, "Should receive correct amount of data chuncks")
 			}
-		}.addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		XCTAssertTrue(self.session.isInvalidatedAndCanceled, "Session should be invalidated")
-	}
-	
-	func testReturnNSError() {
-		session.task?.taskProgress.bindNext { [unowned self] progress in
-			if case .resume(let tsk) = progress {
-				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
-					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: NSError(domain: "HttpRequestTests", code: 1, userInfo: nil)))
-				}
-			}
-		}.addDisposableTo(bag)
-
-		let expectation = expectationWithDescription("Should return NSError")
-		httpClient.loadStreamData(request, sessionConfiguration: .defaultSessionConfiguration()).bindNext { result in
-			if case .Error(let error) = result where error.code == 1 {
-				expectation.fulfill()
-			}
-		}.addDisposableTo(bag)
-
-		waitForExpectationsWithTimeout(1, handler: nil)
-	}
-	
-	func testDidReceiveResponse() {
-		var disposition: NSURLSessionResponseDisposition?
-		let fakeResponse = FakeResponse(contentLenght: 64587)
-		let dispositionExpectation = expectationWithDescription("Should set correct completion disposition in completionHandler")
-		
-		session.task?.taskProgress.bindNext { [unowned self] progress in
-			if case .resume(let tsk) = progress {
-				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
-				let completion: (NSURLSessionResponseDisposition) -> () = { disp in
-					disposition = disp
-					dispositionExpectation.fulfill()
-				}
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
-					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: completion))
-				}
-			}
-			}.addDisposableTo(bag)
-		
-		let expectation = expectationWithDescription("Should return correct response")
-		httpClient.loadStreamData(request, sessionConfiguration: .defaultSessionConfiguration()).bindNext { result in
-			if case .StreamedResponse(let response) = result {
-				XCTAssertEqual(response.expectedContentLength, fakeResponse.expectedContentLength)
-				expectation.fulfill()
-			}
-		}.addDisposableTo(bag)
-		
-		waitForExpectationsWithTimeout(1, handler: nil)
-		XCTAssertEqual(disposition, NSURLSessionResponseDisposition.Allow, "Check correct completion disposition in completionHandler")
-	}
-	
-	func testCreateCorrectTask() {
-		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
-		config.HTTPCookieAcceptPolicy = .Always
-		let task = StreamDataTask(request: request, httpUtilities: utilities, sessionConfiguration: config)
-		XCTAssertEqual(task.sessionConfiguration, config)
-		XCTAssertTrue(task.dataTask.getOriginalMutableUrlRequest() as? FakeRequest === request)
 	}
 }
