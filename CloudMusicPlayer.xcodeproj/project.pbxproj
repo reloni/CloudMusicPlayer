@@ -184,6 +184,39 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6E0296CF1CA27C09007EC58E /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				6E0296D01CA27C25007EC58E /* Stream */,
+				6E0296D11CA27C35007EC58E /* CloudResource */,
+				6EE0CCC91C96CBEE002F4D9D /* HttpClientBasicTests.swift */,
+				6EE0CCCD1C96F31F002F4D9D /* NSURLTests.swift */,
+				6EE857B91C988BD3002809B5 /* HttpUtilitiesTest.swift */,
+				6E66B6351C9F3477004C466D /* NSURLSessionProtocolTests.swift */,
+			);
+			name = Tests;
+			path = CloudMusicPlayerTests/Tests;
+			sourceTree = SOURCE_ROOT;
+		};
+		6E0296D01CA27C25007EC58E /* Stream */ = {
+			isa = PBXGroup;
+			children = (
+				6E31A8951C9BF6750017802A /* StreamDataTaskTests.swift */,
+			);
+			name = Stream;
+			path = CloudMusicPlayerTests/Tests/Stream;
+			sourceTree = SOURCE_ROOT;
+		};
+		6E0296D11CA27C35007EC58E /* CloudResource */ = {
+			isa = PBXGroup;
+			children = (
+				6E13C7BB1C957FC80060DF24 /* YandexCloudResourceTests.swift */,
+				6E80F8B81C903CA200102A9C /* OAuthResourceTests.swift */,
+			);
+			name = CloudResource;
+			path = CloudMusicPlayerTests/Tests/CloudResource;
+			sourceTree = SOURCE_ROOT;
+		};
 		6E07F0F51C9B2669001027EA /* Stream */ = {
 			isa = PBXGroup;
 			children = (
@@ -366,14 +399,8 @@
 			children = (
 				6E36E32E1C9EFCB70039B91E /* Support JSON */,
 				6EECECD31C982369007B37CC /* Support */,
+				6E0296CF1CA27C09007EC58E /* Tests */,
 				6EEB98B81C4EBE1700DD5B95 /* Info.plist */,
-				6E80F8B81C903CA200102A9C /* OAuthResourceTests.swift */,
-				6E13C7BB1C957FC80060DF24 /* YandexCloudResourceTests.swift */,
-				6EE0CCC91C96CBEE002F4D9D /* HttpClientBasicTests.swift */,
-				6EE0CCCD1C96F31F002F4D9D /* NSURLTests.swift */,
-				6EE857B91C988BD3002809B5 /* HttpUtilitiesTest.swift */,
-				6E31A8951C9BF6750017802A /* StreamDataTaskTests.swift */,
-				6E66B6351C9F3477004C466D /* NSURLSessionProtocolTests.swift */,
 			);
 			path = CloudMusicPlayerTests;
 			sourceTree = "<group>";
