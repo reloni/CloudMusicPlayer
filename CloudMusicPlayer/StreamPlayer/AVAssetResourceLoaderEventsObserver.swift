@@ -34,11 +34,13 @@ extension AVAssetResourceLoaderEventsObserver : AVAssetResourceLoaderEventsObser
 
 extension AVAssetResourceLoaderEventsObserver : AVAssetResourceLoaderDelegate {
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+		print("shouldWait")
 		publishSubject.onNext(.ShouldWaitForLoading(loadingRequest))
 		return true
 	}
 	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, didCancelLoadingRequest loadingRequest: AVAssetResourceLoadingRequest) {
+		print("didCancel")
 		publishSubject.onNext(.DidCancelLoading(loadingRequest))
 	}
 }

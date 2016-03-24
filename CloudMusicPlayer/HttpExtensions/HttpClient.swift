@@ -27,6 +27,7 @@ public protocol HttpClientProtocol {
 	func loadAndCacheData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration,
 		saveCacheData: Bool, targetMimeType: String?) -> Observable<CacheDataResult>
 }
+
 public class HttpClient {
 	public let urlSession: NSURLSessionProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
