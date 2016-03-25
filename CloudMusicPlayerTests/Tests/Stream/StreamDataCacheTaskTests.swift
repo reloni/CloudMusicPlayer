@@ -102,6 +102,8 @@ class StreamDataCacheTaskTests: XCTestCase {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
 						dataSended += UInt64(sendData.length)
 						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+						// simulate delay
+						NSThread.sleepForTimeInterval(0.01)
 					}
 					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
@@ -151,6 +153,8 @@ class StreamDataCacheTaskTests: XCTestCase {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
 						sendedData.appendData(sendData)
 						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+						// simulate delay
+						NSThread.sleepForTimeInterval(0.01)
 					}
 					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}

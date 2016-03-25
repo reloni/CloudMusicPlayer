@@ -57,7 +57,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(0.2)
+		NSThread.sleepForTimeInterval(0.1)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -73,7 +73,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(0.2)
+		NSThread.sleepForTimeInterval(0.1)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -92,7 +92,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		avAssetObserver.publishSubject.onNext(.DidCancelLoading(assetRequest1))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(0.2)
+		NSThread.sleepForTimeInterval(0.1)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest2.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -123,6 +123,8 @@ class AssetResourceLoaderTests: XCTestCase {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
 						sendedData.appendData(sendData)
 						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+						// simulate delay
+						NSThread.sleepForTimeInterval(0.01)
 					}
 					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
@@ -189,6 +191,8 @@ class AssetResourceLoaderTests: XCTestCase {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
 						sendedData.appendData(sendData)
 						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+						// simulate delay
+						NSThread.sleepForTimeInterval(0.01)
 					}
 					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
@@ -249,6 +253,8 @@ class AssetResourceLoaderTests: XCTestCase {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
 						sendedData.appendData(sendData)
 						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+						// simulate delay
+						NSThread.sleepForTimeInterval(0.01)
 					}
 					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
@@ -281,7 +287,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		// should wait untill background schediler perform tasks in another thread (caching not complete at this time)
-		NSThread.sleepForTimeInterval(0.2)
+		NSThread.sleepForTimeInterval(0.1)
 		
 		if let cachedDataUrl = cachedDataUrl, data = NSData(contentsOfURL: cachedDataUrl) {
 			XCTAssertTrue(sendedData.isEqualToData(data), "Check equality of sended and cached data")
