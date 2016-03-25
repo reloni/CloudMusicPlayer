@@ -28,13 +28,13 @@ class HttpUtilitiesTest: XCTestCase {
 	func testCreateNSMutableURLRequest() {
 		let req = HttpUtilities().createUrlRequest("https://test.com", parameters: ["param1": "value1"]) as? NSMutableURLRequest
 		XCTAssertNotNil(req, "Should return instance of NSMutableURLRequest")
-		XCTAssertEqual("https://test.com?param1=value1", req?.URL?.URLString, "Should create request with correct url")
+		XCTAssertEqual("https://test.com?param1=value1", req?.URL?.absoluteString, "Should create request with correct url")
 	}
 	
 	func testCreateNSMutableURLRequestWithHeaders() {
 		let req = HttpUtilities().createUrlRequest("https://test.com", parameters: ["param1": "value1"], headers: ["header1": "value1"]) as? NSMutableURLRequest
 		XCTAssertNotNil(req, "Should return instance of NSMutableURLRequest")
-		XCTAssertEqual("https://test.com?param1=value1", req?.URL?.URLString, "Should create request with correct url")
+		XCTAssertEqual("https://test.com?param1=value1", req?.URL?.absoluteString, "Should create request with correct url")
 		XCTAssertEqual(1, req?.allHTTPHeaderFields?.count, "Should create request with one header")
 		XCTAssertEqual("value1", req?.allHTTPHeaderFields!["header1"], "Should create request with correct header")
 	}
@@ -77,7 +77,7 @@ class HttpUtilitiesTest: XCTestCase {
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
 		let task = utilities.createStreamDataTask(request, sessionConfiguration: config) as? StreamDataTask
-		XCTAssertEqual(task?.request.URL?.URLString, request.URL?.URLString)
+		XCTAssertEqual(task?.request.URL?.absoluteString, request.URL?.absoluteString)
 		XCTAssertTrue(task?.httpUtilities as? HttpUtilities === utilities)
 		XCTAssertEqual(task?.sessionConfiguration, config)
 	}

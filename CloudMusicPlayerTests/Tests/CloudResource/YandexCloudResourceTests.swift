@@ -168,7 +168,7 @@ class YandexCloudResourceTests: XCTestCase {
 		
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
-				XCTAssertEqual(NSURL(baseUrl: item.resourcesUrl, parameters: item.getRequestParameters())?.URLString, tsk.originalRequest?.URL?.URLString, "Check invoke url")
+				XCTAssertEqual(NSURL(baseUrl: item.resourcesUrl, parameters: item.getRequestParameters())?.absoluteString, tsk.originalRequest?.URL?.absoluteString, "Check invoke url")
 				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 					tsk.completion?(json?.rawDataSafe(), nil, nil)

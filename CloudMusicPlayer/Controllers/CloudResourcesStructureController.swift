@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 import SwiftyJSON
-import Alamofire
+//import Alamofire
 import RxCocoa
 import RxSwift
 import AVFoundation

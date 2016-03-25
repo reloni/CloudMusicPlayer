@@ -28,7 +28,6 @@
 		6E182EDA1C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */; };
 		6E1F020E1C57F14800490013 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F020D1C57F14800490013 /* Keychain.swift */; };
 		6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E235DA51C9833DB00351034 /* YandexRoot.json */; };
-		6E2E90A11C7B6CCF006D5A83 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */; };
 		6E31A8961C9BF6750017802A /* StreamDataTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E31A8951C9BF6750017802A /* StreamDataTaskTests.swift */; };
 		6E31A89A1C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E31A8991C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift */; };
 		6E3A3F6C1C9981C9001975C8 /* YandexAudioDownloadResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */; };
@@ -111,7 +110,6 @@
 		6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexDiskCloudAudioJsonResource.swift; sourceTree = "<group>"; };
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
 		6E235DA51C9833DB00351034 /* YandexRoot.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexRoot.json; sourceTree = "<group>"; };
-		6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
 		6E31A8951C9BF6750017802A /* StreamDataTaskTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDataTaskTests.swift; sourceTree = "<group>"; };
 		6E31A8991C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURLSessionDataEventsObserver.swift; sourceTree = "<group>"; };
 		6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioDownloadResponse.json; sourceTree = "<group>"; };
@@ -167,7 +165,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E94918C1C7B7218006B7696 /* SwiftyJSON.framework in Frameworks */,
-				6E2E90A11C7B6CCF006D5A83 /* Alamofire.framework in Frameworks */,
 				6E8AFD821C78DBC200091B53 /* RxSwift.framework in Frameworks */,
 				6E8AFD831C78DBC200091B53 /* RxCocoa.framework in Frameworks */,
 			);
@@ -367,7 +364,6 @@
 			isa = PBXGroup;
 			children = (
 				6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */,
-				6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */,
 				6E8AFD801C78DBC200091B53 /* RxSwift.framework */,
 				6E8AFD811C78DBC200091B53 /* RxCocoa.framework */,
 				6EB8C2F71C5019FD0064A00B /* .gitignore */,
@@ -586,7 +582,6 @@
 			inputPaths = (
 				"$(SRCROOT)/Carthage/Build/iOS/RxSwift.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RxCocoa.framework",
-				"$(SRCROOT)/Carthage/Build/iOS/Alamofire.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/SwiftyJSON.framework",
 			);
 			outputPaths = (
@@ -604,7 +599,6 @@
 			files = (
 				6E106F191C916A740056205F /* main.swift in Sources */,
 				6E0A02921C8A0CB500AD9B38 /* StreamDataTask.swift in Sources */,
-				6E6555F91C7E3CBB0088E650 /* DetailsController.swift in Sources */,
 				6E12B9121C6F6CB200E93FFB /* YandexOAuthResource.swift in Sources */,
 				6E182EDA1C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift in Sources */,
 				6E0A02941C8A0D0B00AD9B38 /* NSFileManager.swift in Sources */,
