@@ -8,7 +8,7 @@
 
 import UIKit
 import SwiftyJSON
-import Alamofire
+//import Alamofire
 
 class DetailsController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
@@ -33,15 +33,15 @@ class DetailsController: UIViewController {
 		let parameters: [String: AnyObject] = ["path": directory]
 		
 		//Alamofire.request(.GET, url, headers: headers).responseData { response in
-		Alamofire.request(.GET, url, parameters: parameters, encoding: .URL, headers: headers).responseData { response in
-			guard let data = response.data else {
-				return
-			}
-			self.resourceContent = JSON(data: data)
-			dispatch_async(dispatch_get_main_queue()) {
-				self.tableView.reloadData()
-			}
-		}
+		//Alamofire.request(.GET, url, parameters: parameters, encoding: .URL, headers: headers).responseData { response in
+		//	guard let data = response.data else {
+		//		return
+		//	}
+		//	self.resourceContent = JSON(data: data)
+		//	dispatch_async(dispatch_get_main_queue()) {
+		//		self.tableView.reloadData()
+		//	}
+		//}
 	}
 }
 
