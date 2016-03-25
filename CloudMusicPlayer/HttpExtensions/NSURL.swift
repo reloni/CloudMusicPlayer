@@ -16,7 +16,7 @@ extension NSURL {
 				components.queryItems?.append(NSURLQueryItem(name: key, value: value))
 				//value.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())))
 			}
-			self.init(string: components.URLString)
+			self.init(string: components.URL!.absoluteString)
 		} else {
 			self.init(string: baseUrl)
 		}

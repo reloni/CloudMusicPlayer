@@ -24,7 +24,7 @@ public struct StreamDataCacheManager {
 	public static func createTask(internalRequest: NSMutableURLRequest, resourceLoadingRequest:
 		AVAssetResourceLoadingRequest, saveCachedData: Bool = true) -> Observable<CacheDataResult>? {
 		
-		if let (task, observable) = tasks[internalRequest.URLString] {
+		if let (task, observable) = tasks[internalRequest.URL?.absoluteString ?? ""] {
 			task.resourceLoadingRequests.append(resourceLoadingRequest)
 			return observable
 		}
@@ -68,7 +68,7 @@ public class StreamDataCacheTask {
 		guard let streamTask = StreamDataTaskManager.createTask(internalRequest) else {
 			return nil
 		}
-		self.init(uid: internalRequest.URLString, resourceLoadingRequest: resourceLoadingRequest, streamTask: streamTask, saveCachedData: saveCachedData)
+		self.init(uid: internalRequest.URL!.absoluteString, resourceLoadingRequest: resourceLoadingRequest, streamTask: streamTask, saveCachedData: saveCachedData)
 	}
 	
 	private init(uid: String, resourceLoadingRequest: AVAssetResourceLoadingRequest, streamTask: Observable<StreamDataResult>, saveCachedData: Bool = true) {
