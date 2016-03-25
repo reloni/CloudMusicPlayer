@@ -24,7 +24,6 @@
 		6E182EDA1C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */; };
 		6E1F020E1C57F14800490013 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F020D1C57F14800490013 /* Keychain.swift */; };
 		6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E235DA51C9833DB00351034 /* YandexRoot.json */; };
-		6E2E90A11C7B6CCF006D5A83 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */; };
 		6E3A3F6C1C9981C9001975C8 /* YandexAudioDownloadResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */; };
 		6E3A3F6E1C99823B001975C8 /* YandexAudioItem.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */; };
 		6E5254481C675D8F00CA5463 /* OAuthResourceBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */; };
@@ -100,7 +99,6 @@
 		6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexDiskCloudAudioJsonResource.swift; sourceTree = "<group>"; };
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
 		6E235DA51C9833DB00351034 /* YandexRoot.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexRoot.json; sourceTree = "<group>"; };
-		6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
 		6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioDownloadResponse.json; sourceTree = "<group>"; };
 		6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioItem.json; sourceTree = "<group>"; };
 		6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthResourceBase.swift; sourceTree = "<group>"; };
@@ -153,7 +151,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E94918C1C7B7218006B7696 /* SwiftyJSON.framework in Frameworks */,
-				6E2E90A11C7B6CCF006D5A83 /* Alamofire.framework in Frameworks */,
 				6E8AFD821C78DBC200091B53 /* RxSwift.framework in Frameworks */,
 				6E8AFD831C78DBC200091B53 /* RxCocoa.framework in Frameworks */,
 			);
@@ -285,7 +282,6 @@
 			isa = PBXGroup;
 			children = (
 				6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */,
-				6E2E90A01C7B6CCF006D5A83 /* Alamofire.framework */,
 				6E8AFD801C78DBC200091B53 /* RxSwift.framework */,
 				6E8AFD811C78DBC200091B53 /* RxCocoa.framework */,
 				6EB8C2F71C5019FD0064A00B /* .gitignore */,
