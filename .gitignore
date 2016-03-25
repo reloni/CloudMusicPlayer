@@ -54,8 +54,6 @@ Carthage/Build/Mac
 Carthage/Build/tvOS
 Carthage/Build/watchOS
 Carthage/Checkouts
-#Carthage/Build/iOS/*.bcsymbolmap
-#Carthage/Build/iOS/*.dSYM
 Carthage/Build/iOS
 
 # fastlane

@@ -82,7 +82,6 @@ public class AssetResourceLoader {
 			
 			if let dataRequest = loadingRequest.getDataRequest() {
 				if respondWithData(cacheTask.getCachedData(), respondingDataRequest: dataRequest) {
-					print("finish loading")
 					loadingRequest.finishLoading()
 					return key
 				}
@@ -94,14 +93,9 @@ public class AssetResourceLoader {
 	}
 		
 	private func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequestProtocol) -> Bool {
-		print("ReqOff: \(respondingDataRequest.requestedOffset) CurrOff: \(respondingDataRequest.currentOffset) ReqLen: \(respondingDataRequest.requestedLength)")
 		let startOffset = respondingDataRequest.currentOffset != 0 ? respondingDataRequest.currentOffset : respondingDataRequest.requestedOffset
 		let dataLength = Int64(data.length)
 
-		//if startOffset >= dataLength {
-			// drop request if start offset if beuond current data len
-		//	return true
-		//} else 
 		if dataLength < startOffset {
 			return false
 		}
@@ -113,12 +107,9 @@ public class AssetResourceLoader {
 			return false
 		}
 		let range = NSMakeRange(Int(startOffset), Int(responseLength))
-		print("resp with range \(range)")
 		
 		respondingDataRequest.respondWithData(data.subdataWithRange(range))
 		
-		//let endOffset = startOffset + respondingDataRequest.requestedLength
-		//return dataLength >= endOffset
 		return Int64(respondingDataRequest.requestedLength) <= respondingDataRequest.currentOffset + responseLength - respondingDataRequest.requestedOffset
 	}
 }

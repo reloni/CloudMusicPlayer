@@ -55,8 +55,8 @@ class MusicPlayerController: UIViewController {
 		streamPlayer.status.asDriver().driveNext { [unowned self] status in
 			var newButton: UIBarButtonItem?
 			switch status {
-					case .Paused: newButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Play, target: nil, action: "mth")
-					case .Playing: newButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Pause, target: nil, action: "mth")
+					case .Paused: newButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Play, target: nil, action: nil)
+					case .Playing: newButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Pause, target: nil, action: nil)
 					default: break
 				}
 			
