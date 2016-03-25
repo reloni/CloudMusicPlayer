@@ -20,6 +20,8 @@ public protocol StreamTaskProtocol {
 public protocol StreamDataTaskProtocol : StreamTaskProtocol {
 	var request: NSMutableURLRequestProtocol { get }
 	var taskProgress: Observable<StreamDataResult> { get }
+	var httpUtilities: HttpUtilitiesProtocol { get }
+	var sessionConfiguration: NSURLSessionConfiguration { get }
 }
 
 public class StreamDataTask {
@@ -27,8 +29,8 @@ public class StreamDataTask {
 	
 	private var bag = DisposeBag()
 	public let request: NSMutableURLRequestProtocol
-	internal let httpUtilities: HttpUtilitiesProtocol
-	internal let sessionConfiguration: NSURLSessionConfiguration
+	public let httpUtilities: HttpUtilitiesProtocol
+	public let sessionConfiguration: NSURLSessionConfiguration
 		
 	internal lazy var dataTask: NSURLSessionDataTaskProtocol = { [unowned self] in
 		return self.session.dataTaskWithRequest(self.request)

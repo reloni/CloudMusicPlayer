@@ -170,18 +170,16 @@ class StreamDataCacheTaskTests: XCTestCase {
 		
 		let successExpectation = expectationWithDescription("Should successfuly cache data")
 		
-		let task = utilities.createCacheDataTask(request, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: true, targetMimeType: nil)
+		//let task = utilities.createCacheDataTask(request, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: true, targetMimeType: nil)
 		
-		task.taskProgress.bindNext { result in
+		httpClient.loadAndCacheData(request, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: true, targetMimeType: nil).bindNext { result in
 			if case .CacheNewData = result {
 				receiveChunkCounter += 1
 			} else if case .Success = result {
 				XCTFail("Shouldn't invoke Success event")
 			} else if case .SuccessWithCache(let url) = result {
-				//NSData(contentsOfURL: url)
 				if let data = NSData(contentsOfURL: url) {
 					XCTAssertTrue(sendedData.isEqualToData(data), "Check equality of sended and received data")
-					XCTAssertEqual(sendedData, task.getCachedData(), "Check internal cached data equal to sended data")
 					try! NSFileManager.defaultManager().removeItemAtURL(url)
 				} else {
 					XCTFail("Cached data should be equal to sended data")
@@ -191,7 +189,7 @@ class StreamDataCacheTaskTests: XCTestCase {
 			}
 		}.addDisposableTo(bag)
 		
-		task.resume()
+		//task.resume()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		XCTAssertTrue(self.session.isInvalidatedAndCanceled, "Session should be invalidated")

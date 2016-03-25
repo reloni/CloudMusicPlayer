@@ -21,32 +21,32 @@ extension AssetResourceLoader : AssetResourceLoaderProtocol {
 	}
 }
 
-extension Observable {
-	public func observeOnIfExists(scheduler: ImmediateSchedulerType?) -> Observable<Observable.E> {
-		if let scheduler = scheduler {
-			return observeOn(scheduler)
-		}
-		return self
-	}
-}
+//extension Observable {
+//	public func observeOnIfExists(scheduler: ImmediateSchedulerType?) -> Observable<Observable.E> {
+//		if let scheduler = scheduler {
+//			return observeOn(scheduler)
+//		}
+//		return self
+//	}
+//}
 
 public class AssetResourceLoader {
 	private let cacheTask: StreamDataCacheTaskProtocol
 	private var response: NSHTTPURLResponseProtocol?
 	
-	private var scheduler: SerialDispatchQueueScheduler? = nil
+	private var scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	private let bag = DisposeBag()
 	private var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
 	
-	public init(cacheTask: StreamDataCacheTaskProtocol, assetLoaderEvents: Observable<AssetLoadingEvents>, observeInNewScheduler: Bool = true) {
+	public init(cacheTask: StreamDataCacheTaskProtocol, assetLoaderEvents: Observable<AssetLoadingEvents>) {
 		self.cacheTask = cacheTask
 		response = cacheTask.response
 		
-		if observeInNewScheduler {
-			scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-		}
+		//if observeInNewScheduler {
+		//	scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
+		//}
 		
-		assetLoaderEvents.observeOnIfExists(scheduler).bindNext { [unowned self] result in
+		assetLoaderEvents.observeOn(scheduler).bindNext { [unowned self] result in
 			switch result {
 			case .DidCancelLoading(let loadingRequest):
 				self.resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
@@ -55,7 +55,7 @@ public class AssetResourceLoader {
 			}
 		}.addDisposableTo(bag)
 		
-		cacheTask.taskProgress.observeOnIfExists(scheduler).bindNext { [weak self] result in
+		cacheTask.taskProgress.observeOn(scheduler).bindNext { [weak self] result in
 			if case .Success = result {
 				self?.processRequests()
 			} else if case .SuccessWithCache = result {

@@ -58,14 +58,14 @@ class HttpUtilitiesTest: XCTestCase {
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
 		let session = HttpUtilities().createUrlSession(config) as? NSURLSession
-		XCTAssertEqual(session?.configuration.HTTPCookieAcceptPolicy, NSHTTPCookieAcceptPolicy.Always)
-		XCTAssertNil(session?.delegate)
+		XCTAssertEqual(session?.configuration.HTTPCookieAcceptPolicy, NSHTTPCookieAcceptPolicy.Always, "Check correct urlSession config parameter")
+		XCTAssertNil(session?.delegate, "Check correct delegate")
 	}
 	
 	func testCreateUrlSessionWithDelegate() {
 		let delegate = UrlSessionStreamObserver()
 		let session = HttpUtilities().createUrlSession(NSURLSession.defaultConfig, delegate: delegate, queue: nil) as? NSURLSession
-		XCTAssertTrue(delegate === session?.delegate)
+		XCTAssertTrue(delegate === session?.delegate, "Check correct delegate")
 	}
 	
 	func testCreateStreamObserver() {
@@ -76,9 +76,21 @@ class HttpUtilitiesTest: XCTestCase {
 		let utilities = HttpUtilities()
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
-		let task = utilities.createStreamDataTask(request, sessionConfiguration: config) as? StreamDataTask
-		XCTAssertEqual(task?.request.URL?.absoluteString, request.URL?.absoluteString)
-		XCTAssertTrue(task?.httpUtilities as? HttpUtilities === utilities)
-		XCTAssertEqual(task?.sessionConfiguration, config)
+		let task = utilities.createStreamDataTask(request, sessionConfiguration: config)
+		XCTAssertEqual(task.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
+		XCTAssertTrue(task.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
+		XCTAssertEqual(task.sessionConfiguration, config, "Check correct sessionConfig was passed")
+	}
+	
+	func testCreateDataCacheTask() {
+		let utilities = HttpUtilities()
+		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+		config.HTTPCookieAcceptPolicy = .Always
+		let task = utilities.createCacheDataTask(request, sessionConfiguration: config, saveCachedData: true, targetMimeType: "audio/aac")
+		XCTAssertEqual(task.fileExtension, "aac", "Check correct file extension")
+		XCTAssertEqual(task.mimeType, "public.aac-audio", "Check correct mime type")
+		XCTAssertEqual(task.streamDataTask.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
+		XCTAssertTrue(task.streamDataTask.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
+		XCTAssertEqual(task.streamDataTask.sessionConfiguration, config, "Check correct sessionConfig was passed")
 	}
 }
