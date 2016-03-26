@@ -135,7 +135,7 @@ class YandexCloudResourceTests: XCTestCase {
 	}
 	
 	func testTerminateWhileLoadRootData() {
-		let expectation = expectationWithDescription("Should suspend task")
+		let expectation = expectationWithDescription("Should cancel task")
 		
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(_) = progress {
@@ -144,7 +144,7 @@ class YandexCloudResourceTests: XCTestCase {
 						sleep(1)
 					}
 				}
-			} else if case .suspend(_) = progress {
+			} else if case .cancel(_) = progress {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)

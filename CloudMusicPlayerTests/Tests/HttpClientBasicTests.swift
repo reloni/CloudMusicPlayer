@@ -141,7 +141,7 @@ class HttpClientBasicTests: XCTestCase {
 	}
 	
 	func testTerminateRequest() {
-		let expectation = expectationWithDescription("Should suspend task")
+		let expectation = expectationWithDescription("Should cancel task")
 		
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
@@ -151,7 +151,7 @@ class HttpClientBasicTests: XCTestCase {
 					}
 					tsk.completion?(nil, nil, nil)
 				}
-			} else if case .suspend(_) = progress {
+			} else if case .cancel(_) = progress {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)
@@ -164,7 +164,7 @@ class HttpClientBasicTests: XCTestCase {
 	}
 	
 	func testTerminateJsonRequest() {
-		let expectation = expectationWithDescription("Should suspend task")
+		let expectation = expectationWithDescription("Should cancel task")
 		
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
@@ -174,7 +174,7 @@ class HttpClientBasicTests: XCTestCase {
 					}
 					tsk.completion?(nil, nil, nil)
 				}
-			} else if case .suspend(_) = progress {
+			} else if case .cancel(_) = progress {
 				expectation.fulfill()
 			}
 			}.addDisposableTo(bag)
