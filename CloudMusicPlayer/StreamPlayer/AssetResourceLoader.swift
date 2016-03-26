@@ -21,15 +21,6 @@ extension AssetResourceLoader : AssetResourceLoaderProtocol {
 	}
 }
 
-//extension Observable {
-//	public func observeOnIfExists(scheduler: ImmediateSchedulerType?) -> Observable<Observable.E> {
-//		if let scheduler = scheduler {
-//			return observeOn(scheduler)
-//		}
-//		return self
-//	}
-//}
-
 public class AssetResourceLoader {
 	private let cacheTask: StreamDataCacheTaskProtocol
 	private var response: NSHTTPURLResponseProtocol?
@@ -42,16 +33,13 @@ public class AssetResourceLoader {
 		self.cacheTask = cacheTask
 		response = cacheTask.response
 		
-		//if observeInNewScheduler {
-		//	scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-		//}
-		
 		assetLoaderEvents.observeOn(scheduler).bindNext { [unowned self] result in
 			switch result {
 			case .DidCancelLoading(let loadingRequest):
 				self.resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
 			case .ShouldWaitForLoading(let loadingRequest):
 				self.resourceLoadingRequests[loadingRequest.hash] = loadingRequest
+			default: break
 			}
 		}.addDisposableTo(bag)
 		

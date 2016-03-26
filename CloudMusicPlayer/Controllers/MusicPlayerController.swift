@@ -52,7 +52,7 @@ class MusicPlayerController: UIViewController {
 			self.progressView.progress = Float(time.seconds / dur)
 			}.addDisposableTo(bag)
 		
-		streamPlayer.status.asDriver().driveNext { [unowned self] status in
+		streamPlayer.status.asDriver(onErrorJustReturn: .Stopped).driveNext { [unowned self] status in
 			var newButton: UIBarButtonItem?
 			switch status {
 					case .Paused: newButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Play, target: nil, action: nil)
@@ -66,15 +66,15 @@ class MusicPlayerController: UIViewController {
 				self.playButton = newButton
 				
 				self.playButton.rx_tap.bindNext { _ in
-					if streamPlayer.status.value == .Playing {
+					if (try? streamPlayer.status.value()) == .Playing {
 						streamPlayer.pause()
-					} else if streamPlayer.status.value == .Paused {
+					} else if (try? streamPlayer.status.value()) == .Paused {
 						streamPlayer.resume()
 					}
 					}.addDisposableTo(self.bag)
 				
 			}
-			}.addDisposableTo(bag)
+		}.addDisposableTo(bag)
 	}
 	
 	deinit {

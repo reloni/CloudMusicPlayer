@@ -22,16 +22,18 @@ public class StreamAudioPlayer {
 	public let allowCaching: Bool
 	private var internalPlayer: AVPlayer?
 	public var currentItem = Variable<StreamAudioItem?>(nil)
-	public let status = Variable<PlayerStatus>(PlayerStatus.Stopped)
+	public let status = BehaviorSubject<PlayerStatus>(value: .Stopped)
+	public let httpUtilities: HttpUtilitiesProtocol
 		
-	init(allowCaching: Bool = true) {
+	init(allowCaching: Bool = true, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
 		self.allowCaching = allowCaching
+		self.httpUtilities = httpUtilities
 	}
 	
 	public func play(url: String, customHttpHeaders: [String: String]? = nil) {
 		stop()
 		
-		let newAudioItem = StreamAudioItem(player: self, url: url)
+		let newAudioItem = StreamAudioItem(player: self, url: url, customHttpHeaders: customHttpHeaders)
 		
 		guard let playerItem = newAudioItem.playerItem else {
 			currentItem.value = nil
@@ -46,7 +48,7 @@ public class StreamAudioPlayer {
 				print("player status: \(status?.rawValue)")
 				if status == .ReadyToPlay {
 					strong.internalPlayer?.play()
-					strong.status.value = .Playing
+					strong.status.onNext(.Playing)
 				}
 			}
 			}.addDisposableTo(self.bag)
@@ -54,17 +56,17 @@ public class StreamAudioPlayer {
 	
 	public func pause() {
 		internalPlayer?.rate = 0.0
-		status.value = .Paused
+		status.onNext(.Paused)
 	}
 	
 	public func resume() {
 		internalPlayer?.rate = 1.0
-		status.value = .Playing
+		status.onNext(.Playing)
 	}
 
 	public func stop() {
 		internalPlayer?.replaceCurrentItemWithPlayerItem(nil)
 		internalPlayer = nil
-		status.value = .Stopped
+		status.onNext(.Stopped)
 	}
 }

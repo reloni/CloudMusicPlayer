@@ -104,7 +104,7 @@ extension HttpClient : HttpClientProtocol {
 				task.resume()
 				
 				return AnonymousDisposable {
-					task.suspend()
+					task.cancel()
 				}
 			}.shareReplay(1)
 	}

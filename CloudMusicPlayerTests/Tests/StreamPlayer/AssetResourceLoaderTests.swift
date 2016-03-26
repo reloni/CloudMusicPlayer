@@ -57,7 +57,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(0.1)
+		NSThread.sleepForTimeInterval(0.01)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -73,7 +73,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(0.1)
+		NSThread.sleepForTimeInterval(0.01)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -92,7 +92,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		avAssetObserver.publishSubject.onNext(.DidCancelLoading(assetRequest1))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(0.1)
+		NSThread.sleepForTimeInterval(0.01)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest2.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -147,7 +147,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		// should wait untill background schediler perform tasks in another thread (caching not complete at this time)
-		NSThread.sleepForTimeInterval(0.2)
+		NSThread.sleepForTimeInterval(0.01)
 
 		XCTAssertTrue(sendedData.isEqualToData(dataRequest.respondedData), "Check correct data sended to dataRequest")
 		XCTAssertEqual(0, loader.currentLoadingRequests.count, " Check remove loading request from collection of pending requests")
@@ -216,7 +216,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		// should wait untill background schediler perform tasks in another thread (caching not complete at this time)
-		NSThread.sleepForTimeInterval(0.2)
+		NSThread.sleepForTimeInterval(0.01)
 		
 		XCTAssertTrue(sendedData.subdataWithRange(NSMakeRange(0, 11)).isEqualToData(dataRequest1.respondedData), "Check half of data sended to first dataRequest")
 		XCTAssertTrue(sendedData.subdataWithRange(NSMakeRange(11, 11)).isEqualToData(dataRequest2.respondedData), "Check second half of data sended to secondRequest")
@@ -287,7 +287,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		// should wait untill background schediler perform tasks in another thread (caching not complete at this time)
-		NSThread.sleepForTimeInterval(0.1)
+		NSThread.sleepForTimeInterval(0.01)
 		
 		if let cachedDataUrl = cachedDataUrl, data = NSData(contentsOfURL: cachedDataUrl) {
 			XCTAssertTrue(sendedData.isEqualToData(data), "Check equality of sended and cached data")

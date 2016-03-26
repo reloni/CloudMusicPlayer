@@ -13,14 +13,23 @@ import RxSwift
 public enum AssetLoadingEvents {
 	case ShouldWaitForLoading(AVAssetResourceLoadingRequestProtocol)
 	case DidCancelLoading(AVAssetResourceLoadingRequestProtocol)
+	case StartLoading
 }
 
 public protocol AVAssetResourceLoaderEventsObserverProtocol {
 	var loaderEvents: Observable<AssetLoadingEvents> { get }
+	var shouldWaitForLoading: Bool { get set }
 }
 
 @objc public class AVAssetResourceLoaderEventsObserver : NSObject {
 	internal let publishSubject = PublishSubject<AssetLoadingEvents>()
+	public var shouldWaitForLoading: Bool
+	private var isLoadingStarted = false
+	
+	public init(shouldWaitForLoading: Bool = true) {
+		self.shouldWaitForLoading = shouldWaitForLoading
+	}
+	
 	deinit {
 		print("AVAssetResourceLoaderEventsObserver deinit")
 	}
@@ -32,10 +41,14 @@ extension AVAssetResourceLoaderEventsObserver : AVAssetResourceLoaderEventsObser
 	}
 }
 
-extension AVAssetResourceLoaderEventsObserver : AVAssetResourceLoaderDelegate {
+extension AVAssetResourceLoaderEventsObserver : AVAssetResourceLoaderDelegate {	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+		if !isLoadingStarted {
+			isLoadingStarted = true
+			publishSubject.onNext(.StartLoading)
+		}
 		publishSubject.onNext(.ShouldWaitForLoading(loadingRequest))
-		return true
+		return shouldWaitForLoading
 	}
 	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, didCancelLoadingRequest loadingRequest: AVAssetResourceLoadingRequest) {

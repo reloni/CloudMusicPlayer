@@ -13,40 +13,83 @@ import RxCocoa
 import UIKit
 
 public class StreamAudioItem {
-	private var cachingTask: Disposable?
 	private var bag = DisposeBag()
 	public let url: String
-	public weak var player: StreamAudioPlayer?
+	public unowned var player: StreamAudioPlayer
 	private let customHttpHeaders: [String: String]?
 	private var observer = AVAssetResourceLoaderEventsObserver()
-	private var loader: AssetResourceLoader?
+	private var assetLoader: AssetResourceLoader?
+	
+	init(player: StreamAudioPlayer, url: String, customHttpHeaders: [String: String]? = nil) {
+		self.player = player
+		self.url = url
+		self.customHttpHeaders = customHttpHeaders
+	
+		observer.loaderEvents.bindNext { [unowned self] result in
+			if case .StartLoading = result {
+				self.cachingTask?.bindNext { [unowned self ]result in
+					if case .Success = result {
+						print("Success")
+						self.assetLoader = nil
+					} else if case .SuccessWithCache = result {
+						print("SuccessWithCache")
+						self.assetLoader = nil
+					} else if case .Error = result {
+						print("Error")
+						self.assetLoader = nil
+					}
+				}.addDisposableTo(self.bag)
+			}
+		}.addDisposableTo(bag)
+	}
+	
+	deinit {
+		print("StreamAudioItem deinit")
+	}
+	
+	internal lazy var cachingTask: Observable<CacheDataResult>? = { [unowned self] in
+		guard let urlRequest = self.urlRequest else { return nil }
+		
+		return Observable.create { [unowned self] observer in
+			let cacheTask = self.player.httpUtilities.createCacheDataTask(urlRequest, sessionConfiguration: NSURLSession.defaultConfig,
+				saveCachedData: self.player.allowCaching, targetMimeType: "audio/mpeg")
+			
+			self.assetLoader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: self.observer.loaderEvents)
+			
+			cacheTask.taskProgress.bindNext { result in
+				observer.onNext(result)
+				if case .Success = result {
+					observer.onCompleted()
+				} else if case .SuccessWithCache = result {
+					observer.onCompleted()
+				} else if case .Error = result {
+					observer.onCompleted()
+				}
+			}.addDisposableTo(self.bag)
+			
+			cacheTask.resume()
+			
+			return AnonymousDisposable {
+				print("dispose!!")
+				cacheTask.cancel()
+			}
+		}.shareReplay(1)
+	}()
+	
+	
+	internal lazy var urlRequest: NSMutableURLRequestProtocol? = {
+		return self.player.httpUtilities.createUrlRequest(self.url, parameters: nil, headers: self.customHttpHeaders)
+	}()
+	
+	internal lazy var urlAsset: AVURLAsset? = {
+		guard let nsUrl = self.fakeUrl ?? self.urlRequest?.URL else { return nil }
+		return AVURLAsset(URL: nsUrl)
+	}()
 	
 	public lazy var playerItem: AVPlayerItem? = {
-		guard let nsUrl = self.fakeUrl ?? NSURL(string: self.url) else {
-			return nil
-		}
-		
-		let asset = AVURLAsset(URL: nsUrl)
-		guard let req = HttpUtilities.instance.createUrlRequest(self.url, parameters: nil, headers: self.customHttpHeaders) else { return nil }
-		let cacheTask = HttpUtilities.instance.createCacheDataTask(req, sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: false, targetMimeType: "audio/mpeg")
-		self.loader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: self.observer.loaderEvents)
+		guard let asset = self.urlAsset else { return nil }
 		asset.resourceLoader.setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
-		
-		// bind to event to dispose loader
-		cacheTask.taskProgress.bindNext { [unowned self] result in
-			if case .Success = result {
-				self.loader = nil
-			} else if case .SuccessWithCache = result {
-				self.loader = nil
-			} else if case .Error = result {
-				self.loader = nil
-			}
-		}.addDisposableTo(self.bag)
-		
-		cacheTask.resume()
-
-		let item = AVPlayerItem(asset: asset)
-		return item
+		return AVPlayerItem(asset: asset)
 	}()
 	
 	public lazy var fakeUrl: NSURL? = {
@@ -60,16 +103,6 @@ public class StreamAudioItem {
 		
 		return nil
 	}()
-
-	init(player: StreamAudioPlayer, url: String, customHttpHeaders: [String: String]? = nil) {
-		self.player = player
-		self.url = url
-		self.customHttpHeaders = customHttpHeaders
-	}
-	
-	deinit {
-		print("StreamAudioItem deinit")
-	}
 	
 	private lazy var metadata: [String: AnyObject?] = {
 		guard let metadataList = self.playerItem?.asset.metadata else {
