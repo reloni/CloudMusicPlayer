@@ -27,18 +27,7 @@ public class StreamAudioItem {
 	
 		observer.loaderEvents.bindNext { [unowned self] result in
 			if case .StartLoading = result {
-				self.cachingTask?.bindNext { [unowned self ]result in
-					if case .Success = result {
-						print("Success")
-						self.assetLoader = nil
-					} else if case .SuccessWithCache = result {
-						print("SuccessWithCache")
-						self.assetLoader = nil
-					} else if case .Error = result {
-						print("Error")
-						self.assetLoader = nil
-					}
-				}.addDisposableTo(self.bag)
+				self.cachingTask?.subscribe().addDisposableTo(self.bag)
 			}
 		}.addDisposableTo(bag)
 	}
@@ -70,8 +59,8 @@ public class StreamAudioItem {
 			cacheTask.resume()
 			
 			return AnonymousDisposable {
-				print("dispose!!")
 				cacheTask.cancel()
+				self.assetLoader = nil
 			}
 		}.shareReplay(1)
 	}()

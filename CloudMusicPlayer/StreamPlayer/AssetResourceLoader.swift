@@ -33,12 +33,12 @@ public class AssetResourceLoader {
 		self.cacheTask = cacheTask
 		response = cacheTask.response
 		
-		assetLoaderEvents.observeOn(scheduler).bindNext { [unowned self] result in
+		assetLoaderEvents.observeOn(scheduler).bindNext { [weak self]result in
 			switch result {
 			case .DidCancelLoading(let loadingRequest):
-				self.resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
+				self?.resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
 			case .ShouldWaitForLoading(let loadingRequest):
-				self.resourceLoadingRequests[loadingRequest.hash] = loadingRequest
+				self?.resourceLoadingRequests[loadingRequest.hash] = loadingRequest
 			default: break
 			}
 		}.addDisposableTo(bag)
