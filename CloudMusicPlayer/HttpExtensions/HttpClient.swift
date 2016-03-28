@@ -64,20 +64,13 @@ public class HttpClient {
 extension HttpClient : HttpClientProtocol {
 	public func loadJsonData(request: NSMutableURLRequestProtocol)
 		-> Observable<HttpRequestResult> {
-			return Observable.create { [unowned self] observer in
-				let task = self.loadData(request).bindNext { result in
-					if case .SuccessData(let data) = result {
-						observer.onNext(.SuccessJson(JSON(data: data)))
-					} else {
-						observer.onNext(result)
-					}
-					observer.onCompleted()
+			return self.loadData(request).map { result in
+				if case .SuccessData(let data) = result {
+					return HttpRequestResult.SuccessJson(JSON(data: data))
+				} else {
+					return result
 				}
-				
-				return AnonymousDisposable {
-					task.dispose()
-				}
-			}.shareReplay(1)
+			}
 	}
 	
 	public func loadData(request: NSMutableURLRequestProtocol)
@@ -114,7 +107,8 @@ extension HttpClient : HttpClientProtocol {
 		return loadJsonData(request)
 	}
 	
-	public func loadStreamData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration()) -> Observable<StreamDataResult> {
+	public func loadStreamData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration())
+		-> Observable<StreamDataResult> {
 		return Observable.create { [unowned self] observer in
 			let task = self.httpUtilities.createStreamDataTask(request, sessionConfiguration: sessionConfiguration)
 				
