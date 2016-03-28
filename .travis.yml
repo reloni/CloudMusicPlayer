@@ -12,18 +12,16 @@ env:
   #github access token (for Carthage) 
   -   secure: "xZg8RlgwDqpFAR9DJwrRid3bqYUoQvN5lfBEkuLauHki+N4lhbgs05kyRwP3E3zl7t4J9ydYoouTDn6gnJHM5kCcNnW3fR26E1VOy6/rGXEL7kCAdsk0K+FrRr99ogj03pUfBPWIadoaUdRyvw39TC8R5ZlYWWwH3Wiyk33+y/ddJcgS/CdjtvDabXxASbEcnHKt94QaiyPxk222DRIuxjOE3v3XAtZrqPc8pDoNkPhpPfrugbubMdMwVxyKAH2k7dkLYLXF0b0YPvTLK8kaEedIL5pQ445KMzi8OIAIHb5vYRKk4AhKfja4gTEv9p7hiNiaZQtY7pZHz+vGpabo+wt7oN0ExWJyl+lvdy4xB5W96UvgDo0P4NoznJhM4o/wf1Mid30Cyx28glgevGqmtaMxWDWxBD9cTCQyaWcU2jjiwwgTGzZ3FzpOi2VbEkqBR2YpSuAwjInTD4nPDncda5kXNfva2W7bfYyT+VjsUA6vVnE0Ba7wwVDJRY6+XtA8PqjToSwmE/s9ngGLNKL9HCSWcxVnTs9Dnp6cFd3qGtlEjpuoknSuq4xaCXEMozuuXqpq9tGilsS7QOOmdPyRv8xvtTXapybnl8fpT+IYmGWfhkCGnnAHyqMIpq8Qdg0CPgxpDzMEF13ndeWOiUYw0W/3M3IUiaFZ5toEuGMwTNU="
 
+before_install:
+  - SIMULATOR_ID=$(xcrun instruments -s | grep -o "iPhone 6s (9.3) \[.*\]" | grep -o "\[.*\]" | sed "s/^\[\(.*\)\]$/\1/")
+
 before_script:
 - carthage bootstrap --platform ios
 
 script: 
-- set -o pipefail
-- xcodebuild -version
-- xcodebuild -showsdks
-- instruments -s devices
-- xcrun simctl list
-- open -a "simulator" --args -CurrentDeviceUDID A84965FC-070D-4EAF-83E8-84FFE99F5866
-- xcodebuild -scheme "$FRAMEWORK_SCHEME" -project "$PROJECT" -sdk "$SDK" -configuration Debug ONLY_ACTIVE_ARCH=YES -destination "$DESTINATION_PLATFORM" -enableCodeCoverage YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean build  | xcpretty -c;
-- xcodebuild -scheme "$FRAMEWORK_SCHEME" -project "$PROJECT" -sdk "$SDK" -configuration Debug ONLY_ACTIVE_ARCH=YES -destination "$DESTINATION_PLATFORM" -enableCodeCoverage YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES test  | xcpretty -c;
+- open -a "simulator" --args -CurrentDeviceUDID $SIMULATOR_ID
+- xcodebuild -scheme "$FRAMEWORK_SCHEME" -project "$PROJECT" -sdk "$SDK" -configuration Debug ONLY_ACTIVE_ARCH=YES -destination "$DESTINATION_PLATFORM" -enableCodeCoverage YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean build  | xcpretty -c && exit ${PIPESTATUS[0]}
+- xcodebuild -scheme "$FRAMEWORK_SCHEME" -project "$PROJECT" -sdk "$SDK" -configuration Debug ONLY_ACTIVE_ARCH=YES -destination "$DESTINATION_PLATFORM" -enableCodeCoverage YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES test  | xcpretty -c && exit ${PIPESTATUS[0]}
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
