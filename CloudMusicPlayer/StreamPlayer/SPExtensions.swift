@@ -44,8 +44,45 @@ public protocol AVAssetResourceLoadingDataRequestProtocol {
 }
 extension AVAssetResourceLoadingDataRequest : AVAssetResourceLoadingDataRequestProtocol { }
 
-extension AVAsset {
+
+// AVAsset
+public protocol AVAssetProtocol {
+	func getMetadata() -> [String: AnyObject?]
+}
+extension AVAsset: AVAssetProtocol {
 	public func getMetadata() -> [String: AnyObject?] {
 		return Dictionary<String, AnyObject?>(metadata.filter { $0.commonKey != nil }.map { ($0.commonKey!, $0.value as? AnyObject)})
+	}
+}
+
+
+// AVURLAsset
+public protocol AVURLAssetProtocol: AVAssetProtocol {
+	var URL: NSURL { get }
+	func getResourceLoader() -> AVAssetResourceLoaderProtocol
+}
+extension AVURLAsset: AVURLAssetProtocol {
+	public func getResourceLoader() -> AVAssetResourceLoaderProtocol {
+		return resourceLoader
+	}
+}
+
+
+// AVAssetResourceLoader
+public protocol AVAssetResourceLoaderProtocol {
+	func setDelegate(delegate: AVAssetResourceLoaderDelegate?, queue: dispatch_queue_t?)
+}
+extension AVAssetResourceLoader: AVAssetResourceLoaderProtocol { }
+
+
+// AVPlayerItem
+public protocol AVPlayerItemProtocol {
+	func getAsset() -> AVAssetProtocol
+	var duration: CMTime { get }
+	func currentTime() -> CMTime
+}
+extension AVPlayerItem: AVPlayerItemProtocol {
+	public func getAsset() -> AVAssetProtocol {
+		return asset
 	}
 }

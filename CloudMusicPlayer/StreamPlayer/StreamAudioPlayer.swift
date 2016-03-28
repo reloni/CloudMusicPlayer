@@ -24,16 +24,23 @@ public class StreamAudioPlayer {
 	public var currentItem = Variable<StreamAudioItem?>(nil)
 	public let status = BehaviorSubject<PlayerStatus>(value: .Stopped)
 	public let httpClient: HttpClientProtocol
+	public let utilities: StreamPlayerUtilitiesProtocol
 		
-	init(allowCaching: Bool = true, httpClient: HttpClientProtocol = HttpClient.instance) {
+	init(allowCaching: Bool = true, httpClient: HttpClientProtocol = HttpClient.instance,
+	     utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) {
 		self.allowCaching = allowCaching
 		self.httpClient = httpClient
+		self.utilities = utilities
 	}
 	
 	public func play(url: String, customHttpHeaders: [String: String]? = nil) {
 		stop()
 		
-		let newAudioItem = StreamAudioItem(player: self, url: url, customHttpHeaders: customHttpHeaders)
+		guard let urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
+			return
+		}
+		
+		let newAudioItem = StreamAudioItem(player: self, urlRequest: urlRequest)
 		
 		guard let playerItem = newAudioItem.playerItem else {
 			currentItem.value = nil
@@ -41,7 +48,7 @@ public class StreamAudioPlayer {
 		}
 		
 		currentItem.value = newAudioItem
-		internalPlayer = AVPlayer(playerItem: playerItem)
+		internalPlayer = AVPlayer(playerItem: playerItem as! AVPlayerItem)
 		
 		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
 			if let strong = self {

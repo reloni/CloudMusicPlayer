@@ -14,19 +14,17 @@ import UIKit
 
 public class StreamAudioItem {
 	private var bag = DisposeBag()
-	public let url: String
 	public unowned var player: StreamAudioPlayer
-	private let customHttpHeaders: [String: String]?
-	private var observer = AVAssetResourceLoaderEventsObserver()
-	private var assetLoader: AssetResourceLoader?
+	internal var observer = AVAssetResourceLoaderEventsObserver()
+	internal var assetLoader: AssetResourceLoader?
+	internal let urlRequest: NSMutableURLRequestProtocol
 	
-	init(player: StreamAudioPlayer, url: String, customHttpHeaders: [String: String]? = nil) {
+	init(player: StreamAudioPlayer, urlRequest: NSMutableURLRequestProtocol) {
 		self.player = player
-		self.url = url
-		self.customHttpHeaders = customHttpHeaders
+		self.urlRequest = urlRequest
 	
 		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }.flatMapLatest { _ -> Observable<CacheDataResult> in
-			let task = self.player.httpClient.loadAndCacheData(self.urlRequest!, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false,
+			let task = self.player.httpClient.loadAndCacheData(self.urlRequest, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false,
 				targetMimeType: "audio/mpeg")
 			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents)
 			return task
@@ -37,23 +35,19 @@ public class StreamAudioItem {
 		print("StreamAudioItem deinit")
 	}
 	
-	internal lazy var urlRequest: NSMutableURLRequestProtocol? = {
-		return self.player.httpClient.httpUtilities.createUrlRequest(self.url, parameters: nil, headers: self.customHttpHeaders)
+	internal lazy var urlAsset: AVURLAssetProtocol? = {
+		guard let nsUrl = self.fakeUrl ?? self.urlRequest.URL else { return nil }
+		return self.player.utilities.createavUrlAsset(nsUrl)
 	}()
 	
-	internal lazy var urlAsset: AVURLAsset? = {
-		guard let nsUrl = self.fakeUrl ?? self.urlRequest?.URL else { return nil }
-		return AVURLAsset(URL: nsUrl)
-	}()
-	
-	public lazy var playerItem: AVPlayerItem? = {
+	public lazy var playerItem: AVPlayerItemProtocol? = {
 		guard let asset = self.urlAsset else { return nil }
-		asset.resourceLoader.setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
-		return AVPlayerItem(asset: asset)
+		asset.getResourceLoader().setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
+		return self.player.utilities.createavPlayerItem(asset)
 	}()
 	
 	public lazy var fakeUrl: NSURL? = {
-		guard let nsUrl = NSURL(string: self.url), component = NSURLComponents(URL: nsUrl, resolvingAgainstBaseURL: false) else {
+		guard let nsUrl = self.urlRequest.URL, component = NSURLComponents(URL: nsUrl, resolvingAgainstBaseURL: false) else {
 			return nil
 		}
 
@@ -65,7 +59,7 @@ public class StreamAudioItem {
 	}()
 	
 	internal lazy var metadata: AudioItemMetadata? = {
-		guard let meta = self.playerItem?.asset.getMetadata() else { return nil }
+		guard let meta = self.playerItem?.getAsset().getMetadata() else { return nil }
 		return AudioItemMetadata(metadata: meta)
 	}()
 	
