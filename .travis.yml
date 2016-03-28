@@ -19,7 +19,11 @@ script:
 - set -o pipefail
 - xcodebuild -version
 - xcodebuild -showsdks
-- xcodebuild -scheme "$FRAMEWORK_SCHEME" -project "$PROJECT" -sdk "$SDK" -configuration Debug ONLY_ACTIVE_ARCH=YES -destination "$DESTINATION_PLATFORM" test -enableCodeCoverage YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES  | xcpretty -c;
+- instruments -s devices
+- xcrun simctl list
+- open -a "simulator" --args -CurrentDeviceUDID A84965FC-070D-4EAF-83E8-84FFE99F5866
+- xcodebuild -scheme "$FRAMEWORK_SCHEME" -project "$PROJECT" -sdk "$SDK" -configuration Debug ONLY_ACTIVE_ARCH=YES -destination "$DESTINATION_PLATFORM" -enableCodeCoverage YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES clean build  | xcpretty -c;
+- xcodebuild -scheme "$FRAMEWORK_SCHEME" -project "$PROJECT" -sdk "$SDK" -configuration Debug ONLY_ACTIVE_ARCH=YES -destination "$DESTINATION_PLATFORM" -enableCodeCoverage YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES test  | xcpretty -c;
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
