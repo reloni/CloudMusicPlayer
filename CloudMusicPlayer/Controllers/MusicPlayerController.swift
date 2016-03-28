@@ -34,12 +34,12 @@ class MusicPlayerController: UIViewController {
 				return
 			}
 			
-			self.trackLabel.text = item.title
-			self.artistLabel.text = item.artist
-			self.albumLabel.text = item.album
+			self.trackLabel.text = item.metadata?.title
+			self.artistLabel.text = item.metadata?.artist
+			self.albumLabel.text = item.metadata?.album
 			self.fullTimeLabel.text = item.durationString
-			if let artwork = item.artwork {
-				self.image.image = artwork
+			if let artwork = item.metadata?.artwork {
+				self.image.image = UIImage(data: artwork)
 			}
 			}.addDisposableTo(bag)
 		

@@ -43,3 +43,9 @@ public protocol AVAssetResourceLoadingDataRequestProtocol {
 	func respondWithData(data: NSData)
 }
 extension AVAssetResourceLoadingDataRequest : AVAssetResourceLoadingDataRequestProtocol { }
+
+extension AVAsset {
+	public func getMetadata() -> [String: AnyObject?] {
+		return Dictionary<String, AnyObject?>(metadata.filter { $0.commonKey != nil }.map { ($0.commonKey!, $0.value as? AnyObject)})
+	}
+}

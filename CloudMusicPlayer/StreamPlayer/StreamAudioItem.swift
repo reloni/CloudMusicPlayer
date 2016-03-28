@@ -25,49 +25,20 @@ public class StreamAudioItem {
 		self.url = url
 		self.customHttpHeaders = customHttpHeaders
 	
-		observer.loaderEvents.bindNext { [unowned self] result in
-			if case .StartLoading = result {
-				self.cachingTask?.subscribe().addDisposableTo(self.bag)
-			}
-		}.addDisposableTo(bag)
+		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }.flatMapLatest { _ -> Observable<CacheDataResult> in
+			let task = self.player.httpClient.loadAndCacheData(self.urlRequest!, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false,
+				targetMimeType: "audio/mpeg")
+			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents)
+			return task
+		}.subscribe().addDisposableTo(bag)
 	}
 	
 	deinit {
 		print("StreamAudioItem deinit")
 	}
 	
-	internal lazy var cachingTask: Observable<CacheDataResult>? = { [unowned self] in
-		guard let urlRequest = self.urlRequest else { return nil }
-		
-		return Observable.create { [unowned self] observer in
-			let cacheTask = self.player.httpUtilities.createCacheDataTask(urlRequest, sessionConfiguration: NSURLSession.defaultConfig,
-				saveCachedData: self.player.allowCaching, targetMimeType: "audio/mpeg")
-			
-			self.assetLoader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: self.observer.loaderEvents)
-			
-			cacheTask.taskProgress.bindNext { result in
-				observer.onNext(result)
-				if case .Success = result {
-					observer.onCompleted()
-				} else if case .SuccessWithCache = result {
-					observer.onCompleted()
-				} else if case .Error = result {
-					observer.onCompleted()
-				}
-			}.addDisposableTo(self.bag)
-			
-			cacheTask.resume()
-			
-			return AnonymousDisposable {
-				cacheTask.cancel()
-				self.assetLoader = nil
-			}
-		}.shareReplay(1)
-	}()
-	
-	
 	internal lazy var urlRequest: NSMutableURLRequestProtocol? = {
-		return self.player.httpUtilities.createUrlRequest(self.url, parameters: nil, headers: self.customHttpHeaders)
+		return self.player.httpClient.httpUtilities.createUrlRequest(self.url, parameters: nil, headers: self.customHttpHeaders)
 	}()
 	
 	internal lazy var urlAsset: AVURLAsset? = {
@@ -93,30 +64,9 @@ public class StreamAudioItem {
 		return nil
 	}()
 	
-	private lazy var metadata: [String: AnyObject?] = {
-		guard let metadataList = self.playerItem?.asset.metadata else {
-			return [String: AnyObject]()
-		}
-		return Dictionary<String, AnyObject?>(metadataList.filter { $0.commonKey != nil }.map { ($0.commonKey!, $0.value as? AnyObject)})
-	}()
-	
-	public lazy var title: String? = {
-		return self.metadata["title"] as? String
-	}()
-	
-	public lazy var artist: String? = {
-		return self.metadata["artist"] as? String
-	}()
-	
-	public lazy var album: String? = {
-		return self.metadata["albumName"] as? String
-	}()
-	
-	public lazy var artwork: UIImage? = {
-		guard let data = self.metadata["artwork"] as? NSData else {
-			return nil
-		}
-		return UIImage(data: data)
+	internal lazy var metadata: AudioItemMetadata? = {
+		guard let meta = self.playerItem?.asset.getMetadata() else { return nil }
+		return AudioItemMetadata(metadata: meta)
 	}()
 	
 	public var duration: CMTime? {
@@ -141,6 +91,4 @@ public class StreamAudioItem {
 			}
 		}
 	}()
-	
-	//public let currentTime = Variable<CMTime?>(nil)
 }

@@ -17,11 +17,11 @@ public protocol ResourceLoadingRequest {
 }
 
 public enum CacheDataResult {
-	case Success(totalCashedData: UInt64)
-	case SuccessWithCache(NSURL)
-	case CacheNewData
-	case ReceiveResponse(NSHTTPURLResponseProtocol)
-	case Error(NSError)
+	case Success(task: StreamDataCacheTask, totalCashedData: UInt64)
+	case SuccessWithCache(task: StreamDataCacheTask, url: NSURL)
+	case CacheNewData(task: StreamDataCacheTask)
+	case ReceiveResponse(task: StreamDataCacheTask, response: NSHTTPURLResponseProtocol)
+	case Error(task: StreamDataCacheTask, error: NSError)
 }
 
 public protocol StreamDataCacheTaskProtocol : StreamTaskProtocol {
@@ -60,18 +60,18 @@ public class StreamDataCacheTask {
 			switch response {
 			case .StreamedData(let data):
 				self.cacheData.appendData(data)
-				self.publishSubject.onNext(.CacheNewData)
+				self.publishSubject.onNext(.CacheNewData(task: self))
 			case .StreamedResponse(let response):
 				self.response = response
-				self.publishSubject.onNext(.ReceiveResponse(response))
+				self.publishSubject.onNext(.ReceiveResponse(task: self, response: response))
 			case .Error(let error):
-				self.publishSubject.onNext(CacheDataResult.Error(error))
+				self.publishSubject.onNext(CacheDataResult.Error(task: self, error: error))
 				self.publishSubject.onCompleted()
 			case .Success:
 				if self.saveCachedData, let path = self.saveData() {
-					self.publishSubject.onNext(CacheDataResult.SuccessWithCache(path))
+					self.publishSubject.onNext(CacheDataResult.SuccessWithCache(task: self, url: path))
 				} else {
-					self.publishSubject.onNext(CacheDataResult.Success(totalCashedData: UInt64(self.cacheData.length)))
+					self.publishSubject.onNext(CacheDataResult.Success(task: self, totalCashedData: UInt64(self.cacheData.length)))
 				}
 				self.publishSubject.onCompleted()
 			default: break

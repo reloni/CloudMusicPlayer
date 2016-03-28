@@ -53,7 +53,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetRequest = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
 			dataRequest: FakeAVAssetResourceLoadingDataRequest())
 		
-		let assetLoader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
 		self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		// should wait untill background schediler perform tasks in another thread
@@ -67,7 +67,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetRequest = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
 			dataRequest: FakeAVAssetResourceLoadingDataRequest())
 		
-		let assetLoader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
@@ -85,7 +85,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetRequest2 = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
 			dataRequest: FakeAVAssetResourceLoadingDataRequest())
 		
-		let assetLoader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest2))
@@ -140,7 +140,7 @@ class AssetResourceLoaderTests: XCTestCase {
 			}
 		}.addDisposableTo(bag)
 		
-		let loader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let loader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		cacheTask.resume()
@@ -208,7 +208,7 @@ class AssetResourceLoaderTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		let loader = AssetResourceLoader(cacheTask: cacheTask, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let loader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest2))
 		
@@ -274,13 +274,13 @@ class AssetResourceLoaderTests: XCTestCase {
 		                                                        saveCachedData: true, targetMimeType: nil) as! StreamDataCacheTask
 		var cachedDataUrl: NSURL?
 		saveOnDiskCacheTask.taskProgress.bindNext { result in
-			if case .SuccessWithCache(let url) = result {
-				cachedDataUrl = url
+			if case .SuccessWithCache(let success) = result {
+				cachedDataUrl = success.url
 			}
 		}.addDisposableTo(bag)
 		
 		
-		let loader = AssetResourceLoader(cacheTask: saveOnDiskCacheTask, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let loader = AssetResourceLoader(cacheTask: saveOnDiskCacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		saveOnDiskCacheTask.resume()

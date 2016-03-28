@@ -73,7 +73,7 @@ class StreamDataCacheTaskTests: XCTestCase {
 		
 		let responseExpectation = expectationWithDescription("Should receive response")
 		task.taskProgress.bindNext { result in
-			if case .ReceiveResponse(let response) = result {
+			if case .ReceiveResponse(_, let response) = result {
 				XCTAssertNotNil(task.response)
 				XCTAssertTrue(task.response as? FakeResponse === response as? FakeResponse)
 				XCTAssertEqual(task.response?.MIMEType, "audio/aac")
@@ -126,8 +126,8 @@ class StreamDataCacheTaskTests: XCTestCase {
 		httpClient.loadAndCacheData(request, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false, targetMimeType: nil).bindNext { result in
 			if case .CacheNewData = result {
 				receiveChunkCounter += 1
-			} else if case .Success(let cashedDataLen) = result {
-				XCTAssertEqual(cashedDataLen, dataSended, "Should cache all sended data")
+			} else if case .Success(let success) = result {
+				XCTAssertEqual(success.totalCashedData, dataSended, "Should cache all sended data")
 				XCTAssertEqual(testData.count, receiveChunkCounter, "Should cache correct data chunk amount")
 				successExpectation.fulfill()
 			} else if case .SuccessWithCache = result {
@@ -181,10 +181,10 @@ class StreamDataCacheTaskTests: XCTestCase {
 				receiveChunkCounter += 1
 			} else if case .Success = result {
 				XCTFail("Shouldn't invoke Success event")
-			} else if case .SuccessWithCache(let url) = result {
-				if let data = NSData(contentsOfURL: url) {
+			} else if case .SuccessWithCache(let success) = result {
+				if let data = NSData(contentsOfURL: success.url) {
 					XCTAssertTrue(sendedData.isEqualToData(data), "Check equality of sended and received data")
-					try! NSFileManager.defaultManager().removeItemAtURL(url)
+					try! NSFileManager.defaultManager().removeItemAtURL(success.url)
 				} else {
 					XCTFail("Cached data should be equal to sended data")
 				}
@@ -212,7 +212,7 @@ class StreamDataCacheTaskTests: XCTestCase {
 		let expectation = expectationWithDescription("Should return NSError")
 		
 		httpClient.loadAndCacheData(request, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false, targetMimeType: nil).bindNext { result in
-			if case .Error(let error) = result where error.code == 1 {
+			if case .Error(let error) = result where error.error.code == 1 {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)

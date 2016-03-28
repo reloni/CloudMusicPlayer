@@ -23,11 +23,11 @@ public class StreamAudioPlayer {
 	private var internalPlayer: AVPlayer?
 	public var currentItem = Variable<StreamAudioItem?>(nil)
 	public let status = BehaviorSubject<PlayerStatus>(value: .Stopped)
-	public let httpUtilities: HttpUtilitiesProtocol
+	public let httpClient: HttpClientProtocol
 		
-	init(allowCaching: Bool = true, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
+	init(allowCaching: Bool = true, httpClient: HttpClientProtocol = HttpClient.instance) {
 		self.allowCaching = allowCaching
-		self.httpUtilities = httpUtilities
+		self.httpClient = httpClient
 	}
 	
 	public func play(url: String, customHttpHeaders: [String: String]? = nil) {

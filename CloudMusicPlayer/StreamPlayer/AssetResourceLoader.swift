@@ -22,17 +22,13 @@ extension AssetResourceLoader : AssetResourceLoaderProtocol {
 }
 
 public class AssetResourceLoader {
-	private let cacheTask: StreamDataCacheTaskProtocol
 	private var response: NSHTTPURLResponseProtocol?
 	
 	private var scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	private let bag = DisposeBag()
 	private var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
 	
-	public init(cacheTask: StreamDataCacheTaskProtocol, assetLoaderEvents: Observable<AssetLoadingEvents>) {
-		self.cacheTask = cacheTask
-		response = cacheTask.response
-		
+	public init(cacheTask: Observable<CacheDataResult>, assetLoaderEvents: Observable<AssetLoadingEvents>) {
 		assetLoaderEvents.observeOn(scheduler).bindNext { [weak self]result in
 			switch result {
 			case .DidCancelLoading(let loadingRequest):
@@ -43,14 +39,17 @@ public class AssetResourceLoader {
 			}
 		}.addDisposableTo(bag)
 		
-		cacheTask.taskProgress.observeOn(scheduler).bindNext { [weak self] result in
-			if case .Success = result {
-				self?.processRequests()
-			} else if case .SuccessWithCache = result {
-				self?.processRequests()
-			} else if case .CacheNewData = result {
-				self?.processRequests()
-			} else if case .ReceiveResponse(let resp) = result {
+		cacheTask.observeOn(scheduler).bindNext { [weak self] result in
+			if case .Success(let successResult) = result {
+				self?.response = successResult.task.response
+				self?.processRequests(successResult.task)
+			} else if case .SuccessWithCache(let successResult) = result {
+				self?.response = successResult.task.response
+				self?.processRequests(successResult.task)
+			} else if case .CacheNewData(let task) = result {
+				self?.response = task.response
+				self?.processRequests(task)
+			} else if case .ReceiveResponse(_, let resp) = result {
 				self?.response = resp
 			}
 		}.addDisposableTo(bag)
@@ -60,7 +59,7 @@ public class AssetResourceLoader {
 		print("AssetResourceLoader deinit")
 	}
 	
-	private func processRequests() {
+	private func processRequests(cacheTask: StreamDataCacheTaskProtocol) {
 		resourceLoadingRequests.map { key, loadingRequest in
 			if let contentInformationRequest = loadingRequest.getContentInformationRequest(), response = response {
 				contentInformationRequest.byteRangeAccessSupported = true
