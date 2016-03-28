@@ -12,6 +12,9 @@ import RxSwift
 import RxCocoa
 import UIKit
 
+public protocol StreamAudioItemProtocol { }
+extension StreamAudioItem : StreamAudioItemProtocol { }
+
 public class StreamAudioItem {
 	private var bag = DisposeBag()
 	public unowned var player: StreamAudioPlayer
