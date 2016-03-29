@@ -12,8 +12,15 @@ import RxSwift
 import RxCocoa
 import UIKit
 
-public protocol StreamAudioItemProtocol { }
-extension StreamAudioItem : StreamAudioItemProtocol { }
+public func ==(lhs: StreamAudioItem, rhs: StreamAudioItem) -> Bool {
+	return lhs.hashValue == rhs.hashValue
+}
+
+extension StreamAudioItem : Hashable {
+	public var hashValue: Int {
+		return resourceIdentifier.uid.hashValue
+	}
+}
 
 public class StreamAudioItem {
 	private var bag = DisposeBag()
@@ -21,17 +28,26 @@ public class StreamAudioItem {
 	internal var observer = AVAssetResourceLoaderEventsObserver()
 	internal var assetLoader: AssetResourceLoader?
 	internal let urlRequest: NSMutableURLRequestProtocol
+	public let resourceIdentifier: StreamResourceIdentifier
 	
-	init(player: StreamAudioPlayer, urlRequest: NSMutableURLRequestProtocol) {
+	internal init(resourceIdentifier: StreamResourceIdentifier, player: StreamAudioPlayer, urlRequest: NSMutableURLRequestProtocol) {
 		self.player = player
 		self.urlRequest = urlRequest
+		self.resourceIdentifier = resourceIdentifier
 	
 		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }.flatMapLatest { _ -> Observable<CacheDataResult> in
-			let task = self.player.httpClient.loadAndCacheData(self.urlRequest, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false,
-				targetMimeType: "audio/mpeg")
+			//let task = self.player.httpClient.loadAndCacheData(self.urlRequest, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false,
+			//	targetMimeType: "audio/mpeg")
+			let task = resourceIdentifier.getCacheTaskForResource()
 			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents)
 			return task
 		}.subscribe().addDisposableTo(bag)
+	}
+	
+	internal convenience init(player: StreamAudioPlayer, urlRequest: NSMutableURLRequestProtocol) {
+		let urlIdentifier = StreamUrlResourceIdentifier(urlRequest: urlRequest, httpClient: player.httpClient,
+											sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: player.allowCaching, targetMimeType: "audio/mpeg")
+		self.init(resourceIdentifier: urlIdentifier, player: player, urlRequest: urlRequest)
 	}
 	
 	deinit {

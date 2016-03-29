@@ -8,42 +8,23 @@
 
 import Foundation
 
-public protocol PlayerQueueItemProtocol {
-	var parent: PlayerQueueItemProtocol? { get }
-	var child: PlayerQueueItemProtocol? { get }
-	var playerItem: StreamAudioItemProtocol { get }
-}
-
-public protocol PlayerQueueProtocol {
-	var root: PlayerQueueItemProtocol { get }
-	var last: PlayerQueueItemProtocol { get }
-	var current: PlayerQueueItemProtocol? { get }
-	var count: UInt { get }
-}
-
-public class PlayerQueue : PlayerQueueProtocol {
-	public private(set) var root: PlayerQueueItemProtocol
-	public private(set) var last: PlayerQueueItemProtocol
-	public private(set) var current: PlayerQueueItemProtocol?
-	public private(set) var count: UInt
+public class PlayerQueue {
+	public private(set) var root: PlayerQueueItem?
+	public private(set) var last: PlayerQueueItem?
+	public private(set) var current: PlayerQueueItem?
+	internal var items = [String: PlayerQueueItem]()
 	
-	private init(root: PlayerQueueItemProtocol, last: PlayerQueueItemProtocol, count: UInt) {
-		self.root = root
-		self.last = last
-		self.count = count
+	public init() { }
+	
+	public init(items: [StreamAudioItem], shuffle: Bool = false) {
+		(self.items, self.root, self.last) = initItems(items, shuffle: shuffle)
 	}
 	
-	public convenience init?(items: [StreamAudioItemProtocol]) {
-		guard items.count > 0 else { return nil }
-		let (first, last, count) = PlayerQueue.initWithItems(items)
-		self.init(root: first, last: last, count: count)
-	}
-	
-	internal static func initWithItems(items: [StreamAudioItemProtocol], shuffle: Bool = false) ->
-		(first: PlayerQueueItemProtocol, last: PlayerQueueItemProtocol, count: UInt){
+	internal func initItems(items: [StreamAudioItem], shuffle: Bool = false) ->
+		(queueItems: [String: PlayerQueueItem], first: PlayerQueueItem?, last: PlayerQueueItem?) {
 			guard items.count > 1 else {
 				let item = PlayerQueueItem(playerItem: items.first!)
-				return (item, item, 1)
+				return ([item.playerItem.resourceIdentifier.uid: item], item, item)
 			}
 			
 			var queueItems = items.map { PlayerQueueItem(playerItem: $0) }
@@ -51,22 +32,24 @@ public class PlayerQueue : PlayerQueueProtocol {
 				queueItems = queueItems.shuffle()
 			}
 			
-			let last = queueItems.reduce(queueItems.first!) { item, next in
+			_ = queueItems.dropFirst().reduce(queueItems.first!) { item, next in
 				item.child = next
 				next.parent = item
 				return next
 			}
 			
-			return (queueItems.first!, last, UInt(items.count))
+			let newQueue = Dictionary<String, PlayerQueueItem>(queueItems.map { ($0.playerItem.resourceIdentifier.uid, $0)})
+			
+			return (queueItems: newQueue, first: queueItems.first, last: queueItems.last)
 	}
 }
 
-public class PlayerQueueItem : PlayerQueueItemProtocol {
-	public var parent: PlayerQueueItemProtocol?
-	public var child: PlayerQueueItemProtocol?
-	public let playerItem: StreamAudioItemProtocol
+public class PlayerQueueItem {
+	public var parent: PlayerQueueItem?
+	public var child: PlayerQueueItem?
+	public let playerItem: StreamAudioItem
 	
-	public init(playerItem: StreamAudioItemProtocol) {
+	public init(playerItem: StreamAudioItem) {
 		self.playerItem = playerItem
 	}
 }
