@@ -8,6 +8,7 @@
 
 import Foundation
 import CloudMusicPlayer
+import RxSwift
 
 public class FakeAVAssetResourceLoadingContentInformationRequest : AVAssetResourceLoadingContentInformationRequestProtocol {
 	public var byteRangeAccessSupported = false
@@ -46,5 +47,17 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 
 	public func finishLoading() {
 		isLoadingFinished = true
+	}
+}
+
+public class FakeResourceIdentifier : StreamResourceIdentifier {
+	public var uid: String
+	public var task: StreamDataCacheTaskProtocol?
+	public func getCacheTaskForResource() -> Observable<CacheDataResult> {
+		return task!.taskProgress
+	}
+	public init(uid: String, task: StreamDataCacheTaskProtocol?) {
+		self.uid = uid
+		self.task = task
 	}
 }
