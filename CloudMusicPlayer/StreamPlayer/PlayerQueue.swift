@@ -9,18 +9,24 @@
 import Foundation
 
 public class PlayerQueue {
+	internal var itemsSet = NSMutableOrderedSet()
+	public private(set) var current: PlayerQueueItem?
+	
 	public var first: PlayerQueueItem? {
 		return getItemAtPosition(0)
 	}
+	
 	public var last: PlayerQueueItem? {
 		return getItemAtPosition(itemsSet.count - 1)
 	}
-	public private(set) var current: PlayerQueueItem?
-	//internal var items = [String: PlayerQueueItem]()
+	
 	public var currentItems: [PlayerQueueItem] {
 		return itemsSet.map { PlayerQueueItem(queue: self, playerItem: $0 as! StreamAudioItem) }
 	}
-	internal var itemsSet = NSMutableOrderedSet()
+	
+	public var count: Int {
+		return itemsSet.count
+	}
 	
 	public init() { }
 	
@@ -33,8 +39,9 @@ public class PlayerQueue {
 	}
 	
 	public func getItemAtPosition(position: Int) -> PlayerQueueItem? {
-		guard position != NSNotFound && position >= 0 && position < itemsSet.count else { return nil }
-		guard let item = itemsSet[position] as? StreamAudioItem else { return nil }
+		//guard position != NSNotFound && position >= 0 && position < itemsSet.count else { return nil }
+		//guard let item = itemsSet[position] as? StreamAudioItem else { return nil }
+		guard let item: StreamAudioItem = itemsSet.getObjectAtIndex(position) else { return nil }
 		return PlayerQueueItem(queue: self, playerItem: item)
 	}
 	
@@ -65,12 +72,20 @@ public class PlayerQueue {
 	
 	/// Add item in queue. 
 	/// Return instance of PlayerQueueItem if item was added. 
-	/// If item already exists - return PlayerQueueItem with this item
+	/// If item already exists, set item at specified index and return PlayerQueueItem with this item
 	internal func add(item: StreamAudioItem, index: Int) -> PlayerQueueItem {
-		guard itemsSet.indexOfObject(item) == NSNotFound else { return PlayerQueueItem(queue: self, playerItem: item) }
+		var addAtIndex = index
+		if let currentIndex = itemsSet.getIndexOfObject(item) {
+			if currentIndex == index {
+				return PlayerQueueItem(queue: self, playerItem: item)
+			} else {
+				itemsSet.removeObject(item)
+				if addAtIndex > 0 { addAtIndex -= 1 }
+			}
+		}
 		
 		if 0..<itemsSet.count + 1 ~= index {
-			itemsSet.insertObject(item, atIndex: index)
+			itemsSet.insertObject(item, atIndex: addAtIndex)
 		} else {
 			itemsSet.addObject(item)
 		}

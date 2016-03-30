@@ -13,4 +13,13 @@ extension NSMutableOrderedSet {
 		let index = indexOfObject(object)
 		return index != NSNotFound ? index : nil
 	}
+	
+	public func getAnyObjectAtIndex(index: Int) -> AnyObject? {
+		guard index != NSNotFound && index >= 0 && index < count else { return nil }
+		return self[index]
+	}
+	
+	public func getObjectAtIndex<T>(index: Int) -> T? {
+		return getAnyObjectAtIndex(index) as? T
+	}
 }

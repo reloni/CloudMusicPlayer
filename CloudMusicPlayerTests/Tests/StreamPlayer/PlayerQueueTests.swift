@@ -108,10 +108,65 @@ class PlayerQueueTests: XCTestCase {
 		XCTAssertEqual(queue.first?.child?.child?.playerItem, fourthAddedItem.playerItem, "Fourth added item should be third")
 		XCTAssertEqual(queue.first?.child?.child?.child?.playerItem, thirdAddedItem.playerItem, "Third added item should be fourth")
 	}
-}
-
-extension StreamAudioItem : CustomStringConvertible {
-	public var description: String {
-		return resourceIdentifier.uid
+	
+	func testNotAddExistedItemToQueue() {
+		let queue = PlayerQueue(items: audioItems)
+		queue.addLast(audioItems[1])
+		XCTAssertEqual(audioItems.count, queue.count)
+	}
+	
+	func testCorrectChangeOrderOfItems() {
+		let queue = PlayerQueue(items: audioItems)
+		guard let second = queue.getItemAtPosition(1), third = queue.getItemAtPosition(2) else {
+			XCTFail("Should return items at indeces 1 and 2")
+			return
+		}
+		// swap items
+		var swapped = queue.addAfter(second.playerItem, afterItem: third.playerItem)
+		//print(queue.currentItems.map { $0.playerItem })
+		XCTAssertEqual(second.playerItem, swapped.playerItem, "Method addAfter should return correct item")
+		XCTAssertEqual(audioItems[0], queue.getItemAtPosition(0)?.playerItem, "First item should be at same place")
+		XCTAssertEqual(audioItems[1], queue.getItemAtPosition(2)?.playerItem, "Second item should be now third")
+		XCTAssertEqual(audioItems[2], queue.getItemAtPosition(1)?.playerItem, "Third item should now be second")
+		XCTAssertEqual(audioItems[3], queue.getItemAtPosition(3)?.playerItem, "Last item should be at same place")
+		
+		guard let first	= queue.first, last = queue.last else {
+			XCTFail("Should return first and last items")
+			return
+		}
+		
+		// move first item to the end
+		swapped = queue.addAfter(first.playerItem, afterItem: last.playerItem)
+		XCTAssertEqual(first.playerItem, swapped.playerItem, "Method addAfter should return correct item")
+		XCTAssertEqual(audioItems[0], queue.getItemAtPosition(3)?.playerItem, "First item should be now fourth (last)")
+		XCTAssertEqual(audioItems[1], queue.getItemAtPosition(1)?.playerItem, "Second item should be now second (again)")
+		XCTAssertEqual(audioItems[2], queue.getItemAtPosition(0)?.playerItem, "Third item should now be first")
+		XCTAssertEqual(audioItems[3], queue.getItemAtPosition(2)?.playerItem, "Fourt item should be now third")
+	}
+	
+	func testCorrectMoveExistionItemToBeginningOfQueue() {
+		let queue = PlayerQueue(items: audioItems)
+		guard let third = queue.getItemAtPosition(2) else {
+			XCTFail("Should return item at 2 index")
+			return
+		}
+		
+		let swapped = queue.addFirst(third.playerItem)
+		XCTAssertEqual(third.playerItem, swapped.playerItem, "Method addAfter should return correct item")
+		XCTAssertEqual(audioItems[2], queue.first?.playerItem, "Third item should now be first")
+		XCTAssertEqual(audioItems[0], queue.getItemAtPosition(1)?.playerItem, "First item should now be second")
+	}
+	
+	func testCorrectMoveExistionItemToTheEndOfQueue() {
+		let queue = PlayerQueue(items: audioItems)
+		guard let second = queue.getItemAtPosition(1) else {
+			XCTFail("Should return item at 1 index")
+			return
+		}
+		
+		let swapped = queue.addLast(second.playerItem)
+		XCTAssertEqual(second.playerItem, swapped.playerItem, "Method addAfter should return correct item")
+		XCTAssertEqual(audioItems[1], queue.last?.playerItem, "Second item should now be last")
+		XCTAssertEqual(audioItems[3], queue.getItemAtPosition(2)?.playerItem, "Fourth item should now be third")
 	}
 }

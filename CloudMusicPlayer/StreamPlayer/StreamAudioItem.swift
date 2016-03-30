@@ -22,6 +22,12 @@ extension StreamAudioItem : Hashable {
 	}
 }
 
+extension StreamAudioItem : CustomStringConvertible {
+	public var description: String {
+		return "Uid = \(resourceIdentifier.uid)"
+	}
+}
+
 public class StreamAudioItem {
 	private var bag = DisposeBag()
 	private let fakeUrl = NSURL(string:"fake://url.com")!
