@@ -56,8 +56,8 @@ class CloudResourcesStructureController: UIViewController {
 	func play(track: CloudAudioResource) {
 		track.downloadUrl?.bindNext { result in
 			guard let url = result else { return }
-			streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
-			//streamPlayer.playUrl(url, customHttpHeaders: track.getRequestHeaders(), resourceMimeType: "audio/mpeg")
+			//streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
+			streamPlayer.playUrl(url, customHttpHeaders: track.getRequestHeaders(), resourceMimeType: "audio/mpeg")
 		}.addDisposableTo(bag!)
 	}
 	

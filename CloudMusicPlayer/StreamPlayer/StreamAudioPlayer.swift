@@ -77,6 +77,7 @@ public class StreamAudioPlayer {
 	public func playNext() {
 		guard let next = queue.toNext(), player = utilities.createAVPlayer(next.streamItem) else { return }
 		internalPlayer = player
+		currentItem.value = next.streamItem
 		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
 			if let strong = self {
 				print("player status: \(status?.rawValue)")
