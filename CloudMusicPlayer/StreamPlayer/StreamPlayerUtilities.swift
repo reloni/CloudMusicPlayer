@@ -9,16 +9,20 @@
 import Foundation
 import AVFoundation
 
-public protocol StreamPlayerUtilitiesProtocol {
+internal protocol StreamPlayerUtilitiesProtocol {
+	func createAVPlayer(streamItem: StreamAudioItem) -> AVPlayer?
 	func createavUrlAsset(url: NSURL) -> AVURLAssetProtocol
 	func createavPlayerItem(asset: AVURLAssetProtocol) -> AVPlayerItemProtocol
+	func createStreamAudioItem(player: StreamAudioPlayer, streamResourceIdentifier: StreamResourceIdentifier) -> StreamAudioItem
+	func createStreamResourceIdentifier(urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol,
+	                                    saveCachedData: Bool, targetMimeType: String?) -> StreamResourceIdentifier
 }
 
-public class StreamPlayerUtilities {
+internal class StreamPlayerUtilities {
 	private static var _instance: StreamPlayerUtilitiesProtocol?
 	private static var token: dispatch_once_t = 0
 	
-	public static var instance: StreamPlayerUtilitiesProtocol  {
+	internal static var instance: StreamPlayerUtilitiesProtocol  {
 		initWithInstance()
 		return StreamPlayerUtilities._instance!
 	}
@@ -33,11 +37,26 @@ public class StreamPlayerUtilities {
 }
 
 extension StreamPlayerUtilities: StreamPlayerUtilitiesProtocol {
-	public func createavUrlAsset(url: NSURL) -> AVURLAssetProtocol {
+	internal func createAVPlayer(streamItem: StreamAudioItem) -> AVPlayer? {
+		guard let item = streamItem.playerItem else { return nil }
+		return AVPlayer(playerItem: item as! AVPlayerItem)
+	}
+	
+	internal func createavUrlAsset(url: NSURL) -> AVURLAssetProtocol {
 		return AVURLAsset(URL: url)
 	}
 	
-	public func createavPlayerItem(asset: AVURLAssetProtocol) -> AVPlayerItemProtocol {
+	internal func createavPlayerItem(asset: AVURLAssetProtocol) -> AVPlayerItemProtocol {
 		return AVPlayerItem(asset: asset as! AVURLAsset)
+	}
+	
+	internal func createStreamAudioItem(player: StreamAudioPlayer, streamResourceIdentifier: StreamResourceIdentifier) -> StreamAudioItem {
+		return StreamAudioItem(resourceIdentifier: streamResourceIdentifier, player: player)
+	}
+	
+	internal func createStreamResourceIdentifier(urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol,
+																						saveCachedData: Bool, targetMimeType: String?) -> StreamResourceIdentifier {
+		return StreamUrlResourceIdentifier(urlRequest: urlRequest, httpClient: httpClient, sessionConfiguration: httpClient.urlSession.configuration,
+		                                   saveCachedData: saveCachedData, targetMimeType: targetMimeType)
 	}
 }

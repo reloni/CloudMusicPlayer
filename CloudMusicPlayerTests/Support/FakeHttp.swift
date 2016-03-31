@@ -70,6 +70,8 @@ public class FakeSession : NSURLSessionProtocol {
 	var task: FakeDataTask?
 	var isInvalidatedAndCanceled = false
 	
+	public var configuration: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
+	
 	public init(fakeTask: FakeDataTask? = nil) {
 		task = fakeTask
 	}

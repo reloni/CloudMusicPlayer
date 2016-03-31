@@ -34,17 +34,13 @@ public class StreamAudioItem {
 	public unowned var player: StreamAudioPlayer
 	internal var observer = AVAssetResourceLoaderEventsObserver()
 	internal var assetLoader: AssetResourceLoader?
-	//internal let urlRequest: NSMutableURLRequestProtocol
-	public let resourceIdentifier: StreamResourceIdentifier
+	internal let resourceIdentifier: StreamResourceIdentifier
 	
 	internal init(resourceIdentifier: StreamResourceIdentifier, player: StreamAudioPlayer) {
 		self.player = player
-		//self.urlRequest = urlRequest
 		self.resourceIdentifier = resourceIdentifier
 	
 		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }.flatMapLatest { _ -> Observable<CacheDataResult> in
-			//let task = self.player.httpClient.loadAndCacheData(self.urlRequest, sessionConfiguration: NSURLSession.defaultConfig, saveCacheData: false,
-			//	targetMimeType: "audio/mpeg")
 			let task = resourceIdentifier.getCacheTaskForResource()
 			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents)
 			return task
@@ -62,7 +58,6 @@ public class StreamAudioItem {
 	}
 	
 	internal lazy var urlAsset: AVURLAssetProtocol? = {
-		//guard let nsUrl = self.fakeUrl ?? self.urlRequest.URL else { return nil }
 		return self.player.utilities.createavUrlAsset(self.fakeUrl)
 	}()
 	
@@ -71,18 +66,6 @@ public class StreamAudioItem {
 		asset.getResourceLoader().setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 		return self.player.utilities.createavPlayerItem(asset)
 	}()
-	
-//	public lazy var fakeUrl: NSURL? = {
-//		guard let nsUrl = self.urlRequest.URL, component = NSURLComponents(URL: nsUrl, resolvingAgainstBaseURL: false) else {
-//			return nil
-//		}
-//
-//		if (component.scheme == "http" || component.scheme == "https") {
-//				return NSURL(string: "fake://url.com")
-//		}
-//		
-//		return nil
-//	}()
 	
 	internal lazy var metadata: AudioItemMetadata? = {
 		guard let meta = self.playerItem?.getAsset().getMetadata() else { return nil }

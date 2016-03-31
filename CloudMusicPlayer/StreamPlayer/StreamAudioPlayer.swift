@@ -24,7 +24,8 @@ public class StreamAudioPlayer {
 	public var currentItem = Variable<StreamAudioItem?>(nil)
 	public let status = BehaviorSubject<PlayerStatus>(value: .Stopped)
 	public let httpClient: HttpClientProtocol
-	public let utilities: StreamPlayerUtilitiesProtocol
+	internal let utilities: StreamPlayerUtilitiesProtocol
+	internal let queue = PlayerQueue()
 		
 	init(allowCaching: Bool = true, httpClient: HttpClientProtocol = HttpClient.instance,
 	     utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) {
@@ -58,7 +59,33 @@ public class StreamAudioPlayer {
 					strong.status.onNext(.Playing)
 				}
 			}
-			}.addDisposableTo(self.bag)
+		}.addDisposableTo(self.bag)
+	}
+	
+	internal func playUrl(url: String, customHttpHeaders: [String: String]? = nil, resourceMimeType: String? = nil) {
+		stop()
+		guard let urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
+			return
+		}
+		let streamResource = utilities.createStreamResourceIdentifier(urlRequest, httpClient: httpClient,
+											saveCachedData: allowCaching, targetMimeType: resourceMimeType)
+		let streamItem = utilities.createStreamAudioItem(self, streamResourceIdentifier: streamResource)
+		queue.initWithNewItems([streamItem])
+		playNext()
+	}
+	
+	public func playNext() {
+		guard let next = queue.toNext(), player = utilities.createAVPlayer(next.streamItem) else { return }
+		internalPlayer = player
+		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
+			if let strong = self {
+				print("player status: \(status?.rawValue)")
+				if status == .ReadyToPlay {
+					strong.internalPlayer?.play()
+					strong.status.onNext(.Playing)
+				}
+			}
+		}.addDisposableTo(self.bag)
 	}
 	
 	public func pause() {

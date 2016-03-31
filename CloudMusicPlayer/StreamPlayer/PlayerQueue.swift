@@ -10,7 +10,8 @@ import Foundation
 
 public class PlayerQueue {
 	internal var itemsSet = NSMutableOrderedSet()
-	public private(set) var current: PlayerQueueItem?
+	public internal(set) var current: PlayerQueueItem?
+	public internal(set) var repeatQueue: Bool
 	
 	public var first: PlayerQueueItem? {
 		return getItemAtPosition(0)
@@ -28,9 +29,22 @@ public class PlayerQueue {
 		return itemsSet.count
 	}
 	
-	public init() { }
+	public init(repeatQueue: Bool = false) {
+		self.repeatQueue = repeatQueue
+	}
 	
-	public init(items: [StreamAudioItem], shuffle: Bool = false) {
+	public convenience init(items: [StreamAudioItem], shuffle: Bool = false, repeatQueue: Bool = false) {
+		self.init(repeatQueue: repeatQueue)
+		
+		initWithNewItems(items, shuffle: shuffle)
+//		if shuffle {
+//			itemsSet.addObjectsFromArray(items.shuffle())
+//		} else {
+//			itemsSet.addObjectsFromArray(items)
+//		}
+	}
+	
+	public func initWithNewItems(items: [StreamAudioItem], shuffle: Bool = false) {
 		if shuffle {
 			itemsSet.addObjectsFromArray(items.shuffle())
 		} else {
@@ -38,9 +52,39 @@ public class PlayerQueue {
 		}
 	}
 	
+	public func shuffle() {
+		var items = itemsSet.array
+		items.shuffleInPlace()
+		itemsSet = NSMutableOrderedSet(array: items)
+	}
+	
+	public func toNext() -> PlayerQueueItem? {
+		if current == nil {
+			current = first
+		} else {
+			current = repeatQueue ? current?.child ?? first : current?.child
+		}
+		return current
+	}
+	
+	public func toPrevious() -> PlayerQueueItem? {
+		if current == nil {
+			current = first
+		} else if current != first {
+			current = current?.parent
+		}
+		return current
+	}
+	
+	public func remove(item: StreamAudioItem) {
+		itemsSet.removeObject(item)
+	}
+	
+	public func remove(item: PlayerQueueItem) {
+		remove(item.streamItem)
+	}
+	
 	public func getItemAtPosition(position: Int) -> PlayerQueueItem? {
-		//guard position != NSNotFound && position >= 0 && position < itemsSet.count else { return nil }
-		//guard let item = itemsSet[position] as? StreamAudioItem else { return nil }
 		guard let item: StreamAudioItem = itemsSet.getObjectAtIndex(position) else { return nil }
 		return PlayerQueueItem(queue: self, playerItem: item)
 	}
@@ -73,7 +117,7 @@ public class PlayerQueue {
 	/// Add item in queue. 
 	/// Return instance of PlayerQueueItem if item was added. 
 	/// If item already exists, set item at specified index and return PlayerQueueItem with this item
-	internal func add(item: StreamAudioItem, index: Int) -> PlayerQueueItem {
+	private func add(item: StreamAudioItem, index: Int) -> PlayerQueueItem {
 		var addAtIndex = index
 		if let currentIndex = itemsSet.getIndexOfObject(item) {
 			if currentIndex == index {
@@ -96,19 +140,29 @@ public class PlayerQueue {
 
 public class PlayerQueueItem {
 	public var parent: PlayerQueueItem? {
-		return queue.getItemBefore(playerItem)
+		return queue.getItemBefore(streamItem)
 	}
 	public var child: PlayerQueueItem? {
-		return queue.getItemAfter(playerItem)
+		return queue.getItemAfter(streamItem)
 	}
-	public let playerItem: StreamAudioItem
+	public let streamItem: StreamAudioItem
 	public let queue: PlayerQueue
 	public var inQueue: Bool {
-		return queue.itemsSet.indexOfObject(playerItem) != NSNotFound
+		return queue.itemsSet.indexOfObject(streamItem) != NSNotFound
 	}
 	
 	public init(queue: PlayerQueue, playerItem: StreamAudioItem) {
 		self.queue = queue
-		self.playerItem = playerItem
+		self.streamItem = playerItem
+	}
+}
+
+public func ==(lhs: PlayerQueueItem, rhs: PlayerQueueItem) -> Bool {
+	return lhs.hashValue == rhs.hashValue
+}
+
+extension PlayerQueueItem : Hashable {
+	public var hashValue: Int {
+		return streamItem.hashValue
 	}
 }

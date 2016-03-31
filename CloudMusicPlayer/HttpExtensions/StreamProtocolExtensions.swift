@@ -56,6 +56,7 @@ extension NSURLSessionDataTask : NSURLSessionDataTaskProtocol {
 // NSURLSessionProtocol
 public typealias DataTaskResult = (NSData?, NSURLResponse?, NSError?) -> Void
 public protocol NSURLSessionProtocol {
+	var configuration: NSURLSessionConfiguration { get }
 	func invalidateAndCancel()
 	func dataTaskWithURL(url: NSURL, completionHandler: DataTaskResult)	-> NSURLSessionDataTaskProtocol
 	func dataTaskWithRequest(request: NSMutableURLRequestProtocol, completionHandler: DataTaskResult) -> NSURLSessionDataTaskProtocol
