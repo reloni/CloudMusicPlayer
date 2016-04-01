@@ -26,22 +26,26 @@ public class StreamAudioPlayer {
 	public let httpClient: HttpClientProtocol
 	internal let utilities: StreamPlayerUtilitiesProtocol
 	internal let queue = PlayerQueue()
+	internal let cache: PlayerCache
 		
 	init(allowCaching: Bool = true, httpClient: HttpClientProtocol = HttpClient.instance,
 	     utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) {
 		self.allowCaching = allowCaching
 		self.httpClient = httpClient
 		self.utilities = utilities
+		cache = PlayerCache(saveCachedData: allowCaching, httpClient: httpClient)
 	}
 	
 	public func playUrl(url: String, customHttpHeaders: [String: String]? = nil, resourceMimeType: String? = nil) {
 		stop()
-		guard let urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
-			return
-		}
-		let streamResource = utilities.createStreamResourceIdentifier(urlRequest, httpClient: httpClient,
-											saveCachedData: allowCaching, targetMimeType: resourceMimeType)
-		let streamItem = utilities.createStreamAudioItem(self, streamResourceIdentifier: streamResource)
+//		guard let urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
+//			return
+//		}
+//		let streamResource = utilities.createStreamResourceIdentifier(urlRequest, httpClient: httpClient,
+//											saveCachedData: allowCaching, targetMimeType: resourceMimeType)
+		guard let cacheItem = cache.getCacheItem(url, customHttpHeaders: customHttpHeaders, resourceMimeType: resourceMimeType) else { return }
+		//let streamItem = utilities.createStreamAudioItem(self, streamResourceIdentifier: streamResource)
+		let streamItem = utilities.createStreamAudioItem(self, cacheItem: cacheItem)
 		queue.initWithNewItems([streamItem])
 		playNext()
 	}

@@ -21,10 +21,10 @@ class PlayerQueueTests: XCTestCase {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
 		player = StreamAudioPlayer()
-		audioItems = [StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake one", task: nil), player: player),
-		             StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake two", task: nil), player: player),
-		             StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake three", task: nil), player: player),
-		             StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake four", task: nil), player: player)]
+		audioItems = [StreamAudioItem(cacheItem: FakeCacheItem(uid: "fake one", task: nil), player: player),
+		             StreamAudioItem(cacheItem: FakeCacheItem(uid: "fake two", task: nil), player: player),
+		             StreamAudioItem(cacheItem: FakeCacheItem(uid: "fake three", task: nil), player: player),
+		             StreamAudioItem(cacheItem: FakeCacheItem(uid: "fake four", task: nil), player: player)]
 	}
 	
 	override func tearDown() {
@@ -246,7 +246,7 @@ class PlayerQueueTests: XCTestCase {
 	func testNotRemoveItemThatNotExistsInQueue() {
 		let queue = PlayerQueue(items: audioItems)
 		let notExisted = PlayerQueueItem(queue: queue,
-										playerItem: StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake five", task: nil), player: player))
+										playerItem: StreamAudioItem(cacheItem: FakeCacheItem(uid: "fake five", task: nil), player: player))
 		queue.remove(notExisted)
 		XCTAssertEqual(4, queue.count)
 	}

@@ -50,10 +50,10 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 	}
 }
 
-public class FakeResourceIdentifier : StreamResourceIdentifier {
+public class FakeCacheItem : CacheItem {
 	public var uid: String
 	public var task: StreamDataCacheTaskProtocol?
-	public func getCacheTaskForResource() -> Observable<CacheDataResult> {
+	public func getCacheTask() -> Observable<CacheDataResult> {
 		return task!.taskProgress
 	}
 	public init(uid: String, task: StreamDataCacheTaskProtocol?) {

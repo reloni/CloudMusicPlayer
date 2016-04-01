@@ -70,7 +70,7 @@ extension HttpClient : HttpClientProtocol {
 				} else {
 					return result
 				}
-			}
+			}.shareReplay(1)
 	}
 	
 	public func loadData(request: NSMutableURLRequestProtocol)
