@@ -17,8 +17,8 @@ public class PlayerCache {
 		self.httpClient = httpClient
 	}
 	
-	public func getCacheItem(url: String, customHttpHeaders: [String: String]? = nil, resourceMimeType: String? = nil) -> CacheItem? {
-		guard let urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
+	public func getCacheItem(identifier: StreamResourceIdentifier, customHttpHeaders: [String: String]? = nil, resourceMimeType: String? = nil) -> CacheItem? {
+		guard let url = identifier.streamResourceUrl, urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
 			return nil
 		}
 		return UrlCacheItem(urlRequest: urlRequest, httpClient: httpClient, saveCachedData: saveCachedData, targetMimeType: resourceMimeType)
@@ -27,7 +27,6 @@ public class PlayerCache {
 
 public protocol CacheItem {
 	var uid: String { get }
-	//var cacheTask: Observable<CacheDataResult> { get }
 	func getCacheTask() -> Observable<CacheDataResult>
 }
 
@@ -38,18 +37,18 @@ public class UrlCacheItem : CacheItem {
 	internal let targetMimeType: String?
 	public let uid: String
 	
-	public init(uid: String, urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol = HttpClient.instance,
+	public init(identifier: StreamResourceIdentifier, urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol = HttpClient.instance,
 	            saveCachedData: Bool = true, targetMimeType: String? = nil) {
 		self.urlRequest = urlRequest
 		self.httpClient = httpClient
 		self.saveCachedData = saveCachedData
 		self.targetMimeType = targetMimeType
-		self.uid = uid
+		self.uid = identifier.streamResourceUid
 	}
 	
 	public convenience init(urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol = HttpClient.instance,
 	                        saveCachedData: Bool = true, targetMimeType: String? = nil) {
-		self.init(uid: urlRequest.URL?.absoluteString ?? NSUUID().UUIDString, urlRequest: urlRequest, httpClient: httpClient,
+		self.init(identifier: urlRequest.URL?.absoluteString.streamResourceUid ?? NSUUID().UUIDString, urlRequest: urlRequest, httpClient: httpClient,
 		          saveCachedData: saveCachedData, targetMimeType: targetMimeType)
 	}
 	

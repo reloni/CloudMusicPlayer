@@ -14,8 +14,6 @@ internal protocol StreamPlayerUtilitiesProtocol {
 	func createavUrlAsset(url: NSURL) -> AVURLAssetProtocol
 	func createavPlayerItem(asset: AVURLAssetProtocol) -> AVPlayerItemProtocol
 	func createStreamAudioItem(player: StreamAudioPlayer, cacheItem: CacheItem) -> StreamAudioItem
-//	func createStreamResourceIdentifier(urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol,
-//	                                    saveCachedData: Bool, targetMimeType: String?) -> StreamResourceIdentifier
 }
 
 internal class StreamPlayerUtilities {
@@ -53,10 +51,4 @@ extension StreamPlayerUtilities: StreamPlayerUtilitiesProtocol {
 	internal func createStreamAudioItem(player: StreamAudioPlayer, cacheItem: CacheItem) -> StreamAudioItem {
 		return StreamAudioItem(cacheItem: cacheItem, player: player)
 	}
-	
-//	internal func createStreamResourceIdentifier(urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol,
-//																						saveCachedData: Bool, targetMimeType: String?) -> StreamResourceIdentifier {
-//		return StreamUrlResourceIdentifier(urlRequest: urlRequest, httpClient: httpClient,
-//		                                   saveCachedData: saveCachedData, targetMimeType: targetMimeType)
-//	}
 }

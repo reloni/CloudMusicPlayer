@@ -54,11 +54,15 @@ class CloudResourcesStructureController: UIViewController {
 	}
 	
 	func play(track: CloudAudioResource) {
-		track.downloadUrl?.bindNext { result in
-			guard let url = result else { return }
-			//streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
-			streamPlayer.playUrl(url, customHttpHeaders: track.getRequestHeaders(), resourceMimeType: "audio/mpeg")
-		}.addDisposableTo(bag!)
+		if let identifier = track as? StreamResourceIdentifier {
+			streamPlayer.playUrl(identifier, customHttpHeaders: track.getRequestHeaders(), resourceMimeType: "audio/mpeg")
+		} else {
+			track.downloadUrl?.bindNext { result in
+				guard let url = result else { return }
+				//streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
+				streamPlayer.playUrl(url, customHttpHeaders: track.getRequestHeaders(), resourceMimeType: "audio/mpeg")
+				}.addDisposableTo(bag!)
+		}
 	}
 	
 	func stop() {

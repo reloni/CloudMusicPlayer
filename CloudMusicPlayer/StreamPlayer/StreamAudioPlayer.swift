@@ -19,33 +19,25 @@ public enum PlayerStatus {
 
 public class StreamAudioPlayer {
 	private var bag = DisposeBag()
-	public let allowCaching: Bool
 	private var internalPlayer: AVPlayer?
 	public var currentItem = Variable<StreamAudioItem?>(nil)
 	public let status = BehaviorSubject<PlayerStatus>(value: .Stopped)
-	public let httpClient: HttpClientProtocol
 	internal let utilities: StreamPlayerUtilitiesProtocol
 	internal let queue = PlayerQueue()
 	internal let cache: PlayerCache
 		
-	init(allowCaching: Bool = true, httpClient: HttpClientProtocol = HttpClient.instance,
+	init(saveCachedData: Bool = true, httpClient: HttpClientProtocol = HttpClient.instance,
 	     utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) {
-		self.allowCaching = allowCaching
-		self.httpClient = httpClient
 		self.utilities = utilities
-		cache = PlayerCache(saveCachedData: allowCaching, httpClient: httpClient)
+		cache = PlayerCache(saveCachedData: saveCachedData, httpClient: httpClient)
 	}
 	
-	public func playUrl(url: String, customHttpHeaders: [String: String]? = nil, resourceMimeType: String? = nil) {
+	public func playUrl(url: StreamResourceIdentifier, customHttpHeaders: [String: String]? = nil, resourceMimeType: String? = nil) {
 		stop()
-//		guard let urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
-//			return
-//		}
-//		let streamResource = utilities.createStreamResourceIdentifier(urlRequest, httpClient: httpClient,
-//											saveCachedData: allowCaching, targetMimeType: resourceMimeType)
+
 		guard let cacheItem = cache.getCacheItem(url, customHttpHeaders: customHttpHeaders, resourceMimeType: resourceMimeType) else { return }
-		//let streamItem = utilities.createStreamAudioItem(self, streamResourceIdentifier: streamResource)
 		let streamItem = utilities.createStreamAudioItem(self, cacheItem: cacheItem)
+		
 		queue.initWithNewItems([streamItem])
 		playNext()
 	}

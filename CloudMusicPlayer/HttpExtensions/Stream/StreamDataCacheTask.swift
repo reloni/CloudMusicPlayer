@@ -27,7 +27,7 @@ public enum CacheDataResult {
 public protocol StreamDataCacheTaskProtocol : StreamTaskProtocol {
 	var streamDataTask: StreamDataTaskProtocol { get }
 	var taskProgress: Observable<CacheDataResult> { get }
-	func getCachedData() -> NSData
+	var cacheProvider: CacheProvider { get }
 	var response: NSHTTPURLResponseProtocol? { get }
 	var mimeType: String? { get }
 	var fileExtension: String? { get }
@@ -41,15 +41,17 @@ public class StreamDataCacheTask {
 	private var resourceLoadingRequests = [AVAssetResourceLoadingRequestProtocol]()
 	private let publishSubject = PublishSubject<CacheDataResult>()
 	public let uid: String
-	private var cacheData = NSMutableData()
 	private let saveCachedData: Bool
 	private let targetMimeType: String?
+	public let cacheProvider: CacheProvider
 	
-	public init(streamDataTask: StreamDataTaskProtocol, saveCachedData: Bool = true, targetMimeType: String? = nil) {
+	public init(streamDataTask: StreamDataTaskProtocol, saveCachedData: Bool = true, cacheProvider: CacheProvider = MemoryCacheProvider(),
+	            targetMimeType: String? = nil) {
 		self.streamDataTask = streamDataTask
 		self.uid = NSUUID().UUIDString
 		self.saveCachedData = saveCachedData
 		self.targetMimeType = targetMimeType
+		self.cacheProvider = cacheProvider
 		
 		bindToEvents()
 	}
@@ -59,7 +61,7 @@ public class StreamDataCacheTask {
 		self.streamDataTask.taskProgress.bindNext { response in
 			switch response {
 			case .StreamedData(let data):
-				self.cacheData.appendData(data)
+				self.cacheProvider.appendData(data)
 				self.publishSubject.onNext(.CacheNewData(task: self))
 			case .StreamedResponse(let response):
 				self.response = response
@@ -68,24 +70,15 @@ public class StreamDataCacheTask {
 				self.publishSubject.onNext(CacheDataResult.Error(task: self, error: error))
 				self.publishSubject.onCompleted()
 			case .Success:
-				if self.saveCachedData, let path = self.saveData() {
+				if self.saveCachedData, let path = self.cacheProvider.saveData(self.fileExtension ?? "dat") {
 					self.publishSubject.onNext(CacheDataResult.SuccessWithCache(task: self, url: path))
 				} else {
-					self.publishSubject.onNext(CacheDataResult.Success(task: self, totalCashedData: UInt64(self.cacheData.length)))
+					self.publishSubject.onNext(CacheDataResult.Success(task: self, totalCashedData: self.cacheProvider.currentDataLength))
 				}
 				self.publishSubject.onCompleted()
 			default: break
 			}
 		}.addDisposableTo(self.bag)
-	}
-	
-	private func saveData() -> NSURL? {
-		//let path = NSFileManager.streamCacheDirectory.URLByAppendingPathComponent(NSUUID().UUIDString + ".mp3")
-		let path = NSFileManager.streamCacheDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).\(fileExtension ?? "dat")")
-		if cacheData.writeToURL(path, atomically: true) {
-			return path
-		}
-		return nil
 	}
 	
 	deinit {
@@ -108,10 +101,6 @@ extension StreamDataCacheTask : StreamDataCacheTaskProtocol {
 	
 	public func cancel() {
 		streamDataTask.cancel()
-	}
-	
-	public func getCachedData() -> NSData {
-		return cacheData
 	}
 	
 	public var mimeType: String? {

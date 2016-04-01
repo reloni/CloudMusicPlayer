@@ -68,7 +68,8 @@ public class AssetResourceLoader {
 			}
 			
 			if let dataRequest = loadingRequest.getDataRequest() {
-				if respondWithData(cacheTask.getCachedData(), respondingDataRequest: dataRequest) {
+				//if respondWithData(cacheTask.getCachedData(), respondingDataRequest: dataRequest) {
+				if respondWithData(cacheTask.cacheProvider.getData(), respondingDataRequest: dataRequest) {
 					loadingRequest.finishLoading()
 					return key
 				}

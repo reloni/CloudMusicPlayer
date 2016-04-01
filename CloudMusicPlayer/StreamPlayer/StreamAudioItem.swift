@@ -24,7 +24,6 @@ extension StreamAudioItem : Hashable {
 
 extension StreamAudioItem : CustomStringConvertible {
 	public var description: String {
-		//return "Uid = \(resourceIdentifier.uid)"
 		return "Uid = \(cacheItem.uid)"
 	}
 }
@@ -35,27 +34,18 @@ public class StreamAudioItem {
 	public unowned var player: StreamAudioPlayer
 	internal var observer = AVAssetResourceLoaderEventsObserver()
 	internal var assetLoader: AssetResourceLoader?
-	//internal let resourceIdentifier: StreamResourceIdentifier
 	internal let cacheItem: CacheItem
 	
 	internal init(cacheItem: CacheItem, player: StreamAudioPlayer) {
 		self.player = player
-		//self.resourceIdentifier = resourceIdentifier
 		self.cacheItem = cacheItem
 	
 		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }.flatMapLatest { _ -> Observable<CacheDataResult> in
-			//let task = resourceIdentifier.getCacheTaskForResource()
 			let task = self.cacheItem.getCacheTask()
 			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents)
 			return task
 		}.subscribe().addDisposableTo(bag)
 	}
-	
-//	internal convenience init(player: StreamAudioPlayer, urlRequest: NSMutableURLRequestProtocol) {
-//		let urlIdentifier = StreamUrlResourceIdentifier(urlRequest: urlRequest, httpClient: player.httpClient,
-//											saveCachedData: player.allowCaching, targetMimeType: "audio/mpeg")
-//		self.init(resourceIdentifier: urlIdentifier, player: player)
-//	}
 	
 	deinit {
 		print("StreamAudioItem deinit")

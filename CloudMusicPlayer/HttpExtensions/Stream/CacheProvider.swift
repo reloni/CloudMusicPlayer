@@ -9,6 +9,7 @@
 import Foundation
 
 public protocol CacheProvider {
+	var currentDataLength: UInt64 { get }
 	func appendData(data: NSData)
 	func getData() -> NSData
 	func getData(offset: Int, length: Int) -> NSData
@@ -21,6 +22,10 @@ public class MemoryCacheProvider {
 }
 
 extension MemoryCacheProvider : CacheProvider {
+	public var currentDataLength: UInt64 {
+		return UInt64(cacheData.length)
+	}
+	
 	public func appendData(data: NSData) {
 		cacheData.appendData(data)
 	}

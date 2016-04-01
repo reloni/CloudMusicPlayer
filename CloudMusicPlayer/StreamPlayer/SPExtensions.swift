@@ -9,10 +9,6 @@
 import Foundation
 import AVFoundation
 
-//public protocol StreamResourceIdentifier {
-//	var streamResourceUid: String { get }
-//}
-
 // AVAssetResourceLoadingRequestProtocol
 public protocol AVAssetResourceLoadingRequestProtocol : NSObjectProtocol {
 	func getContentInformationRequest() -> AVAssetResourceLoadingContentInformationRequestProtocol?
