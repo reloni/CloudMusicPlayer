@@ -39,10 +39,8 @@ public class HttpClient {
 		return HttpClient._instance!
 	}
 	
-	internal static func initWithInstance(instance: HttpClientProtocol? = nil,
-	                                      urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
+	internal static func initWithInstance(instance: HttpClientProtocol? = nil, urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
 																				httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
-		
 		dispatch_once(&token) {
 			_instance = instance ?? HttpClient(urlSession: urlSession, httpUtilities: httpUtilities)
 		}

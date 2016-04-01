@@ -10,7 +10,7 @@
 		6E0296D31CA27E8E007EC58E /* StreamDataCacheTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0296D21CA27E8E007EC58E /* StreamDataCacheTaskTests.swift */; };
 		6E07F0E81C9ABD34001027EA /* SPExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E07F0E71C9ABD34001027EA /* SPExtensions.swift */; };
 		6E07F0F01C9B203D001027EA /* UrlSessionStreamObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E07F0EF1C9B203D001027EA /* UrlSessionStreamObserver.swift */; };
-		6E07F0F41C9B250C001027EA /* StreamProtocolExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E07F0F31C9B250C001027EA /* StreamProtocolExtensions.swift */; };
+		6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E07F0F31C9B250C001027EA /* HttpExtensions.swift */; };
 		6E0A028F1C8A0CB500AD9B38 /* StreamAudioItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028B1C8A0CB500AD9B38 /* StreamAudioItem.swift */; };
 		6E0A02901C8A0CB500AD9B38 /* StreamAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028C1C8A0CB500AD9B38 /* StreamAudioPlayer.swift */; };
 		6E0A02911C8A0CB500AD9B38 /* StreamDataCacheTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028D1C8A0CB500AD9B38 /* StreamDataCacheTask.swift */; };
@@ -98,7 +98,7 @@
 		6E0296D21CA27E8E007EC58E /* StreamDataCacheTaskTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDataCacheTaskTests.swift; sourceTree = "<group>"; };
 		6E07F0E71C9ABD34001027EA /* SPExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SPExtensions.swift; sourceTree = "<group>"; };
 		6E07F0EF1C9B203D001027EA /* UrlSessionStreamObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UrlSessionStreamObserver.swift; sourceTree = "<group>"; };
-		6E07F0F31C9B250C001027EA /* StreamProtocolExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamProtocolExtensions.swift; sourceTree = "<group>"; };
+		6E07F0F31C9B250C001027EA /* HttpExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpExtensions.swift; sourceTree = "<group>"; };
 		6E0A028B1C8A0CB500AD9B38 /* StreamAudioItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamAudioItem.swift; sourceTree = "<group>"; };
 		6E0A028C1C8A0CB500AD9B38 /* StreamAudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamAudioPlayer.swift; sourceTree = "<group>"; };
 		6E0A028D1C8A0CB500AD9B38 /* StreamDataCacheTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDataCacheTask.swift; sourceTree = "<group>"; };
@@ -250,10 +250,10 @@
 		6E0A028A1C8A0C8B00AD9B38 /* StreamPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */,
 				6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */,
 				6E19D7081CAA785C00059662 /* PlayerQueue.swift */,
 				6E07F0E71C9ABD34001027EA /* SPExtensions.swift */,
-				6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */,
 				6EEC8F781CA0393100B30B85 /* AssetResourceLoader.swift */,
 				6E0A028B1C8A0CB500AD9B38 /* StreamAudioItem.swift */,
 				6E0A028C1C8A0CB500AD9B38 /* StreamAudioPlayer.swift */,
@@ -372,7 +372,7 @@
 			isa = PBXGroup;
 			children = (
 				6E07F0F51C9B2669001027EA /* Stream */,
-				6E07F0F31C9B250C001027EA /* StreamProtocolExtensions.swift */,
+				6E07F0F31C9B250C001027EA /* HttpExtensions.swift */,
 				6EE0CCC51C96CAA4002F4D9D /* HttpClient.swift */,
 				6EECECCF1C97EE54007B37CC /* HttpUtilities.swift */,
 			);
@@ -651,7 +651,7 @@
 				6EEB98A71C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld in Sources */,
 				6E11835A1C7EF48400E71CC5 /* CloudResourceProtocols.swift in Sources */,
 				6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */,
-				6E07F0F41C9B250C001027EA /* StreamProtocolExtensions.swift in Sources */,
+				6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */,
 				6EEB989F1C4EBE1700DD5B95 /* AppDelegate.swift in Sources */,
 				6E6DDE491C8DC455001AE510 /* CMTime.swift in Sources */,
 				6E31A89A1C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift in Sources */,

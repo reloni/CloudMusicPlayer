@@ -236,9 +236,11 @@ class PlayerQueueTests: XCTestCase {
 	
 	func testRemoveItem() {
 		let queue = PlayerQueue(items: audioItems)
-		queue.remove(audioItems[1])
+		let itemToRemove = PlayerQueueItem(queue: queue, playerItem: audioItems[1])
+		queue.remove(itemToRemove)
 		XCTAssertEqual(3, queue.count)
 		XCTAssertEqual(0, queue.currentItems.filter { $0.streamItem == audioItems[1] }.count)
+		XCTAssertFalse(itemToRemove.inQueue)
 	}
 	
 	func testNotRemoveItemThatNotExistsInQueue() {

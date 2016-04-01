@@ -37,11 +37,6 @@ public class PlayerQueue {
 		self.init(repeatQueue: repeatQueue)
 		
 		initWithNewItems(items, shuffle: shuffle)
-//		if shuffle {
-//			itemsSet.addObjectsFromArray(items.shuffle())
-//		} else {
-//			itemsSet.addObjectsFromArray(items)
-//		}
 	}
 	
 	public func initWithNewItems(items: [StreamAudioItem], shuffle: Bool = false) {
