@@ -17,7 +17,7 @@ public class PlayerCache {
 		self.httpClient = httpClient
 	}
 	
-	public func getCacheItem(identifier: StreamResourceIdentifier, customHttpHeaders: [String: String]? = nil, targetContentType: AudioFormat? = nil) -> CacheItem? {
+	public func getCacheItem(identifier: StreamResourceIdentifier, customHttpHeaders: [String: String]? = nil, targetContentType: ContentType? = nil) -> CacheItem? {
 		guard let url = identifier.streamResourceUrl, urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
 			return nil
 		}
@@ -27,7 +27,7 @@ public class PlayerCache {
 
 public protocol CacheItem {
 	var uid: String { get }
-	var targetContentType: AudioFormat? { get }
+	var targetContentType: ContentType? { get }
 	func getLoadTask() -> Observable<StreamTaskEvents>
 }
 
@@ -36,11 +36,11 @@ public class UrlCacheItem : CacheItem {
 	internal let httpClient: HttpClientProtocol
 	internal let saveCachedData: Bool
 	//internal let targetMimeType: String?
-	public let targetContentType: AudioFormat?
+	public let targetContentType: ContentType?
 	public let uid: String
 	
 	public init(identifier: StreamResourceIdentifier, urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol = HttpClient.instance,
-	            saveCachedData: Bool = true, targetContentType: AudioFormat? = nil) {
+	            saveCachedData: Bool = true, targetContentType: ContentType? = nil) {
 		self.urlRequest = urlRequest
 		self.httpClient = httpClient
 		self.saveCachedData = saveCachedData
@@ -49,7 +49,7 @@ public class UrlCacheItem : CacheItem {
 	}
 	
 	public convenience init(urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol = HttpClient.instance,
-	                        saveCachedData: Bool = true, targetContentType: AudioFormat? = nil) {
+	                        saveCachedData: Bool = true, targetContentType: ContentType? = nil) {
 		self.init(identifier: urlRequest.URL?.absoluteString.streamResourceUid ?? NSUUID().UUIDString, urlRequest: urlRequest, httpClient: httpClient,
 		          saveCachedData: saveCachedData, targetContentType: targetContentType)
 	}

@@ -22,9 +22,9 @@ public struct DataTypeDefinition {
 	}
 }
 
-public enum AudioFormat: String {
-	case mp3 = "mp3"
-	case aac = "aac"
+public enum ContentType: String {
+	case mp3 = "audio/mpeg"
+	case aac = "audio/aac"
 	public var definition: DataTypeDefinition {
 		switch self {
 		case .mp3:
@@ -61,14 +61,14 @@ extension AssetResourceLoader : AssetResourceLoaderProtocol {
 
 public class AssetResourceLoader {
 	internal var response: NSHTTPURLResponseProtocol?
-	internal var targetAudioFormat: AudioFormat?
+	internal var targetAudioFormat: ContentType?
 	
 	private var scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	private let bag = DisposeBag()
 	private var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
 	
 	public init(cacheTask: Observable<StreamTaskEvents>, assetLoaderEvents: Observable<AssetLoadingEvents>,
-	            targetAudioFormat: AudioFormat? = nil) {
+	            targetAudioFormat: ContentType? = nil) {
 		self.targetAudioFormat = targetAudioFormat
 		
 		assetLoaderEvents.observeOn(scheduler).bindNext { [weak self]result in
@@ -114,7 +114,7 @@ public class AssetResourceLoader {
 			if let contentInformationRequest = loadingRequest.getContentInformationRequest(), response = response {
 				contentInformationRequest.byteRangeAccessSupported = true
 				contentInformationRequest.contentLength = response.expectedContentLength
-				contentInformationRequest.contentType = self.targetAudioFormat?.definition.UTI ?? AudioFormat.getUtiFromMime(response.getMimeType())
+				contentInformationRequest.contentType = self.targetAudioFormat?.definition.UTI ?? ContentType.getUtiFromMime(response.getMimeType())
 			}
 			
 			if let dataRequest = loadingRequest.getDataRequest() {

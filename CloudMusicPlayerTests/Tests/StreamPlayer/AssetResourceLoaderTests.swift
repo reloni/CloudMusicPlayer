@@ -20,6 +20,8 @@ class AssetResourceLoaderTests: XCTestCase {
 	var avAssetObserver: AVAssetResourceLoaderEventsObserver!
 	var cacheTask: StreamDataTask!
 	
+	let sleepInterval = 0.02
+	
 	override func setUp() {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
@@ -58,7 +60,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(0.01)
+		NSThread.sleepForTimeInterval(sleepInterval)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -74,7 +76,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(0.01)
+		NSThread.sleepForTimeInterval(sleepInterval)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -93,7 +95,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		avAssetObserver.publishSubject.onNext(.DidCancelLoading(assetRequest1))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(0.01)
+		NSThread.sleepForTimeInterval(sleepInterval)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest2.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -148,7 +150,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		// should wait untill background schediler perform tasks in another thread (caching not complete at this time)
-		NSThread.sleepForTimeInterval(0.01)
+		NSThread.sleepForTimeInterval(sleepInterval)
 
 		XCTAssertTrue(sendedData.isEqualToData(dataRequest.respondedData), "Check correct data sended to dataRequest")
 		XCTAssertEqual(0, loader.currentLoadingRequests.count, " Check remove loading request from collection of pending requests")
@@ -217,7 +219,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		// should wait untill background schediler perform tasks in another thread (caching not complete at this time)
-		NSThread.sleepForTimeInterval(0.01)
+		NSThread.sleepForTimeInterval(sleepInterval)
 		
 		XCTAssertTrue(sendedData.subdataWithRange(NSMakeRange(0, 11)).isEqualToData(dataRequest1.respondedData), "Check half of data sended to first dataRequest")
 		XCTAssertTrue(sendedData.subdataWithRange(NSMakeRange(11, 11)).isEqualToData(dataRequest2.respondedData), "Check second half of data sended to secondRequest")

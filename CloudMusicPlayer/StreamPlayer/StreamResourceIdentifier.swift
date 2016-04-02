@@ -12,6 +12,7 @@ import RxSwift
 public protocol StreamResourceIdentifier {
 	var streamResourceUid: String { get }
 	var streamResourceUrl: String? { get }
+	var streamResourceContentType: ContentType? { get }
 }
 extension String : StreamResourceIdentifier {
 	public var streamResourceUid: String {
@@ -19,6 +20,9 @@ extension String : StreamResourceIdentifier {
 	}
 	public var streamResourceUrl: String? {
 		return self
+	}
+	public var streamResourceContentType: ContentType? {
+		return nil
 	}
 }
 extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
@@ -40,5 +44,10 @@ extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
 		dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, Int64(2 * NSEC_PER_SEC)))
 		disposable?.dispose()
 		return url
+	}
+	
+	public var streamResourceContentType: ContentType? {
+		guard let mime = mimeType, type = ContentType(rawValue: mime) else { return nil }
+		return type
 	}
 }

@@ -53,7 +53,7 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 public class FakeCacheItem : CacheItem {
 	public var uid: String
 	public var task: StreamDataTaskProtocol?
-	public var targetContentType: AudioFormat?
+	public var targetContentType: ContentType?
 //	public func getCacheTask() -> Observable<CacheDataResult> {
 //		return task!.taskProgress
 //	}
