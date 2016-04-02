@@ -20,7 +20,7 @@ class AssetResourceLoaderTests: XCTestCase {
 	var avAssetObserver: AVAssetResourceLoaderEventsObserver!
 	var cacheTask: StreamDataTask!
 	
-	let sleepInterval = 0.02
+	//let sleepInterval = 0.02
 	
 	override func setUp() {
 		super.setUp()
@@ -56,11 +56,12 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetRequest = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
 			dataRequest: FakeAVAssetResourceLoadingDataRequest())
 		
-		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
+		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
 		self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(sleepInterval)
+		//NSThread.sleepForTimeInterval(sleepInterval)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -70,13 +71,14 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetRequest = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
 			dataRequest: FakeAVAssetResourceLoadingDataRequest())
 		
-		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
+		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(sleepInterval)
+		//NSThread.sleepForTimeInterval(sleepInterval)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -88,14 +90,15 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetRequest2 = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
 			dataRequest: FakeAVAssetResourceLoadingDataRequest())
 		
-		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
+		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest2))
 		avAssetObserver.publishSubject.onNext(.DidCancelLoading(assetRequest1))
 		
 		// should wait untill background schediler perform tasks in another thread
-		NSThread.sleepForTimeInterval(sleepInterval)
+		//NSThread.sleepForTimeInterval(sleepInterval)
 		
 		XCTAssertEqual(1, assetLoader.currentLoadingRequests.count)
 		XCTAssertEqual(assetRequest2.hash, assetLoader.currentLoadingRequests.first?.hash)
@@ -143,17 +146,18 @@ class AssetResourceLoaderTests: XCTestCase {
 			}
 		}.addDisposableTo(bag)
 		
-		let loader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
+		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
 		cacheTask.resume()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		// should wait untill background schediler perform tasks in another thread (caching not complete at this time)
-		NSThread.sleepForTimeInterval(sleepInterval)
+		//NSThread.sleepForTimeInterval(sleepInterval)
 
 		XCTAssertTrue(sendedData.isEqualToData(dataRequest.respondedData), "Check correct data sended to dataRequest")
-		XCTAssertEqual(0, loader.currentLoadingRequests.count, " Check remove loading request from collection of pending requests")
+		XCTAssertEqual(0, assetLoader.currentLoadingRequests.count, " Check remove loading request from collection of pending requests")
 		XCTAssertTrue(assetRequest.isLoadingFinished, "Check loading request if finished")
 		XCTAssertTrue(contentRequest.byteRangeAccessSupported, "Should set byteRangeAccessSupported to true")
 		XCTAssertEqual(contentRequest.contentLength, Int64(dataRequest.requestedLength), "Check correct content length")
@@ -211,7 +215,8 @@ class AssetResourceLoaderTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		let loader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents)
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
+		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest2))
 		
@@ -219,11 +224,11 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		// should wait untill background schediler perform tasks in another thread (caching not complete at this time)
-		NSThread.sleepForTimeInterval(sleepInterval)
+		//NSThread.sleepForTimeInterval(sleepInterval)
 		
 		XCTAssertTrue(sendedData.subdataWithRange(NSMakeRange(0, 11)).isEqualToData(dataRequest1.respondedData), "Check half of data sended to first dataRequest")
 		XCTAssertTrue(sendedData.subdataWithRange(NSMakeRange(11, 11)).isEqualToData(dataRequest2.respondedData), "Check second half of data sended to secondRequest")
-		XCTAssertEqual(0, loader.currentLoadingRequests.count, "Check remove loading request from collection of pending requests")
+		XCTAssertEqual(0, assetLoader.currentLoadingRequests.count, "Check remove loading request from collection of pending requests")
 		
 		XCTAssertTrue(assetRequest1.isLoadingFinished, "Check loading first request if finished")
 		XCTAssertTrue(contentRequest1.byteRangeAccessSupported, "Should set first request byteRangeAccessSupported to true")

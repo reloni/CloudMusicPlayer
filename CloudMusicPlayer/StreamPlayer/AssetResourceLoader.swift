@@ -63,15 +63,15 @@ public class AssetResourceLoader {
 	internal var response: NSHTTPURLResponseProtocol?
 	internal var targetAudioFormat: ContentType?
 	
-	private var scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
+	//private var scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	private let bag = DisposeBag()
 	private var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
 	
-	public init(cacheTask: Observable<StreamTaskEvents>, assetLoaderEvents: Observable<AssetLoadingEvents>,
+	private init(taskEvents cacheTask: Observable<StreamTaskEvents>, assetEvents assetLoaderEvents: Observable<AssetLoadingEvents>,
 	            targetAudioFormat: ContentType? = nil) {
 		self.targetAudioFormat = targetAudioFormat
 		
-		assetLoaderEvents.observeOn(scheduler).bindNext { [weak self]result in
+		assetLoaderEvents.bindNext { [weak self]result in
 			switch result {
 			case .DidCancelLoading(let loadingRequest):
 				self?.resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
@@ -81,7 +81,7 @@ public class AssetResourceLoader {
 			}
 		}.addDisposableTo(bag)
 		
-		cacheTask.observeOn(scheduler).bindNext { [weak self] result in
+		cacheTask.bindNext { [weak self] result in
 			switch result {
 			case .Success(let cacheProvider) where cacheProvider != nil: self?.processRequests(cacheProvider!)
 			case .ReceiveResponse(let response): self?.response = response
@@ -103,6 +103,24 @@ public class AssetResourceLoader {
 //				self?.response = resp
 //			}
 		}.addDisposableTo(bag)
+	}
+	
+	///Create new instance of AssetResourceLoader
+	/// cacheTask: Observable if events object that perform data loading
+	/// assetLoaderEvents: Observable of events that perform AVAssetResourceLoader
+	/// targetAudioFormat: Format of data that will be streamed
+	/// createSchedulerForObserving: If true - new SerialDispatchQueueScheduler will be created to observe
+	/// events from cacheTask and assetLoader, otherwise observation will be performed in the same thread
+	internal convenience init(cacheTask: Observable<StreamTaskEvents>, assetLoaderEvents: Observable<AssetLoadingEvents>,
+														targetAudioFormat: ContentType? = nil, createSchedulerForObserving: Bool = true) {
+		if createSchedulerForObserving {
+			let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
+			self.init(taskEvents: cacheTask.observeOn(scheduler), assetEvents: assetLoaderEvents.observeOn(scheduler),
+			          targetAudioFormat: targetAudioFormat)
+		} else {
+			self.init(taskEvents: cacheTask, assetEvents: assetLoaderEvents,
+			          targetAudioFormat: targetAudioFormat)
+		}
 	}
 	
 	deinit {
