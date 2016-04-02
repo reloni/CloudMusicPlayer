@@ -55,12 +55,12 @@ class CloudResourcesStructureController: UIViewController {
 	
 	func play(track: CloudAudioResource) {
 		if let identifier = track as? StreamResourceIdentifier {
-			streamPlayer.playUrl(identifier, customHttpHeaders: track.getRequestHeaders(), resourceMimeType: "audio/mpeg")
+			streamPlayer.playUrl(identifier, customHttpHeaders: track.getRequestHeaders(), audioFormat: AudioFormat.mp3)
 		} else {
 			track.downloadUrl?.bindNext { result in
 				guard let url = result else { return }
 				//streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
-				streamPlayer.playUrl(url, customHttpHeaders: track.getRequestHeaders(), resourceMimeType: "audio/mpeg")
+				streamPlayer.playUrl(url, customHttpHeaders: track.getRequestHeaders(), audioFormat: AudioFormat.mp3)
 				}.addDisposableTo(bag!)
 		}
 	}

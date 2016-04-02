@@ -72,25 +72,38 @@ class HttpUtilitiesTest: XCTestCase {
 		XCTAssertNotNil(HttpUtilities().createUrlSessionStreamObserver())
 	}
 	
-	func testCreateStreamDataTask() {
+	func testCreateStreamDataTaskWithoutCacheProvider() {
 		let utilities = HttpUtilities()
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
-		let task = utilities.createStreamDataTask(request, sessionConfiguration: config)
+		let task = utilities.createStreamDataTask(request, sessionConfiguration: config, cacheProvider: nil)
 		XCTAssertEqual(task.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
-		XCTAssertTrue(task.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
+		XCTAssertTrue((task as? StreamDataTask)?.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
 		XCTAssertEqual(task.sessionConfiguration, config, "Check correct sessionConfig was passed")
+		XCTAssertNil(task.cacheProvider)
 	}
 	
-	func testCreateDataCacheTask() {
+	func testCreateStreamDataTaskWithSpecifiedCacheProvider() {
 		let utilities = HttpUtilities()
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
-		let task = utilities.createCacheDataTask(request, sessionConfiguration: config, saveCachedData: true, targetMimeType: "audio/aac")
-		XCTAssertEqual(task.fileExtension, "aac", "Check correct file extension")
-		XCTAssertEqual(task.mimeType, "public.aac-audio", "Check correct mime type")
-		XCTAssertEqual(task.streamDataTask.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
-		XCTAssertTrue(task.streamDataTask.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
-		XCTAssertEqual(task.streamDataTask.sessionConfiguration, config, "Check correct sessionConfig was passed")
+		let cacheProvider = MemoryCacheProvider()
+		let task = utilities.createStreamDataTask(request, sessionConfiguration: config, cacheProvider: cacheProvider)
+		XCTAssertEqual(task.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
+		XCTAssertTrue((task as? StreamDataTask)?.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
+		XCTAssertEqual(task.sessionConfiguration, config, "Check correct sessionConfig was passed")
+		XCTAssertTrue(task.cacheProvider as? MemoryCacheProvider === cacheProvider)
 	}
+	
+//	func testCreateDataCacheTask() {
+//		let utilities = HttpUtilities()
+//		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+//		config.HTTPCookieAcceptPolicy = .Always
+//		let task = utilities.createCacheDataTask(request, sessionConfiguration: config, saveCachedData: true, targetMimeType: "audio/aac")
+//		XCTAssertEqual(task.fileExtension, "aac", "Check correct file extension")
+//		XCTAssertEqual(task.mimeType, "public.aac-audio", "Check correct mime type")
+//		XCTAssertEqual(task.streamDataTask.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
+//		XCTAssertTrue(task.streamDataTask.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
+//		XCTAssertEqual(task.streamDataTask.sessionConfiguration, config, "Check correct sessionConfig was passed")
+//	}
 }

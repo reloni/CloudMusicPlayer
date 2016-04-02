@@ -39,10 +39,10 @@ public class StreamAudioItem {
 	internal init(cacheItem: CacheItem, player: StreamAudioPlayer) {
 		self.player = player
 		self.cacheItem = cacheItem
-	
-		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }.flatMapLatest { _ -> Observable<CacheDataResult> in
-			let task = self.cacheItem.getCacheTask()
-			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents)
+
+		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }.flatMapLatest { _ -> Observable<StreamTaskEvents> in
+			let task = self.cacheItem.getLoadTask()
+			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents, targetAudioFormat: cacheItem.targetContentType)
 			return task
 		}.subscribe().addDisposableTo(bag)
 	}

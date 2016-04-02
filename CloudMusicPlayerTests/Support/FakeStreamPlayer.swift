@@ -52,11 +52,15 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 
 public class FakeCacheItem : CacheItem {
 	public var uid: String
-	public var task: StreamDataCacheTaskProtocol?
-	public func getCacheTask() -> Observable<CacheDataResult> {
+	public var task: StreamDataTaskProtocol?
+	public var targetContentType: AudioFormat?
+//	public func getCacheTask() -> Observable<CacheDataResult> {
+//		return task!.taskProgress
+//	}
+	public func getLoadTask() -> Observable<StreamTaskEvents> {
 		return task!.taskProgress
 	}
-	public init(uid: String, task: StreamDataCacheTaskProtocol?) {
+	public init(uid: String, task: StreamDataTaskProtocol?) {
 		self.uid = uid
 		self.task = task
 	}

@@ -32,10 +32,10 @@ public class StreamAudioPlayer {
 		cache = PlayerCache(saveCachedData: saveCachedData, httpClient: httpClient)
 	}
 	
-	public func playUrl(url: StreamResourceIdentifier, customHttpHeaders: [String: String]? = nil, resourceMimeType: String? = nil) {
+	public func playUrl(url: StreamResourceIdentifier, customHttpHeaders: [String: String]? = nil, audioFormat: AudioFormat? = nil) {
 		stop()
 
-		guard let cacheItem = cache.getCacheItem(url, customHttpHeaders: customHttpHeaders, resourceMimeType: resourceMimeType) else { return }
+		guard let cacheItem = cache.getCacheItem(url, customHttpHeaders: customHttpHeaders, targetContentType: audioFormat) else { return }
 		let streamItem = utilities.createStreamAudioItem(self, cacheItem: cacheItem)
 		
 		queue.initWithNewItems([streamItem])
