@@ -86,6 +86,7 @@ public class StreamDataTask {
 				case .ReceiveResponce(let response):
 					self.response = response
 					self.cacheProvider?.expectedDataLength = response.expectedContentLength
+					self.cacheProvider?.contentMimeType = response.MIMEType
 					return StreamTaskEvents.ReceiveResponse(response)
 				case .Error(let error): return StreamTaskEvents.Error(error)
 				case .Success: return StreamTaskEvents.Success(cache: self.cacheProvider)
