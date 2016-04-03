@@ -40,6 +40,8 @@ public class PlayerQueue {
 	}
 	
 	public func initWithNewItems(items: [StreamAudioItem], shuffle: Bool = false) {
+		itemsSet.removeAllObjects()
+		current = nil
 		if shuffle {
 			itemsSet.addObjectsFromArray(items.shuffle())
 		} else {
@@ -149,6 +151,10 @@ public class PlayerQueueItem {
 	public init(queue: PlayerQueue, playerItem: StreamAudioItem) {
 		self.queue = queue
 		self.streamItem = playerItem
+	}
+	
+	deinit {
+		print("PlayerQueueItem deinit")
 	}
 }
 

@@ -76,7 +76,7 @@ class HttpUtilitiesTests: XCTestCase {
 		let utilities = HttpUtilities()
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
-		let task = utilities.createStreamDataTask(request, sessionConfiguration: config, cacheProvider: nil)
+		let task = utilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: config, cacheProvider: nil)
 		XCTAssertEqual(task.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
 		XCTAssertTrue((task as? StreamDataTask)?.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
 		XCTAssertEqual(task.sessionConfiguration, config, "Check correct sessionConfig was passed")
@@ -88,7 +88,7 @@ class HttpUtilitiesTests: XCTestCase {
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
 		let cacheProvider = MemoryCacheProvider()
-		let task = utilities.createStreamDataTask(request, sessionConfiguration: config, cacheProvider: cacheProvider)
+		let task = utilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: config, cacheProvider: cacheProvider)
 		XCTAssertEqual(task.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
 		XCTAssertTrue((task as? StreamDataTask)?.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
 		XCTAssertEqual(task.sessionConfiguration, config, "Check correct sessionConfig was passed")

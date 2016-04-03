@@ -148,7 +148,7 @@ class StreamDataTaskTests: XCTestCase {
 	func testCreateCorrectTask() {
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
-		let task = StreamDataTask(request: request, httpUtilities: utilities, sessionConfiguration: config, cacheProvider: nil)
+		let task = StreamDataTask(taskUid: NSUUID().UUIDString, request: request, httpUtilities: utilities, sessionConfiguration: config, cacheProvider: nil)
 		XCTAssertEqual(task.sessionConfiguration, config)
 		XCTAssertTrue(task.dataTask.getOriginalMutableUrlRequest() as? FakeRequest === request)
 		XCTAssertNil(task.cacheProvider, "Cache provider should not be specified")

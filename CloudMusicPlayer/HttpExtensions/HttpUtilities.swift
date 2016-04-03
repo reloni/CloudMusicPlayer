@@ -14,7 +14,7 @@ public protocol HttpUtilitiesProtocol {
 	func createUrlRequest(url: NSURL, headers: [String: String]?) -> NSMutableURLRequestProtocol
 	func createUrlSession(configuration: NSURLSessionConfiguration, delegate: NSURLSessionDelegate?, queue: NSOperationQueue?) -> NSURLSessionProtocol
 	func createUrlSessionStreamObserver() -> UrlSessionStreamObserverProtocol
-	func createStreamDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, cacheProvider: CacheProvider?) -> StreamDataTaskProtocol
+	func createStreamDataTask(taskUid: String, request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, cacheProvider: CacheProvider?) -> StreamDataTaskProtocol
 	//func createCacheDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, saveCachedData: Bool, targetMimeType: String?) -> StreamDataCacheTaskProtocol
 }
 
@@ -69,9 +69,9 @@ extension HttpUtilities : HttpUtilitiesProtocol {
 		return UrlSessionStreamObserver()
 	}
 	
-	public func createStreamDataTask(request: NSMutableURLRequestProtocol,
+	public func createStreamDataTask(taskUid: String, request: NSMutableURLRequestProtocol,
 	                                 sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration(), cacheProvider: CacheProvider?) -> StreamDataTaskProtocol {
-		return StreamDataTask(request: request, httpUtilities: self, sessionConfiguration: sessionConfiguration, cacheProvider: cacheProvider)
+		return StreamDataTask(taskUid: taskUid, request: request, httpUtilities: self, sessionConfiguration: sessionConfiguration, cacheProvider: cacheProvider)
 	}
 //	
 //	public func createCacheDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, saveCachedData: Bool, targetMimeType: String?) -> StreamDataCacheTaskProtocol {

@@ -110,7 +110,7 @@ extension HttpClient : HttpClientProtocol {
 	public func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?)
 		-> Observable<StreamTaskEvents> {
 		return Observable.create { [unowned self] observer in
-			let task = self.httpUtilities.createStreamDataTask(request, sessionConfiguration: self.urlSession.configuration, cacheProvider: cacheProvider)
+			let task = self.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: self.urlSession.configuration, cacheProvider: cacheProvider)
 				
 			let disposable = task.taskProgress.bindNext { result in
 				observer.onNext(result)

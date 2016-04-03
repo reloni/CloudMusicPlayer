@@ -62,14 +62,21 @@ public class StreamDataTask {
 		return self.httpUtilities.createUrlSession(self.sessionConfiguration, delegate: self.observer as? NSURLSessionDelegate, queue: nil)
 		}()
 	
-	public init(request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
+	public init(taskUid: String, request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
 	            sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration(), cacheProvider: CacheProvider?) {
 		self.request = request
 		self.httpUtilities = httpUtilities
 		self.sessionConfiguration = sessionConfiguration
 		self.cacheProvider = cacheProvider
-		uid = NSUUID().UUIDString
+		uid = taskUid
 	}
+	
+//	public convenience init(request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
+//	                        sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration(), cacheProvider: CacheProvider?) {
+//		//init(taskUid: NSUUID().UUIDString, request: request, httpUtilities: HttpUtilities, sessionConfiguration: sessionConfiguration,
+//		//	cacheProvider: cacheProvider)
+//		self.init(taskUid: NSUUID().UUIDString, request: request, httpUtilities: httpUtilities, sessionConfiguration: sessionConfiguration, cacheProvider: cacheProvider)
+//	}
 	
 	public lazy var taskProgress: Observable<StreamTaskEvents> = { [unowned self] in
 		return self.observer.sessionProgress.map { result in
