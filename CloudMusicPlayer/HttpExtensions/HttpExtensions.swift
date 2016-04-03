@@ -13,9 +13,14 @@ import Foundation
 public protocol NSHTTPURLResponseProtocol {
 	var expectedContentLength: Int64 { get }
 	var MIMEType: String? { get }
+	func getMimeType() -> String
 }
 extension NSHTTPURLResponse : NSHTTPURLResponseProtocol { }
-
+extension NSHTTPURLResponseProtocol {
+	public func getMimeType() -> String {
+		return MIMEType ?? ""
+	}
+}
 
 // NSURLResponse
 public protocol NSURLResponseProtocol { }

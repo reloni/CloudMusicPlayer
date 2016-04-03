@@ -45,7 +45,7 @@ class StreamDataTaskTests: XCTestCase {
 	
 	func testReceiveCorrectData() {
 		let testData = ["First", "Second", "Third", "Fourth"]
-		var dataSended:UInt64 = 0
+		let dataSended = NSMutableData()
 		
 		let expectation = expectationWithDescription("Should return correct data and invalidate session")
 		
@@ -55,7 +55,8 @@ class StreamDataTaskTests: XCTestCase {
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					for i in 0...testData.count - 1 {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
-						dataSended += UInt64(sendData.length)
+						//dataSended += UInt64(sendData.length)
+						dataSended.appendData(sendData)
 						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
 						// simulate delay
 						NSThread.sleepForTimeInterval(0.01)
@@ -75,13 +76,16 @@ class StreamDataTaskTests: XCTestCase {
 		}.addDisposableTo(bag)
 		
 		var receiveCounter = 0
-		
-		httpClient.loadStreamData(request, sessionConfiguration: .defaultSessionConfiguration()).bindNext { result in
-			if case .StreamedData(let data) = result {
-				XCTAssertEqual(String(data: data, encoding: NSUTF8StringEncoding), testData[receiveCounter], "Check correct chunk of data received")
+		let dataReceived = NSMutableData()
+		httpClient.loadStreamData(request, cacheProvider: nil).bindNext { result in
+			if case .ReceiveData(let dataChunk) = result {
+				XCTAssertEqual(String(data: dataChunk, encoding: NSUTF8StringEncoding), testData[receiveCounter], "Check correct chunk of data received")
+				dataReceived.appendData(dataChunk)
 				receiveCounter += 1
-			} else if case .Success(let dataReceived) = result {
-				XCTAssertEqual(dataReceived, dataSended, "Should receive correct amount of data")
+			} else if case .Success(let cacheProvider) = result {
+				//XCTAssertEqual(dataReceived, dataSended, "Should receive correct amount of data")
+				XCTAssertNil(cacheProvider, "Cache provider should be nil")
+				XCTAssertTrue(dataReceived.isEqualToData(dataSended), "Received data should be equal to sended data")
 				XCTAssertEqual(receiveCounter, testData.count, "Should receive correct amount of data chuncks")
 			}
 		}.addDisposableTo(bag)
@@ -102,7 +106,7 @@ class StreamDataTaskTests: XCTestCase {
 		}.addDisposableTo(bag)
 
 		let expectation = expectationWithDescription("Should return NSError")
-		httpClient.loadStreamData(request, sessionConfiguration: .defaultSessionConfiguration()).bindNext { result in
+		httpClient.loadStreamData(request, cacheProvider: nil).bindNext { result in
 			if case .Error(let error) = result where error.code == 1 {
 				expectation.fulfill()
 			}
@@ -130,8 +134,8 @@ class StreamDataTaskTests: XCTestCase {
 			}.addDisposableTo(bag)
 		
 		let expectation = expectationWithDescription("Should return correct response")
-		httpClient.loadStreamData(request, sessionConfiguration: .defaultSessionConfiguration()).bindNext { result in
-			if case .StreamedResponse(let response) = result {
+		httpClient.loadStreamData(request, cacheProvider: nil).bindNext { result in
+			if case .ReceiveResponse(let response) = result {
 				XCTAssertEqual(response.expectedContentLength, fakeResponse.expectedContentLength)
 				expectation.fulfill()
 			}
@@ -144,8 +148,9 @@ class StreamDataTaskTests: XCTestCase {
 	func testCreateCorrectTask() {
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
-		let task = StreamDataTask(request: request, httpUtilities: utilities, sessionConfiguration: config)
+		let task = StreamDataTask(taskUid: NSUUID().UUIDString, request: request, httpUtilities: utilities, sessionConfiguration: config, cacheProvider: nil)
 		XCTAssertEqual(task.sessionConfiguration, config)
 		XCTAssertTrue(task.dataTask.getOriginalMutableUrlRequest() as? FakeRequest === request)
+		XCTAssertNil(task.cacheProvider, "Cache provider should not be specified")
 	}
 }

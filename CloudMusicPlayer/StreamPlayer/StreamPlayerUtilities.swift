@@ -13,9 +13,7 @@ internal protocol StreamPlayerUtilitiesProtocol {
 	func createAVPlayer(streamItem: StreamAudioItem) -> AVPlayer?
 	func createavUrlAsset(url: NSURL) -> AVURLAssetProtocol
 	func createavPlayerItem(asset: AVURLAssetProtocol) -> AVPlayerItemProtocol
-	func createStreamAudioItem(player: StreamAudioPlayer, streamResourceIdentifier: StreamResourceIdentifier) -> StreamAudioItem
-	func createStreamResourceIdentifier(urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol,
-	                                    saveCachedData: Bool, targetMimeType: String?) -> StreamResourceIdentifier
+	func createStreamAudioItem(player: StreamAudioPlayer, cacheItem: CacheItem) -> StreamAudioItem
 }
 
 internal class StreamPlayerUtilities {
@@ -50,13 +48,7 @@ extension StreamPlayerUtilities: StreamPlayerUtilitiesProtocol {
 		return AVPlayerItem(asset: asset as! AVURLAsset)
 	}
 	
-	internal func createStreamAudioItem(player: StreamAudioPlayer, streamResourceIdentifier: StreamResourceIdentifier) -> StreamAudioItem {
-		return StreamAudioItem(resourceIdentifier: streamResourceIdentifier, player: player)
-	}
-	
-	internal func createStreamResourceIdentifier(urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol,
-																						saveCachedData: Bool, targetMimeType: String?) -> StreamResourceIdentifier {
-		return StreamUrlResourceIdentifier(urlRequest: urlRequest, httpClient: httpClient, sessionConfiguration: httpClient.urlSession.configuration,
-		                                   saveCachedData: saveCachedData, targetMimeType: targetMimeType)
+	internal func createStreamAudioItem(player: StreamAudioPlayer, cacheItem: CacheItem) -> StreamAudioItem {
+		return StreamAudioItem(cacheItem: cacheItem, player: player)
 	}
 }

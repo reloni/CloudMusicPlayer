@@ -21,10 +21,10 @@ class PlayerQueueTests: XCTestCase {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
 		player = StreamAudioPlayer()
-		audioItems = [StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake one", task: nil), player: player),
-		             StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake two", task: nil), player: player),
-		             StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake three", task: nil), player: player),
-		             StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake four", task: nil), player: player)]
+		audioItems = [StreamAudioItem(cacheItem: FakeCacheItem(resourceIdeitifier: "fake one", task: nil), player: player),
+		             StreamAudioItem(cacheItem: FakeCacheItem(resourceIdeitifier: "fake two", task: nil), player: player),
+		             StreamAudioItem(cacheItem: FakeCacheItem(resourceIdeitifier: "fake three", task: nil), player: player),
+		             StreamAudioItem(cacheItem: FakeCacheItem(resourceIdeitifier: "fake four", task: nil), player: player)]
 	}
 	
 	override func tearDown() {
@@ -68,6 +68,22 @@ class PlayerQueueTests: XCTestCase {
 		let queue = PlayerQueue(items: audioItems)
 		queue.shuffle()
 		XCTAssertNotEqual(audioItems, queue.currentItems.map { $0.streamItem }, "Queue should be shuffled")
+	}
+	
+	func testInitWithNewItems() {
+		let queue = PlayerQueue(items: audioItems)
+		let newItems = [audioItems[0], audioItems[1]]
+		queue.initWithNewItems(newItems)
+		XCTAssertEqual(newItems, queue.currentItems.map { $0.streamItem }, "Queue should have correct two items")
+	}
+	
+	func testResetCurrentItemAfterInitWithNewItems() {
+		let queue = PlayerQueue(items: audioItems)
+		queue.toNext()
+		let newItems = [audioItems[0], audioItems[1]]
+		queue.initWithNewItems(newItems)
+		XCTAssertNil(queue.current)
+		//XCTAssertEqual(newItems, queue.currentItems.map { $0.streamItem }, "Queue should have correct two items")
 	}
 	
 	func testAddItemsToQueue() {
@@ -236,15 +252,17 @@ class PlayerQueueTests: XCTestCase {
 	
 	func testRemoveItem() {
 		let queue = PlayerQueue(items: audioItems)
-		queue.remove(audioItems[1])
+		let itemToRemove = PlayerQueueItem(queue: queue, playerItem: audioItems[1])
+		queue.remove(itemToRemove)
 		XCTAssertEqual(3, queue.count)
 		XCTAssertEqual(0, queue.currentItems.filter { $0.streamItem == audioItems[1] }.count)
+		XCTAssertFalse(itemToRemove.inQueue)
 	}
 	
 	func testNotRemoveItemThatNotExistsInQueue() {
 		let queue = PlayerQueue(items: audioItems)
 		let notExisted = PlayerQueueItem(queue: queue,
-										playerItem: StreamAudioItem(resourceIdentifier: FakeResourceIdentifier(uid: "fake five", task: nil), player: player))
+										playerItem: StreamAudioItem(cacheItem: FakeCacheItem(resourceIdeitifier: "fake five", task: nil), player: player))
 		queue.remove(notExisted)
 		XCTAssertEqual(4, queue.count)
 	}

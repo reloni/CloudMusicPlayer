@@ -1,42 +1,53 @@
-//
-//  StreamResourceIdentifier.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 29.03.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
+////
+////  StreamResourceIdentifier.swift
+////  CloudMusicPlayer
+////
+////  Created by Anton Efimenko on 29.03.16.
+////  Copyright © 2016 Anton Efimenko. All rights reserved.
+////
 
 import Foundation
 import RxSwift
 
 public protocol StreamResourceIdentifier {
-	var uid: String { get }
-	func getCacheTaskForResource() -> Observable<CacheDataResult>
+	var streamResourceUid: String { get }
+	var streamResourceUrl: String? { get }
+	var streamResourceContentType: ContentType? { get }
 }
-
-public class StreamUrlResourceIdentifier {
-	internal let urlRequest: NSMutableURLRequestProtocol
-	internal let httpClient: HttpClientProtocol
-	internal let sessionConfiguration: NSURLSessionConfiguration
-	internal let saveCachedData: Bool
-	internal let targetMimeType: String?
-	public init(urlRequest: NSMutableURLRequestProtocol, httpClient: HttpClientProtocol = HttpClient.instance,
-	            sessionConfiguration: NSURLSessionConfiguration = NSURLSession.defaultConfig, saveCachedData: Bool = true,
-	            targetMimeType: String? = nil) {
-		self.urlRequest = urlRequest
-		self.httpClient = httpClient
-		self.sessionConfiguration = sessionConfiguration
-		self.saveCachedData = saveCachedData
-		self.targetMimeType = targetMimeType
+extension String : StreamResourceIdentifier {
+	public var streamResourceUid: String {
+		return self
+	}
+	public var streamResourceUrl: String? {
+		return self
+	}
+	public var streamResourceContentType: ContentType? {
+		return nil
 	}
 }
-extension StreamUrlResourceIdentifier : StreamResourceIdentifier {
-	public var uid: String {
-		return urlRequest.URL!.absoluteString
+extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
+	public var streamResourceUid: String {
+		return path
 	}
 	
-	public func getCacheTaskForResource() -> Observable<CacheDataResult> {
-		return httpClient.loadAndCacheData(urlRequest, sessionConfiguration: sessionConfiguration, saveCacheData: saveCachedData,
-		                                              targetMimeType: targetMimeType)
+	public var streamResourceUrl: String? {
+		let dispatchGroup = dispatch_group_create()
+		var url: String? = nil
+		// use dispatch group to perfort sync operation
+		dispatch_group_enter(dispatchGroup)
+		let disposable = downloadUrl?.bindNext { result in
+			url = result
+			dispatch_group_leave(dispatchGroup)
+		}
+		
+		// wait until async is completed
+		dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, Int64(2 * NSEC_PER_SEC)))
+		disposable?.dispose()
+		return url
+	}
+	
+	public var streamResourceContentType: ContentType? {
+		guard let mime = mimeType, type = ContentType(rawValue: mime) else { return nil }
+		return type
 	}
 }

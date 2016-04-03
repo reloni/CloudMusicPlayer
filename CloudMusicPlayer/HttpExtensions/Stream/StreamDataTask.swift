@@ -17,11 +17,23 @@ public protocol StreamTaskProtocol {
 	func cancel()
 }
 
+public enum StreamTaskEvents {
+	/// Send this event if CacheProvider specified
+	case CacheData(CacheProvider)
+	/// Send this event only if CacheProvider is nil
+	case ReceiveData(NSData)
+	case ReceiveResponse(NSHTTPURLResponseProtocol)
+	case Error(NSError)
+	case Success(cache: CacheProvider?)
+	//case StreamProgress(UInt64, UInt64)
+}
+
 public protocol StreamDataTaskProtocol : StreamTaskProtocol {
 	var request: NSMutableURLRequestProtocol { get }
-	var taskProgress: Observable<StreamDataResult> { get }
-	var httpUtilities: HttpUtilitiesProtocol { get }
+	var taskProgress: Observable<StreamTaskEvents> { get }
+	//var httpUtilities: HttpUtilitiesProtocol { get }
 	var sessionConfiguration: NSURLSessionConfiguration { get }
+	var cacheProvider: CacheProvider? { get }
 }
 
 public class StreamDataTask {
@@ -31,6 +43,8 @@ public class StreamDataTask {
 	public let request: NSMutableURLRequestProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
 	public let sessionConfiguration: NSURLSessionConfiguration
+	public var cacheProvider: CacheProvider?
+	internal var response: NSHTTPURLResponseProtocol?
 		
 	internal lazy var dataTask: NSURLSessionDataTaskProtocol = { [unowned self] in
 		return self.session.dataTaskWithRequest(self.request)
@@ -38,9 +52,9 @@ public class StreamDataTask {
 	
 	internal lazy var observer: UrlSessionStreamObserverProtocol = { [unowned self] in
 		let observer = self.httpUtilities.createUrlSessionStreamObserver()
-		observer.sessionProgress.bindNext { result in
+		//observer.sessionProgress.bindNext { result in
 			
-			}.addDisposableTo(self.bag)
+		//	}.addDisposableTo(self.bag)
 		return observer
 		}()
 	
@@ -48,13 +62,44 @@ public class StreamDataTask {
 		return self.httpUtilities.createUrlSession(self.sessionConfiguration, delegate: self.observer as? NSURLSessionDelegate, queue: nil)
 		}()
 	
-	public init(request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
-		sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration()) {
-			self.request = request
-			self.httpUtilities = httpUtilities
-			self.sessionConfiguration = sessionConfiguration
-			uid = NSUUID().UUIDString
+	public init(taskUid: String, request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
+	            sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration(), cacheProvider: CacheProvider?) {
+		self.request = request
+		self.httpUtilities = httpUtilities
+		self.sessionConfiguration = sessionConfiguration
+		self.cacheProvider = cacheProvider
+		uid = taskUid
 	}
+	
+//	public convenience init(request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
+//	                        sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration(), cacheProvider: CacheProvider?) {
+//		//init(taskUid: NSUUID().UUIDString, request: request, httpUtilities: HttpUtilities, sessionConfiguration: sessionConfiguration,
+//		//	cacheProvider: cacheProvider)
+//		self.init(taskUid: NSUUID().UUIDString, request: request, httpUtilities: httpUtilities, sessionConfiguration: sessionConfiguration, cacheProvider: cacheProvider)
+//	}
+	
+	public lazy var taskProgress: Observable<StreamTaskEvents> = { [unowned self] in
+		return self.observer.sessionProgress.map { result in
+				switch result {
+				case .ReceiveData(let data):
+					if let cacheProvider = self.cacheProvider {
+						cacheProvider.appendData(data)
+						return StreamTaskEvents.CacheData(cacheProvider)
+					} else {
+						return StreamTaskEvents.ReceiveData(data)
+					}
+					//self.cacheProvider?.appendData(data)
+					//return StreamTaskEvents.ReceiveData(cache: self.cacheProvider)
+				case .ReceiveResponce(let response):
+					self.response = response
+					self.cacheProvider?.expectedDataLength = response.expectedContentLength
+					self.cacheProvider?.contentMimeType = response.MIMEType
+					return StreamTaskEvents.ReceiveResponse(response)
+				case .Error(let error): return StreamTaskEvents.Error(error)
+				case .Success: return StreamTaskEvents.Success(cache: self.cacheProvider)
+				}
+			}.shareReplay(1)
+		}()
 	
 	deinit {
 		print("StreamDataTask deinit")
@@ -62,9 +107,11 @@ public class StreamDataTask {
 }
 
 extension StreamDataTask : StreamDataTaskProtocol {
-	public var taskProgress: Observable<StreamDataResult> {
-		return observer.sessionProgress.shareReplay(1)
-	}
+//	public var taskProgress: Observable<StreamTaskEvents> {
+//		return observer.sessionProgress.shareReplay(1)
+//	}
+	
+
 	
 	public func resume() {
 		dataTask.resume()

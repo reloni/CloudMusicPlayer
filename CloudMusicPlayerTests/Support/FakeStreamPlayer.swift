@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import CloudMusicPlayer
+@testable import CloudMusicPlayer
 import RxSwift
 
 public class FakeAVAssetResourceLoadingContentInformationRequest : AVAssetResourceLoadingContentInformationRequestProtocol {
@@ -50,14 +50,20 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 	}
 }
 
-public class FakeResourceIdentifier : StreamResourceIdentifier {
-	public var uid: String
-	public var task: StreamDataCacheTaskProtocol?
-	public func getCacheTaskForResource() -> Observable<CacheDataResult> {
+public class FakeCacheItem : CacheItem {
+	public var cacheDispatcher: PlayerCacheDispatcherProtocol
+	public var resourceIdentifier: StreamResourceIdentifier
+	public var task: StreamDataTaskProtocol?
+	public var targetContentType: ContentType?
+//	public func getCacheTask() -> Observable<CacheDataResult> {
+//		return task!.taskProgress
+//	}
+	public func getLoadTask() -> Observable<StreamTaskEvents> {
 		return task!.taskProgress
 	}
-	public init(uid: String, task: StreamDataCacheTaskProtocol?) {
-		self.uid = uid
+	public init(resourceIdeitifier: StreamResourceIdentifier, task: StreamDataTaskProtocol?, cacheDispatcher: PlayerCacheDispatcherProtocol = PlayerCacheDispatcher()) {
+		self.resourceIdentifier = resourceIdeitifier
 		self.task = task
+		self.cacheDispatcher = cacheDispatcher
 	}
 }

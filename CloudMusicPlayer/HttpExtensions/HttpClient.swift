@@ -23,9 +23,9 @@ public protocol HttpClientProtocol {
 	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
 	func loadDataForCloudResource(resource: CloudResource) -> Observable<HttpRequestResult>?
-	func loadStreamData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration) -> Observable<StreamDataResult>
-	func loadAndCacheData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration,
-		saveCacheData: Bool, targetMimeType: String?) -> Observable<CacheDataResult>
+	func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?) -> Observable<StreamTaskEvents>
+	//func loadAndCacheData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration,
+	//	saveCacheData: Bool, targetMimeType: String?) -> Observable<CacheDataResult>
 }
 
 public class HttpClient {
@@ -39,10 +39,8 @@ public class HttpClient {
 		return HttpClient._instance!
 	}
 	
-	internal static func initWithInstance(instance: HttpClientProtocol? = nil,
-	                                      urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
+	internal static func initWithInstance(instance: HttpClientProtocol? = nil, urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
 																				httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
-		
 		dispatch_once(&token) {
 			_instance = instance ?? HttpClient(urlSession: urlSession, httpUtilities: httpUtilities)
 		}
@@ -72,7 +70,7 @@ extension HttpClient : HttpClientProtocol {
 				} else {
 					return result
 				}
-			}
+			}.shareReplay(1)
 	}
 	
 	public func loadData(request: NSMutableURLRequestProtocol)
@@ -109,10 +107,10 @@ extension HttpClient : HttpClientProtocol {
 		return loadJsonData(request)
 	}
 	
-	public func loadStreamData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration())
-		-> Observable<StreamDataResult> {
+	public func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?)
+		-> Observable<StreamTaskEvents> {
 		return Observable.create { [unowned self] observer in
-			let task = self.httpUtilities.createStreamDataTask(request, sessionConfiguration: sessionConfiguration)
+			let task = self.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: self.urlSession.configuration, cacheProvider: cacheProvider)
 				
 			let disposable = task.taskProgress.bindNext { result in
 				observer.onNext(result)
@@ -133,29 +131,29 @@ extension HttpClient : HttpClientProtocol {
 		}.shareReplay(1)
 	}
 	
-	public func loadAndCacheData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration,
-		saveCacheData: Bool, targetMimeType: String?) -> Observable<CacheDataResult> {
-		return Observable.create { [unowned self] observer in
-			let task = self.httpUtilities.createCacheDataTask(request, sessionConfiguration: sessionConfiguration, saveCachedData: saveCacheData, targetMimeType: targetMimeType)
-			
-			let disposable = task.taskProgress.bindNext { result in
-				observer.onNext(result)
-				
-				if case .Success = result {
-					observer.onCompleted()
-				} else if case .SuccessWithCache = result {
-					observer.onCompleted()
-				} else if case .Error = result {
-					observer.onCompleted()
-				}
-			}
-			
-			task.resume()
-			
-			return AnonymousDisposable {
-				task.cancel()
-				disposable.dispose()
-			}
-		}.shareReplay(1)
-	}
+//	public func loadAndCacheData(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration,
+//		saveCacheData: Bool, targetMimeType: String?) -> Observable<CacheDataResult> {
+//		return Observable.create { [unowned self] observer in
+//			let task = self.httpUtilities.createCacheDataTask(request, sessionConfiguration: sessionConfiguration, saveCachedData: saveCacheData, targetMimeType: targetMimeType)
+//			
+//			let disposable = task.taskProgress.bindNext { result in
+//				observer.onNext(result)
+//				
+//				if case .Success = result {
+//					observer.onCompleted()
+//				} else if case .SuccessWithCache = result {
+//					observer.onCompleted()
+//				} else if case .Error = result {
+//					observer.onCompleted()
+//				}
+//			}
+//			
+//			task.resume()
+//			
+//			return AnonymousDisposable {
+//				task.cancel()
+//				disposable.dispose()
+//			}
+//		}.shareReplay(1)
+//	}
 }

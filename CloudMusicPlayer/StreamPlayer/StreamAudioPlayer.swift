@@ -19,59 +19,41 @@ public enum PlayerStatus {
 
 public class StreamAudioPlayer {
 	private var bag = DisposeBag()
-	public let allowCaching: Bool
 	private var internalPlayer: AVPlayer?
 	public var currentItem = Variable<StreamAudioItem?>(nil)
 	public let status = BehaviorSubject<PlayerStatus>(value: .Stopped)
-	public let httpClient: HttpClientProtocol
 	internal let utilities: StreamPlayerUtilitiesProtocol
 	internal let queue = PlayerQueue()
+	internal let cache: PlayerCacheDispatcher
 		
-	init(allowCaching: Bool = true, httpClient: HttpClientProtocol = HttpClient.instance,
+	init(saveCachedData: Bool = true, httpClient: HttpClientProtocol = HttpClient.instance,
 	     utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) {
-		self.allowCaching = allowCaching
-		self.httpClient = httpClient
 		self.utilities = utilities
+		cache = PlayerCacheDispatcher(saveCachedData: saveCachedData, httpUtilities: httpClient.httpUtilities)
 	}
 	
-	public func play(url: String, customHttpHeaders: [String: String]? = nil) {
+	public func playUrl(url: StreamResourceIdentifier, customHttpHeaders: [String: String]? = nil, audioFormat: ContentType? = nil) {
 		stop()
+
+		guard let cacheItem = cache.createCacheItem(url, customHttpHeaders: customHttpHeaders, targetContentType: url.streamResourceContentType ?? audioFormat) else { return }
+		let streamItem = utilities.createStreamAudioItem(self, cacheItem: cacheItem)
 		
-		guard let urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
-			return
-		}
-		
-		let newAudioItem = StreamAudioItem(player: self, urlRequest: urlRequest)
-		
-		guard let playerItem = newAudioItem.playerItem else {
-			currentItem.value = nil
-			return
-		}
-		
-		currentItem.value = newAudioItem
-		internalPlayer = AVPlayer(playerItem: playerItem as! AVPlayerItem)
-		
-		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
-			if let strong = self {
-				print("player status: \(status?.rawValue)")
-				if status == .ReadyToPlay {
-					strong.internalPlayer?.play()
-					strong.status.onNext(.Playing)
-				}
-			}
-		}.addDisposableTo(self.bag)
-	}
-	
-	internal func playUrl(url: String, customHttpHeaders: [String: String]? = nil, resourceMimeType: String? = nil) {
-		stop()
-		guard let urlRequest = httpClient.httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
-			return
-		}
-		let streamResource = utilities.createStreamResourceIdentifier(urlRequest, httpClient: httpClient,
-											saveCachedData: allowCaching, targetMimeType: resourceMimeType)
-		let streamItem = utilities.createStreamAudioItem(self, streamResourceIdentifier: streamResource)
 		queue.initWithNewItems([streamItem])
 		playNext()
+		
+//		guard let player = utilities.createAVPlayer(streamItem) else { return }
+//		internalPlayer = player
+//		currentItem.value = streamItem
+//		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
+//			if let strong = self {
+//				print("player status: \(status?.rawValue)")
+//				if status == .ReadyToPlay {
+//					strong.internalPlayer?.play()
+//					strong.status.onNext(.Playing)
+//				}
+//			}
+//			}.addDisposableTo(self.bag)
+
 	}
 	
 	public func playNext() {

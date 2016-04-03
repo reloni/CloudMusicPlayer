@@ -18,13 +18,13 @@ public func ==(lhs: StreamAudioItem, rhs: StreamAudioItem) -> Bool {
 
 extension StreamAudioItem : Hashable {
 	public var hashValue: Int {
-		return resourceIdentifier.uid.hashValue
+		return cacheItem.resourceIdentifier.streamResourceUid.hashValue
 	}
 }
 
 extension StreamAudioItem : CustomStringConvertible {
 	public var description: String {
-		return "Uid = \(resourceIdentifier.uid)"
+		return "Uid = \(cacheItem.resourceIdentifier.streamResourceUid)"
 	}
 }
 
@@ -34,23 +34,19 @@ public class StreamAudioItem {
 	public unowned var player: StreamAudioPlayer
 	internal var observer = AVAssetResourceLoaderEventsObserver()
 	internal var assetLoader: AssetResourceLoader?
-	internal let resourceIdentifier: StreamResourceIdentifier
+	internal let cacheItem: CacheItem
 	
-	internal init(resourceIdentifier: StreamResourceIdentifier, player: StreamAudioPlayer) {
+	internal init(cacheItem: CacheItem, player: StreamAudioPlayer) {
 		self.player = player
-		self.resourceIdentifier = resourceIdentifier
-	
-		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }.flatMapLatest { _ -> Observable<CacheDataResult> in
-			let task = resourceIdentifier.getCacheTaskForResource()
-			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents)
+		self.cacheItem = cacheItem
+
+		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }
+			.flatMapLatest { [unowned self] _ -> Observable<StreamTaskEvents> in
+			let task = self.cacheItem.getLoadTask()
+				//print("task: \(task)")
+			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents, targetAudioFormat: cacheItem.targetContentType)
 			return task
 		}.subscribe().addDisposableTo(bag)
-	}
-	
-	internal convenience init(player: StreamAudioPlayer, urlRequest: NSMutableURLRequestProtocol) {
-		let urlIdentifier = StreamUrlResourceIdentifier(urlRequest: urlRequest, httpClient: player.httpClient,
-											sessionConfiguration: NSURLSession.defaultConfig, saveCachedData: player.allowCaching, targetMimeType: "audio/mpeg")
-		self.init(resourceIdentifier: urlIdentifier, player: player)
 	}
 	
 	deinit {

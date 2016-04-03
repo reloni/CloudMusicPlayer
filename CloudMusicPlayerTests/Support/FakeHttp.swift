@@ -29,6 +29,7 @@ public class FakeRequest : NSMutableURLRequestProtocol {
 public class FakeResponse : NSURLResponseProtocol, NSHTTPURLResponseProtocol {
 	public var expectedContentLength: Int64
 	public var MIMEType: String?
+	
 	public init(contentLenght: Int64) {
 		expectedContentLength = contentLenght
 	}
@@ -149,12 +150,8 @@ public class FakeHttpUtilities : HttpUtilitiesProtocol {
 		return observer
 	}
 	
-	public func createStreamDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration) -> StreamDataTaskProtocol {
-		return StreamDataTask(request: request, httpUtilities: self, sessionConfiguration: sessionConfiguration)
+	public func createStreamDataTask(taskUid: String, request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, cacheProvider: CacheProvider?) -> StreamDataTaskProtocol {
+		return StreamDataTask(taskUid: NSUUID().UUIDString, request: request, httpUtilities: self, sessionConfiguration: sessionConfiguration, cacheProvider: cacheProvider)
 		//return FakeStreamDataTask(request: request, observer: createUrlSessionStreamObserver(), httpUtilities: self)
-	}
-	
-	public func createCacheDataTask(request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, saveCachedData: Bool, targetMimeType: String?) -> StreamDataCacheTaskProtocol {
-		return StreamDataCacheTask(streamDataTask: createStreamDataTask(request, sessionConfiguration: sessionConfiguration), saveCachedData: saveCachedData, targetMimeType: targetMimeType)
 	}
 }
