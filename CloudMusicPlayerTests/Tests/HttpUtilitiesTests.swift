@@ -9,7 +9,7 @@
 import XCTest
 @testable import CloudMusicPlayer
 
-class HttpUtilitiesTest: XCTestCase {
+class HttpUtilitiesTests: XCTestCase {
 	var request: FakeRequest!
 	
 	override func setUp() {

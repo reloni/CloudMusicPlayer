@@ -52,6 +52,77 @@ class AssetResourceLoaderTests: XCTestCase {
 		avAssetObserver = nil
 	}
 	
+	func testReceiveResponseAndGetCorrectUtiTypeFromResponseMimeType() {
+		let fakeResponse = FakeResponse(contentLenght: Int64(26))
+		fakeResponse.MIMEType = "audio/mpeg"
+		
+		let sessionInvalidationExpectation = expectationWithDescription("Should return correct data and invalidate session")
+		session.task?.taskProgress.bindNext { [unowned self] progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
+				
+					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+				}
+			} else if case .cancel = progress {
+				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
+				// so fulfill expectation here after checking if session was invalidated
+				if self.session.isInvalidatedAndCanceled {
+					// set reference to nil (simutale real session dispose)
+					self.utilities.streamObserver = nil
+					self.streamObserver = nil
+					sessionInvalidationExpectation.fulfill()
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
+		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
+		
+		cacheTask.resume()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertTrue(assetLoader.response as? FakeResponse === fakeResponse, "Should cache correct response")
+		XCTAssertEqual("public.mp3", assetLoader.contentUti, "Should get mime from response and convert to correct uti")
+	}
+	
+	func testOverrideContentType() {
+		let fakeResponse = FakeResponse(contentLenght: Int64(26))
+		fakeResponse.MIMEType = "audio/mpeg"
+		
+		let sessionInvalidationExpectation = expectationWithDescription("Should return correct data and invalidate session")
+		session.task?.taskProgress.bindNext { [unowned self] progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
+					
+					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+				}
+			} else if case .cancel = progress {
+				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
+				// so fulfill expectation here after checking if session was invalidated
+				if self.session.isInvalidatedAndCanceled {
+					// set reference to nil (simutale real session dispose)
+					self.utilities.streamObserver = nil
+					self.streamObserver = nil
+					sessionInvalidationExpectation.fulfill()
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		// create asset loader and override content type with aac audio
+		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
+		                                      targetAudioFormat: ContentType.aac, createSchedulerForObserving: false)
+		
+		cacheTask.resume()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertTrue(assetLoader.response as? FakeResponse === fakeResponse, "Should cache correct response")
+		XCTAssertEqual("public.aac-audio", assetLoader.contentUti, "Should return correct overriden uti type")
+	}
+	
 	func testReceiveNewLoadingRequest() {
 		let assetRequest = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
 			dataRequest: FakeAVAssetResourceLoadingDataRequest())

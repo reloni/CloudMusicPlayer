@@ -127,12 +127,20 @@ public class AssetResourceLoader {
 		print("AssetResourceLoader deinit")
 	}
 	
+	internal var contentUti: String? {
+		return targetAudioFormat?.definition.UTI ?? {
+			guard let response = response else { return nil }
+			return ContentType.getUtiFromMime(response.getMimeType())
+		}()
+	}
+	
 	private func processRequests(cacheProvider: CacheProvider) {
 		resourceLoadingRequests.map { key, loadingRequest in
 			if let contentInformationRequest = loadingRequest.getContentInformationRequest(), response = response {
 				contentInformationRequest.byteRangeAccessSupported = true
 				contentInformationRequest.contentLength = response.expectedContentLength
-				contentInformationRequest.contentType = self.targetAudioFormat?.definition.UTI ?? ContentType.getUtiFromMime(response.getMimeType())
+				//contentInformationRequest.contentType = self.targetAudioFormat?.definition.UTI ?? ContentType.getUtiFromMime(response.getMimeType())
+				contentInformationRequest.contentType = contentUti
 			}
 			
 			if let dataRequest = loadingRequest.getDataRequest() {
