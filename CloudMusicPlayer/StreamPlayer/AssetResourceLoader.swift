@@ -31,8 +31,6 @@ public enum ContentType: String {
 			return DataTypeDefinition(mime: "audio/mpeg", uti: "public.mp3", fileExtension: "mp3")
 		case .aac:
 			return DataTypeDefinition(mime: "audio/aac", uti: "public.aac-audio", fileExtension: "aac")
-		//default:
-		//	return DataTypeDefinition(mime: "octet/stream", uti: "data", fileExtension: "dat")
 		}
 	}
 	
@@ -63,7 +61,6 @@ public class AssetResourceLoader {
 	internal var response: NSHTTPURLResponseProtocol?
 	internal var targetAudioFormat: ContentType?
 	
-	//private var scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	private let bag = DisposeBag()
 	private var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
 	
@@ -86,22 +83,8 @@ public class AssetResourceLoader {
 			case .Success(let cacheProvider) where cacheProvider != nil: self?.processRequests(cacheProvider!)
 			case .ReceiveResponse(let response): self?.response = response
 			case .CacheData(let cacheProvider): self?.processRequests(cacheProvider)
-			//case .ReceiveData(let cacheProvider) where cacheProvider != nil:
 			default: break
 			}
-//			if case .Success(let cacheProvider) = result {
-//				//self?.response = successResult.task.response
-//				guard let cacheProvider = cacheProvider else { return }
-//				self?.processRequests(cacheProvider)
-//			} else if case .SuccessWithCache(let successResult) = result {
-//				self?.response = successResult.task.response
-//				self?.processRequests(successResult.task)
-//			} else if case .CacheNewData(let task) = result {
-//				self?.response = task.response
-//				self?.processRequests(task)
-//			} else if case .ReceiveResponse(_, let resp) = result {
-//				self?.response = resp
-//			}
 		}.addDisposableTo(bag)
 	}
 	

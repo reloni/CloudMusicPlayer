@@ -7,11 +7,34 @@
 //
 
 import Foundation
+import RxSwift
+
+public enum PlayerQueueEvents {
+	case AddNewItem(PlayerQueueItem)
+	case RemoveItem(PlayerQueueItem)
+	case Shuflle([PlayerQueueItem])
+	case InitWithNewItems([PlayerQueueItem])
+	case CurrentItemChanged(PlayerQueueItem?)
+	case RepeatChanged(Bool)
+	case ChangeItemsOrder(PlayerQueue)
+}
 
 public class PlayerQueue {
 	internal var itemsSet = NSMutableOrderedSet()
-	public internal(set) var current: PlayerQueueItem?
-	public internal(set) var repeatQueue: Bool
+	internal var queueEventsSubject = PublishSubject<PlayerQueueEvents>()
+	public lazy var queueEvents: Observable<PlayerQueueEvents> = {
+		return self.queueEventsSubject
+	}()
+	public internal(set) var current: PlayerQueueItem? {
+		didSet {
+			queueEventsSubject.onNext(.CurrentItemChanged(current))
+		}
+	}
+	public internal(set) var repeatQueue: Bool {
+		didSet {
+			queueEventsSubject.onNext(.RepeatChanged(repeatQueue))
+		}
+	}
 	
 	public var first: PlayerQueueItem? {
 		return getItemAtPosition(0)
@@ -47,12 +70,14 @@ public class PlayerQueue {
 		} else {
 			itemsSet.addObjectsFromArray(items)
 		}
+		queueEventsSubject.onNext(.InitWithNewItems(currentItems))
 	}
 	
 	public func shuffle() {
 		var items = itemsSet.array
 		items.shuffleInPlace()
 		itemsSet = NSMutableOrderedSet(array: items)
+		queueEventsSubject.onNext(.Shuflle(currentItems))
 	}
 	
 	public func toNext() -> PlayerQueueItem? {
@@ -74,7 +99,9 @@ public class PlayerQueue {
 	}
 	
 	public func remove(item: StreamAudioItem) {
-		itemsSet.removeObject(item)
+		guard let index = itemsSet.getIndexOfObject(item) else { return }
+		itemsSet.removeObjectAtIndex(index)
+		queueEventsSubject.onNext(.RemoveItem(PlayerQueueItem(queue: self, playerItem: item)))
 	}
 	
 	public func remove(item: PlayerQueueItem) {
@@ -116,12 +143,14 @@ public class PlayerQueue {
 	/// If item already exists, set item at specified index and return PlayerQueueItem with this item
 	private func add(item: StreamAudioItem, index: Int) -> PlayerQueueItem {
 		var addAtIndex = index
+		var isItemRemoved = false
 		if let currentIndex = itemsSet.getIndexOfObject(item) {
 			if currentIndex == index {
 				return PlayerQueueItem(queue: self, playerItem: item)
 			} else {
 				itemsSet.removeObject(item)
 				if addAtIndex > 0 { addAtIndex -= 1 }
+				isItemRemoved = true
 			}
 		}
 		
@@ -131,7 +160,15 @@ public class PlayerQueue {
 			itemsSet.addObject(item)
 		}
 		
-		return PlayerQueueItem(queue: self, playerItem: item)
+		let queueItem = PlayerQueueItem(queue: self, playerItem: item)
+		
+		if isItemRemoved {
+			queueEventsSubject.onNext(.ChangeItemsOrder(self))
+		} else {
+			queueEventsSubject.onNext(.AddNewItem(queueItem))
+		}
+		
+		return queueItem
 	}
 }
 

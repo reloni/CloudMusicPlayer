@@ -40,20 +40,6 @@ public class StreamAudioPlayer {
 		
 		queue.initWithNewItems([streamItem])
 		playNext()
-		
-//		guard let player = utilities.createAVPlayer(streamItem) else { return }
-//		internalPlayer = player
-//		currentItem.value = streamItem
-//		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
-//			if let strong = self {
-//				print("player status: \(status?.rawValue)")
-//				if status == .ReadyToPlay {
-//					strong.internalPlayer?.play()
-//					strong.status.onNext(.Playing)
-//				}
-//			}
-//			}.addDisposableTo(self.bag)
-
 	}
 	
 	public func playNext() {

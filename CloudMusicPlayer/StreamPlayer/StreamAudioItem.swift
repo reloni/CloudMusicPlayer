@@ -43,7 +43,6 @@ public class StreamAudioItem {
 		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }
 			.flatMapLatest { [unowned self] _ -> Observable<StreamTaskEvents> in
 			let task = self.cacheItem.getLoadTask()
-				//print("task: \(task)")
 			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents, targetAudioFormat: cacheItem.targetContentType)
 			return task
 		}.subscribe().addDisposableTo(bag)
