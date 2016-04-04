@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-var streamPlayer = StreamAudioPlayer(saveCachedData: false)
+var streamPlayer = StreamAudioPlayer(allowSaveCachedData: false)
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
 

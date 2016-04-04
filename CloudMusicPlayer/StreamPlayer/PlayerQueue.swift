@@ -22,9 +22,11 @@ public enum PlayerQueueEvents {
 public class PlayerQueue {
 	internal var itemsSet = NSMutableOrderedSet()
 	internal var queueEventsSubject = PublishSubject<PlayerQueueEvents>()
+	
 	public lazy var queueEvents: Observable<PlayerQueueEvents> = {
 		return self.queueEventsSubject
 	}()
+	
 	public internal(set) var current: PlayerQueueItem? {
 		didSet {
 			queueEventsSubject.onNext(.CurrentItemChanged(current))
