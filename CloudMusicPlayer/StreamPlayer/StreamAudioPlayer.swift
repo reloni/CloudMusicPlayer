@@ -20,7 +20,7 @@ public enum PlayerStatus {
 public class StreamAudioPlayer {
 	private var bag = DisposeBag()
 	private var internalPlayer: AVPlayer?
-	public var currentItem = Variable<StreamAudioItem?>(nil)
+	public var currentItem = BehaviorSubject<StreamAudioItem?>(value: nil)
 	public let status = BehaviorSubject<PlayerStatus>(value: .Stopped)
 	internal let utilities: StreamPlayerUtilitiesProtocol
 	internal let queue: PlayerQueue
@@ -46,6 +46,7 @@ public class StreamAudioPlayer {
 	internal func bindToQueue(queueEvents: Observable<PlayerQueueEvents>) {
 		queue.queueEvents.bindNext { [unowned self] result in
 			if case PlayerQueueEvents.CurrentItemChanged(let newItem) = result where newItem != nil {
+				self.currentItem.onNext(newItem?.streamItem)
 				self.playCurrent()
 			}
 		}.addDisposableTo(bag)
@@ -72,7 +73,6 @@ public class StreamAudioPlayer {
 	internal func playCurrent() {
 		guard let current = queue.current, player = utilities.createAVPlayer(current.streamItem) else { return }
 		internalPlayer = player
-		currentItem.value = current.streamItem
 		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
 			if let strong = self {
 				print("player status: \(status?.rawValue)")

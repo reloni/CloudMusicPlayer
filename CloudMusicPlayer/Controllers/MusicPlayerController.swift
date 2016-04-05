@@ -29,7 +29,7 @@ class MusicPlayerController: UIViewController {
 	let bag = DisposeBag()
 	
 	override func viewDidLoad() {
-		streamPlayer.currentItem.asDriver().driveNext { [unowned self] item in
+		streamPlayer.currentItem.asDriver(onErrorJustReturn: nil).driveNext { [unowned self] item in
 			guard let item = item else {
 				return
 			}
@@ -41,16 +41,17 @@ class MusicPlayerController: UIViewController {
 			if let artwork = item.metadata?.artwork {
 				self.image.image = UIImage(data: artwork)
 			}
-			}.addDisposableTo(bag)
-		
-		streamPlayer.currentItem.value?.currentTime.asDriver(onErrorJustReturn: CMTime()).driveNext { [unowned self] time in
-			self.currentTimeLabel.text = time.asString
-			guard let dur = streamPlayer.currentItem.value?.duration?.seconds else {
-				return
-			}
 			
-			self.progressView.progress = Float(time.seconds / dur)
-			}.addDisposableTo(bag)
+			item.currentTime.asDriver(onErrorJustReturn: CMTime()).driveNext { [unowned self] time in
+				self.currentTimeLabel.text = time.asString
+				guard let dur = item.duration?.seconds else {
+					return
+				}
+				
+				self.progressView.progress = Float(time.seconds / dur)
+			}.addDisposableTo(self.bag)
+			
+		}.addDisposableTo(bag)
 		
 		streamPlayer.status.asDriver(onErrorJustReturn: .Stopped).driveNext { [unowned self] status in
 			var newButton: UIBarButtonItem?
