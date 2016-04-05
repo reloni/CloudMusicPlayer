@@ -12,10 +12,10 @@ import RxSwift
 import RxCocoa
 
 public enum PlayerState {
-	case Playing(StreamAudioItem)
+	case Playing//(StreamAudioItem)
 	case Stopped
 	case Paused
-	case Preparing(StreamAudioItem)
+	case Preparing//(StreamAudioItem)
 }
 
 public class StreamAudioPlayer {
@@ -81,15 +81,17 @@ public class StreamAudioPlayer {
 	
 	internal func playCurrent() {
 		guard let current = queue.current, player = utilities.createAVPlayer(current.streamItem) else { return }
-		stateSubject.onNext(.Preparing(current.streamItem))
+		//stateSubject.onNext(.Preparing(current.streamItem))
+		stateSubject.onNext(.Preparing)
 		internalPlayer = player
 		internalPlayer?.internalItemStatus.subscribeNext { [weak self] status in
 			if let strong = self {
 				print("player status: \(status?.rawValue)")
 				if status == .ReadyToPlay {
 					strong.internalPlayer?.play()
-					guard let currentStreamItem = strong.queue.current?.streamItem else { return }
-					strong.stateSubject.onNext(.Playing(currentStreamItem))
+					//guard let currentStreamItem = strong.queue.current?.streamItem else { return }
+					//strong.stateSubject.onNext(.Playing(currentStreamItem))
+					strong.stateSubject.onNext(.Playing)
 				}
 			}
 		}.addDisposableTo(self.bag)
@@ -101,9 +103,10 @@ public class StreamAudioPlayer {
 	}
 	
 	public func resume() {
-		guard let currentStreamItem = queue.current?.streamItem else { return }
+		//guard let currentStreamItem = queue.current?.streamItem else { return }
 		internalPlayer?.rate = 1.0
-		stateSubject.onNext(.Playing(currentStreamItem))
+		//stateSubject.onNext(.Playing(currentStreamItem))
+		stateSubject.onNext(.Playing)
 	}
 
 	public func stop() {

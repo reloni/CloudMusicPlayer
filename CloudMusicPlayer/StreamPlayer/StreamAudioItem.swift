@@ -49,7 +49,7 @@ public class StreamAudioItem {
 	}
 	
 	deinit {
-		print("StreamAudioItem deinit")
+		print("StreamAudioItem deinit \(cacheItem.resourceIdentifier.streamResourceUid)")
 	}
 	
 	internal lazy var urlAsset: AVURLAssetProtocol? = {

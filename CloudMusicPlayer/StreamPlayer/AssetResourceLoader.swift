@@ -11,27 +11,15 @@ import AVFoundation
 import RxSwift
 import MobileCoreServices
 
-public struct DataTypeDefinition {
+public struct ContentTypeDefinition {
 	public let MIME: String
 	public let UTI: String
 	public let fileExtension: String
+
 	public init(mime: String, uti: String, fileExtension: String) {
 		self.MIME = mime
 		self.UTI = uti
 		self.fileExtension = fileExtension
-	}
-}
-
-public enum ContentType: String {
-	case mp3 = "audio/mpeg"
-	case aac = "audio/aac"
-	public var definition: DataTypeDefinition {
-		switch self {
-		case .mp3:
-			return DataTypeDefinition(mime: "audio/mpeg", uti: "public.mp3", fileExtension: "mp3")
-		case .aac:
-			return DataTypeDefinition(mime: "audio/aac", uti: "public.aac-audio", fileExtension: "aac")
-		}
 	}
 	
 	public static func getUtiFromMime(mimeType: String) -> String? {
@@ -44,6 +32,29 @@ public enum ContentType: String {
 		guard let ext = UTTypeCopyPreferredTagWithClass(utiType, kUTTagClassFilenameExtension) else { return nil }
 		
 		return ext.takeUnretainedValue() as String
+	}
+	
+	public static func getFileExtensionFromMime(mimeType: String) -> String? {
+		guard let uti = getUtiFromMime(mimeType) else { return nil }
+		return getFileExtensionFromUti(uti)
+	}
+	
+	public static func getTypeDefinitionFromMime(mimeType: String) -> ContentTypeDefinition? {
+		guard let uti = getUtiFromMime(mimeType), ext = getFileExtensionFromUti(uti) else { return nil }
+		return ContentTypeDefinition(mime: mimeType, uti: uti, fileExtension: ext)
+	}
+}
+
+public enum ContentType: String {
+	case mp3 = "audio/mpeg"
+	case aac = "audio/aac"
+	public var definition: ContentTypeDefinition {
+		switch self {
+		case .mp3:
+			return ContentTypeDefinition(mime: "audio/mpeg", uti: "public.mp3", fileExtension: "mp3")
+		case .aac:
+			return ContentTypeDefinition(mime: "audio/aac", uti: "public.aac-audio", fileExtension: "aac")
+		}
 	}
 }
 
@@ -113,7 +124,7 @@ public class AssetResourceLoader {
 	internal var contentUti: String? {
 		return targetAudioFormat?.definition.UTI ?? {
 			guard let response = response else { return nil }
-			return ContentType.getUtiFromMime(response.getMimeType())
+			return ContentTypeDefinition.getUtiFromMime(response.getMimeType())
 		}()
 	}
 	

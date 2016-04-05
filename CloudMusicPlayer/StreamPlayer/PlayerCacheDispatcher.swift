@@ -15,11 +15,22 @@ public protocol PlayerCacheDispatcherProtocol {
 }
 
 public class PlayerCacheDispatcher {
+	internal let localFileStorage: LocalStorageProtocol
 	internal let httpUtilities: HttpUtilitiesProtocol
 	public let saveCachedData: Bool
-	internal init(saveCachedData: Bool = false, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
+	internal let runningTasks = [String: StreamDataTaskProtocol]()
+	private let bag = DisposeBag()
+	
+	internal init(saveCachedData: Bool = false, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
+	              fileStorage: LocalStorageProtocol = LocalStorage(),
+	              playerState: Observable<PlayerState>? = nil, queueEvents: Observable<PlayerQueueEvents>? = nil) {
 		self.saveCachedData = saveCachedData
 		self.httpUtilities = httpUtilities
+		self.localFileStorage = fileStorage
+	}
+	
+	internal func bindToEvents(playerState: Observable<PlayerState>? = nil, queueEvents: Observable<PlayerQueueEvents>? = nil) {
+		
 	}
 }
 
@@ -34,7 +45,9 @@ extension PlayerCacheDispatcher : PlayerCacheDispatcherProtocol {
 	
 	public func createLoadTask(identifier: StreamResourceIdentifier, urlRequest: NSMutableURLRequestProtocol) -> Observable<StreamTaskEvents> {
 		return Observable.create { [unowned self] observer in
-			let task = self.httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest, sessionConfiguration: NSURLSession.defaultConfig, cacheProvider: MemoryCacheProvider())
+			let task = self.httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
+				sessionConfiguration: NSURLSession.defaultConfig,
+				cacheProvider: self.localFileStorage.createCacheProvider(identifier.streamResourceUid))
 			let disposable = task.taskProgress.bindNext { result in
 				observer.onNext(result)
 				
