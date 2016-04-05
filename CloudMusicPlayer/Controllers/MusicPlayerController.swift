@@ -53,7 +53,7 @@ class MusicPlayerController: UIViewController {
 			
 		}.addDisposableTo(bag)
 		
-		streamPlayer.status.asDriver(onErrorJustReturn: .Stopped).driveNext { [unowned self] status in
+		streamPlayer.playerState.asDriver(onErrorJustReturn: .Stopped).driveNext { [unowned self] status in
 			var newButton: UIBarButtonItem?
 			switch status {
 					case .Paused: newButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Play, target: nil, action: nil)
@@ -66,13 +66,14 @@ class MusicPlayerController: UIViewController {
 				self.toolbar.items?.insert(newButton, atIndex: index)
 				self.playButton = newButton
 				
-				self.playButton.rx_tap.bindNext { _ in
-					if (try? streamPlayer.status.value()) == .Playing {
-						streamPlayer.pause()
-					} else if (try? streamPlayer.status.value()) == .Paused {
-						streamPlayer.resume()
+				self.playButton.rx_tap.bindNext {
+					guard let state = streamPlayer.getCurrentState() else { return }
+					switch state {
+					case .Playing: streamPlayer.pause()
+					case .Paused: streamPlayer.resume()
+					default: break
 					}
-					}.addDisposableTo(self.bag)
+				}.addDisposableTo(self.bag)
 				
 			}
 		}.addDisposableTo(bag)

@@ -11,21 +11,29 @@ import AVFoundation
 import RxSwift
 import RxCocoa
 
-public enum PlayerStatus {
-	case Playing
+public enum PlayerState {
+	case Playing(StreamAudioItem)
 	case Stopped
 	case Paused
-	case Preparing
+	case Preparing(StreamAudioItem)
 }
 
 public class StreamAudioPlayer {
 	private var bag = DisposeBag()
 	private var internalPlayer: AVPlayerProtocol?
-	public var currentItem = BehaviorSubject<StreamAudioItem?>(value: nil)
-	public let status = BehaviorSubject<PlayerStatus>(value: .Stopped)
+	internal var currentItemSubject = BehaviorSubject<StreamAudioItem?>(value: nil)
+	internal let stateSubject = BehaviorSubject<PlayerState>(value: .Stopped)
 	internal let utilities: StreamPlayerUtilitiesProtocol
 	internal let queue: PlayerQueue
 	internal let cacheDispatcher: PlayerCacheDispatcherProtocol
+	
+	public lazy var playerState: Observable<PlayerState> = {
+		return self.stateSubject.shareReplay(1)
+	}()
+	
+	public lazy var currentItem: Observable<StreamAudioItem?> = {
+		return self.currentItemSubject.shareReplay(1)
+	}()
 		
 	internal init(utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance, queue: PlayerQueue, cacheDispatcher: PlayerCacheDispatcherProtocol) {
 		self.utilities = utilities
@@ -47,7 +55,7 @@ public class StreamAudioPlayer {
 	internal func bindToQueue(queueEvents: Observable<PlayerQueueEvents>) {
 		queue.queueEvents.bindNext { [unowned self] result in
 			if case PlayerQueueEvents.CurrentItemChanged(let newItem) = result where newItem != nil {
-				self.currentItem.onNext(newItem?.streamItem)
+				self.currentItemSubject.onNext(newItem?.streamItem)
 				self.playCurrent()
 			}
 		}.addDisposableTo(bag)
@@ -73,31 +81,38 @@ public class StreamAudioPlayer {
 	
 	internal func playCurrent() {
 		guard let current = queue.current, player = utilities.createAVPlayer(current.streamItem) else { return }
+		stateSubject.onNext(.Preparing(current.streamItem))
 		internalPlayer = player
 		internalPlayer?.internalItemStatus.subscribeNext { [weak self] status in
 			if let strong = self {
 				print("player status: \(status?.rawValue)")
 				if status == .ReadyToPlay {
 					strong.internalPlayer?.play()
-					strong.status.onNext(.Playing)
+					guard let currentStreamItem = strong.queue.current?.streamItem else { return }
+					strong.stateSubject.onNext(.Playing(currentStreamItem))
 				}
 			}
-			}.addDisposableTo(self.bag)
+		}.addDisposableTo(self.bag)
 	}
 	
 	public func pause() {
 		internalPlayer?.rate = 0.0
-		status.onNext(.Paused)
+		stateSubject.onNext(.Paused)
 	}
 	
 	public func resume() {
+		guard let currentStreamItem = queue.current?.streamItem else { return }
 		internalPlayer?.rate = 1.0
-		status.onNext(.Playing)
+		stateSubject.onNext(.Playing(currentStreamItem))
 	}
 
 	public func stop() {
 		internalPlayer?.replaceCurrentItemWithPlayerItem(nil)
 		internalPlayer = nil
-		status.onNext(.Stopped)
+		stateSubject.onNext(.Stopped)
+	}
+	
+	public func getCurrentState() -> PlayerState? {
+		return try? stateSubject.value()
 	}
 }
