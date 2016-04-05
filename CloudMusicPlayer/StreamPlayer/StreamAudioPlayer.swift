@@ -15,11 +15,12 @@ public enum PlayerStatus {
 	case Playing
 	case Stopped
 	case Paused
+	case Preparing
 }
 
 public class StreamAudioPlayer {
 	private var bag = DisposeBag()
-	private var internalPlayer: AVPlayer?
+	private var internalPlayer: AVPlayerProtocol?
 	public var currentItem = BehaviorSubject<StreamAudioItem?>(value: nil)
 	public let status = BehaviorSubject<PlayerStatus>(value: .Stopped)
 	internal let utilities: StreamPlayerUtilitiesProtocol
@@ -73,7 +74,7 @@ public class StreamAudioPlayer {
 	internal func playCurrent() {
 		guard let current = queue.current, player = utilities.createAVPlayer(current.streamItem) else { return }
 		internalPlayer = player
-		internalPlayer?.rx_observe(AVPlayerItemStatus.self, "status").subscribeNext { [weak self] status in
+		internalPlayer?.internalItemStatus.subscribeNext { [weak self] status in
 			if let strong = self {
 				print("player status: \(status?.rawValue)")
 				if status == .ReadyToPlay {

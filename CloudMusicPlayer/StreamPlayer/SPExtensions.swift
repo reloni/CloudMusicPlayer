@@ -8,6 +8,7 @@
 
 import Foundation
 import AVFoundation
+import RxSwift
 
 // AVAssetResourceLoadingRequestProtocol
 public protocol AVAssetResourceLoadingRequestProtocol : NSObjectProtocol {
@@ -73,6 +74,23 @@ public protocol AVAssetResourceLoaderProtocol {
 	func setDelegate(delegate: AVAssetResourceLoaderDelegate?, queue: dispatch_queue_t?)
 }
 extension AVAssetResourceLoader: AVAssetResourceLoaderProtocol { }
+
+
+// AVPlayer
+public protocol AVPlayerProtocol {
+	var internalItemStatus: Observable<AVPlayerItemStatus?> { get }
+	var rate: Float { get set }
+	func replaceCurrentItemWithPlayerItem(item: AVPlayerItemProtocol?)
+	func play()
+}
+extension AVPlayer : AVPlayerProtocol {
+	public var internalItemStatus: Observable<AVPlayerItemStatus?> {
+		return self.rx_observe(AVPlayerItemStatus.self, "status").shareReplay(1)
+	}
+	public func replaceCurrentItemWithPlayerItem(item: AVPlayerItemProtocol?) {
+		replaceCurrentItemWithPlayerItem(item as? AVPlayerItem)
+	}
+}
 
 
 // AVPlayerItem
