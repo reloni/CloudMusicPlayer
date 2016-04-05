@@ -31,17 +31,20 @@ class MusicPlayerController: UIViewController {
 	override func viewDidLoad() {
 		bag = DisposeBag()
 		
-		streamPlayer.currentItem.flatMapLatest { e in
-			return Observable.just(e?.metadata)
-			}.asDriver(onErrorJustReturn: nil).driveNext { metadata in
-				self.trackLabel.text = metadata?.title
-				self.artistLabel.text = metadata?.artist
-				self.albumLabel.text = metadata?.album
-				//self.fullTimeLabel.text = durationString
-				if let artwork = metadata?.artwork {
+		streamPlayer.currentItem.flatMapLatest { e -> Observable<(metadata: AudioItemMetadata?, duration: String?)?> in
+			return Observable.just((metadata: e?.metadata, duration: e?.durationString))
+			}.asDriver(onErrorJustReturn: nil).driveNext { result in
+				self.trackLabel.text = result?.metadata?.title
+				self.artistLabel.text = result?.metadata?.artist
+				self.albumLabel.text = result?.metadata?.album
+				self.fullTimeLabel.text = result?.duration
+				if let artwork = result?.metadata?.artwork {
 					self.image.image = UIImage(data: artwork)
 				}
 			}.addDisposableTo(bag)
+		
+		streamPlayer.currentItem.flatMapLatest { e -> Observable<CMTime> in return e?.currentTime ?? Observable.just(CMTimeMake(0, 1)) }
+			.map { e in return e.asString }.asDriver(onErrorJustReturn: "0:00").drive(currentTimeLabel.rx_text).addDisposableTo(bag)
 		
 //		streamPlayer.currentItem.asDriver(onErrorJustReturn: nil).driveNext { [unowned self] item in
 //			guard let item = item else {
