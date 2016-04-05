@@ -23,7 +23,7 @@ extension NSFileManager {
 	}
 	
 	public static var temporaryDirectory: NSURL {
-		return NSURL(string: NSTemporaryDirectory())!
+		return NSURL(fileURLWithPath: NSTemporaryDirectory())
 	}
 	
 	public static func getOrCreateSubDirectory(directoryUrl: NSURL, subDirName: String) -> NSURL? {
@@ -39,30 +39,5 @@ extension NSFileManager {
 		} catch {
 			return nil
 		}
-	}
-	
-	//public static var streamCacheDirectory: NSURL {
-	//	return getDocumentsSubDirectory("StreamCache")
-	//}
-	
-	public static func getDocumentsSubDirectory(dirName: String) -> NSURL {
-		return NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: dirName) ?? NSFileManager.documentsDirectory
-//		let cache = documentsDirectory.URLByAppendingPathComponent(dirName)
-//		guard let path = cache.path else {
-//			return documentsDirectory
-//		}
-//		
-//		var isDir: ObjCBool = true
-//		if NSFileManager.defaultManager().fileExistsAtPath(path, isDirectory: &isDir) {
-//			return cache
-//		}
-//		
-//		do
-//		{
-//			try NSFileManager.defaultManager().createDirectoryAtPath(path, withIntermediateDirectories: false, attributes: nil)
-//			return cache
-//		} catch {
-//			return documentsDirectory
-//		}
 	}
 }
