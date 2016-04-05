@@ -84,7 +84,7 @@ class MemoryCacheProviderTests: XCTestCase {
 		
 		let successExpectation = expectationWithDescription("Should successfuly cache data")
 		
-		httpClient.loadStreamData(request, cacheProvider: MemoryCacheProvider()).bindNext { result in
+		httpClient.loadStreamData(request, cacheProvider: MemoryCacheProvider(uid: NSUUID().UUIDString)).bindNext { result in
 			if case StreamTaskEvents.CacheData = result {
 				receiveChunkCounter += 1
 			} else if case .Success(let cacheProvider) = result {
@@ -105,7 +105,7 @@ class MemoryCacheProviderTests: XCTestCase {
 	}
 	
 	func testSaveDataOnDisk() {
-		let provider = MemoryCacheProvider()
+		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
 		let testData = "Some test data string".dataUsingEncoding(NSUTF8StringEncoding)!
 		provider.appendData(testData)
 		XCTAssertTrue(testData.isEqualToData(provider.getData()), "Cached data should be equal to data sended in cache")
@@ -121,7 +121,7 @@ class MemoryCacheProviderTests: XCTestCase {
 	}
 	
 	func testSaveDataOnDiskWithCustomExtension() {
-		let provider = MemoryCacheProvider()
+		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
 		let testData = "Some test data string".dataUsingEncoding(NSUTF8StringEncoding)!
 		provider.appendData(testData)
 		let savedDataUrl = provider.saveData("mp3")

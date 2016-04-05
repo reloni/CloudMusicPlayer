@@ -15,7 +15,7 @@ extension NSFileManager {
 	}
 	
 	public static func getDirectory(directory: NSSearchPathDirectory) -> NSURL {
-		return NSURL(string: NSFileManager.defaultManager().URLsForDirectory(directory, inDomains: .UserDomainMask)[0].path!)!
+		return NSFileManager.defaultManager().URLsForDirectory(directory, inDomains: .UserDomainMask)[0]
 	}
 	
 	public static var documentsDirectory: NSURL {

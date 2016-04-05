@@ -87,7 +87,7 @@ class HttpUtilitiesTests: XCTestCase {
 		let utilities = HttpUtilities()
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
-		let cacheProvider = MemoryCacheProvider()
+		let cacheProvider = MemoryCacheProvider(uid: NSUUID().UUIDString)
 		let task = utilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: config, cacheProvider: cacheProvider)
 		XCTAssertEqual(task.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
 		XCTAssertTrue((task as? StreamDataTask)?.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
