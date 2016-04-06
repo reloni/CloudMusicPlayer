@@ -79,24 +79,24 @@ public class AssetResourceLoader {
 	            targetAudioFormat: ContentType? = nil) {
 		self.targetAudioFormat = targetAudioFormat
 		
-		assetLoaderEvents.bindNext { [weak self]result in
-			switch result {
+		Observable.combineLatest (cacheTask, assetLoaderEvents) { [weak self] e in
+			switch e.1 {
 			case .DidCancelLoading(let loadingRequest):
 				self?.resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
 			case .ShouldWaitForLoading(let loadingRequest):
-				self?.resourceLoadingRequests[loadingRequest.hash] = loadingRequest
-			default: break
+				if !loadingRequest.finished {
+					self?.resourceLoadingRequests[loadingRequest.hash] = loadingRequest
+				}
+				default: break
 			}
-		}.addDisposableTo(bag)
-		
-		cacheTask.bindNext { [weak self] result in
-			switch result {
+			
+			switch e.0 {
 			case .Success(let cacheProvider) where cacheProvider != nil: self?.processRequests(cacheProvider!)
 			case .ReceiveResponse(let response): self?.response = response
 			case .CacheData(let cacheProvider): self?.processRequests(cacheProvider)
 			default: break
 			}
-		}.addDisposableTo(bag)
+		}.subscribe().addDisposableTo(bag)
 	}
 	
 	///Create new instance of AssetResourceLoader

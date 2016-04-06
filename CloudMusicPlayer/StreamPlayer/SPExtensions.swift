@@ -15,6 +15,7 @@ public protocol AVAssetResourceLoadingRequestProtocol : NSObjectProtocol {
 	func getContentInformationRequest() -> AVAssetResourceLoadingContentInformationRequestProtocol?
 	func getDataRequest() -> AVAssetResourceLoadingDataRequestProtocol?
 	func finishLoading()
+	var finished: Bool { get }
 }
 extension AVAssetResourceLoadingRequest : AVAssetResourceLoadingRequestProtocol {
 	public func getContentInformationRequest() -> AVAssetResourceLoadingContentInformationRequestProtocol? {

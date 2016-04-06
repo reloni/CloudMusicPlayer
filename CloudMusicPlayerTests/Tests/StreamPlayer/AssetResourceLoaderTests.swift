@@ -58,11 +58,16 @@ class AssetResourceLoaderTests: XCTestCase {
 		let fakeResponse = FakeResponse(contentLenght: Int64(26))
 		fakeResponse.MIMEType = "audio/mpeg"
 		
+		let assetRequest = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
+		                                                     dataRequest: FakeAVAssetResourceLoadingDataRequest())
+		
 		let sessionInvalidationExpectation = expectationWithDescription("Should return correct data and invalidate session")
 		session.task?.taskProgress.bindNext { [unowned self] progress in
 			if case .resume(let tsk) = progress {
 				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
+					
 					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
 				
 					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
@@ -93,11 +98,16 @@ class AssetResourceLoaderTests: XCTestCase {
 		let fakeResponse = FakeResponse(contentLenght: Int64(26))
 		fakeResponse.MIMEType = "audio/mpeg"
 		
+		let assetRequest = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
+		                                                     dataRequest: FakeAVAssetResourceLoadingDataRequest())
+		
 		let sessionInvalidationExpectation = expectationWithDescription("Should return correct data and invalidate session")
 		session.task?.taskProgress.bindNext { [unowned self] progress in
 			if case .resume(let tsk) = progress {
 				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
+					
 					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
 					
 					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
@@ -132,6 +142,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
 		self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
+		self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
 		
 		// should wait untill background schediler perform tasks in another thread
 		//NSThread.sleepForTimeInterval(sleepInterval)
@@ -146,6 +157,10 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
+		
+		// send this event to start internal observing
+		self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
+		
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
@@ -165,6 +180,10 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
+		
+		// send this event to start internal observing
+		self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
+		
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest2))
@@ -231,7 +250,7 @@ class AssetResourceLoaderTests: XCTestCase {
 
 		XCTAssertTrue(sendedData.isEqualToData(dataRequest.respondedData), "Check correct data sended to dataRequest")
 		XCTAssertEqual(0, assetLoader.currentLoadingRequests.count, " Check remove loading request from collection of pending requests")
-		XCTAssertTrue(assetRequest.isLoadingFinished, "Check loading request if finished")
+		XCTAssertTrue(assetRequest.finished, "Check loading request if finished")
 		XCTAssertTrue(contentRequest.byteRangeAccessSupported, "Should set byteRangeAccessSupported to true")
 		XCTAssertEqual(contentRequest.contentLength, Int64(dataRequest.requestedLength), "Check correct content length")
 		XCTAssertEqual(contentRequest.contentType, "public.mp3", "Check correct mime type")
@@ -267,6 +286,9 @@ class AssetResourceLoaderTests: XCTestCase {
 					fakeResponse.MIMEType = "audio/mpeg"
 					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
 					
+					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
+					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest2))
+					
 					for i in 0...testData.count - 1 {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
 						sendedData.appendData(sendData)
@@ -290,8 +312,6 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
-		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
-		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest2))
 		
 		cacheTask.resume()
 		
@@ -303,7 +323,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		XCTAssertTrue(sendedData.subdataWithRange(NSMakeRange(11, 11)).isEqualToData(dataRequest2.respondedData), "Check second half of data sended to secondRequest")
 		XCTAssertEqual(0, assetLoader.currentLoadingRequests.count, "Check remove loading request from collection of pending requests")
 		
-		XCTAssertTrue(assetRequest1.isLoadingFinished, "Check loading first request if finished")
+		XCTAssertTrue(assetRequest1.finished, "Check loading first request if finished")
 		XCTAssertTrue(contentRequest1.byteRangeAccessSupported, "Should set first request byteRangeAccessSupported to true")
 		XCTAssertEqual(contentRequest1.contentLength, 22, "Check correct content length of first request")
 		XCTAssertEqual(contentRequest1.contentType, "public.mp3", "Check correct mime type of first")

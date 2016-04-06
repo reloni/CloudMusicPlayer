@@ -30,7 +30,7 @@ public class FakeAVAssetResourceLoadingDataRequest : AVAssetResourceLoadingDataR
 public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadingRequestProtocol {
 	public var contentInformationRequest: AVAssetResourceLoadingContentInformationRequestProtocol
 	public var dataRequest: AVAssetResourceLoadingDataRequestProtocol
-	public var isLoadingFinished = false
+	public var finished = false
 
 	public init(contentInformationRequest: AVAssetResourceLoadingContentInformationRequestProtocol, dataRequest: AVAssetResourceLoadingDataRequestProtocol) {
 		self.contentInformationRequest = contentInformationRequest
@@ -46,7 +46,7 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 	}
 
 	public func finishLoading() {
-		isLoadingFinished = true
+		finished = true
 	}
 }
 
