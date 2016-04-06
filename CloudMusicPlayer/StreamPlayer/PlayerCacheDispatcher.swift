@@ -10,12 +10,14 @@ import Foundation
 import RxSwift
 
 public protocol PlayerCacheDispatcherProtocol {
+	var saveCachedData: Bool  { get }
+	var localFileStorage: LocalStorageProtocol { get }
 	func createLoadTask(identifier: StreamResourceIdentifier, urlRequest: NSMutableURLRequestProtocol) -> Observable<StreamTaskEvents>
 	func createCacheItem(identifier: StreamResourceIdentifier, customHttpHeaders: [String: String]?, targetContentType: ContentType?) -> CacheItem?
 }
 
 public class PlayerCacheDispatcher {
-	internal let localFileStorage: LocalStorageProtocol
+	public let localFileStorage: LocalStorageProtocol
 	internal let httpUtilities: HttpUtilitiesProtocol
 	public let saveCachedData: Bool
 	internal let runningTasks = [String: StreamDataTaskProtocol]()
@@ -90,7 +92,14 @@ public class UrlCacheItem : CacheItem {
 	}
 	
 	public func getLoadTask() -> Observable<StreamTaskEvents> {
-		return cacheDispatcher.createLoadTask(resourceIdentifier, urlRequest: urlRequest)
+		return cacheDispatcher.createLoadTask(resourceIdentifier, urlRequest: urlRequest).map { e in
+			if case .Success(let provider) = e where self.cacheDispatcher.saveCachedData && provider != nil {
+				var cacheProvider = provider
+				if let targetContentType = self.targetContentType { cacheProvider?.contentMimeType = targetContentType.definition.MIME }
+				self.cacheDispatcher.localFileStorage.saveToTempStorage(cacheProvider!)
+			}
+			return e
+		}
 	}
 	
 	deinit {

@@ -52,12 +52,7 @@ extension MemoryCacheProvider : CacheProvider {
 	}
 	
 	public func saveData(fileExtension: String?) -> NSURL? {
-		let path =
-			NSFileManager.temporaryDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).\(fileExtension ?? "dat")")
-		if cacheData.writeToURL(path, atomically: true) {
-			return path
-		}
-		return nil
+		return saveData(NSFileManager.temporaryDirectory, fileExtension: fileExtension)
 	}
 	
 	public func saveData() -> NSURL? {
@@ -69,7 +64,7 @@ extension MemoryCacheProvider : CacheProvider {
 	}
 	
 	public func saveData(destinationDirectory: NSURL, fileExtension: String?) -> NSURL? {
-		let path = destinationDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).\(fileExtension ?? "dat")")
+		let path = destinationDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).\(fileExtension ?? ContentTypeDefinition.getFileExtensionFromMime(contentMimeType ?? "") ?? "dat")")
 		if cacheData.writeToURL(path, atomically: true) { return path }
 		return nil
 	}
