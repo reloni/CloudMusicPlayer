@@ -25,13 +25,11 @@ public enum StreamTaskEvents {
 	case ReceiveResponse(NSHTTPURLResponseProtocol)
 	case Error(NSError)
 	case Success(cache: CacheProvider?)
-	//case StreamProgress(UInt64, UInt64)
 }
 
 public protocol StreamDataTaskProtocol : StreamTaskProtocol {
 	var request: NSMutableURLRequestProtocol { get }
 	var taskProgress: Observable<StreamTaskEvents> { get }
-	//var httpUtilities: HttpUtilitiesProtocol { get }
 	var sessionConfiguration: NSURLSessionConfiguration { get }
 	var cacheProvider: CacheProvider? { get }
 }

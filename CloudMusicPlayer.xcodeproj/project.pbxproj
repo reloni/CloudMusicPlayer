@@ -13,7 +13,6 @@
 		6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E07F0F31C9B250C001027EA /* HttpExtensions.swift */; };
 		6E0A028F1C8A0CB500AD9B38 /* StreamAudioItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028B1C8A0CB500AD9B38 /* StreamAudioItem.swift */; };
 		6E0A02901C8A0CB500AD9B38 /* StreamAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028C1C8A0CB500AD9B38 /* StreamAudioPlayer.swift */; };
-		6E0A02911C8A0CB500AD9B38 /* StreamDataCacheTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028D1C8A0CB500AD9B38 /* StreamDataCacheTask.swift */; };
 		6E0A02921C8A0CB500AD9B38 /* StreamDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028E1C8A0CB500AD9B38 /* StreamDataTask.swift */; };
 		6E0A02941C8A0D0B00AD9B38 /* NSFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A02931C8A0D0B00AD9B38 /* NSFileManager.swift */; };
 		6E106F191C916A740056205F /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E106F181C916A740056205F /* main.swift */; };
@@ -106,7 +105,6 @@
 		6E07F0F31C9B250C001027EA /* HttpExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpExtensions.swift; sourceTree = "<group>"; };
 		6E0A028B1C8A0CB500AD9B38 /* StreamAudioItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamAudioItem.swift; sourceTree = "<group>"; };
 		6E0A028C1C8A0CB500AD9B38 /* StreamAudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamAudioPlayer.swift; sourceTree = "<group>"; };
-		6E0A028D1C8A0CB500AD9B38 /* StreamDataCacheTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDataCacheTask.swift; sourceTree = "<group>"; };
 		6E0A028E1C8A0CB500AD9B38 /* StreamDataTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StreamDataTask.swift; path = CloudMusicPlayer/HttpExtensions/Stream/StreamDataTask.swift; sourceTree = SOURCE_ROOT; };
 		6E0A02931C8A0D0B00AD9B38 /* NSFileManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSFileManager.swift; sourceTree = "<group>"; };
 		6E106F181C916A740056205F /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -252,7 +250,6 @@
 				6E31A8991C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift */,
 				6E07F0EF1C9B203D001027EA /* UrlSessionStreamObserver.swift */,
 				6E0A028E1C8A0CB500AD9B38 /* StreamDataTask.swift */,
-				6E0A028D1C8A0CB500AD9B38 /* StreamDataCacheTask.swift */,
 				6E6D78661CAE9ADF00A1A41F /* CacheProvider.swift */,
 			);
 			name = Stream;
@@ -647,7 +644,6 @@
 				6EECECD01C97EE54007B37CC /* HttpUtilities.swift in Sources */,
 				6EEB98A11C4EBE1700DD5B95 /* ViewController.swift in Sources */,
 				6E8AFD861C78E17C00091B53 /* SettingsViewModel.swift in Sources */,
-				6E0A02911C8A0CB500AD9B38 /* StreamDataCacheTask.swift in Sources */,
 				6E07F0E81C9ABD34001027EA /* SPExtensions.swift in Sources */,
 				6E07F0F01C9B203D001027EA /* UrlSessionStreamObserver.swift in Sources */,
 				6EEC8F791CA0393100B30B85 /* AssetResourceLoader.swift in Sources */,

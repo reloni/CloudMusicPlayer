@@ -21,10 +21,6 @@ public protocol UrlSessionStreamObserverProtocol {
 }
 
 @objc public class UrlSessionStreamObserver : NSURLSessionDataEventsObserver, UrlSessionStreamObserverProtocol {
-	public override init() {
-		super.init()
-	}
-	
 	deinit {
 		print("UrlSessionStreamObserver deinit")
 	}
