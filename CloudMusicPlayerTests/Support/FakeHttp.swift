@@ -45,6 +45,7 @@ public class FakeDataTask : NSURLSessionDataTaskProtocol {
 	var completion: DataTaskResult?
 	let taskProgress = PublishSubject<FakeDataTaskMethods>()
 	var originalRequest: NSMutableURLRequestProtocol?
+	var isCancelled = false
 	
 	public init(completion: DataTaskResult?) {
 		self.completion = completion
@@ -59,7 +60,10 @@ public class FakeDataTask : NSURLSessionDataTaskProtocol {
 	}
 	
 	public func cancel() {
-		taskProgress.onNext(.cancel(self))
+		if !isCancelled {
+			taskProgress.onNext(.cancel(self))
+			isCancelled = true
+		}
 	}
 	
 	public func getOriginalMutableUrlRequest() -> NSMutableURLRequestProtocol? {

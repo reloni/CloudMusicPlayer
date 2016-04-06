@@ -14,57 +14,38 @@ public enum UrlSessionEvents {
 	case ReceiveResponce(NSHTTPURLResponseProtocol)
 	case Error(NSError)
 	case Success()
-	//case StreamProgress(UInt64, Int64)
 }
 
 public protocol UrlSessionStreamObserverProtocol {
 	var sessionProgress: Observable<UrlSessionEvents> { get }
 }
 
-@objc public class UrlSessionStreamObserver : NSURLSessionDataEventsObserver {
-	private let bag = DisposeBag()
-	private let publishSubject = PublishSubject<UrlSessionEvents>()
-	//private var totalDataReceived: UInt64 = 0
-	//private var expectedDataLength: Int64 = 0
-	
+@objc public class UrlSessionStreamObserver : NSURLSessionDataEventsObserver, UrlSessionStreamObserverProtocol {
 	public override init() {
 		super.init()
-		bindToEvents()
-	}
-	
-	private func bindToEvents() {
-		sessionEvents.bindNext { [unowned self] response in
-		 switch response {
-				case .didReceiveResponse(_, _, let response, let completionHandler):
-					if let response = response as? NSHTTPURLResponseProtocol {
-						//self.expectedDataLength = response.expectedContentLength
-						self.publishSubject.onNext(.ReceiveResponce(response))
-					}
-					completionHandler(.Allow)
-				case .didReceiveData(_,_, let data):
-					//self.totalDataReceived += UInt64(data.length)
-					self.publishSubject.onNext(.ReceiveData(data))
-					//self.publishSubject.onNext(.StreamProgress(self.totalDataReceived, self.expectedDataLength))
-				case .didCompleteWithError(let session, _, let error):
-					if let error = error {
-						self.publishSubject.onNext(.Error(error))
-					} else {
-						//self.publishSubject.onNext(.Success(self.totalDataReceived))
-						self.publishSubject.onNext(.Success())
-					}
-					self.publishSubject.onCompleted()
-					session.invalidateAndCancel()
-			}
-		}.addDisposableTo(bag)
 	}
 	
 	deinit {
 		print("UrlSessionStreamObserver deinit")
 	}
-}
-
-extension UrlSessionStreamObserver : UrlSessionStreamObserverProtocol {
-	public var sessionProgress: Observable<UrlSessionEvents> {
-		return publishSubject
-	}
+	
+	public lazy var sessionProgress: Observable<UrlSessionEvents> = { [unowned self] in
+		return self.sessionEvents.filter { e in
+			if case .didReceiveResponse(_, _, let response, let completionHandler) = e {
+				completionHandler(.Allow)
+				return response as? NSHTTPURLResponseProtocol != nil
+			} else { return true }
+			}.map { e in
+				switch e {
+				case .didReceiveResponse(_, _, let response, _):
+					return UrlSessionEvents.ReceiveResponce(response as! NSHTTPURLResponseProtocol)
+				case .didReceiveData(_, _, let data):
+					return UrlSessionEvents.ReceiveData(data)
+				case .didCompleteWithError(let session, _, let error):
+					session.invalidateAndCancel()
+					if let error = error { return UrlSessionEvents.Error(error) }
+					return UrlSessionEvents.Success()
+				}
+			}.shareReplay(1)
+		}()
 }

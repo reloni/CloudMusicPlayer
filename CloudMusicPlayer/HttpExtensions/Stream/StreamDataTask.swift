@@ -38,8 +38,7 @@ public protocol StreamDataTaskProtocol : StreamTaskProtocol {
 
 public class StreamDataTask {
 	public let uid: String
-	
-	private var bag = DisposeBag()
+
 	public let request: NSMutableURLRequestProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
 	public let sessionConfiguration: NSURLSessionConfiguration
@@ -52,9 +51,6 @@ public class StreamDataTask {
 	
 	internal lazy var observer: UrlSessionStreamObserverProtocol = { [unowned self] in
 		let observer = self.httpUtilities.createUrlSessionStreamObserver()
-		//observer.sessionProgress.bindNext { result in
-			
-		//	}.addDisposableTo(self.bag)
 		return observer
 		}()
 	
@@ -71,13 +67,6 @@ public class StreamDataTask {
 		uid = taskUid
 	}
 	
-//	public convenience init(request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
-//	                        sessionConfiguration: NSURLSessionConfiguration = .defaultSessionConfiguration(), cacheProvider: CacheProvider?) {
-//		//init(taskUid: NSUUID().UUIDString, request: request, httpUtilities: HttpUtilities, sessionConfiguration: sessionConfiguration,
-//		//	cacheProvider: cacheProvider)
-//		self.init(taskUid: NSUUID().UUIDString, request: request, httpUtilities: httpUtilities, sessionConfiguration: sessionConfiguration, cacheProvider: cacheProvider)
-//	}
-	
 	public lazy var taskProgress: Observable<StreamTaskEvents> = { [unowned self] in
 		return self.observer.sessionProgress.map { result in
 				switch result {
@@ -88,8 +77,6 @@ public class StreamDataTask {
 					} else {
 						return StreamTaskEvents.ReceiveData(data)
 					}
-					//self.cacheProvider?.appendData(data)
-					//return StreamTaskEvents.ReceiveData(cache: self.cacheProvider)
 				case .ReceiveResponce(let response):
 					self.response = response
 					self.cacheProvider?.expectedDataLength = response.expectedContentLength
@@ -107,12 +94,6 @@ public class StreamDataTask {
 }
 
 extension StreamDataTask : StreamDataTaskProtocol {
-//	public var taskProgress: Observable<StreamTaskEvents> {
-//		return observer.sessionProgress.shareReplay(1)
-//	}
-	
-
-	
 	public func resume() {
 		dataTask.resume()
 	}

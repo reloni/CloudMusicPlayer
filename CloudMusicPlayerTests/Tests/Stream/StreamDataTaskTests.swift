@@ -47,7 +47,7 @@ class StreamDataTaskTests: XCTestCase {
 		let testData = ["First", "Second", "Third", "Fourth"]
 		let dataSended = NSMutableData()
 		
-		let expectation = expectationWithDescription("Should return correct data and invalidate session")
+		let expectation = expectationWithDescription("Should return correct data and invalidate session (testReceiveCorrectData)")
 		
 		session.task?.taskProgress.bindNext { [unowned self] progress in
 			if case .resume(let tsk) = progress {
