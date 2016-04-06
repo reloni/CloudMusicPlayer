@@ -16,21 +16,34 @@ public enum SessionDataEvents {
 	case didCompleteWithError(session: NSURLSessionProtocol, dataTask: NSURLSessionTaskProtocol, error: NSError?)
 }
 
+public protocol NSURLSessionDataEventsObserverProtocol {
+	var sessionEvents: Observable<SessionDataEvents> { get }
+}
+
+extension NSURLSessionDataEventsObserver : NSURLSessionDataEventsObserverProtocol {
+	public var sessionEvents: Observable<SessionDataEvents> {
+		return sessionEventsSubject
+	}
+}
+
 public class NSURLSessionDataEventsObserver : NSObject, NSURLSessionDataDelegate {
-	internal let sessionEvents = PublishSubject<SessionDataEvents>()
+	internal let sessionEventsSubject = PublishSubject<SessionDataEvents>()
+	deinit {
+		print("NSURLSessionDataEventsObserver deinit")
+	}
 }
 
 extension NSURLSessionDataEventsObserver {
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse,
 		completionHandler: (NSURLSessionResponseDisposition) -> Void) {
-			sessionEvents.onNext(.didReceiveResponse(session: session, dataTask: dataTask, response: response, completion: completionHandler))
+			sessionEventsSubject.onNext(.didReceiveResponse(session: session, dataTask: dataTask, response: response, completion: completionHandler))
 	}
 	
 	public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-		sessionEvents.onNext(.didReceiveData(session: session, dataTask: dataTask, data: data))
+		sessionEventsSubject.onNext(.didReceiveData(session: session, dataTask: dataTask, data: data))
 	}
 	
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-		sessionEvents.onNext(.didCompleteWithError(session: session, dataTask: task, error: error))
+		sessionEventsSubject.onNext(.didCompleteWithError(session: session, dataTask: task, error: error))
 	}
 }

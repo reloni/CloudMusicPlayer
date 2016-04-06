@@ -27,6 +27,13 @@ public enum StreamTaskEvents {
 	case Success(cache: CacheProvider?)
 }
 
+public enum UrlSessionEvents {
+	case ReceiveData(NSData)
+	case ReceiveResponce(NSHTTPURLResponseProtocol)
+	case Error(NSError)
+	case Success()
+}
+
 public protocol StreamDataTaskProtocol : StreamTaskProtocol {
 	var request: NSMutableURLRequestProtocol { get }
 	var taskProgress: Observable<StreamTaskEvents> { get }
@@ -47,13 +54,12 @@ public class StreamDataTask {
 		return self.session.dataTaskWithRequest(self.request)
 		}()
 	
-	internal lazy var observer: UrlSessionStreamObserverProtocol = { [unowned self] in
-		let observer = self.httpUtilities.createUrlSessionStreamObserver()
-		return observer
+	internal lazy var observer: NSURLSessionDataEventsObserverProtocol = { [unowned self] in
+			return self.httpUtilities.createUrlSessionStreamObserver()
 		}()
 	
 	internal lazy var session: NSURLSessionProtocol = { [unowned self] in
-		return self.httpUtilities.createUrlSession(self.sessionConfiguration, delegate: self.observer as? NSURLSessionDelegate, queue: nil)
+		return self.httpUtilities.createUrlSession(self.sessionConfiguration, delegate: self.observer as? NSURLSessionDataDelegate, queue: nil)
 		}()
 	
 	public init(taskUid: String, request: NSMutableURLRequestProtocol, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
@@ -66,7 +72,23 @@ public class StreamDataTask {
 	}
 	
 	public lazy var taskProgress: Observable<StreamTaskEvents> = { [unowned self] in
-		return self.observer.sessionProgress.map { result in
+		return self.observer.sessionEvents.filter { e in
+			if case .didReceiveResponse(_, _, let response, let completionHandler) = e {
+				completionHandler(.Allow)
+				return response as? NSHTTPURLResponseProtocol != nil
+			} else { return true }
+			}.map { e -> UrlSessionEvents in
+				switch e {
+				case .didReceiveResponse(_, _, let response, _):
+					return UrlSessionEvents.ReceiveResponce(response as! NSHTTPURLResponseProtocol)
+				case .didReceiveData(_, _, let data):
+					return UrlSessionEvents.ReceiveData(data)
+				case .didCompleteWithError(let session, _, let error):
+					session.invalidateAndCancel()
+					if let error = error { return UrlSessionEvents.Error(error) }
+					return UrlSessionEvents.Success()
+				}
+			}.map { result -> StreamTaskEvents in
 				switch result {
 				case .ReceiveData(let data):
 					if let cacheProvider = self.cacheProvider {

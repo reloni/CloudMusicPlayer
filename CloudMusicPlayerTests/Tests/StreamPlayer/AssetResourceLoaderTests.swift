@@ -16,7 +16,7 @@ class AssetResourceLoaderTests: XCTestCase {
 	var session: FakeSession!
 	var utilities: FakeHttpUtilities!
 	var httpClient: HttpClientProtocol!
-	var streamObserver: UrlSessionStreamObserver!
+	var streamObserver: NSURLSessionDataEventsObserver!
 	var avAssetObserver: AVAssetResourceLoaderEventsObserver!
 	var cacheTask: StreamDataTask!
 	
@@ -27,7 +27,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		// Put setup code here. This method is called before the invocation of each test method in the class.
 		
 		bag = DisposeBag()
-		streamObserver = UrlSessionStreamObserver()
+		streamObserver = NSURLSessionDataEventsObserver()
 		request = FakeRequest(url: NSURL(string: "https://test.com"))
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
@@ -68,9 +68,9 @@ class AssetResourceLoaderTests: XCTestCase {
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 					
-					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
+					self.streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
 				
-					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+					self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
 			} else if case .cancel = progress {
 				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
@@ -108,9 +108,9 @@ class AssetResourceLoaderTests: XCTestCase {
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 					
-					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
+					self.streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
 					
-					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+					self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
 			} else if case .cancel = progress {
 				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
@@ -144,7 +144,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		assetLoader.work?.subscribe().addDisposableTo(bag)
 		self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
-		self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
+		self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
 		
 		// should wait untill background schediler perform tasks in another thread
 		//NSThread.sleepForTimeInterval(sleepInterval)
@@ -162,7 +162,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		assetLoader.work?.subscribe().addDisposableTo(bag)
 		// send this event to start internal observing
-		self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
+		self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
 		
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
@@ -186,7 +186,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		assetLoader.work?.subscribe().addDisposableTo(bag)
 		// send this event to start internal observing
-		self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
+		self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
 		
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
@@ -219,16 +219,16 @@ class AssetResourceLoaderTests: XCTestCase {
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					let fakeResponse = FakeResponse(contentLenght: Int64(dataRequest.requestedLength))
 					fakeResponse.MIMEType = "audio/mpeg"
-					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
+					self.streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
 					
 					for i in 0...testData.count - 1 {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
 						sendedData.appendData(sendData)
-						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+						self.streamObserver.sessionEventsSubject.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
 						// simulate delay
 						NSThread.sleepForTimeInterval(0.01)
 					}
-					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+					self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
 			} else if case .cancel = progress {
 				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
@@ -289,7 +289,7 @@ class AssetResourceLoaderTests: XCTestCase {
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					let fakeResponse = FakeResponse(contentLenght: 22)
 					fakeResponse.MIMEType = "audio/mpeg"
-					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
+					self.streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
 					
 					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest1))
 					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest2))
@@ -297,11 +297,11 @@ class AssetResourceLoaderTests: XCTestCase {
 					for i in 0...testData.count - 1 {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
 						sendedData.appendData(sendData)
-						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+						self.streamObserver.sessionEventsSubject.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
 						// simulate delay
 						NSThread.sleepForTimeInterval(0.01)
 					}
-					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+					self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
 			} else if case .cancel = progress {
 				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,

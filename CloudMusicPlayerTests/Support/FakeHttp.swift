@@ -117,7 +117,7 @@ public class FakeSession : NSURLSessionProtocol {
 
 public class FakeHttpUtilities : HttpUtilitiesProtocol {
 	//var fakeObserver: UrlSessionStreamObserverProtocol?
-	var streamObserver: UrlSessionStreamObserverProtocol?
+	var streamObserver: NSURLSessionDataEventsObserverProtocol?
 	var fakeSession: NSURLSessionProtocol?
 	
 	public func createUrlRequest(baseUrl: String, parameters: [String : String]?) -> NSMutableURLRequestProtocol? {
@@ -143,13 +143,13 @@ public class FakeHttpUtilities : HttpUtilitiesProtocol {
 		return session
 	}
 	
-	public func createUrlSessionStreamObserver() -> UrlSessionStreamObserverProtocol {
+	public func createUrlSessionStreamObserver() -> NSURLSessionDataEventsObserverProtocol {
 //		guard let observer = fakeObserver else {
 //			return FakeUrlSessionStreamObserver()
 //		}
 //		return observer
 		guard let observer = streamObserver else {
-			return UrlSessionStreamObserver()
+			return NSURLSessionDataEventsObserver()
 		}
 		return observer
 	}

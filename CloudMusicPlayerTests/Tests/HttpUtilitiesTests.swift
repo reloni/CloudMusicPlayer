@@ -63,7 +63,7 @@ class HttpUtilitiesTests: XCTestCase {
 	}
 	
 	func testCreateUrlSessionWithDelegate() {
-		let delegate = UrlSessionStreamObserver()
+		let delegate = NSURLSessionDataEventsObserver()
 		let session = HttpUtilities().createUrlSession(NSURLSession.defaultConfig, delegate: delegate, queue: nil) as? NSURLSession
 		XCTAssertTrue(delegate === session?.delegate, "Check correct delegate")
 	}

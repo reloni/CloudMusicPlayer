@@ -16,14 +16,14 @@ class MemoryCacheProviderTests: XCTestCase {
 		var session: FakeSession!
 		var utilities: FakeHttpUtilities!
 		var httpClient: HttpClientProtocol!
-		var streamObserver: UrlSessionStreamObserver!
+		var streamObserver: NSURLSessionDataEventsObserver!
 	
 		override func setUp() {
 			super.setUp()
 			// Put setup code here. This method is called before the invocation of each test method in the class.
 	
 			bag = DisposeBag()
-			streamObserver = UrlSessionStreamObserver()
+			streamObserver = NSURLSessionDataEventsObserver()
 			request = FakeRequest(url: NSURL(string: "https://test.com"))
 			session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 			utilities = FakeHttpUtilities()
@@ -56,17 +56,17 @@ class MemoryCacheProviderTests: XCTestCase {
 				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					
-					self.streamObserver.sessionEvents.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response:
+					self.streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response:
 						fakeResponse, completion: { _ in }))
 					
 					for i in 0...testData.count - 1 {
 						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
 						dataSended.appendData(sendData)
-						self.streamObserver.sessionEvents.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+						self.streamObserver.sessionEventsSubject.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
 						// simulate delay
 						NSThread.sleepForTimeInterval(0.01)
 					}
-					self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+					self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
 			} else if case .cancel = progress {
 				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
