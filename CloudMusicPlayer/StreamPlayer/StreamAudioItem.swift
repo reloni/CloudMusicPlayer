@@ -63,8 +63,11 @@ public class StreamAudioItem {
 	}()
 	
 	internal lazy var metadata: AudioItemMetadata? = {
-		guard let meta = self.playerItem?.getAsset().getMetadata() else { return nil }
-		return AudioItemMetadata(metadata: meta)
+		//guard let meta = self.playerItem?.getAsset().getMetadata() else { return nil }
+		var meta = self.playerItem?.getAsset().getMetadata()
+		if meta == nil { return nil }
+		meta?["duration"] = self.duration as? AnyObject
+		return AudioItemMetadata(metadata: meta!)
 	}()
 	
 	public var duration: CMTime? {
@@ -83,6 +86,20 @@ public class StreamAudioItem {
 					return
 				}
 				observer.onNext(item.currentTime())
+			}
+			return AnonymousDisposable {
+				timer.invalidate()
+			}
+		}
+	}()
+	
+	public lazy var currentTimeTst: Observable<(currentTime: CMTime, duration: CMTime?)> = {
+		return Observable.create { [unowned self] observer in
+			let timer = NSTimer.schedule(repeatInterval: 1) { timer in
+				guard let item = self.playerItem else {
+					return
+				}
+				observer.onNext((item.currentTime(), self.duration))
 			}
 			return AnonymousDisposable {
 				timer.invalidate()

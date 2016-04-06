@@ -12,12 +12,12 @@ import AVFoundation
 extension CMTime {
 	public var asString: String {
 		//let seconds = UInt(CMTimeGetSeconds(self))
-		guard let sec: Float64 = self.seconds else { return "0: 00" }
+		guard let sec: Float64 = self.safeSeconds else { return "0: 00" }
 		let minutes = Int(sec / 60)
 		return String(format: "%02d: %02d", minutes, Int(sec) - minutes * 60)
 	}
 	
-	public var seconds: Float64? {
+	public var safeSeconds: Float64? {
 		let sec = CMTimeGetSeconds(self)
 		return isnan(sec) ? nil : sec
 	}

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AVFoundation
 
 public class AudioItemMetadata {
 	internal let metadata: [String: AnyObject?]
@@ -27,5 +28,9 @@ public class AudioItemMetadata {
 	
 	public lazy var artwork: NSData? = {
 		return self.metadata["artwork"] as? NSData
+	}()
+	
+	public lazy var duration: CMTime? = {
+		return self.metadata["duration"] as? CMTime
 	}()
 }
