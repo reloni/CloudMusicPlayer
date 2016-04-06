@@ -86,7 +86,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
-		
+		assetLoader.work?.subscribe().addDisposableTo(bag)
 		cacheTask.resume()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
@@ -127,7 +127,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		// create asset loader and override content type with aac audio
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: ContentType.aac, createSchedulerForObserving: false)
-		
+		assetLoader.work?.subscribe().addDisposableTo(bag)
 		cacheTask.resume()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
@@ -141,6 +141,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
+		
+		assetLoader.work?.subscribe().addDisposableTo(bag)
 		self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
 		
@@ -158,6 +160,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
 		
+		assetLoader.work?.subscribe().addDisposableTo(bag)
 		// send this event to start internal observing
 		self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
 		
@@ -181,6 +184,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
 		
+		assetLoader.work?.subscribe().addDisposableTo(bag)
 		// send this event to start internal observing
 		self.streamObserver.sessionEvents.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
 		
@@ -240,8 +244,9 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
-		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		
+		assetLoader.work?.subscribe().addDisposableTo(bag)
+		avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		cacheTask.resume()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
@@ -313,6 +318,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetLoader = AssetResourceLoader(cacheTask: cacheTask.taskProgress, assetLoaderEvents: avAssetObserver.loaderEvents,
 		                                      targetAudioFormat: nil, createSchedulerForObserving: false)
 		
+		assetLoader.work?.subscribe().addDisposableTo(bag)
 		cacheTask.resume()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)

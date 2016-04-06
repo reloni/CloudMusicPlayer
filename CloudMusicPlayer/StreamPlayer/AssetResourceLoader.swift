@@ -71,15 +71,14 @@ extension AssetResourceLoader : AssetResourceLoaderProtocol {
 public class AssetResourceLoader {
 	internal var response: NSHTTPURLResponseProtocol?
 	internal var targetAudioFormat: ContentType?
-	
-	private let bag = DisposeBag()
 	private var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
+	internal var work: Observable<Void>?
 	
 	private init(taskEvents cacheTask: Observable<StreamTaskEvents>, assetEvents assetLoaderEvents: Observable<AssetLoadingEvents>,
 	            targetAudioFormat: ContentType? = nil) {
 		self.targetAudioFormat = targetAudioFormat
 		
-		Observable.combineLatest (cacheTask, assetLoaderEvents) { [weak self] e in
+		work = Observable.combineLatest (cacheTask, assetLoaderEvents) { [weak self] e in
 			switch e.1 {
 			case .DidCancelLoading(let loadingRequest):
 				self?.resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
@@ -96,7 +95,7 @@ public class AssetResourceLoader {
 			case .CacheData(let cacheProvider): self?.processRequests(cacheProvider)
 			default: break
 			}
-		}.subscribe().addDisposableTo(bag)
+		}
 	}
 	
 	///Create new instance of AssetResourceLoader
