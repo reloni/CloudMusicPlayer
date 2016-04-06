@@ -27,13 +27,13 @@ public class StreamAudioPlayer {
 	internal let queue: PlayerQueue
 	internal let cacheDispatcher: PlayerCacheDispatcherProtocol
 	
-	public lazy var playerState: Observable<PlayerState> = {
+	public var playerState: Observable<PlayerState> {
 		return self.stateSubject.shareReplay(1)
-	}()
+	}
 	
-	public lazy var currentItem: Observable<StreamAudioItem?> = {
+	public var currentItem: Observable<StreamAudioItem?>  {
 		return self.currentItemSubject.shareReplay(1)
-	}()
+	}
 		
 	internal init(utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance, queue: PlayerQueue, cacheDispatcher: PlayerCacheDispatcherProtocol) {
 		self.utilities = utilities

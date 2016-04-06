@@ -67,12 +67,14 @@ class MusicPlayerController: UIViewController {
 		// .map { e in return e.asString }.asDriver(onErrorJustReturn: "0: 00").drive(currentTimeLabel.rx_text).addDisposableTo(bag)
 		
 		streamPlayer.currentItem.flatMapLatest { e -> Observable<(currentTime: CMTime, duration: CMTime?)> in
-			return e?.currentTimeTst ?? Observable.just((CMTimeMake(0, 1), nil)) }
+			return e?.currentTime ?? Observable.just((CMTimeMake(0, 1), nil)) }
 		 .asDriver(onErrorJustReturn: (CMTimeMake(0, 1), nil)).driveNext { [unowned self] e in
 			self.currentTimeLabel.text = e.currentTime.asString
 			guard let sec = e.currentTime.safeSeconds, duration = e.duration?.safeSeconds else { return }
 			self.progressView.progress = Float(sec / duration)
 		}.addDisposableTo(bag)
+		
+		//streamPlayer.currentItem.bindNext { e in print(e?.cacheItem.resourceIdentifier.streamResourceUid)}.dispose()
 		
 		streamPlayer.playerState.asDriver(onErrorJustReturn: .Stopped).driveNext { [unowned self] e in
 			var newButton: UIBarButtonItem?

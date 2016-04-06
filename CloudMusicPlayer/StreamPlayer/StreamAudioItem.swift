@@ -52,18 +52,17 @@ public class StreamAudioItem {
 		print("StreamAudioItem deinit \(cacheItem.resourceIdentifier.streamResourceUid)")
 	}
 	
-	internal lazy var urlAsset: AVURLAssetProtocol? = {
+	internal lazy var urlAsset: AVURLAssetProtocol? = { [unowned self] in
 		return self.player.utilities.createavUrlAsset(self.fakeUrl)
 	}()
 	
-	public lazy var playerItem: AVPlayerItemProtocol? = {
+	public lazy var playerItem: AVPlayerItemProtocol? = { [unowned self] in
 		guard let asset = self.urlAsset else { return nil }
 		asset.getResourceLoader().setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 		return self.player.utilities.createavPlayerItem(asset)
 	}()
 	
-	internal lazy var metadata: AudioItemMetadata? = {
-		//guard let meta = self.playerItem?.getAsset().getMetadata() else { return nil }
+	internal lazy var metadata: AudioItemMetadata? = { [unowned self] in
 		var meta = self.playerItem?.getAsset().getMetadata()
 		if meta == nil { return nil }
 		meta?["duration"] = self.duration as? AnyObject
@@ -79,21 +78,7 @@ public class StreamAudioItem {
 		return dur.asString
 	}
 	
-	public lazy var currentTime: Observable<CMTime> = {
-		return Observable.create { [unowned self] observer in
-			let timer = NSTimer.schedule(repeatInterval: 1) { timer in
-				guard let item = self.playerItem else {
-					return
-				}
-				observer.onNext(item.currentTime())
-			}
-			return AnonymousDisposable {
-				timer.invalidate()
-			}
-		}
-	}()
-	
-	public lazy var currentTimeTst: Observable<(currentTime: CMTime, duration: CMTime?)> = {
+	public lazy var currentTime: Observable<(currentTime: CMTime, duration: CMTime?)> = { [unowned self] in
 		return Observable.create { [unowned self] observer in
 			let timer = NSTimer.schedule(repeatInterval: 1) { timer in
 				guard let item = self.playerItem else {
