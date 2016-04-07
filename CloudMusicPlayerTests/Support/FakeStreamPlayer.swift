@@ -59,7 +59,7 @@ public class FakeCacheItem : CacheItem {
 //		return task!.taskProgress
 //	}
 	public func getLoadTask() -> Observable<StreamTaskEvents> {
-		return task!.taskProgress
+		return task?.taskProgress ?? Observable<StreamTaskEvents>.empty()
 	}
 	public init(resourceIdeitifier: StreamResourceIdentifier, task: StreamDataTaskProtocol?, cacheDispatcher: PlayerCacheDispatcherProtocol = PlayerCacheDispatcher()) {
 		self.resourceIdentifier = resourceIdeitifier

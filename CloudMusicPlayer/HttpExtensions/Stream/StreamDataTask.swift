@@ -17,7 +17,9 @@ public protocol StreamTaskProtocol {
 	func cancel()
 }
 
-public enum StreamTaskEvents {
+public protocol StreamTaskEventsProtocol { }
+
+public enum StreamTaskEvents : StreamTaskEventsProtocol {
 	/// Send this event if CacheProvider specified
 	case CacheData(CacheProvider)
 	/// Send this event only if CacheProvider is nil

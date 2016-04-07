@@ -33,19 +33,15 @@ public class StreamAudioItem {
 	private let fakeUrl = NSURL(string:"fake://url.com")!
 	public unowned var player: StreamAudioPlayer
 	internal var observer = AVAssetResourceLoaderEventsObserver()
-	internal var assetLoader: AssetResourceLoader?
 	internal let cacheItem: CacheItem
 	
 	internal init(cacheItem: CacheItem, player: StreamAudioPlayer) {
 		self.player = player
 		self.cacheItem = cacheItem
-
-		observer.loaderEvents.filter { if case .StartLoading = $0 { return true } else { return false } }
-			.flatMapLatest { [unowned self] _ -> Observable<Void> in
-			let task = self.cacheItem.getLoadTask()
-			self.assetLoader = AssetResourceLoader(cacheTask: task, assetLoaderEvents: self.observer.loaderEvents, targetAudioFormat: cacheItem.targetContentType)
-			return self.assetLoader?.work ?? Observable.just()
-		}.subscribe().addDisposableTo(bag)
+				
+		let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
+		cacheItem.getLoadTask().observeOn(scheduler).loadWithAsset(assetEvents: observer.loaderEvents
+			.observeOn(scheduler), targetAudioFormat: cacheItem.targetContentType).subscribe().addDisposableTo(bag)
 	}
 	
 	deinit {
