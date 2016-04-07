@@ -58,24 +58,27 @@ extension PlayerCacheDispatcher : PlayerCacheDispatcherProtocol {
 				return nil
 			}
 			
-			let task = httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
-			                                              sessionConfiguration: NSURLSession.defaultConfig,
-			                                              cacheProvider: localFileStorage.createCacheProvider(identifier.streamResourceUid))
+			func createTask() -> StreamDataTaskProtocol {
+				return httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
+				                                              sessionConfiguration: NSURLSession.defaultConfig,
+				                                              cacheProvider: localFileStorage.createCacheProvider(identifier.streamResourceUid))
+			}
 			
-			return createObservable(task)
+			return createObservable(createTask)
 				.map { [unowned self] e in
-					if case .Success(let provider) = e where self.saveCachedData && task.cacheProvider != nil {
-						var cacheProvider = provider
-						if let targetContentType = targetContentType { cacheProvider?.contentMimeType = targetContentType.definition.MIME }
-						self.localFileStorage.saveToTempStorage(cacheProvider!)
-					}
+//					if case .Success(let provider) = e where self.saveCachedData && task.cacheProvider != nil {
+//						var cacheProvider = provider
+//						if let targetContentType = targetContentType { cacheProvider?.contentMimeType = targetContentType.definition.MIME }
+//						self.localFileStorage.saveToTempStorage(cacheProvider!)
+//					}
 					return e
 			}
 		} else { return nil }
 	}
 	
-	internal func createObservable(task: StreamDataTaskProtocol) -> Observable<StreamTaskEvents> {
+	internal func createObservable(function: () -> StreamDataTaskProtocol) -> Observable<StreamTaskEvents> {
 		return Observable.create { observer in
+			let task = function()
 			let disposable = task.taskProgress.bindNext { result in
 				observer.onNext(result)
 				

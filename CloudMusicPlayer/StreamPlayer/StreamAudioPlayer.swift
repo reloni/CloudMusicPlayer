@@ -100,17 +100,14 @@ public class StreamAudioPlayer {
 		
 		asset.getResourceLoader().setDelegate(observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 		playerItem = utilities.createavPlayerItem(asset)
-		internalPlayer = AVPlayer(playerItem: playerItem as! AVPlayerItem) as AVPlayerProtocol
-		
-		observer.loaderEvents.bindNext { _ in
-			print("observer event")
-		}.addDisposableTo(bag)
 		
 		let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-		let a = cacheDispatcher.createStreamTask(current.streamIdentifier, targetContentType: ContentType.mp3)?.observeOn(scheduler)
-			.loadWithAsset(assetEvents: observer.loaderEvents.observeOn(scheduler), targetAudioFormat: ContentType.mp3)//.bindNext { _ in
-		//		print("complete")
-		//}.addDisposableTo(bag)
+		cacheDispatcher.createStreamTask(current.streamIdentifier, targetContentType: ContentType.mp3)?.observeOn(scheduler)
+			.loadWithAsset(assetEvents: observer.loaderEvents.observeOn(scheduler), targetAudioFormat: ContentType.mp3).bindNext { _ in
+				print("complete")
+		}.addDisposableTo(bag)
+		
+		internalPlayer = AVPlayer(playerItem: playerItem as! AVPlayerItem) as AVPlayerProtocol
 		
 		stateSubject.onNext(.Preparing)
 		//internalPlayer = player
