@@ -9,10 +9,28 @@
 import Foundation
 import RxSwift
 
+public enum StreamResourceType {
+	case LocalResource
+	case HttpResource
+	case HttpsResource
+}
+
 public protocol StreamResourceIdentifier {
 	var streamResourceUid: String { get }
 	var streamResourceUrl: String? { get }
 	var streamResourceContentType: ContentType? { get }
+	var streamResourceType: StreamResourceType? { get }
+}
+extension StreamResourceIdentifier {
+	public var streamResourceType: StreamResourceType? {
+		guard let url = streamResourceUrl, scheme = NSURLComponents(string: url)?.scheme else { return nil }
+		switch scheme {
+			case "file": return .LocalResource
+			case "http": return .HttpResource
+			case "https": return .HttpsResource
+			default: return nil
+		}
+	}
 }
 extension String : StreamResourceIdentifier {
 	public var streamResourceUid: String {
