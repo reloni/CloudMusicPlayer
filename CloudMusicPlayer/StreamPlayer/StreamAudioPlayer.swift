@@ -29,6 +29,7 @@ public class StreamAudioPlayer {
 	internal var observer: AVAssetResourceLoaderEventsObserver!
 	var asset: AVURLAssetProtocol!
 	var playerItem: AVPlayerItemProtocol!
+	var disp: Disposable?
 	
 	public var playerState: Observable<PlayerState> {
 		return self.stateSubject.shareReplay(1)
@@ -94,6 +95,9 @@ public class StreamAudioPlayer {
 	
 	internal func playCurrent() {
 		guard let current = queue.current else { return }
+		
+		disp?.dispose()
+		
 		//stateSubject.onNext(.Preparing(current.streamItem))
 		observer = AVAssetResourceLoaderEventsObserver()
 		asset = utilities.createavUrlAsset(NSURL(string: "fake://domain.com")!)
@@ -102,10 +106,8 @@ public class StreamAudioPlayer {
 		playerItem = utilities.createavPlayerItem(asset)
 		
 		let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-		cacheDispatcher.createStreamTask(current.streamIdentifier, targetContentType: ContentType.mp3)?.observeOn(scheduler)
-			.loadWithAsset(assetEvents: observer.loaderEvents.observeOn(scheduler), targetAudioFormat: ContentType.mp3).bindNext { _ in
-				print("complete")
-		}.addDisposableTo(bag)
+		disp = cacheDispatcher.createStreamTask(current.streamIdentifier, targetContentType: ContentType.mp3)?.observeOn(scheduler)
+			.loadWithAsset(assetEvents: observer.loaderEvents.observeOn(scheduler), targetAudioFormat: ContentType.mp3).subscribe()
 		
 		internalPlayer = AVPlayer(playerItem: playerItem as! AVPlayerItem) as AVPlayerProtocol
 		

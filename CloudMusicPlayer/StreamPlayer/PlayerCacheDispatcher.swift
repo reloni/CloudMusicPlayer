@@ -58,31 +58,32 @@ extension PlayerCacheDispatcher : PlayerCacheDispatcherProtocol {
 				return nil
 			}
 			
-			func createTask() -> StreamDataTaskProtocol {
+			func createUrlTask() -> StreamDataTaskProtocol {
 				return httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
 				                                              sessionConfiguration: NSURLSession.defaultConfig,
 				                                              cacheProvider: localFileStorage.createCacheProvider(identifier.streamResourceUid))
 			}
 			
-			return createObservable(createTask)
-				.map { [unowned self] e in
-//					if case .Success(let provider) = e where self.saveCachedData && task.cacheProvider != nil {
-//						var cacheProvider = provider
-//						if let targetContentType = targetContentType { cacheProvider?.contentMimeType = targetContentType.definition.MIME }
-//						self.localFileStorage.saveToTempStorage(cacheProvider!)
-//					}
-					return e
+			func saveData(cacheProvider: CacheProvider?) {
+				if let cacheProvider = cacheProvider where saveCachedData {
+					var provider = cacheProvider
+					if let targetContentType = targetContentType { provider.contentMimeType = targetContentType.definition.MIME }
+					self.localFileStorage.saveToTempStorage(provider)
+				}
 			}
+			
+			return createObservable(createUrlTask, saveData: saveData)
 		} else { return nil }
 	}
 	
-	internal func createObservable(function: () -> StreamDataTaskProtocol) -> Observable<StreamTaskEvents> {
+	internal func createObservable(taskCreation: () -> StreamDataTaskProtocol, saveData: (cacheProvider: CacheProvider?) -> ()) -> Observable<StreamTaskEvents> {
 		return Observable.create { observer in
-			let task = function()
+			let task = taskCreation()
 			let disposable = task.taskProgress.bindNext { result in
 				observer.onNext(result)
 				
-				if case .Success = result {
+				if case .Success(let provider) = result {
+					saveData(cacheProvider: provider)
 					observer.onCompleted()
 				} else if case .Error = result {
 					observer.onCompleted()
