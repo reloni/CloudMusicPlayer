@@ -27,13 +27,6 @@ public enum StreamTaskEvents {
 	case Success(cache: CacheProvider?)
 }
 
-public enum UrlSessionEvents {
-	case ReceiveData(NSData)
-	case ReceiveResponce(NSHTTPURLResponseProtocol)
-	case Error(NSError)
-	case Success()
-}
-
 public protocol StreamDataTaskProtocol : StreamTaskProtocol {
 	var request: NSMutableURLRequestProtocol { get }
 	var taskProgress: Observable<StreamTaskEvents> { get }
@@ -77,33 +70,28 @@ public class StreamDataTask {
 				completionHandler(.Allow)
 				return response as? NSHTTPURLResponseProtocol != nil
 			} else { return true }
-			}.map { e -> UrlSessionEvents in
+			}.map { e -> StreamTaskEvents in
 				switch e {
 				case .didReceiveResponse(_, _, let response, _):
-					return UrlSessionEvents.ReceiveResponce(response as! NSHTTPURLResponseProtocol)
+					self.response = response as? NSHTTPURLResponseProtocol
+					self.cacheProvider?.expectedDataLength = self.response!.expectedContentLength
+					self.cacheProvider?.contentMimeType = self.response!.MIMEType
+					return StreamTaskEvents.ReceiveResponse(self.response!)
 				case .didReceiveData(_, _, let data):
-					return UrlSessionEvents.ReceiveData(data)
-				case .didCompleteWithError(let session, _, let error):
-					session.invalidateAndCancel()
-					if let error = error { return UrlSessionEvents.Error(error) }
-					return UrlSessionEvents.Success()
-				}
-			}.map { result -> StreamTaskEvents in
-				switch result {
-				case .ReceiveData(let data):
 					if let cacheProvider = self.cacheProvider {
 						cacheProvider.appendData(data)
 						return StreamTaskEvents.CacheData(cacheProvider)
 					} else {
 						return StreamTaskEvents.ReceiveData(data)
 					}
-				case .ReceiveResponce(let response):
-					self.response = response
-					self.cacheProvider?.expectedDataLength = response.expectedContentLength
-					self.cacheProvider?.contentMimeType = response.MIMEType
-					return StreamTaskEvents.ReceiveResponse(response)
-				case .Error(let error): return StreamTaskEvents.Error(error)
-				case .Success: return StreamTaskEvents.Success(cache: self.cacheProvider)
+				case .didCompleteWithError(let session, _, let error):
+					session.invalidateAndCancel()
+					
+					if let error = error {
+						return StreamTaskEvents.Error(error)
+					}
+					
+					return StreamTaskEvents.Success(cache: self.cacheProvider)
 				}
 			}.shareReplay(1)
 		}()
