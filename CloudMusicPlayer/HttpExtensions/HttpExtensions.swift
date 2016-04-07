@@ -94,7 +94,6 @@ extension NSURL {
 			components.queryItems = [NSURLQueryItem]()
 			parameters.forEach { key, value in
 				components.queryItems?.append(NSURLQueryItem(name: key, value: value))
-				//value.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())))
 			}
 			self.init(string: components.URL!.absoluteString)
 		} else {
