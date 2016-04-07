@@ -43,10 +43,10 @@ extension AVAssetResourceLoaderEventsObserver : AVAssetResourceLoaderEventsObser
 
 extension AVAssetResourceLoaderEventsObserver : AVAssetResourceLoaderDelegate {	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
-		if !isLoadingStarted {
-			isLoadingStarted = true
-			publishSubject.onNext(.StartLoading)
-		}
+		//if !isLoadingStarted {
+		//	isLoadingStarted = true
+		//	publishSubject.onNext(.StartLoading)
+		//}
 		publishSubject.onNext(.ShouldWaitForLoading(loadingRequest))
 		return shouldWaitForLoading
 	}

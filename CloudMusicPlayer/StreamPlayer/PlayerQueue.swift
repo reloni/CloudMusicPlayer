@@ -47,7 +47,7 @@ public class PlayerQueue {
 	}
 	
 	public var currentItems: [PlayerQueueItem] {
-		return itemsSet.map { PlayerQueueItem(queue: self, playerItem: $0 as! StreamAudioItem) }
+		return itemsSet.map { PlayerQueueItem(queue: self, streamIdentifier: $0 as! StreamResourceIdentifier) }
 	}
 	
 	public var count: Int {
@@ -58,19 +58,20 @@ public class PlayerQueue {
 		self.repeatQueue = repeatQueue
 	}
 	
-	public convenience init(items: [StreamAudioItem], shuffle: Bool = false, repeatQueue: Bool = false) {
+	public convenience init(items: [StreamResourceIdentifier], shuffle: Bool = false, repeatQueue: Bool = false) {
 		self.init(repeatQueue: repeatQueue)
 		
 		initWithNewItems(items, shuffle: shuffle)
 	}
 	
-	public func initWithNewItems(items: [StreamAudioItem], shuffle: Bool = false) {
+	public func initWithNewItems(items: [StreamResourceIdentifier], shuffle: Bool = false) {
 		itemsSet.removeAllObjects()
+
 		current = nil
 		if shuffle {
-			itemsSet.addObjectsFromArray(items.shuffle())
+			itemsSet.addObjectsFromArray(items.map { $0 as! AnyObject }.shuffle())
 		} else {
-			itemsSet.addObjectsFromArray(items)
+			itemsSet.addObjectsFromArray(items.map { $0 as! AnyObject })
 		}
 		queueEventsSubject.onNext(.InitWithNewItems(currentItems))
 	}
@@ -100,69 +101,69 @@ public class PlayerQueue {
 		return current
 	}
 	
-	public func remove(item: StreamAudioItem) {
-		guard let index = itemsSet.getIndexOfObject(item) else { return }
+	public func remove(item: StreamResourceIdentifier) {
+		guard let index = itemsSet.getIndexOfObject(item as! AnyObject) else { return }
 		itemsSet.removeObjectAtIndex(index)
-		queueEventsSubject.onNext(.RemoveItem(PlayerQueueItem(queue: self, playerItem: item)))
+		queueEventsSubject.onNext(.RemoveItem(PlayerQueueItem(queue: self, streamIdentifier: item)))
 	}
 	
 	public func remove(item: PlayerQueueItem) {
-		remove(item.streamItem)
+		remove(item.streamIdentifier)
 	}
 	
 	public func getItemAtPosition(position: Int) -> PlayerQueueItem? {
-		guard let item: StreamAudioItem = itemsSet.getObjectAtIndex(position) else { return nil }
-		return PlayerQueueItem(queue: self, playerItem: item)
+		guard let item: StreamResourceIdentifier = itemsSet.getObjectAtIndex(position) else { return nil }
+		return PlayerQueueItem(queue: self, streamIdentifier: item)
 	}
 	
-	public func getItemAfter(item: StreamAudioItem) -> PlayerQueueItem? {
-		let index = itemsSet.indexOfObject(item)
+	public func getItemAfter(item: StreamResourceIdentifier) -> PlayerQueueItem? {
+		let index = itemsSet.indexOfObject(item as! AnyObject)
 		return getItemAtPosition(index + 1)
 	}
 	
-	public func getItemBefore(item: StreamAudioItem) -> PlayerQueueItem? {
-		let index = itemsSet.indexOfObject(item)
+	public func getItemBefore(item: StreamResourceIdentifier) -> PlayerQueueItem? {
+		let index = itemsSet.indexOfObject(item as! AnyObject)
 		return getItemAtPosition(index - 1)
 	}
 	
-	public func addLast(item: StreamAudioItem) -> PlayerQueueItem {
+	public func addLast(item: StreamResourceIdentifier) -> PlayerQueueItem {
 		return add(item, index: itemsSet.count)
 	}
 	
-	public func addFirst(item: StreamAudioItem) -> PlayerQueueItem {
+	public func addFirst(item: StreamResourceIdentifier) -> PlayerQueueItem {
 		return add(item, index: 0)
 	}
 
 	/// Add item in queue after specified item.
 	/// If specified item doesn't exist, add to end
-	public func addAfter(itemToAdd: StreamAudioItem, afterItem: StreamAudioItem) -> PlayerQueueItem {
-		let index = itemsSet.getIndexOfObject(afterItem) ?? itemsSet.count
+	public func addAfter(itemToAdd: StreamResourceIdentifier, afterItem: StreamResourceIdentifier) -> PlayerQueueItem {
+		let index = itemsSet.getIndexOfObject(afterItem as! AnyObject) ?? itemsSet.count
 		return add(itemToAdd, index: index + 1)
 	}
 	
 	/// Add item in queue. 
 	/// Return instance of PlayerQueueItem if item was added. 
 	/// If item already exists, set item at specified index and return PlayerQueueItem with this item
-	private func add(item: StreamAudioItem, index: Int) -> PlayerQueueItem {
+	private func add(item: StreamResourceIdentifier, index: Int) -> PlayerQueueItem {
 		var addAtIndex = index
 		var isItemRemoved = false
-		if let currentIndex = itemsSet.getIndexOfObject(item) {
+		if let currentIndex = itemsSet.getIndexOfObject(item as! AnyObject) {
 			if currentIndex == index {
-				return PlayerQueueItem(queue: self, playerItem: item)
+				return PlayerQueueItem(queue: self, streamIdentifier: item)
 			} else {
-				itemsSet.removeObject(item)
+				itemsSet.removeObject(item as! AnyObject)
 				if addAtIndex > 0 { addAtIndex -= 1 }
 				isItemRemoved = true
 			}
 		}
 		
 		if 0..<itemsSet.count + 1 ~= index {
-			itemsSet.insertObject(item, atIndex: addAtIndex)
+			itemsSet.insertObject(item as! AnyObject, atIndex: addAtIndex)
 		} else {
-			itemsSet.addObject(item)
+			itemsSet.addObject(item as! AnyObject)
 		}
 		
-		let queueItem = PlayerQueueItem(queue: self, playerItem: item)
+		let queueItem = PlayerQueueItem(queue: self, streamIdentifier: item)
 		
 		if isItemRemoved {
 			queueEventsSubject.onNext(.ChangeItemsOrder(self))
@@ -176,20 +177,20 @@ public class PlayerQueue {
 
 public class PlayerQueueItem {
 	public var parent: PlayerQueueItem? {
-		return queue.getItemBefore(streamItem)
+		return queue.getItemBefore(streamIdentifier)
 	}
 	public var child: PlayerQueueItem? {
-		return queue.getItemAfter(streamItem)
+		return queue.getItemAfter(streamIdentifier)
 	}
-	public let streamItem: StreamAudioItem
+	public let streamIdentifier: StreamResourceIdentifier
 	public let queue: PlayerQueue
 	public var inQueue: Bool {
-		return queue.itemsSet.indexOfObject(streamItem) != NSNotFound
+		return queue.itemsSet.indexOfObject(streamIdentifier as! AnyObject) != NSNotFound
 	}
 	
-	public init(queue: PlayerQueue, playerItem: StreamAudioItem) {
+	public init(queue: PlayerQueue, streamIdentifier: StreamResourceIdentifier) {
 		self.queue = queue
-		self.streamItem = playerItem
+		self.streamIdentifier = streamIdentifier
 	}
 	
 	deinit {
@@ -203,6 +204,6 @@ public func ==(lhs: PlayerQueueItem, rhs: PlayerQueueItem) -> Bool {
 
 extension PlayerQueueItem : Hashable {
 	public var hashValue: Int {
-		return streamItem.hashValue
+		return streamIdentifier.streamResourceUid.hashValue
 	}
 }

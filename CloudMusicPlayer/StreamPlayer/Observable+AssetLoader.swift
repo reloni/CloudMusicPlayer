@@ -123,6 +123,7 @@ extension Observable where Element : StreamTaskEventsProtocol {
 		}
 			
 		return Observable<Bool>.combineLatest (self, assetLoaderEvents) { e in
+			print(e.1)
 			switch e.1 {
 			case .DidCancelLoading(let loadingRequest):
 				resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
