@@ -27,9 +27,19 @@ class RxPlayerTests: XCTestCase {
 	func testShit() {
 		let player = RxPlayer()
 		player.rx_observe().dispatch().bindNext { e in
-			print(e)
+			print("Dispatch: \(e)")
 		}.addDisposableTo(bag)
-		player.shuffle()
+		player.rx_observe().bindNext { e in
+			print("Observe: \(e)")
+		}.addDisposableTo(bag)
+		
+		
+		player.addFirst("ololo")
+		GlobalPlayerHolder.instance.subject.onNext(.Started)
+		
+		//player.playUrl("http://some.com", clearQueue: true, contentTypeOverride: .mp3)
+		
+		NSThread.sleepForTimeInterval(1)
 	}
 	
 }

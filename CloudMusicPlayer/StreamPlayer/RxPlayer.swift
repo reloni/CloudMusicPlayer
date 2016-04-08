@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AVFoundation
 import RxSwift
 
 public protocol PlayerEventType { }
@@ -20,10 +21,50 @@ public enum PlayerEvents : PlayerEventType {
 	case RepeatChanged(Bool)
 	case ChangeItemsOrder(RxPlayer)
 	case PreparingToPlay(RxPlayerQueueItem, ContentType?)
-	case Started(RxPlayerQueueItem)
+	case Started
 	case Stopped
 	case Paused
 }
+
+internal class GlobalPlayerHolder {
+	static let instance = GlobalPlayerHolder()
+
+	var player: AVPlayerProtocol?
+	var observer = AVAssetResourceLoaderEventsObserver()
+	let subject = PublishSubject<PlayerEvents>()
+	var bag: DisposeBag!
+	var asset: AVURLAssetProtocol!
+	var playerItem: AVPlayerItemProtocol!
+	
+	func initialize(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol) -> Observable<AssetLoadingEvents> {
+		bag = DisposeBag()
+		self.asset = asset
+		self.playerItem = playerItem
+		
+		self.player = AVPlayer(playerItem: playerItem as! AVPlayerItem)
+		
+		player?.internalItemStatus.bindNext { [weak self] status in
+			print("player status: \(status?.rawValue)")
+			if status == AVPlayerItemStatus.ReadyToPlay {
+				self?.player?.play()
+				self?.subject.onNext(.Started)
+			}
+		}.addDisposableTo(bag)
+		
+		return observer.loaderEvents
+	}
+	
+	func stop() {
+		player?.replaceCurrentItemWithPlayerItem(nil)
+		player = nil
+		bag = nil
+	}
+	
+	deinit {
+		stop()
+	}
+}
+
 
 public class RxPlayer {
 	internal var itemsSet = NSMutableOrderedSet()

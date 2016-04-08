@@ -59,7 +59,7 @@ public enum ContentType: String {
 }
 
 extension Observable where Element : StreamTaskEventsProtocol {
-	public func loadWithAsset(assetEvents assetLoaderEvents: Observable<AssetLoadingEvents>,
+	internal func loadWithAsset(assetEvents assetLoaderEvents: Observable<AssetLoadingEvents>,
 	                                      targetAudioFormat: ContentType? = nil)
 		-> Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> {
 
