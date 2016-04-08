@@ -88,6 +88,6 @@ extension PlayerCacheDispatcher : PlayerCacheDispatcherProtocol {
 				task.cancel()
 				disposable.dispose()
 			}
-			}.shareReplay(1)
+		}.shareReplay(1)
 	}
 }
