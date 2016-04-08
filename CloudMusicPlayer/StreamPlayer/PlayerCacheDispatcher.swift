@@ -12,8 +12,11 @@ import RxSwift
 public protocol PlayerCacheDispatcherProtocol {
 	var saveCachedData: Bool  { get }
 	var localFileStorage: LocalStorageProtocol { get }
-	func createLoadTask(identifier: StreamResourceIdentifier, urlRequest: NSMutableURLRequestProtocol) -> Observable<StreamTaskEvents>
-	func createCacheItem(identifier: StreamResourceIdentifier, customHttpHeaders: [String: String]?, targetContentType: ContentType?) -> CacheItem?
+	//func createLoadTask(identifier: StreamResourceIdentifier, urlRequest: NSMutableURLRequestProtocol) -> Observable<StreamTaskEvents>
+	//func createCacheItem(identifier: StreamResourceIdentifier, customHttpHeaders: [String: String]?, targetContentType: ContentType?) -> CacheItem?
+	func createStreamTask(identifier: StreamResourceIdentifier, targetContentType: ContentType?) -> Observable<StreamTaskEvents>?
+	func createStreamTask(identifier: StreamResourceIdentifier, customHttpHeaders: [String: String]?, targetContentType: ContentType?)
+		-> Observable<StreamTaskEvents>?
 }
 
 public class PlayerCacheDispatcher {
@@ -37,23 +40,42 @@ public class PlayerCacheDispatcher {
 }
 
 extension PlayerCacheDispatcher : PlayerCacheDispatcherProtocol {
-	public func createCacheItem(identifier: StreamResourceIdentifier, customHttpHeaders: [String: String]? = nil, targetContentType: ContentType? = nil) -> CacheItem? {
-		guard let url = identifier.streamResourceUrl, urlRequest = httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
-			return nil
-		}
-
-		return UrlCacheItem(identifier: identifier, cacheDispatcher: self, urlRequest: urlRequest, targetContentType: targetContentType)
+	public func createStreamTask(identifier: StreamResourceIdentifier, targetContentType: ContentType?) -> Observable<StreamTaskEvents>? {
+		return createStreamTask(identifier, customHttpHeaders: nil, targetContentType: targetContentType)
 	}
 	
-	public func createLoadTask(identifier: StreamResourceIdentifier, urlRequest: NSMutableURLRequestProtocol) -> Observable<StreamTaskEvents> {
-		return Observable.create { [unowned self] observer in
-			let task = self.httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
-				sessionConfiguration: NSURLSession.defaultConfig,
-				cacheProvider: self.localFileStorage.createCacheProvider(identifier.streamResourceUid))
+	public func createStreamTask(identifier: StreamResourceIdentifier, customHttpHeaders: [String : String]?, targetContentType: ContentType?) -> Observable<StreamTaskEvents>? {
+		if identifier.streamResourceType == .HttpResource || identifier.streamResourceType == .HttpsResource {
+			guard let url = identifier.streamResourceUrl, urlRequest = httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
+				return nil
+			}
+			
+			func createUrlTask() -> StreamDataTaskProtocol {
+				return httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
+				                                              sessionConfiguration: NSURLSession.defaultConfig,
+				                                              cacheProvider: localFileStorage.createCacheProvider(identifier.streamResourceUid))
+			}
+			
+			func saveData(cacheProvider: CacheProvider?) {
+				if let cacheProvider = cacheProvider where saveCachedData {
+					var provider = cacheProvider
+					if let targetContentType = targetContentType { provider.contentMimeType = targetContentType.definition.MIME }
+					self.localFileStorage.saveToTempStorage(provider)
+				}
+			}
+			
+			return createObservable(createUrlTask, saveData: saveData)
+		} else { return nil }
+	}
+	
+	internal func createObservable(taskCreation: () -> StreamDataTaskProtocol, saveData: (cacheProvider: CacheProvider?) -> ()) -> Observable<StreamTaskEvents> {
+		return Observable.create { observer in
+			let task = taskCreation()
 			let disposable = task.taskProgress.bindNext { result in
 				observer.onNext(result)
 				
-				if case .Success = result {
+				if case .Success(let provider) = result {
+					saveData(cacheProvider: provider)
 					observer.onCompleted()
 				} else if case .Error = result {
 					observer.onCompleted()
@@ -67,42 +89,5 @@ extension PlayerCacheDispatcher : PlayerCacheDispatcherProtocol {
 				disposable.dispose()
 			}
 			}.shareReplay(1)
-	}
-}
-
-public protocol CacheItem {
-	var cacheDispatcher: PlayerCacheDispatcherProtocol { get }
-	var resourceIdentifier: StreamResourceIdentifier { get }
-	var targetContentType: ContentType? { get }
-	func getLoadTask() -> Observable<StreamTaskEvents>
-}
-
-public class UrlCacheItem : CacheItem {
-	internal let urlRequest: NSMutableURLRequestProtocol
-	public let targetContentType: ContentType?
-	public let cacheDispatcher: PlayerCacheDispatcherProtocol
-	public let resourceIdentifier: StreamResourceIdentifier
-	
-	public init(identifier: StreamResourceIdentifier, cacheDispatcher: PlayerCacheDispatcherProtocol,
-	            urlRequest: NSMutableURLRequestProtocol, targetContentType: ContentType? = nil) {
-		self.urlRequest = urlRequest
-		self.cacheDispatcher = cacheDispatcher
-		self.targetContentType = targetContentType
-		self.resourceIdentifier = identifier
-	}
-	
-	public func getLoadTask() -> Observable<StreamTaskEvents> {
-		return cacheDispatcher.createLoadTask(resourceIdentifier, urlRequest: urlRequest).map { e in
-			if case .Success(let provider) = e where self.cacheDispatcher.saveCachedData && provider != nil {
-				var cacheProvider = provider
-				if let targetContentType = self.targetContentType { cacheProvider?.contentMimeType = targetContentType.definition.MIME }
-				self.cacheDispatcher.localFileStorage.saveToTempStorage(cacheProvider!)
-			}
-			return e
-		}
-	}
-	
-	deinit {
-		print("cache item deinit")
 	}
 }

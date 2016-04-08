@@ -21,19 +21,23 @@ public enum PlayerState {
 public class StreamAudioPlayer {
 	private var bag = DisposeBag()
 	private var internalPlayer: AVPlayerProtocol?
-	internal var currentItemSubject = BehaviorSubject<StreamAudioItem?>(value: nil)
+	//internal var currentItemSubject = BehaviorSubject<StreamAudioItem?>(value: nil)
 	internal let stateSubject = BehaviorSubject<PlayerState>(value: .Stopped)
 	internal let utilities: StreamPlayerUtilitiesProtocol
 	internal let queue: PlayerQueue
 	internal let cacheDispatcher: PlayerCacheDispatcherProtocol
+	internal var observer: AVAssetResourceLoaderEventsObserver!
+	var asset: AVURLAssetProtocol!
+	var playerItem: AVPlayerItemProtocol!
+	var disp: Disposable?
 	
 	public var playerState: Observable<PlayerState> {
 		return self.stateSubject.shareReplay(1)
 	}
 	
-	public var currentItem: Observable<StreamAudioItem?>  {
-		return self.currentItemSubject.shareReplay(1)
-	}
+	//public var currentItem: Observable<StreamAudioItem?>  {
+	//	return self.currentItemSubject.shareReplay(1)
+	//}
 		
 	internal init(utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance, queue: PlayerQueue, cacheDispatcher: PlayerCacheDispatcherProtocol) {
 		self.utilities = utilities
@@ -55,7 +59,7 @@ public class StreamAudioPlayer {
 	internal func bindToQueue(queueEvents: Observable<PlayerQueueEvents>) {
 		queue.queueEvents.bindNext { [unowned self] result in
 			if case PlayerQueueEvents.CurrentItemChanged(let newItem) = result where newItem != nil {
-				self.currentItemSubject.onNext(newItem?.streamItem)
+				//self.currentItemSubject.onNext(newItem?.streamIdentifier.streamResourceUid)
 				self.playCurrent()
 			}
 		}.addDisposableTo(bag)
@@ -64,14 +68,14 @@ public class StreamAudioPlayer {
 	public func playUrl(url: StreamResourceIdentifier, createNewQueue: Bool = false, customHttpHeaders: [String: String]? = nil, audioFormat: ContentType? = nil) {
 		stop()
 
-		guard let cacheItem = cacheDispatcher.createCacheItem(url, customHttpHeaders: customHttpHeaders, targetContentType: url.streamResourceContentType ?? audioFormat) else { return }
-		let streamItem = utilities.createStreamAudioItem(self, cacheItem: cacheItem)
+		//guard let cacheItem = cacheDispatcher.createCacheItem(url, customHttpHeaders: customHttpHeaders, targetContentType: url.streamResourceContentType ?? audioFormat) else { return }
+		//let streamIdentifier.streamResourceUid = utilities.createStreamAudioItem(self, cacheItem: cacheItem)
 		
 		if createNewQueue {
-			queue.initWithNewItems([streamItem])
+			queue.initWithNewItems([url])
 			playNext()
 		} else {
-			queue.current = queue.addLast(streamItem)
+			queue.current = queue.addLast(url)
 		}
 	}
 	
@@ -79,17 +83,42 @@ public class StreamAudioPlayer {
 		queue.toNext()
 	}
 	
+//	internal lazy var urlAsset: AVURLAssetProtocol? = { [unowned self] in
+//		return self.player.utilities.createavUrlAsset(self.fakeUrl)
+//		}()
+//	
+//	public lazy var playerItem: AVPlayerItemProtocol? = { [unowned self] in
+//		guard let asset = self.urlAsset else { return nil }
+//		asset.getResourceLoader().setDelegate(self.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
+//		return self.player.utilities.createavPlayerItem(asset)
+//		}()
+	
 	internal func playCurrent() {
-		guard let current = queue.current, player = utilities.createAVPlayer(current.streamItem) else { return }
-		//stateSubject.onNext(.Preparing(current.streamItem))
+		guard let current = queue.current else { return }
+		
+		disp?.dispose()
+		
+		//stateSubject.onNext(.Preparing(current.streamIdentifier.streamResourceUid))
+		observer = AVAssetResourceLoaderEventsObserver()
+		asset = utilities.createavUrlAsset(NSURL(string: "fake://domain.com")!)
+		
+		asset.getResourceLoader().setDelegate(observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
+		playerItem = utilities.createavPlayerItem(asset)
+		
+		let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
+		disp = cacheDispatcher.createStreamTask(current.streamIdentifier, targetContentType: ContentType.mp3)?.observeOn(scheduler)
+			.loadWithAsset(assetEvents: observer.loaderEvents.observeOn(scheduler), targetAudioFormat: ContentType.mp3).subscribe()
+		
+		internalPlayer = AVPlayer(playerItem: playerItem as! AVPlayerItem) as AVPlayerProtocol
+		
 		stateSubject.onNext(.Preparing)
-		internalPlayer = player
+		//internalPlayer = player
 		internalPlayer?.internalItemStatus.subscribeNext { [weak self] status in
 			if let strong = self {
 				print("player status: \(status?.rawValue)")
 				if status == .ReadyToPlay {
 					strong.internalPlayer?.play()
-					//guard let currentStreamItem = strong.queue.current?.streamItem else { return }
+					//guard let currentStreamItem = strong.queue.current?.streamIdentifier.streamResourceUid else { return }
 					//strong.stateSubject.onNext(.Playing(currentStreamItem))
 					strong.stateSubject.onNext(.Playing)
 				}
@@ -103,7 +132,7 @@ public class StreamAudioPlayer {
 	}
 	
 	public func resume() {
-		//guard let currentStreamItem = queue.current?.streamItem else { return }
+		//guard let currentStreamItem = queue.current?.streamIdentifier.streamResourceUid else { return }
 		internalPlayer?.rate = 1.0
 		//stateSubject.onNext(.Playing(currentStreamItem))
 		stateSubject.onNext(.Playing)

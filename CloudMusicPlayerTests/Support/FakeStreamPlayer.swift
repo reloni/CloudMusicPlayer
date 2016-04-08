@@ -50,20 +50,20 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 	}
 }
 
-public class FakeCacheItem : CacheItem {
-	public var cacheDispatcher: PlayerCacheDispatcherProtocol
-	public var resourceIdentifier: StreamResourceIdentifier
-	public var task: StreamDataTaskProtocol?
-	public var targetContentType: ContentType?
-//	public func getCacheTask() -> Observable<CacheDataResult> {
-//		return task!.taskProgress
+//public class FakeCacheItem : CacheItem {
+//	public var cacheDispatcher: PlayerCacheDispatcherProtocol
+//	public var resourceIdentifier: StreamResourceIdentifier
+//	public var task: StreamDataTaskProtocol?
+//	public var targetContentType: ContentType?
+////	public func getCacheTask() -> Observable<CacheDataResult> {
+////		return task!.taskProgress
+////	}
+//	public func getLoadTask() -> Observable<StreamTaskEvents> {
+//		return task?.taskProgress ?? Observable<StreamTaskEvents>.empty()
 //	}
-	public func getLoadTask() -> Observable<StreamTaskEvents> {
-		return task?.taskProgress ?? Observable<StreamTaskEvents>.empty()
-	}
-	public init(resourceIdeitifier: StreamResourceIdentifier, task: StreamDataTaskProtocol?, cacheDispatcher: PlayerCacheDispatcherProtocol = PlayerCacheDispatcher()) {
-		self.resourceIdentifier = resourceIdeitifier
-		self.task = task
-		self.cacheDispatcher = cacheDispatcher
-	}
-}
+//	public init(resourceIdeitifier: StreamResourceIdentifier, task: StreamDataTaskProtocol?, cacheDispatcher: PlayerCacheDispatcherProtocol = PlayerCacheDispatcher()) {
+//		self.resourceIdentifier = resourceIdeitifier
+//		self.task = task
+//		self.cacheDispatcher = cacheDispatcher
+//	}
+//}

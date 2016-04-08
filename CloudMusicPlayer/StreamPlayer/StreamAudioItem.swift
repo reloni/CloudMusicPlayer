@@ -39,9 +39,9 @@ public class StreamAudioItem {
 		self.player = player
 		self.cacheItem = cacheItem
 				
-		let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-		cacheItem.getLoadTask().observeOn(scheduler).loadWithAsset(assetEvents: observer.loaderEvents
-			.observeOn(scheduler), targetAudioFormat: cacheItem.targetContentType).subscribe().addDisposableTo(bag)
+		//let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
+		//cacheItem.getLoadTask().observeOn(scheduler).loadWithAsset(assetEvents: observer.loaderEvents
+		//	.observeOn(scheduler), targetAudioFormat: cacheItem.targetContentType).subscribe().addDisposableTo(bag)
 	}
 	
 	deinit {

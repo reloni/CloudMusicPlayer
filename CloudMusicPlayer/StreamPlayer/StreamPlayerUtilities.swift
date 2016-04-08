@@ -10,10 +10,10 @@ import Foundation
 import AVFoundation
 
 internal protocol StreamPlayerUtilitiesProtocol {
-	func createAVPlayer(streamItem: StreamAudioItem) -> AVPlayerProtocol?
+	//func createAVPlayer(streamIdentifier.streamResourceUid: StreamAudioItem) -> AVPlayerProtocol?
 	func createavUrlAsset(url: NSURL) -> AVURLAssetProtocol
 	func createavPlayerItem(asset: AVURLAssetProtocol) -> AVPlayerItemProtocol
-	func createStreamAudioItem(player: StreamAudioPlayer, cacheItem: CacheItem) -> StreamAudioItem
+	//func createStreamAudioItem(player: StreamAudioPlayer, cacheItem: CacheItem) -> StreamAudioItem
 }
 
 internal class StreamPlayerUtilities {
@@ -35,10 +35,10 @@ internal class StreamPlayerUtilities {
 }
 
 extension StreamPlayerUtilities: StreamPlayerUtilitiesProtocol {
-	internal func createAVPlayer(streamItem: StreamAudioItem) -> AVPlayerProtocol? {
-		guard let item = streamItem.playerItem else { return nil }
-		return AVPlayer(playerItem: item as! AVPlayerItem) as AVPlayerProtocol
-	}
+	//internal func createAVPlayer(streamIdentifier.streamResourceUid: StreamAudioItem) -> AVPlayerProtocol? {
+	//	guard let item = streamIdentifier.streamResourceUid.playerItem else { return nil }
+	//	return AVPlayer(playerItem: item as! AVPlayerItem) as AVPlayerProtocol
+	//}
 	
 	internal func createavUrlAsset(url: NSURL) -> AVURLAssetProtocol {
 		return AVURLAsset(URL: url)
@@ -48,7 +48,7 @@ extension StreamPlayerUtilities: StreamPlayerUtilitiesProtocol {
 		return AVPlayerItem(asset: asset as! AVURLAsset)
 	}
 	
-	internal func createStreamAudioItem(player: StreamAudioPlayer, cacheItem: CacheItem) -> StreamAudioItem {
-		return StreamAudioItem(cacheItem: cacheItem, player: player)
-	}
+	//internal func createStreamAudioItem(player: StreamAudioPlayer, cacheItem: CacheItem) -> StreamAudioItem {
+	//	return StreamAudioItem(cacheItem: cacheItem, player: player)
+	//}
 }

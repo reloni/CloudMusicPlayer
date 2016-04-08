@@ -9,11 +9,42 @@
 import Foundation
 import RxSwift
 
+public enum StreamResourceType {
+	case LocalResource
+	case HttpResource
+	case HttpsResource
+}
+
 public protocol StreamResourceIdentifier {
 	var streamResourceUid: String { get }
 	var streamResourceUrl: String? { get }
 	var streamResourceContentType: ContentType? { get }
+	var streamResourceType: StreamResourceType? { get }
 }
+
+public protocol StreamHttpResourceIdentifier {
+	var streamHttpHeaders: [String: String]? { get }
+}
+
+extension StreamResourceIdentifier {
+	public var streamResourceType: StreamResourceType? {
+		guard let url = streamResourceUrl, scheme = NSURLComponents(string: url)?.scheme else { return nil }
+		switch scheme {
+			case "file": return .LocalResource
+			case "http": return .HttpResource
+			case "https": return .HttpsResource
+			default: return nil
+		}
+	}
+}
+
+extension StreamHttpResourceIdentifier {
+	public var streamHttpHeaders: [String: String]? {
+		return nil
+	}
+}
+
+
 extension String : StreamResourceIdentifier {
 	public var streamResourceUid: String {
 		return self
@@ -25,6 +56,21 @@ extension String : StreamResourceIdentifier {
 		return nil
 	}
 }
+
+
+extension _SwiftNativeNSString : StreamResourceIdentifier {
+	public var streamResourceUid: String {
+		return String(self)
+	}
+	public var streamResourceUrl: String? {
+		return String(self)
+	}
+	public var streamResourceContentType: ContentType? {
+		return nil
+	}
+}
+
+
 extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
 	public var streamResourceUid: String {
 		return path
@@ -49,5 +95,11 @@ extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
 	public var streamResourceContentType: ContentType? {
 		guard let mime = mimeType, type = ContentType(rawValue: mime) else { return nil }
 		return type
+	}
+}
+
+extension YandexDiskCloudJsonResource : StreamHttpResourceIdentifier {
+	public var streamHttpHeaders: [String: String]? {
+		return getRequestHeaders()
 	}
 }

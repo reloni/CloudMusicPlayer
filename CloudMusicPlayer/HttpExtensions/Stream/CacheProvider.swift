@@ -31,10 +31,13 @@ public class MemoryCacheProvider {
 	public init(uid: String) {
 		self.uid = uid
 	}
+	
+	deinit {
+		print("cache provider deinit")
+	}
 }
 
 extension MemoryCacheProvider : CacheProvider {
-
 	public var currentDataLength: UInt64 {
 		return UInt64(cacheData.length)
 	}
