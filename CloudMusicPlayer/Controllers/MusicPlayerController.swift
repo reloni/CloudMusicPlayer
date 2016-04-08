@@ -51,28 +51,28 @@ class MusicPlayerController: UIViewController {
 			}
 		}.addDisposableTo(bag)
 		
-		streamPlayer.currentItem.flatMapLatest { e -> Observable<(metadata: AudioItemMetadata?, duration: String?)?> in
-			return Observable.just((metadata: e?.metadata, duration: e?.durationString))
-			}.asDriver(onErrorJustReturn: nil).driveNext { [unowned self] result in
-				self.trackLabel.text = result?.metadata?.title
-				self.artistLabel.text = result?.metadata?.artist
-				self.albumLabel.text = result?.metadata?.album
-				self.fullTimeLabel.text = result?.duration
-				if let artwork = result?.metadata?.artwork {
-					self.image.image = UIImage(data: artwork)
-				}
-			}.addDisposableTo(bag)
-		
-		//streamPlayer.currentItem.flatMapLatest { e -> Observable<CMTime> in return e?.currentTime ?? Observable.just(CMTimeMake(0, 1)) }
-		// .map { e in return e.asString }.asDriver(onErrorJustReturn: "0: 00").drive(currentTimeLabel.rx_text).addDisposableTo(bag)
-		
-		streamPlayer.currentItem.flatMapLatest { e -> Observable<(currentTime: CMTime, duration: CMTime?)> in
-			return e?.currentTime ?? Observable.just((CMTimeMake(0, 1), nil)) }
-		 .asDriver(onErrorJustReturn: (CMTimeMake(0, 1), nil)).driveNext { [unowned self] e in
-			self.currentTimeLabel.text = e.currentTime.asString
-			guard let sec = e.currentTime.safeSeconds, duration = e.duration?.safeSeconds else { return }
-			self.progressView.progress = Float(sec / duration)
-		}.addDisposableTo(bag)
+//		streamPlayer.currentItem.flatMapLatest { e -> Observable<(metadata: AudioItemMetadata?, duration: String?)?> in
+//			return Observable.just((metadata: e?.metadata, duration: e?.durationString))
+//			}.asDriver(onErrorJustReturn: nil).driveNext { [unowned self] result in
+//				self.trackLabel.text = result?.metadata?.title
+//				self.artistLabel.text = result?.metadata?.artist
+//				self.albumLabel.text = result?.metadata?.album
+//				self.fullTimeLabel.text = result?.duration
+//				if let artwork = result?.metadata?.artwork {
+//					self.image.image = UIImage(data: artwork)
+//				}
+//			}.addDisposableTo(bag)
+//		
+//		//streamPlayer.currentItem.flatMapLatest { e -> Observable<CMTime> in return e?.currentTime ?? Observable.just(CMTimeMake(0, 1)) }
+//		// .map { e in return e.asString }.asDriver(onErrorJustReturn: "0: 00").drive(currentTimeLabel.rx_text).addDisposableTo(bag)
+//		
+//		streamPlayer.currentItem.flatMapLatest { e -> Observable<(currentTime: CMTime, duration: CMTime?)> in
+//			return e?.currentTime ?? Observable.just((CMTimeMake(0, 1), nil)) }
+//		 .asDriver(onErrorJustReturn: (CMTimeMake(0, 1), nil)).driveNext { [unowned self] e in
+//			self.currentTimeLabel.text = e.currentTime.asString
+//			guard let sec = e.currentTime.safeSeconds, duration = e.duration?.safeSeconds else { return }
+//			self.progressView.progress = Float(sec / duration)
+//		}.addDisposableTo(bag)
 		
 		//streamPlayer.currentItem.bindNext { e in print(e?.cacheItem.resourceIdentifier.streamResourceUid)}.dispose()
 		

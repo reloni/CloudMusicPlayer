@@ -10,7 +10,7 @@
 		6E0296D31CA27E8E007EC58E /* StreamDataCacheTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0296D21CA27E8E007EC58E /* StreamDataCacheTaskTests.swift */; };
 		6E07F0E81C9ABD34001027EA /* SPExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E07F0E71C9ABD34001027EA /* SPExtensions.swift */; };
 		6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E07F0F31C9B250C001027EA /* HttpExtensions.swift */; };
-		6E0A028F1C8A0CB500AD9B38 /* StreamAudioItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028B1C8A0CB500AD9B38 /* StreamAudioItem.swift */; };
+		6E0853041CB78B900004E193 /* PlayerQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBFE0F81CAA7BBD0003D12C /* PlayerQueueTests.swift */; };
 		6E0A02901C8A0CB500AD9B38 /* StreamAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028C1C8A0CB500AD9B38 /* StreamAudioPlayer.swift */; };
 		6E0A02921C8A0CB500AD9B38 /* StreamDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028E1C8A0CB500AD9B38 /* StreamDataTask.swift */; };
 		6E0A02941C8A0D0B00AD9B38 /* NSFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A02931C8A0D0B00AD9B38 /* NSFileManager.swift */; };
@@ -151,7 +151,7 @@
 		6EA638771C7A002200DD85A6 /* CloudResourcesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourcesViewModel.swift; sourceTree = "<group>"; };
 		6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAssetResourceLoaderEventsObserver.swift; sourceTree = "<group>"; };
 		6EB8C2F71C5019FD0064A00B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		6EBFE0F81CAA7BBD0003D12C /* PlayerQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerQueueTests.swift; sourceTree = "<group>"; };
+		6EBFE0F81CAA7BBD0003D12C /* PlayerQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = PlayerQueueTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamResourceIdentifier.swift; sourceTree = "<group>"; };
 		6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableOrderedSet.swift; sourceTree = "<group>"; };
 		6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicPlayerViewModel.swift; sourceTree = "<group>"; };
@@ -260,8 +260,8 @@
 				6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */,
 				6EEC8F781CA0393100B30B85 /* Observable+AssetLoader.swift */,
 				6E6D78681CAEA24E00A1A41F /* PlayerCacheDispatcher.swift */,
-				6E19D7081CAA785C00059662 /* PlayerQueue.swift */,
 				6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */,
+				6E19D7081CAA785C00059662 /* PlayerQueue.swift */,
 				6E07F0E71C9ABD34001027EA /* SPExtensions.swift */,
 				6E0A028B1C8A0CB500AD9B38 /* StreamAudioItem.swift */,
 				6E0A028C1C8A0CB500AD9B38 /* StreamAudioPlayer.swift */,
@@ -647,7 +647,6 @@
 				6EEC8F791CA0393100B30B85 /* Observable+AssetLoader.swift in Sources */,
 				6EC4E6141C8D789200957D42 /* MusicPlayerController.swift in Sources */,
 				6EAFAD821CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift in Sources */,
-				6E0A028F1C8A0CB500AD9B38 /* StreamAudioItem.swift in Sources */,
 				6EA638781C7A002200DD85A6 /* CloudResourcesViewModel.swift in Sources */,
 				6EE0CCC61C96CAA4002F4D9D /* HttpClient.swift in Sources */,
 				6E182ED61C81E14700730C59 /* CloudTrackCell.swift in Sources */,
@@ -685,6 +684,7 @@
 				6E6311161CA3D844006C0072 /* AssetResourceLoaderTests.swift in Sources */,
 				6EE857BA1C988BD3002809B5 /* HttpUtilitiesTests.swift in Sources */,
 				6E12E0711CB3D68300091B9A /* LocalStorageTests.swift in Sources */,
+				6E0853041CB78B900004E193 /* PlayerQueueTests.swift in Sources */,
 				6EE0CCCA1C96CBEE002F4D9D /* HttpClientBasicTests.swift in Sources */,
 				6E80F8B91C903CA200102A9C /* OAuthResourceTests.swift in Sources */,
 				6E3D8A5F1CB6807400B604F0 /* StreamResourceIdentifierTests.swift in Sources */,

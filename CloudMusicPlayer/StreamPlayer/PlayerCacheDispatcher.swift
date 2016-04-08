@@ -40,14 +40,6 @@ public class PlayerCacheDispatcher {
 }
 
 extension PlayerCacheDispatcher : PlayerCacheDispatcherProtocol {
-	public func createCacheItem(identifier: StreamResourceIdentifier, customHttpHeaders: [String: String]? = nil, targetContentType: ContentType? = nil) -> CacheItem? {
-		guard let url = identifier.streamResourceUrl, urlRequest = httpUtilities.createUrlRequest(url, parameters: nil, headers: customHttpHeaders) else {
-			return nil
-		}
-
-		return UrlCacheItem(identifier: identifier, cacheDispatcher: self, urlRequest: urlRequest, targetContentType: targetContentType)
-	}
-	
 	public func createStreamTask(identifier: StreamResourceIdentifier, targetContentType: ContentType?) -> Observable<StreamTaskEvents>? {
 		return createStreamTask(identifier, customHttpHeaders: nil, targetContentType: targetContentType)
 	}
@@ -97,42 +89,5 @@ extension PlayerCacheDispatcher : PlayerCacheDispatcherProtocol {
 				disposable.dispose()
 			}
 			}.shareReplay(1)
-	}
-}
-
-public protocol CacheItem {
-	var cacheDispatcher: PlayerCacheDispatcherProtocol { get }
-	var resourceIdentifier: StreamResourceIdentifier { get }
-	var targetContentType: ContentType? { get }
-	//func getLoadTask() -> Observable<StreamTaskEvents>
-}
-
-public class UrlCacheItem : CacheItem {
-	internal let urlRequest: NSMutableURLRequestProtocol
-	public let targetContentType: ContentType?
-	public let cacheDispatcher: PlayerCacheDispatcherProtocol
-	public let resourceIdentifier: StreamResourceIdentifier
-	
-	public init(identifier: StreamResourceIdentifier, cacheDispatcher: PlayerCacheDispatcherProtocol,
-	            urlRequest: NSMutableURLRequestProtocol, targetContentType: ContentType? = nil) {
-		self.urlRequest = urlRequest
-		self.cacheDispatcher = cacheDispatcher
-		self.targetContentType = targetContentType
-		self.resourceIdentifier = identifier
-	}
-	
-	//public func getLoadTask() -> Observable<StreamTaskEvents> {
-	//	return cacheDispatcher.createLoadTask(resourceIdentifier, urlRequest: urlRequest).map { e in
-	//		if case .Success(let provider) = e where self.cacheDispatcher.saveCachedData && provider != nil {
-	//			var cacheProvider = provider
-	//			if let targetContentType = self.targetContentType { cacheProvider?.contentMimeType = targetContentType.definition.MIME }
-	//			self.cacheDispatcher.localFileStorage.saveToTempStorage(cacheProvider!)
-	//		}
-	//		return e
-	//	}
-	//}
-	
-	deinit {
-		print("cache item deinit")
 	}
 }
