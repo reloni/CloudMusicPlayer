@@ -30,17 +30,18 @@ internal class GlobalPlayerHolder {
 	static let instance = GlobalPlayerHolder()
 
 	var player: AVPlayerProtocol?
-	var observer = AVAssetResourceLoaderEventsObserver()
+	var observer: AVAssetResourceLoaderEventsObserver!
 	let subject = PublishSubject<PlayerEvents>()
 	var bag: DisposeBag!
 	var asset: AVURLAssetProtocol!
 	var playerItem: AVPlayerItemProtocol!
 	
-	func initialize(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol) -> Observable<AssetLoadingEvents> {
+	func initialize(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserver) -> Observable<AssetLoadingEvents> {
+		stop()
 		bag = DisposeBag()
 		self.asset = asset
 		self.playerItem = playerItem
-		
+		self.observer = observer
 		self.player = AVPlayer(playerItem: playerItem as! AVPlayerItem)
 		
 		player?.internalItemStatus.bindNext { [weak self] status in

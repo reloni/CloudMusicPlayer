@@ -20,6 +20,7 @@ extension Observable where Element : PlayerEventType {
 				
 				guard case let .PreparingToPlay(item, targetContentType) = e as! PlayerEvents else { return DispatchResult.empty() }
 				
+				print("preparing \(item.streamIdentifier.streamResourceUid)")
 				
 				guard item.streamIdentifier.streamResourceType == .HttpResource || item.streamIdentifier.streamResourceType == .HttpsResource else {
 					return DispatchResult.empty()

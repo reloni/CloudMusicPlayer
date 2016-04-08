@@ -14,17 +14,17 @@ extension Observable where Element : StreamTaskEventsProtocol {
 		Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> {
 			
 			let asset = utilities.createavUrlAsset(NSURL(string: "fake://domain.com")!)
-			//self.asset.getResourceLoader().setDelegate(observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
-			asset.getResourceLoader().setDelegate(GlobalPlayerHolder.instance.observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
+			let observer = AVAssetResourceLoaderEventsObserver()
+			asset.getResourceLoader().setDelegate(observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 			let playerItem = utilities.createavPlayerItem(asset)
 			
 			let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 			
 			let task = self.observeOn(scheduler).loadWithAsset(
-				assetEvents: GlobalPlayerHolder.instance.observer.loaderEvents.observeOn(scheduler),
+				assetEvents: observer.loaderEvents.observeOn(scheduler),
 				targetAudioFormat: contentType)
 			
-			GlobalPlayerHolder.instance.initialize(playerItem, asset: asset)
+			GlobalPlayerHolder.instance.initialize(playerItem, asset: asset, observer: observer)
 			
 			return task
 	}
