@@ -61,13 +61,15 @@ class CloudResourcesStructureController: UIViewController {
 			track.downloadUrl?.bindNext { result in
 				guard let url = result else { return }
 				//streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
-				streamPlayer.playUrl(url, createNewQueue: true, customHttpHeaders: track.getRequestHeaders())
+				//streamPlayer.playUrl(url, createNewQueue: true, customHttpHeaders: track.getRequestHeaders())
+				rxPlayer.playUrl(url)
+				
 				}.addDisposableTo(bag!)
 		}
 	}
 	
 	func stop() {
-		streamPlayer.stop()
+		//rxPlayer.stop()
 	}
 }
 

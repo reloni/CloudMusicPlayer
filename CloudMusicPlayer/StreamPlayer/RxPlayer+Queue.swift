@@ -9,7 +9,7 @@
 import Foundation
 import RxSwift
 
-extension RxPlayer {
+extension RxPlayer {	
 	public var first: RxPlayerQueueItem? {
 		return getItemAtPosition(0)
 	}
@@ -34,7 +34,7 @@ extension RxPlayer {
 	
 	public func initWithNewItems(items: [StreamResourceIdentifier], shuffle: Bool = false) {
 		itemsSet.removeAllObjects()
-		
+
 		current = nil
 		if shuffle {
 			itemsSet.addObjectsFromArray(items.map { $0 as! AnyObject }.shuffle())

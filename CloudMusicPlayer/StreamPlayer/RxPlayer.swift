@@ -14,6 +14,7 @@ public protocol PlayerEventType { }
 
 public enum PlayerEvents : PlayerEventType {
 	case AddNewItem(RxPlayerQueueItem)
+	case AddNewItems([RxPlayerQueueItem])
 	case RemoveItem(RxPlayerQueueItem)
 	case Shuflle([RxPlayerQueueItem])
 	case InitWithNewItems([RxPlayerQueueItem])
@@ -22,7 +23,9 @@ public enum PlayerEvents : PlayerEventType {
 	case ChangeItemsOrder(RxPlayer)
 	case PreparingToPlay(RxPlayerQueueItem, ContentType?)
 	case Started
+	case Stopping(RxPlayerQueueItem)
 	case Stopped
+	case Pausing(RxPlayerQueueItem)
 	case Paused
 }
 
@@ -39,11 +42,12 @@ internal class GlobalPlayerHolder {
 	func initialize(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserver) -> Observable<AssetLoadingEvents> {
 		stop()
 		bag = DisposeBag()
+		
 		self.asset = asset
 		self.playerItem = playerItem
 		self.observer = observer
 		self.player = AVPlayer(playerItem: playerItem as! AVPlayerItem)
-		
+
 		player?.internalItemStatus.bindNext { [weak self] status in
 			print("player status: \(status?.rawValue)")
 			if status == AVPlayerItemStatus.ReadyToPlay {
@@ -70,6 +74,21 @@ internal class GlobalPlayerHolder {
 public class RxPlayer {
 	internal var itemsSet = NSMutableOrderedSet()
 	internal var queueEventsSubject = PublishSubject<PlayerEvents>()
+
+	public lazy var playerEvents: Observable<PlayerEvents> = {
+		return Observable.create { [weak self] observer in
+			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+			
+			
+			let first = object.queueEventsSubject.shareReplay(1).subscribe(observer)
+			let second = GlobalPlayerHolder.instance.subject.shareReplay(1).subscribe(observer)
+			
+			return AnonymousDisposable {
+				first.dispose()
+				second.dispose()
+			}
+		}
+	}()
 	
 	public internal(set) var current: RxPlayerQueueItem? {
 		didSet {
@@ -85,5 +104,9 @@ public class RxPlayer {
 	
 	public init(repeatQueue: Bool = false) {
 		self.repeatQueue = repeatQueue
+	}
+	
+	deinit {
+		queueEventsSubject.onCompleted()
 	}
 }

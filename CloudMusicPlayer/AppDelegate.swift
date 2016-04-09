@@ -11,7 +11,7 @@ import CoreData
 
 import RxSwift
 
-var streamPlayer = StreamAudioPlayer(allowSaveCachedData: true)
+//var streamPlayer = StreamAudioPlayer(allowSaveCachedData: true)
 var rxPlayer = RxPlayer()
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -25,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			NSLog("Documents Path: %@", NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first ?? "")
 		#endif
 		
-		rxPlayer.rx_observe().dispatch(true).subscribe().addDisposableTo(bag)
+		rxPlayer.rx_observe().streamContent(true).subscribe().addDisposableTo(bag)
 		
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import RxSwift
 
 extension RxPlayer {
 	public func playUrl(url: StreamResourceIdentifier, contentTypeOverride: ContentType? = nil) {

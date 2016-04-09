@@ -130,7 +130,6 @@ extension Observable where Element : StreamTaskEventsProtocol {
 				if !loadingRequest.finished {
 					resourceLoadingRequests[loadingRequest.hash] = loadingRequest
 				}
-			default: break
 			}
 			
 			switch e.0 as! StreamTaskEvents {
