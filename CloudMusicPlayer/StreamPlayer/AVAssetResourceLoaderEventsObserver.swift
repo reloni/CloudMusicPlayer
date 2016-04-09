@@ -13,7 +13,6 @@ import RxSwift
 public enum AssetLoadingEvents {
 	case ShouldWaitForLoading(AVAssetResourceLoadingRequestProtocol)
 	case DidCancelLoading(AVAssetResourceLoadingRequestProtocol)
-	case StartLoading
 }
 
 public protocol AVAssetResourceLoaderEventsObserverProtocol {
@@ -24,7 +23,6 @@ public protocol AVAssetResourceLoaderEventsObserverProtocol {
 @objc public class AVAssetResourceLoaderEventsObserver : NSObject {
 	internal let publishSubject = PublishSubject<AssetLoadingEvents>()
 	public var shouldWaitForLoading: Bool
-	private var isLoadingStarted = false
 	
 	public init(shouldWaitForLoading: Bool = true) {
 		self.shouldWaitForLoading = shouldWaitForLoading
@@ -43,10 +41,6 @@ extension AVAssetResourceLoaderEventsObserver : AVAssetResourceLoaderEventsObser
 
 extension AVAssetResourceLoaderEventsObserver : AVAssetResourceLoaderDelegate {	
 	public func resourceLoader(resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
-		//if !isLoadingStarted {
-		//	isLoadingStarted = true
-		//	publishSubject.onNext(.StartLoading)
-		//}
 		publishSubject.onNext(.ShouldWaitForLoading(loadingRequest))
 		return shouldWaitForLoading
 	}

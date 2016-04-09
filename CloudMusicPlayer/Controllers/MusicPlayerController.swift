@@ -33,23 +33,23 @@ class MusicPlayerController: UIViewController {
 	var disposables = [Disposable]()
 	
 	override func viewDidLoad() {
-		reactivePlayButton.rx_tap.bindNext {
-			guard let state = streamPlayer.getCurrentState() else { return }
-			switch state {
-			case .Playing: streamPlayer.pause()
-			case .Paused: streamPlayer.resume()
-			default: break
-			}
-		}.addDisposableTo(bag)
-		
-		reactivePauseButton.rx_tap.bindNext {
-			guard let state = streamPlayer.getCurrentState() else { return }
-			switch state {
-			case .Playing: streamPlayer.pause()
-			case .Paused: streamPlayer.resume()
-			default: break
-			}
-		}.addDisposableTo(bag)
+//		reactivePlayButton.rx_tap.bindNext {
+//			guard let state = streamPlayer.getCurrentState() else { return }
+//			switch state {
+//			case .Playing: streamPlayer.pause()
+//			case .Paused: streamPlayer.resume()
+//			default: break
+//			}
+//		}.addDisposableTo(bag)
+//		
+//		reactivePauseButton.rx_tap.bindNext {
+//			guard let state = streamPlayer.getCurrentState() else { return }
+//			switch state {
+//			case .Playing: streamPlayer.pause()
+//			case .Paused: streamPlayer.resume()
+//			default: break
+//			}
+//		}.addDisposableTo(bag)
 		
 //		streamPlayer.currentItem.flatMapLatest { e -> Observable<(metadata: AudioItemMetadata?, duration: String?)?> in
 //			return Observable.just((metadata: e?.metadata, duration: e?.durationString))
@@ -76,20 +76,20 @@ class MusicPlayerController: UIViewController {
 		
 		//streamPlayer.currentItem.bindNext { e in print(e?.cacheItem.resourceIdentifier.streamResourceUid)}.dispose()
 		
-		streamPlayer.playerState.asDriver(onErrorJustReturn: .Stopped).driveNext { [unowned self] e in
-			var newButton: UIBarButtonItem?
-			switch e {
-			case .Paused: newButton = self.reactivePlayButton
-			case .Playing: newButton = self.reactivePauseButton
-			default: break
-			}
-			
-			if let newButton = newButton, index = self.toolbar.items?.indexOf(self.playButton) {
-				self.toolbar.items?.removeAtIndex(index)
-				self.toolbar.items?.insert(newButton, atIndex: index)
-				self.playButton = newButton
-			}
-		}.addDisposableTo(bag)
+//		streamPlayer.playerState.asDriver(onErrorJustReturn: .Stopped).driveNext { [unowned self] e in
+//			var newButton: UIBarButtonItem?
+//			switch e {
+//			case .Paused: newButton = self.reactivePlayButton
+//			case .Playing: newButton = self.reactivePauseButton
+//			default: break
+//			}
+//			
+//			if let newButton = newButton, index = self.toolbar.items?.indexOf(self.playButton) {
+//				self.toolbar.items?.removeAtIndex(index)
+//				self.toolbar.items?.insert(newButton, atIndex: index)
+//				self.playButton = newButton
+//			}
+//		}.addDisposableTo(bag)
 	}
 	
 	deinit {

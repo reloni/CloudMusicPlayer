@@ -1,63 +1,31 @@
 //
-//  PlayerQueue.swift
+//  RxPlayerQueue.swift
 //  CloudMusicPlayer
 //
-//  Created by Anton Efimenko on 28.03.16.
+//  Created by Anton Efimenko on 08.04.16.
 //  Copyright © 2016 Anton Efimenko. All rights reserved.
 //
 
 import Foundation
 import RxSwift
 
-public enum PlayerQueueEvents {
-	case AddNewItem(PlayerQueueItem)
-	case RemoveItem(PlayerQueueItem)
-	case Shuflle([PlayerQueueItem])
-	case InitWithNewItems([PlayerQueueItem])
-	case CurrentItemChanged(PlayerQueueItem?)
-	case RepeatChanged(Bool)
-	case ChangeItemsOrder(PlayerQueue)
-}
-
-public class PlayerQueue {
-	internal var itemsSet = NSMutableOrderedSet()
-	internal var queueEventsSubject = PublishSubject<PlayerQueueEvents>()
-	
-	public lazy var queueEvents: Observable<PlayerQueueEvents> = {
-		return self.queueEventsSubject
-	}()
-	
-	public internal(set) var current: PlayerQueueItem? {
-		didSet {
-			queueEventsSubject.onNext(.CurrentItemChanged(current))
-		}
-	}
-	public internal(set) var repeatQueue: Bool {
-		didSet {
-			queueEventsSubject.onNext(.RepeatChanged(repeatQueue))
-		}
-	}
-	
-	public var first: PlayerQueueItem? {
+extension RxPlayer {	
+	public var first: RxPlayerQueueItem? {
 		return getItemAtPosition(0)
 	}
 	
-	public var last: PlayerQueueItem? {
+	public var last: RxPlayerQueueItem? {
 		return getItemAtPosition(itemsSet.count - 1)
 	}
 	
-	public var currentItems: [PlayerQueueItem] {
-		return itemsSet.map { PlayerQueueItem(queue: self, streamIdentifier: $0 as! StreamResourceIdentifier) }
+	public var currentItems: [RxPlayerQueueItem] {
+		return itemsSet.map { RxPlayerQueueItem(player: self, streamIdentifier: $0 as! StreamResourceIdentifier) }
 	}
 	
 	public var count: Int {
 		return itemsSet.count
 	}
-	
-	public init(repeatQueue: Bool = false) {
-		self.repeatQueue = repeatQueue
-	}
-	
+
 	public convenience init(items: [StreamResourceIdentifier], shuffle: Bool = false, repeatQueue: Bool = false) {
 		self.init(repeatQueue: repeatQueue)
 		
@@ -83,7 +51,7 @@ public class PlayerQueue {
 		queueEventsSubject.onNext(.Shuflle(currentItems))
 	}
 	
-	public func toNext() -> PlayerQueueItem? {
+	public func toNext() -> RxPlayerQueueItem? {
 		if current == nil {
 			current = first
 		} else {
@@ -92,7 +60,7 @@ public class PlayerQueue {
 		return current
 	}
 	
-	public func toPrevious() -> PlayerQueueItem? {
+	public func toPrevious() -> RxPlayerQueueItem? {
 		if current == nil {
 			current = first
 		} else if current != first {
@@ -104,52 +72,52 @@ public class PlayerQueue {
 	public func remove(item: StreamResourceIdentifier) {
 		guard let index = itemsSet.getIndexOfObject(item as! AnyObject) else { return }
 		itemsSet.removeObjectAtIndex(index)
-		queueEventsSubject.onNext(.RemoveItem(PlayerQueueItem(queue: self, streamIdentifier: item)))
+		queueEventsSubject.onNext(.RemoveItem(RxPlayerQueueItem(player: self, streamIdentifier: item)))
 	}
 	
-	public func remove(item: PlayerQueueItem) {
+	public func remove(item: RxPlayerQueueItem) {
 		remove(item.streamIdentifier)
 	}
 	
-	public func getItemAtPosition(position: Int) -> PlayerQueueItem? {
+	public func getItemAtPosition(position: Int) -> RxPlayerQueueItem? {
 		guard let item: StreamResourceIdentifier = itemsSet.getObjectAtIndex(position) else { return nil }
-		return PlayerQueueItem(queue: self, streamIdentifier: item)
+		return RxPlayerQueueItem(player: self, streamIdentifier: item)
 	}
 	
-	public func getItemAfter(item: StreamResourceIdentifier) -> PlayerQueueItem? {
+	public func getItemAfter(item: StreamResourceIdentifier) -> RxPlayerQueueItem? {
 		let index = itemsSet.indexOfObject(item as! AnyObject)
 		return getItemAtPosition(index + 1)
 	}
 	
-	public func getItemBefore(item: StreamResourceIdentifier) -> PlayerQueueItem? {
+	public func getItemBefore(item: StreamResourceIdentifier) -> RxPlayerQueueItem? {
 		let index = itemsSet.indexOfObject(item as! AnyObject)
 		return getItemAtPosition(index - 1)
 	}
 	
-	public func addLast(item: StreamResourceIdentifier) -> PlayerQueueItem {
+	public func addLast(item: StreamResourceIdentifier) -> RxPlayerQueueItem {
 		return add(item, index: itemsSet.count)
 	}
 	
-	public func addFirst(item: StreamResourceIdentifier) -> PlayerQueueItem {
+	public func addFirst(item: StreamResourceIdentifier) -> RxPlayerQueueItem {
 		return add(item, index: 0)
 	}
-
+	
 	/// Add item in queue after specified item.
 	/// If specified item doesn't exist, add to end
-	public func addAfter(itemToAdd: StreamResourceIdentifier, afterItem: StreamResourceIdentifier) -> PlayerQueueItem {
+	public func addAfter(itemToAdd: StreamResourceIdentifier, afterItem: StreamResourceIdentifier) -> RxPlayerQueueItem {
 		let index = itemsSet.getIndexOfObject(afterItem as! AnyObject) ?? itemsSet.count
 		return add(itemToAdd, index: index + 1)
 	}
 	
-	/// Add item in queue. 
-	/// Return instance of PlayerQueueItem if item was added. 
-	/// If item already exists, set item at specified index and return PlayerQueueItem with this item
-	private func add(item: StreamResourceIdentifier, index: Int) -> PlayerQueueItem {
+	/// Add item in queue.
+	/// Return instance of RxPlayerQueueItem if item was added.
+	/// If item already exists, set item at specified index and return RxPlayerQueueItem with this item
+	private func add(item: StreamResourceIdentifier, index: Int) -> RxPlayerQueueItem {
 		var addAtIndex = index
 		var isItemRemoved = false
 		if let currentIndex = itemsSet.getIndexOfObject(item as! AnyObject) {
 			if currentIndex == index {
-				return PlayerQueueItem(queue: self, streamIdentifier: item)
+				return RxPlayerQueueItem(player: self, streamIdentifier: item)
 			} else {
 				itemsSet.removeObject(item as! AnyObject)
 				if addAtIndex > 0 { addAtIndex -= 1 }
@@ -163,7 +131,7 @@ public class PlayerQueue {
 			itemsSet.addObject(item as! AnyObject)
 		}
 		
-		let queueItem = PlayerQueueItem(queue: self, streamIdentifier: item)
+		let queueItem = RxPlayerQueueItem(player: self, streamIdentifier: item)
 		
 		if isItemRemoved {
 			queueEventsSubject.onNext(.ChangeItemsOrder(self))
@@ -175,34 +143,34 @@ public class PlayerQueue {
 	}
 }
 
-public class PlayerQueueItem {
-	public var parent: PlayerQueueItem? {
-		return queue.getItemBefore(streamIdentifier)
+public class RxPlayerQueueItem {
+	public var parent: RxPlayerQueueItem? {
+		return player.getItemBefore(streamIdentifier)
 	}
-	public var child: PlayerQueueItem? {
-		return queue.getItemAfter(streamIdentifier)
+	public var child: RxPlayerQueueItem? {
+		return player.getItemAfter(streamIdentifier)
 	}
 	public let streamIdentifier: StreamResourceIdentifier
-	public let queue: PlayerQueue
+	public let player: RxPlayer
 	public var inQueue: Bool {
-		return queue.itemsSet.indexOfObject(streamIdentifier as! AnyObject) != NSNotFound
+		return player.itemsSet.indexOfObject(streamIdentifier as! AnyObject) != NSNotFound
 	}
 	
-	public init(queue: PlayerQueue, streamIdentifier: StreamResourceIdentifier) {
-		self.queue = queue
+	public init(player: RxPlayer, streamIdentifier: StreamResourceIdentifier) {
+		self.player = player
 		self.streamIdentifier = streamIdentifier
 	}
 	
 	deinit {
-		print("PlayerQueueItem deinit")
+		print("RxPlayerQueueItem deinit")
 	}
 }
 
-public func ==(lhs: PlayerQueueItem, rhs: PlayerQueueItem) -> Bool {
+public func ==(lhs: RxPlayerQueueItem, rhs: RxPlayerQueueItem) -> Bool {
 	return lhs.hashValue == rhs.hashValue
 }
 
-extension PlayerQueueItem : Hashable {
+extension RxPlayerQueueItem : Hashable {
 	public var hashValue: Int {
 		return streamIdentifier.streamResourceUid.hashValue
 	}
