@@ -9,9 +9,12 @@
 import Foundation
 import RxSwift
 
+public typealias AssetLoadResult =
+	(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])
+
 extension Observable where Element : StreamTaskEventsProtocol {
-	public func streamContent(contentType: ContentType? = nil, utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) ->
-		Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> {
+	internal func streamContent(contentType: ContentType? = nil, utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) ->
+		Observable<AssetLoadResult> {
 			
 			let asset = utilities.createavUrlAsset(NSURL(string: "fake://domain.com")!)
 			let observer = AVAssetResourceLoaderEventsObserver()
@@ -30,17 +33,14 @@ extension Observable where Element : StreamTaskEventsProtocol {
 	}
 }
 
-public typealias DispatchResult =
-	(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])
-
 extension Observable where Element : PlayerEventType {
 	public func streamContent(saveCachedData: Bool = false, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
 	                     fileStorage: LocalStorageProtocol = LocalStorage(),
-	                     playerUtilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) -> Observable<DispatchResult> {
+	                     playerUtilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) -> Observable<AssetLoadResult> {
 		return self.filter { e in if case .PreparingToPlay = e as! PlayerEvents { return true } else { return false } }
-			.flatMap { [unowned self] e -> Observable<DispatchResult> in
+			.flatMap { [unowned self] e -> Observable<AssetLoadResult> in
 				
-				return Observable<DispatchResult>.create { observer in
+				return Observable<AssetLoadResult>.create { observer in
 					guard case let .PreparingToPlay(item, targetContentType) = e as! PlayerEvents else { observer.onCompleted(); return NopDisposable.instance }
 					
 					print("preparing \(item.streamIdentifier.streamResourceUid)")

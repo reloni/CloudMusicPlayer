@@ -27,6 +27,7 @@ public enum PlayerEvents : PlayerEventType {
 	case Stopped
 	case Pausing(RxPlayerQueueItem)
 	case Paused
+	case DispatchQueue(RxPlayer)
 }
 
 internal class GlobalPlayerHolder {
@@ -74,18 +75,32 @@ internal class GlobalPlayerHolder {
 public class RxPlayer {
 	internal var itemsSet = NSMutableOrderedSet()
 	internal var queueEventsSubject = PublishSubject<PlayerEvents>()
+	internal let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 
 	public lazy var playerEvents: Observable<PlayerEvents> = {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			
-			let first = object.queueEventsSubject.shareReplay(1).subscribe(observer)
-			let second = GlobalPlayerHolder.instance.subject.shareReplay(1).subscribe(observer)
+			let first = object.queueEventsSubject.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
+			let second = GlobalPlayerHolder.instance.subject.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
 			
 			return AnonymousDisposable {
 				first.dispose()
 				second.dispose()
+			}
+		}
+	}()
+	
+	internal lazy var dispatchQueueScheduler: Observable<Void> = {
+		return Observable<Void>.create { [weak self] observer in
+			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+			
+			let disposable = Observable<Int>.interval(5, scheduler: object.serialScheduler)
+				.bindNext { _ in object.queueEventsSubject.onNext(.DispatchQueue(object)) }
+			
+			return AnonymousDisposable {
+				disposable.dispose()
 			}
 		}
 	}()
@@ -107,6 +122,7 @@ public class RxPlayer {
 	}
 	
 	deinit {
+		print("Rx player deinit")
 		queueEventsSubject.onCompleted()
 	}
 }
