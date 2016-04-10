@@ -65,14 +65,20 @@ class RxPlayerQueueTests: XCTestCase {
 	func testShuffleQueueWithItems() {
 		let queue = RxPlayer(items: audioItems)
 		
+		let expectation = expectationWithDescription("Should rise event")
+		
 		var itemsFromEvent: [RxPlayerQueueItem]?
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.Shuflle(let newItems) = result {
 				itemsFromEvent = newItems
+				expectation.fulfill()
 			}
 			}.addDisposableTo(bag)
 		
 		queue.shuffle()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertNotEqual(audioItems.map { $0 as! String }, queue.currentItems.map { $0.streamIdentifier as! String }, "Queue should be shuffled")
 		if let itemsFromEvent = itemsFromEvent {
 			XCTAssertEqual(itemsFromEvent, queue.currentItems, "Check Shuffle event return correct items")
@@ -85,18 +91,26 @@ class RxPlayerQueueTests: XCTestCase {
 		let queue = RxPlayer(items: audioItems)
 		let newItems = [audioItems[0], audioItems[1]]
 		
+		let initExpectation = expectationWithDescription("Should rise event")
+		let currentItemExpectation = expectationWithDescription("Should rise event")
+		
 		var itemsFromEvent: [RxPlayerQueueItem]?
 		// init current item with value
 		var currentItem: RxPlayerQueueItem? = RxPlayerQueueItem(player: queue, streamIdentifier: audioItems[0])
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.InitWithNewItems(let newItems) = result {
 				itemsFromEvent = newItems
+				initExpectation.fulfill()
 			} else if case PlayerEvents.CurrentItemChanged(let current) = result {
 				currentItem = current
+				currentItemExpectation.fulfill()
 			}
 			}.addDisposableTo(bag)
 		
 		queue.initWithNewItems(newItems)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertEqual(newItems.map { $0 as! String }, queue.currentItems.map { $0.streamIdentifier as! String }, "Queue should have correct two items")
 		if let itemsFromEvent = itemsFromEvent {
 			XCTAssertEqual(itemsFromEvent, queue.currentItems, "Check InitWithNewItems event return correct items")
@@ -207,10 +221,13 @@ class RxPlayerQueueTests: XCTestCase {
 			return
 		}
 		
+		var expectation = expectationWithDescription("Should rise event")
+		
 		var queueFromEvent: RxPlayer?
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.ChangeItemsOrder(let resultQueue) = result {
 				queueFromEvent = resultQueue
+				expectation.fulfill()
 			} else if case PlayerEvents.AddNewItem = result {
 				XCTFail("Event AddNewItem should not be rised")
 			}
@@ -218,6 +235,9 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		// swap items
 		var swapped = queue.addAfter(second.streamIdentifier.streamResourceUid, afterItem: third.streamIdentifier.streamResourceUid)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		//print(queue.currentItems.map { $0.playerItem })
 		XCTAssertEqual(second.streamIdentifier.streamResourceUid, swapped.streamIdentifier.streamResourceUid, "Method addAfter should return correct item")
 		XCTAssertEqual(audioItems[0].streamResourceUid, queue.getItemAtPosition(0)?.streamIdentifier.streamResourceUid, "First item should be at same place")
@@ -226,6 +246,7 @@ class RxPlayerQueueTests: XCTestCase {
 		XCTAssertEqual(audioItems[3].streamResourceUid, queue.getItemAtPosition(3)?.streamIdentifier.streamResourceUid, "Last item should be at same place")
 		XCTAssertTrue(queueFromEvent === queue, "Check ChangeItemsOrder event was rised and send correct instance of queue")
 		
+		expectation = expectationWithDescription("Should rise event")
 		queueFromEvent = nil
 		guard let first	= queue.first, last = queue.last else {
 			XCTFail("Should return first and last items")
@@ -234,6 +255,9 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		// move first item to the end
 		swapped = queue.addAfter(first.streamIdentifier.streamResourceUid, afterItem: last.streamIdentifier.streamResourceUid)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertEqual(first.streamIdentifier.streamResourceUid, swapped.streamIdentifier.streamResourceUid, "Method addAfter should return correct item")
 		XCTAssertEqual(audioItems[0].streamResourceUid, queue.getItemAtPosition(3)?.streamIdentifier.streamResourceUid, "First item should be now fourth (last)")
 		XCTAssertEqual(audioItems[1].streamResourceUid, queue.getItemAtPosition(1)?.streamIdentifier.streamResourceUid, "Second item should be now second (again)")
@@ -249,16 +273,22 @@ class RxPlayerQueueTests: XCTestCase {
 			return
 		}
 		
+		let expectation = expectationWithDescription("Should rise event")
+		
 		var queueFromEvent: RxPlayer?
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.ChangeItemsOrder(let resultQueue) = result {
 				queueFromEvent = resultQueue
+				expectation.fulfill()
 			} else if case PlayerEvents.AddNewItem = result {
 				XCTFail("Event AddNewItem should not be rised")
 			}
 			}.addDisposableTo(bag)
 		
 		let swapped = queue.addFirst(third.streamIdentifier.streamResourceUid)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertEqual(third.streamIdentifier.streamResourceUid, swapped.streamIdentifier.streamResourceUid, "Method addAfter should return correct item")
 		XCTAssertEqual(audioItems[2].streamResourceUid, queue.first?.streamIdentifier.streamResourceUid, "Third item should now be first")
 		XCTAssertEqual(audioItems[0].streamResourceUid, queue.getItemAtPosition(1)?.streamIdentifier.streamResourceUid, "First item should now be second")
@@ -272,16 +302,22 @@ class RxPlayerQueueTests: XCTestCase {
 			return
 		}
 		
+		let expectation = expectationWithDescription("Should rise event")
+		
 		var queueFromEvent: RxPlayer?
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.ChangeItemsOrder(let resultQueue) = result {
 				queueFromEvent = resultQueue
+				expectation.fulfill()
 			} else if case PlayerEvents.AddNewItem = result {
 				XCTFail("Event AddNewItem should not be rised")
 			}
 			}.addDisposableTo(bag)
 		
 		let swapped = queue.addLast(second.streamIdentifier.streamResourceUid)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertEqual(second.streamIdentifier.streamResourceUid, swapped.streamIdentifier.streamResourceUid, "Method addAfter should return correct item")
 		XCTAssertEqual(audioItems[1].streamResourceUid, queue.last?.streamIdentifier.streamResourceUid, "Second item should now be last")
 		XCTAssertEqual(audioItems[3].streamResourceUid, queue.getItemAtPosition(2)?.streamIdentifier.streamResourceUid, "Fourth item should now be third")
@@ -322,14 +358,20 @@ class RxPlayerQueueTests: XCTestCase {
 	func testToPreviousSetFistItemAsCurrentIfCurrentIsNil() {
 		let queue = RxPlayer(items: audioItems)
 		
+		let expectation = expectationWithDescription("Should rise event")
+		
 		var newCurrent: RxPlayerQueueItem?
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				newCurrent = item
+				expectation.fulfill()
 			}
 			}.addDisposableTo(bag)
 		
 		let next = queue.toPrevious()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertNotNil(queue.current, "Check current property is not nil")
 		XCTAssertEqual(next, queue.current, "Check toPrevious return correct current item")
 		XCTAssertEqual(next?.streamIdentifier.streamResourceUid, queue.first?.streamIdentifier.streamResourceUid, "Check current item is first in queue")
@@ -341,15 +383,20 @@ class RxPlayerQueueTests: XCTestCase {
 		// set curent item to last
 		queue.current = RxPlayerQueueItem(player: queue, streamIdentifier: audioItems.last!)
 		
+		let expectation = expectationWithDescription("Should rise event")
+		
 		// init new current with value
 		var newCurrent: RxPlayerQueueItem? = queue.current
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				newCurrent = item
+				expectation.fulfill()
 			}
 			}.addDisposableTo(bag)
 		
 		let next = queue.toNext()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
 		
 		XCTAssertNil(queue.current, "Current property in queue should be nil")
 		XCTAssertNil(next, "Check toNext return nil as current item")
@@ -361,14 +408,20 @@ class RxPlayerQueueTests: XCTestCase {
 		// set curent item to last
 		queue.current = RxPlayerQueueItem(player: queue, streamIdentifier: audioItems.last!)
 		
+		let expectation = expectationWithDescription("Should rise event")
+		
 		var newCurrent: RxPlayerQueueItem?
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				newCurrent = item
+				expectation.fulfill()
 			}
 			}.addDisposableTo(bag)
 		
 		let next = queue.toNext()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertNotNil(queue.current, "Check current is not nill")
 		XCTAssertEqual(next, queue.current, "Check toNext return correct current item")
 		XCTAssertEqual(next?.streamIdentifier.streamResourceUid, queue.first?.streamIdentifier.streamResourceUid, "Check current item is first")
@@ -379,16 +432,22 @@ class RxPlayerQueueTests: XCTestCase {
 		let queue = RxPlayer(items: audioItems)
 		let itemToRemove = RxPlayerQueueItem(player: queue, streamIdentifier: audioItems[1])
 		
+		let expectation = expectationWithDescription("Should rise event")
+		
 		var removedItem: RxPlayerQueueItem?
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.RemoveItem(let item) = result {
 				removedItem = item
+				expectation.fulfill()
 			} else if case PlayerEvents.ChangeItemsOrder = result {
 				XCTFail("Change item order should not be rised")
 			}
 			}.addDisposableTo(bag)
 		
 		queue.remove(itemToRemove)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertEqual(3, queue.count, "Check items count changed")
 		XCTAssertEqual(0, queue.currentItems.filter { $0.streamIdentifier.streamResourceUid == audioItems[1].streamResourceUid }.count, "Check item actually removed from current queue items")
 		XCTAssertFalse(itemToRemove.inQueue, "Check removed item now has status inQueue == false")
@@ -413,14 +472,19 @@ class RxPlayerQueueTests: XCTestCase {
 		let queue = RxPlayer(items: audioItems, shuffle: false, repeatQueue: false)
 		XCTAssertFalse(queue.repeatQueue, "RepeatQueue should be false")
 		
+		let expectation = expectationWithDescription("Should rise event")
+		
 		var eventValue: Bool?
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.RepeatChanged(let newVal) = result {
 				eventValue = newVal
+				expectation.fulfill()
 			}
 			}.addDisposableTo(bag)
 		
 		queue.repeatQueue = true
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
 		
 		XCTAssertEqual(true, eventValue, "Check queue rised event wih correct new value")
 		XCTAssertTrue(queue.repeatQueue, "RepeatQueue should be true")
