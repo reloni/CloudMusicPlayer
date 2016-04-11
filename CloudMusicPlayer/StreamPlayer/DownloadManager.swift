@@ -53,7 +53,8 @@ public class DownloadManager {
 		
 		return httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
 		                                          sessionConfiguration: NSURLSession.defaultConfig,
-		                                          cacheProvider: fileStorage.createCacheProvider(identifier.streamResourceUid))
+		                                          cacheProvider: fileStorage.createCacheProvider(identifier.streamResourceUid,
+																								targetMimeType: identifier.streamResourceContentType?.definition.MIME))
 	}
 	
 	internal func saveData(cacheProvider: CacheProvider?) {

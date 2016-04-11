@@ -34,76 +34,20 @@ extension Observable where Element : StreamTaskEventsProtocol {
 }
 
 extension Observable where Element : PlayerEventType {
-	public func streamContent(saveCachedData: Bool = false, httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance,
-	                     fileStorage: LocalStorageProtocol = LocalStorage(),
-	                     playerUtilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) -> Observable<AssetLoadResult> {
+	private func streamContent(playerUtilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance,
+	                          downloadManager: DownloadManagerType = DownloadManager(
+		saveData: false, fileStorage: LocalStorage(), httpUtilities: HttpUtilities.instance)) -> Observable<AssetLoadResult> {
+		
 		return self.filter { e in if case .PreparingToPlay = e as! PlayerEvents { return true } else { return false } }
-			.flatMap { [unowned self] e -> Observable<AssetLoadResult> in
+			.flatMap { e -> Observable<AssetLoadResult> in
 				
 				return Observable<AssetLoadResult>.create { observer in
-					guard case let .PreparingToPlay(item, targetContentType) = e as! PlayerEvents else { observer.onCompleted(); return NopDisposable.instance }
+					guard case let .PreparingToPlay(item) = e as! PlayerEvents else { observer.onCompleted(); return NopDisposable.instance }
 					
 					print("preparing \(item.streamIdentifier.streamResourceUid)")
 					
-					guard item.streamIdentifier.streamResourceType == .HttpResource || item.streamIdentifier.streamResourceType == .HttpsResource else {
-						observer.onCompleted()
-						return NopDisposable.instance
-					}
-					
-					
-					guard let url = item.streamIdentifier.streamResourceUrl, urlRequest = httpUtilities.createUrlRequest(url,
-						parameters: nil, headers: (item.streamIdentifier as? StreamHttpResourceIdentifier)?.streamHttpHeaders) else {
-							observer.onCompleted()
-							return NopDisposable.instance
-					}
-					
-					
-					func createUrlTask() -> StreamDataTaskProtocol {
-						return httpUtilities.createStreamDataTask(item.streamIdentifier.streamResourceUid, request: urlRequest,
-							sessionConfiguration: NSURLSession.defaultConfig,
-							cacheProvider: fileStorage.createCacheProvider(item.streamIdentifier.streamResourceUid))
-					}
-					
-					
-					func saveData(cacheProvider: CacheProvider?) {
-						if let cacheProvider = cacheProvider where saveCachedData {
-							var provider = cacheProvider
-							if let targetContentType = targetContentType {
-								provider.contentMimeType = targetContentType.definition.MIME
-							} else if let internalContentType = item.streamIdentifier.streamResourceContentType {
-								provider.contentMimeType = internalContentType.definition.MIME
-							}
-							
-							fileStorage.saveToTempStorage(provider)
-						}
-					}
-					
-					
-					func createObservable(taskCreation: () -> StreamDataTaskProtocol, saveData: (cacheProvider: CacheProvider?) -> ()) -> Observable<StreamTaskEvents> {
-						return Observable<StreamTaskEvents>.create { observer in
-							let task = taskCreation()
-							let disposable = task.taskProgress.bindNext { result in
-								observer.onNext(result)
-								
-								if case .Success(let provider) = result {
-									saveData(cacheProvider: provider)
-									observer.onCompleted()
-								} else if case .Error = result {
-									observer.onCompleted()
-								}
-							}
-							
-							task.resume()
-							
-							return AnonymousDisposable {
-								task.cancel()
-								disposable.dispose()
-							}
-						}
-					}
-					
-					let disposable = createObservable(createUrlTask, saveData: saveData).shareReplay(1)
-						.streamContent(targetContentType ?? item.streamIdentifier.streamResourceContentType, utilities: playerUtilities).bindNext { e in
+					let disposable = downloadManager.getUrlDownloadTask(item.streamIdentifier)
+						.streamContent(item.streamIdentifier.streamResourceContentType, utilities: playerUtilities).bindNext { e in
 							observer.onNext(e)
 							observer.onCompleted()
 					}
@@ -114,5 +58,10 @@ extension Observable where Element : PlayerEventType {
 					}
 				}
 		}
+	}
+	
+	public func streamContent(saveCachedData: Bool = false) -> Observable<AssetLoadResult> {
+		return streamContent(StreamPlayerUtilities.instance, downloadManager:
+			DownloadManager(saveData: saveCachedData, fileStorage: LocalStorage(), httpUtilities: HttpUtilities.instance))
 	}
 }

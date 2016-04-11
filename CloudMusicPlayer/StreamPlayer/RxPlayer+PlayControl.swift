@@ -23,6 +23,6 @@ extension RxPlayer {
 		}
 		
 		guard let current = current else { return }
-		queueEventsSubject.onNext(PlayerEvents.PreparingToPlay(current, contentTypeOverride))
+		queueEventsSubject.onNext(PlayerEvents.PreparingToPlay(current))
 	}
 }

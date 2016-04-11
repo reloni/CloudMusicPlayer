@@ -15,7 +15,7 @@ public struct ContentTypeDefinition {
 	public let MIME: String
 	public let UTI: String
 	public let fileExtension: String
-
+	
 	public init(mime: String, uti: String, fileExtension: String) {
 		self.MIME = mime
 		self.UTI = uti
@@ -60,90 +60,99 @@ public enum ContentType: String {
 
 extension Observable where Element : StreamTaskEventsProtocol {
 	internal func loadWithAsset(assetEvents assetLoaderEvents: Observable<AssetLoadingEvents>,
-	                                      targetAudioFormat: ContentType? = nil)
+	                                        targetAudioFormat: ContentType? = nil)
 		-> Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> {
-
-		// local variables
-		var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
-		var response: NSHTTPURLResponseProtocol?
-		
-		
-		// functions
-		// get uti type of request or from targetAudioFormat
-		func getUtiType() -> String? {
-			return targetAudioFormat?.definition.UTI ?? {
-				guard let response = response else { return nil }
-				return ContentTypeDefinition.getUtiFromMime(response.getMimeType())
-			}()
-		}
-		
-		
-		// processing requests
-		func processRequests(cacheProvider: CacheProvider) {
-			resourceLoadingRequests.map { key, loadingRequest in
-				if let contentInformationRequest = loadingRequest.getContentInformationRequest(), response = response {
-					contentInformationRequest.byteRangeAccessSupported = true
-					contentInformationRequest.contentLength = response.expectedContentLength
-					contentInformationRequest.contentType = getUtiType()
+			
+			// local variables
+			var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
+			var response: NSHTTPURLResponseProtocol?
+			
+			
+			// functions
+			// get uti type of request or from targetAudioFormat
+			func getUtiType() -> String? {
+				return targetAudioFormat?.definition.UTI ?? {
+					guard let response = response else { return nil }
+					return ContentTypeDefinition.getUtiFromMime(response.getMimeType())
+					}()
+			}
+			
+			
+			// processing requests
+			func processRequests(cacheProvider: CacheProvider) {
+				resourceLoadingRequests.map { key, loadingRequest in
+					if let contentInformationRequest = loadingRequest.getContentInformationRequest(), response = response {
+						contentInformationRequest.byteRangeAccessSupported = true
+						contentInformationRequest.contentLength = response.expectedContentLength
+						contentInformationRequest.contentType = getUtiType()
+					}
+					
+					if let dataRequest = loadingRequest.getDataRequest() {
+						if respondWithData(cacheProvider.getData(), respondingDataRequest: dataRequest) {
+							loadingRequest.finishLoading()
+							return key
+						}
+					}
+					return -1
+					
+					}.filter { $0 != -1 }.forEach { index in resourceLoadingRequests.removeValueForKey(index)
+				}
+			}
+			
+			
+			// responding to request with data
+			func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequestProtocol) -> Bool {
+				let startOffset = respondingDataRequest.currentOffset != 0 ? respondingDataRequest.currentOffset : respondingDataRequest.requestedOffset
+				let dataLength = Int64(data.length)
+				
+				if dataLength < startOffset {
+					return false
 				}
 				
-				if let dataRequest = loadingRequest.getDataRequest() {
-					if respondWithData(cacheProvider.getData(), respondingDataRequest: dataRequest) {
-						loadingRequest.finishLoading()
-						return key
+				let unreadBytesLength = dataLength - startOffset
+				let responseLength = min(Int64(respondingDataRequest.requestedLength), unreadBytesLength)
+				
+				if responseLength == 0 {
+					return false
+				}
+				let range = NSMakeRange(Int(startOffset), Int(responseLength))
+				
+				respondingDataRequest.respondWithData(data.subdataWithRange(range))
+				
+				return Int64(respondingDataRequest.requestedLength) <= respondingDataRequest.currentOffset + responseLength - respondingDataRequest.requestedOffset
+			}
+			
+			return Observable<Void>.create { observer in
+				let assetEvents = assetLoaderEvents.bindNext { e in
+					switch e {
+					case .DidCancelLoading(let loadingRequest):
+						resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
+					case .ShouldWaitForLoading(let loadingRequest):
+						if !loadingRequest.finished {
+							resourceLoadingRequests[loadingRequest.hash] = loadingRequest
+						}
 					}
 				}
-				return -1
 				
-				}.filter { $0 != -1 }.forEach { index in resourceLoadingRequests.removeValueForKey(index)
-			}
-		}
-		
-		
-		// responding to request with data
-		func respondWithData(data: NSData, respondingDataRequest: AVAssetResourceLoadingDataRequestProtocol) -> Bool {
-			let startOffset = respondingDataRequest.currentOffset != 0 ? respondingDataRequest.currentOffset : respondingDataRequest.requestedOffset
-			let dataLength = Int64(data.length)
-			
-			if dataLength < startOffset {
-				return false
-			}
-			
-			let unreadBytesLength = dataLength - startOffset
-			let responseLength = min(Int64(respondingDataRequest.requestedLength), unreadBytesLength)
-			
-			if responseLength == 0 {
-				return false
-			}
-			let range = NSMakeRange(Int(startOffset), Int(responseLength))
-			
-			respondingDataRequest.respondWithData(data.subdataWithRange(range))
-			
-			return Int64(respondingDataRequest.requestedLength) <= respondingDataRequest.currentOffset + responseLength - respondingDataRequest.requestedOffset
-		}
-			
-		return Observable<Bool>.combineLatest (self, assetLoaderEvents) { e in
-			switch e.1 {
-			case .DidCancelLoading(let loadingRequest):
-				resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
-			case .ShouldWaitForLoading(let loadingRequest):
-				if !loadingRequest.finished {
-					resourceLoadingRequests[loadingRequest.hash] = loadingRequest
+				let streamEvents = self.bindNext { e in
+					switch e as! StreamTaskEvents {
+					case .Success(let cacheProvider) where cacheProvider != nil: processRequests(cacheProvider!); observer.onNext(); observer.onCompleted()
+					case .ReceiveResponse(let receivedResponse): response = receivedResponse
+					case .CacheData(let cacheProvider): processRequests(cacheProvider)
+					case .Error: observer.onNext(); observer.onCompleted()
+					default: break
+					}
 				}
-			}
-			
-			switch e.0 as! StreamTaskEvents {
-			case .Success(let cacheProvider) where cacheProvider != nil: processRequests(cacheProvider!); return true
-			case .ReceiveResponse(let receivedResponse): response = receivedResponse
-			case .CacheData(let cacheProvider): processRequests(cacheProvider)
-			default: break
-			}
-			
-			return false
-			}.filter { $0 }.flatMapLatest { _ -> Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> in
-				print("return final data")
-				return Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
-					.just((receivedResponse: response, utiType: getUtiType(), resultRequestCollection: resourceLoadingRequests))
-			}.shareReplay(1)
+				
+				return AnonymousDisposable {
+					assetEvents.dispose()
+					streamEvents.dispose()
+				}
+				
+				}.flatMapLatest { _ -> Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> in
+					print("return final data")
+					return Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
+						.just((receivedResponse: response, utiType: getUtiType(), resultRequestCollection: resourceLoadingRequests))
+				}.shareReplay(1)
 	}
 }

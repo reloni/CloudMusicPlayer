@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol LocalStorageProtocol {
-	func createCacheProvider(uid: String) -> CacheProvider
+	func createCacheProvider(uid: String, targetMimeType: String?) -> CacheProvider
 	func saveToTempStorage(provider: CacheProvider) -> NSURL?
 	func saveToPermanentStorage(provider: CacheProvider) -> NSURL?
 	func getFromStorage(uid: String) -> NSURL?
@@ -42,8 +42,8 @@ extension LocalStorage : LocalStorageProtocol {
 		return file
 	}
 	
-	public func createCacheProvider(uid: String) -> CacheProvider {
-		return MemoryCacheProvider(uid: uid)
+	public func createCacheProvider(uid: String, targetMimeType: String?) -> CacheProvider {
+		return MemoryCacheProvider(uid: uid, contentMimeType: targetMimeType)
 	}
 	
 	public func saveToTempStorage(provider: CacheProvider) -> NSURL? {

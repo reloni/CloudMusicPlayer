@@ -26,8 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		#endif
 		
 		rxPlayer.rx_observe().streamContent(true).subscribe().addDisposableTo(bag)
-		rxPlayer.startQueueDispatching().subscribe().addDisposableTo(bag)
-		rxPlayer.rx_observe().dispatchQueue().subscribe().addDisposableTo(bag)
+		//rxPlayer.startQueueDispatching().subscribe().addDisposableTo(bag)
+		//rxPlayer.rx_observe().dispatchQueue().subscribe().addDisposableTo(bag)
 		
 		//let a = Observable<Int>.interval(1, scheduler: MainScheduler.instance).subscribeNext { _ in
 				//print("Resource count \(RxSwift.resourceCount)")

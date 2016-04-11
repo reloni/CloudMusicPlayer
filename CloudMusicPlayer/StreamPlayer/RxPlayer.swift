@@ -21,7 +21,7 @@ public enum PlayerEvents : PlayerEventType {
 	case CurrentItemChanged(RxPlayerQueueItem?)
 	case RepeatChanged(Bool)
 	case ChangeItemsOrder(RxPlayer)
-	case PreparingToPlay(RxPlayerQueueItem, ContentType?)
+	case PreparingToPlay(RxPlayerQueueItem)
 	case Started
 	case Stopping(RxPlayerQueueItem)
 	case Stopped

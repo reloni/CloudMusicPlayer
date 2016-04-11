@@ -12,7 +12,7 @@ public protocol CacheProvider {
 	var uid: String { get }
 	var currentDataLength: UInt64 { get }
 	var expectedDataLength: Int64 { get set }
-	var contentMimeType: String? { get set }
+	var contentMimeType: String? { get }
 	func appendData(data: NSData)
 	func getData() -> NSData
 	func getData(offset: Int, length: Int) -> NSData
@@ -20,6 +20,7 @@ public protocol CacheProvider {
 	func saveData(fileExtension: String?) -> NSURL?
 	func saveData(destinationDirectory: NSURL, fileExtension: String?) -> NSURL?
 	func saveData(destinationDirectory: NSURL) -> NSURL?
+	func setContentMimeType(mimeType: String)
 }
 
 public class MemoryCacheProvider {
@@ -28,8 +29,9 @@ public class MemoryCacheProvider {
 	public var contentMimeType: String?
 	public let uid: String
 	
-	public init(uid: String) {
+	public init(uid: String, contentMimeType: String? = nil) {
 		self.uid = uid
+		self.contentMimeType = contentMimeType
 	}
 	
 	deinit {
@@ -38,6 +40,12 @@ public class MemoryCacheProvider {
 }
 
 extension MemoryCacheProvider : CacheProvider {
+	/// Set content MIME type. 
+	///Only if now contentMimeType property is nil
+	public func setContentMimeType(mimeType: String) {
+		if contentMimeType == nil { contentMimeType = mimeType }
+	}
+	
 	public var currentDataLength: UInt64 {
 		return UInt64(cacheData.length)
 	}

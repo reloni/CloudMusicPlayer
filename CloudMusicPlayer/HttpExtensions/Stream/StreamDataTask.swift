@@ -77,7 +77,8 @@ public class StreamDataTask {
 				case .didReceiveResponse(_, _, let response, _):
 					self.response = response as? NSHTTPURLResponseProtocol
 					self.cacheProvider?.expectedDataLength = self.response!.expectedContentLength
-					self.cacheProvider?.contentMimeType = self.response!.MIMEType
+					//self.cacheProvider?.contentMimeType = self.response!.MIMEType
+					self.cacheProvider?.setContentMimeType(self.response!.getMimeType())
 					return StreamTaskEvents.ReceiveResponse(self.response!)
 				case .didReceiveData(_, _, let data):
 					if let cacheProvider = self.cacheProvider {
