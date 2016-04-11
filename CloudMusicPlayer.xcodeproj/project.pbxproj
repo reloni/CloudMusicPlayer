@@ -159,7 +159,6 @@
 		6EA638771C7A002200DD85A6 /* CloudResourcesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourcesViewModel.swift; sourceTree = "<group>"; };
 		6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAssetResourceLoaderEventsObserver.swift; sourceTree = "<group>"; };
 		6EB8C2F71C5019FD0064A00B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		6EBFE0F81CAA7BBD0003D12C /* PlayerQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = PlayerQueueTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamResourceIdentifier.swift; sourceTree = "<group>"; };
 		6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableOrderedSet.swift; sourceTree = "<group>"; };
 		6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicPlayerViewModel.swift; sourceTree = "<group>"; };
@@ -384,7 +383,6 @@
 			isa = PBXGroup;
 			children = (
 				6E6311151CA3D844006C0072 /* AssetResourceLoaderTests.swift */,
-				6EBFE0F81CAA7BBD0003D12C /* PlayerQueueTests.swift */,
 				6E12E0701CB3D68300091B9A /* LocalStorageTests.swift */,
 				6E3D8A5E1CB6807400B604F0 /* StreamResourceIdentifierTests.swift */,
 				6E677F431CB7DDB0004EFC42 /* RxPlayerQueueTests.swift */,
