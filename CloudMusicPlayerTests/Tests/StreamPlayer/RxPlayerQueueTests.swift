@@ -87,6 +87,32 @@ class RxPlayerQueueTests: XCTestCase {
 		}
 	}
 	
+	func testSetCurrentItemToNilAfterShuffle() {
+		let queue = RxPlayer(items: audioItems)
+		queue.toNext()
+		XCTAssertNotNil(queue.current, "Current item should not be nil")
+		queue.shuffle()
+		XCTAssertNil(queue.current, "Current item should be nil after shuffle")
+	}
+	
+	func testShuffleQueueAndForceSetNewCurrentItem() {
+		let queue = RxPlayer(items: audioItems)
+		queue.toNext()
+		XCTAssertNotNil(queue.current, "Current item should not be nil")
+		queue.shuffle(true)
+		XCTAssertEqual(queue.first?.streamIdentifier.streamResourceUid, queue.current?.streamIdentifier.streamResourceUid,
+		               "Should set correct current item")
+	}
+	
+	func testShuffleAndPreserveCurrentItem() {
+		let queue = RxPlayer(items: audioItems)
+		queue.current = queue.getItemAtPosition(1)
+		let cur = queue.current
+		XCTAssertNotNil(queue.current, "Current item should not be nil")
+		queue.shuffleAndContinue()
+		XCTAssertEqual(cur?.streamIdentifier.streamResourceUid, queue.current?.streamIdentifier.streamResourceUid)
+	}
+	
 	func testInitWithNewItems() {
 		let queue = RxPlayer(items: audioItems)
 		let newItems = [audioItems[0], audioItems[1]]
