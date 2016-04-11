@@ -30,60 +30,71 @@ public enum PlayerEvents : PlayerEventType {
 	case DispatchQueue(RxPlayer)
 }
 
-internal class GlobalPlayerHolder {
-	static let instance = GlobalPlayerHolder()
+internal protocol InternalPlayerType {
+	func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol)
+	func stop()
+	var events: Observable<PlayerEvents> { get }
+	var nativePlayer: AVPlayerProtocol? { get }
+}
 
-	var player: AVPlayerProtocol?
-	var observer: AVAssetResourceLoaderEventsObserver!
+internal class InternalPlayer {
+	var nativePlayer: AVPlayerProtocol?
+	var observer: AVAssetResourceLoaderEventsObserverProtocol?
 	let subject = PublishSubject<PlayerEvents>()
 	var bag: DisposeBag!
 	var asset: AVURLAssetProtocol!
 	var playerItem: AVPlayerItemProtocol!
-	
-	func initialize(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserver) -> Observable<AssetLoadingEvents> {
-		stop()
-		bag = DisposeBag()
-		
-		self.asset = asset
-		self.playerItem = playerItem
-		self.observer = observer
-		self.player = AVPlayer(playerItem: playerItem as! AVPlayerItem)
-
-		player?.internalItemStatus.bindNext { [weak self] status in
-			print("player status: \(status?.rawValue)")
-			if status == AVPlayerItemStatus.ReadyToPlay {
-				self?.player?.play()
-				self?.subject.onNext(.Started)
-			}
-		}.addDisposableTo(bag)
-		
-		return observer.loaderEvents
-	}
-	
-	func stop() {
-		player?.replaceCurrentItemWithPlayerItem(nil)
-		player = nil
-		bag = nil
-	}
 	
 	deinit {
 		stop()
 	}
 }
 
+extension InternalPlayer : InternalPlayerType {
+	var events: Observable<PlayerEvents> { return subject }
+	
+	func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol) {
+		stop()
+		bag = DisposeBag()
+		
+		self.asset = asset
+		self.playerItem = playerItem
+		self.observer = observer
+		self.nativePlayer = AVPlayer(playerItem: playerItem as! AVPlayerItem)
+		
+		nativePlayer?.internalItemStatus.bindNext { [weak self] status in
+			print("player status: \(status?.rawValue)")
+			if status == AVPlayerItemStatus.ReadyToPlay {
+				self?.nativePlayer?.play()
+				self?.subject.onNext(.Started)
+			}
+		}.addDisposableTo(bag)
+	}
+	
+	func stop() {
+		nativePlayer?.replaceCurrentItemWithPlayerItem(nil)
+		nativePlayer = nil
+		asset = nil
+		playerItem = nil
+		bag = nil
+	}
+}
+
 
 public class RxPlayer {
+	internal let internalPlayer: InternalPlayerType
+	
 	internal var itemsSet = NSMutableOrderedSet()
 	internal var queueEventsSubject = PublishSubject<PlayerEvents>()
 	internal let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-
+	
 	public lazy var playerEvents: Observable<PlayerEvents> = {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			
 			let first = object.queueEventsSubject.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
-			let second = GlobalPlayerHolder.instance.subject.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
+			let second = object.internalPlayer.events.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
 			
 			return AnonymousDisposable {
 				first.dispose()
@@ -117,8 +128,13 @@ public class RxPlayer {
 		}
 	}
 	
-	public init(repeatQueue: Bool = false) {
+	internal init(repeatQueue: Bool, internalPlayer: InternalPlayerType) {
 		self.repeatQueue = repeatQueue
+		self.internalPlayer = internalPlayer
+	}
+	
+	public convenience init(repeatQueue: Bool = false) {
+		self.init(repeatQueue: repeatQueue, internalPlayer: InternalPlayer())
 	}
 	
 	deinit {

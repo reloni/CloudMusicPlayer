@@ -13,7 +13,7 @@ public typealias AssetLoadResult =
 	(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])
 
 extension Observable where Element : StreamTaskEventsProtocol {
-	internal func streamContent(contentType: ContentType? = nil, utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) ->
+	internal func streamContent(player: RxPlayer, contentType: ContentType? = nil, utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) ->
 		Observable<AssetLoadResult> {
 			
 			let asset = utilities.createavUrlAsset(NSURL(string: "fake://domain.com")!)
@@ -27,7 +27,8 @@ extension Observable where Element : StreamTaskEventsProtocol {
 				assetEvents: observer.loaderEvents.observeOn(scheduler),
 				targetAudioFormat: contentType)
 			
-			GlobalPlayerHolder.instance.initialize(playerItem, asset: asset, observer: observer)
+			//GlobalPlayerHolder.instance.initialize(playerItem, asset: asset, observer: observer)
+			player.internalPlayer.play(playerItem, asset: asset, observer: observer)
 			
 			return task
 	}
@@ -47,7 +48,7 @@ extension Observable where Element : PlayerEventType {
 					print("preparing \(item.streamIdentifier.streamResourceUid)")
 					
 					let disposable = downloadManager.getUrlDownloadTask(item.streamIdentifier)
-						.streamContent(item.streamIdentifier.streamResourceContentType, utilities: playerUtilities).bindNext { e in
+						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType, utilities: playerUtilities).bindNext { e in
 							observer.onNext(e)
 							observer.onCompleted()
 					}
