@@ -83,6 +83,7 @@ public protocol AVPlayerProtocol {
 	var rate: Float { get set }
 	func replaceCurrentItemWithPlayerItem(item: AVPlayerItemProtocol?)
 	func play()
+	func setPlayerRate(rate: Float)
 }
 extension AVPlayer : AVPlayerProtocol {
 	public var internalItemStatus: Observable<AVPlayerItemStatus?> {
@@ -90,6 +91,9 @@ extension AVPlayer : AVPlayerProtocol {
 	}
 	public func replaceCurrentItemWithPlayerItem(item: AVPlayerItemProtocol?) {
 		replaceCurrentItemWithPlayerItem(item as? AVPlayerItem)
+	}
+	public func setPlayerRate(rate: Float) {
+		self.rate = rate
 	}
 }
 

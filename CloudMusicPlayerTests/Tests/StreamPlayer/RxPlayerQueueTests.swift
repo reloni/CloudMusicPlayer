@@ -214,6 +214,13 @@ class RxPlayerQueueTests: XCTestCase {
 		XCTAssertEqual(addedItem.streamIdentifier.streamResourceUid, audioItems[1].streamResourceUid, "Check method return correct item (that was already in queue")
 	}
 	
+	func testInitQueueWithUniqueItems() {
+		let items: [StreamResourceIdentifier] = ["test1", "test2", "test1", "test3", "test3", "test1"]
+		let queue = RxPlayer(items: items)
+		XCTAssertEqual(3, queue.count, "Should have only unique items")
+		XCTAssertEqual(queue.currentItems.map { $0.streamIdentifier as! String }, ["test1", "test2", "test3"], "Check correct unique items")
+	}
+	
 	func testCorrectChangeOrderOfItems() {
 		let queue = RxPlayer(items: audioItems)
 		guard let second = queue.getItemAtPosition(1), third = queue.getItemAtPosition(2) else {

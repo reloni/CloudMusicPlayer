@@ -22,6 +22,8 @@ public enum PlayerEvents : PlayerEventType {
 	case RepeatChanged(Bool)
 	case ChangeItemsOrder(RxPlayer)
 	case PreparingToPlay(RxPlayerQueueItem)
+	case Resuming(RxPlayerQueueItem)
+	case Resumed
 	case Started
 	case Stopping(RxPlayerQueueItem)
 	case Stopped
@@ -33,6 +35,8 @@ public enum PlayerEvents : PlayerEventType {
 internal protocol InternalPlayerType {
 	func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol)
 	func stop()
+	func pause()
+	func resume()
 	var events: Observable<PlayerEvents> { get }
 	var nativePlayer: AVPlayerProtocol? { get }
 }
@@ -47,6 +51,12 @@ internal class InternalPlayer {
 	
 	deinit {
 		stop()
+	}
+	
+	internal func dispose() {
+		stop()
+		subject.onCompleted()
+		bag = nil
 	}
 }
 
@@ -76,7 +86,21 @@ extension InternalPlayer : InternalPlayerType {
 		nativePlayer = nil
 		asset = nil
 		playerItem = nil
-		bag = nil
+		subject.onNext(.Stopped)
+	}
+	
+	func pause() {
+		if let nativePlayer = nativePlayer {
+			nativePlayer.setPlayerRate(0.0)
+			subject.onNext(.Paused)
+		}
+	}
+	
+	func resume() {
+		if let nativePlayer = nativePlayer {
+			nativePlayer.setPlayerRate(1.0)
+			subject.onNext(.Resumed)
+		}
 	}
 }
 
@@ -87,6 +111,7 @@ public class RxPlayer {
 	internal var itemsSet = NSMutableOrderedSet()
 	internal var queueEventsSubject = PublishSubject<PlayerEvents>()
 	internal let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
+	public internal(set) var playing: Bool = false
 	
 	public lazy var playerEvents: Observable<PlayerEvents> = {
 		return Observable.create { [weak self] observer in
@@ -119,6 +144,11 @@ public class RxPlayer {
 	public internal(set) var current: RxPlayerQueueItem? {
 		didSet {
 			queueEventsSubject.onNext(.CurrentItemChanged(current))
+			if playing && current != nil {
+				queueEventsSubject.onNext(.PreparingToPlay(current!))
+			} else if current == nil {
+				playing = false
+			}
 		}
 	}
 	

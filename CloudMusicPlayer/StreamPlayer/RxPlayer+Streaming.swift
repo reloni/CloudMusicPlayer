@@ -27,7 +27,6 @@ extension Observable where Element : StreamTaskEventsProtocol {
 				assetEvents: observer.loaderEvents.observeOn(scheduler),
 				targetAudioFormat: contentType)
 			
-			//GlobalPlayerHolder.instance.initialize(playerItem, asset: asset, observer: observer)
 			player.internalPlayer.play(playerItem, asset: asset, observer: observer)
 			
 			return task
@@ -35,7 +34,7 @@ extension Observable where Element : StreamTaskEventsProtocol {
 }
 
 extension Observable where Element : PlayerEventType {
-	private func streamContent(playerUtilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance,
+	internal func streamContent(playerUtilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance,
 	                          downloadManager: DownloadManagerType = DownloadManager(
 		saveData: false, fileStorage: LocalStorage(), httpUtilities: HttpUtilities.instance)) -> Observable<AssetLoadResult> {
 		

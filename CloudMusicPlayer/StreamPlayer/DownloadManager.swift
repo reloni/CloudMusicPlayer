@@ -67,7 +67,7 @@ public class DownloadManager {
 extension DownloadManager : DownloadManagerType {
 	public func getUrlDownloadTask(identifier: StreamResourceIdentifier) -> Observable<StreamTaskEvents> {
 		return Observable<StreamTaskEvents>.create { [unowned self] observer in
-			guard let task = self.createDownloadTask(identifier) else { observer.onCompleted(); return NopDisposable.instance }
+			guard let task = self.createDownloadTask(identifier) else { observer.onNext(StreamTaskEvents.Success(cache: nil)); observer.onCompleted(); return NopDisposable.instance }
 			
 			self.pendingTasks[identifier.streamResourceUid] = task
 			

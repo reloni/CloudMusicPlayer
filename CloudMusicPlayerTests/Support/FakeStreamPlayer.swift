@@ -50,20 +50,30 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 	}
 }
 
-//public class FakeCacheItem : CacheItem {
-//	public var cacheDispatcher: PlayerCacheDispatcherProtocol
-//	public var resourceIdentifier: StreamResourceIdentifier
-//	public var task: StreamDataTaskProtocol?
-//	public var targetContentType: ContentType?
-////	public func getCacheTask() -> Observable<CacheDataResult> {
-////		return task!.taskProgress
-////	}
-//	public func getLoadTask() -> Observable<StreamTaskEvents> {
-//		return task?.taskProgress ?? Observable<StreamTaskEvents>.empty()
-//	}
-//	public init(resourceIdeitifier: StreamResourceIdentifier, task: StreamDataTaskProtocol?, cacheDispatcher: PlayerCacheDispatcherProtocol = PlayerCacheDispatcher()) {
-//		self.resourceIdentifier = resourceIdeitifier
-//		self.task = task
-//		self.cacheDispatcher = cacheDispatcher
-//	}
-//}
+public class FakeInternalPlayer : InternalPlayerType {
+	public let publishSubject = PublishSubject<PlayerEvents>()
+	
+	public var nativePlayer: AVPlayerProtocol?
+	
+	public var events: Observable<PlayerEvents> { return publishSubject }
+	
+	public func resume() {
+		publishSubject.onNext(.Resumed)
+	}
+	
+	public func pause() {
+		publishSubject.onNext(.Paused)
+	}
+	
+	public func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol) {
+		publishSubject.onNext(.Started)
+	}
+	
+	public func stop() {
+		publishSubject.onNext(.Stopped)
+	}
+	
+	deinit {
+		publishSubject.onCompleted()
+	}
+}

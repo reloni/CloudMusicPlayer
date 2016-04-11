@@ -14,3 +14,4 @@ extension RxPlayer {
 		return playerEvents
 	}
 }
+
