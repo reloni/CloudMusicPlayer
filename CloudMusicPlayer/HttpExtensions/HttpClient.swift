@@ -23,7 +23,9 @@ public protocol HttpClientProtocol {
 	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
 	func loadDataForCloudResource(resource: CloudResource) -> Observable<HttpRequestResult>?
+	func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?) -> Observable<StreamTaskEvents>
 }
+
 public class HttpClient {
 	public let urlSession: NSURLSessionProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
@@ -35,14 +37,14 @@ public class HttpClient {
 		return HttpClient._instance!
 	}
 	
-	internal static func initWithInstance(instance: HttpClientProtocol? = nil, urlSession: NSURLSessionProtocol = NSURLSession.sharedSession(),
-		httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
+	internal static func initWithInstance(instance: HttpClientProtocol? = nil, urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
+																				httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
 		dispatch_once(&token) {
 			_instance = instance ?? HttpClient(urlSession: urlSession, httpUtilities: httpUtilities)
 		}
 	}
 	
-	public init(urlSession: NSURLSessionProtocol = NSURLSession.sharedSession(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
+	public init(urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig), httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
 		self.urlSession = urlSession
 		self.httpUtilities = httpUtilities
 	}
@@ -60,20 +62,13 @@ public class HttpClient {
 extension HttpClient : HttpClientProtocol {
 	public func loadJsonData(request: NSMutableURLRequestProtocol)
 		-> Observable<HttpRequestResult> {
-			return Observable.create { [unowned self] observer in
-				let task = self.loadData(request).bindNext { result in
-					if case .SuccessData(let data) = result {
-						observer.onNext(.SuccessJson(JSON(data: data)))
-					} else {
-						observer.onNext(result)
-					}
-					observer.onCompleted()
+			return self.loadData(request).map { result in
+				if case .SuccessData(let data) = result {
+					return HttpRequestResult.SuccessJson(JSON(data: data))
+				} else {
+					return result
 				}
-				
-				return AnonymousDisposable {
-					task.dispose()
-				}
-			}
+			}.shareReplay(1)
 	}
 	
 	public func loadData(request: NSMutableURLRequestProtocol)
@@ -100,13 +95,37 @@ extension HttpClient : HttpClientProtocol {
 				task.resume()
 				
 				return AnonymousDisposable {
-					task.suspend()
+					task.cancel()
 				}
-			}
+			}.shareReplay(1)
 	}
 	
 	public func loadDataForCloudResource(resource: CloudResource) -> Observable<HttpRequestResult>? {
 		guard let request = createRequestForCloudResource(resource) else { return nil }
 		return loadJsonData(request)
+	}
+	
+	public func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?)
+		-> Observable<StreamTaskEvents> {
+		return Observable.create { [unowned self] observer in
+			let task = self.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: self.urlSession.configuration, cacheProvider: cacheProvider)
+				
+			let disposable = task.taskProgress.bindNext { result in
+				observer.onNext(result)
+				
+				if case .Success = result {
+					observer.onCompleted()
+				} else if case .Error = result {
+					observer.onCompleted()
+				}
+			}
+			
+			task.resume()
+			
+			return AnonymousDisposable {
+				task.cancel()
+				disposable.dispose()
+			}
+		}.shareReplay(1)
 	}
 }

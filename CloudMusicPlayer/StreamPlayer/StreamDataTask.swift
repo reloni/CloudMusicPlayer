@@ -53,7 +53,7 @@ public struct StreamDataTaskManager {
 	private let taskProgress = PublishSubject<StreamDataResult>()
 	private var dataTask: NSURLSessionDataTask?
 	private var uid: String {
-		return request.URLString
+		return request.URL?.absoluteString ?? ""
 	}
 	private var session: NSURLSession?
 	

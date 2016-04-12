@@ -9,17 +9,33 @@
 import UIKit
 import CoreData
 
-var streamPlayer = StreamAudioPlayer(allowCaching: false)
+import RxSwift
+
+//var streamPlayer = StreamAudioPlayer(allowSaveCachedData: true)
+var rxPlayer = RxPlayer()
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	var window: UIWindow?
+	let bag = DisposeBag()
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		// Override point for customization after application launch.
 		#if DEBUG
 			NSLog("Documents Path: %@", NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first ?? "")
 		#endif
+		
+		rxPlayer.rx_observe().streamContent(true).subscribe().addDisposableTo(bag)
+		//rxPlayer.startQueueDispatching().subscribe().addDisposableTo(bag)
+		//rxPlayer.rx_observe().dispatchQueue().subscribe().addDisposableTo(bag)
+		
+		//let a = Observable<Int>.interval(1, scheduler: MainScheduler.instance).subscribeNext { _ in
+				//print("Resource count \(RxSwift.resourceCount)")
+		//}
+//		Observable<Int>.interval(1, scheduler: MainScheduler.instance).bindNext { _ in
+//			RxSwift.resourceCount
+//			print("Resource count")
+//		}.addDisposableTo(bag)
 		
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)

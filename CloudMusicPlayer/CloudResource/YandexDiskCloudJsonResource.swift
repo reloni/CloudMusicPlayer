@@ -8,7 +8,7 @@
 
 import Foundation
 import SwiftyJSON
-import Alamofire
+//import Alamofire
 import RxSwift
 
 public class YandexDiskCloudJsonResource : CloudJsonResource {

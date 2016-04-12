@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 import SwiftyJSON
-import Alamofire
+//import Alamofire
 import RxCocoa
 import RxSwift
 import AVFoundation
@@ -54,14 +54,22 @@ class CloudResourcesStructureController: UIViewController {
 	}
 	
 	func play(track: CloudAudioResource) {
-		track.downloadUrl?.bindNext { result in
-			guard let url = result else { return }
-			streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
-		}.addDisposableTo(bag!)
+		if let identifier = track as? StreamResourceIdentifier {
+			//streamPlayer.playUrl(identifier, createNewQueue: true, customHttpHeaders: track.getRequestHeaders())
+			rxPlayer.playUrl(identifier)
+		} else {
+			track.downloadUrl?.bindNext { result in
+				guard let url = result else { return }
+				//streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
+				//streamPlayer.playUrl(url, createNewQueue: true, customHttpHeaders: track.getRequestHeaders())
+				rxPlayer.playUrl(url)
+				
+				}.addDisposableTo(bag!)
+		}
 	}
 	
 	func stop() {
-		streamPlayer.stop()
+		//rxPlayer.stop()
 	}
 }
 

@@ -29,7 +29,7 @@ public class YandexOAuthResource : OAuthResourceBase {
 		if let start = url.rangeOfString("access_token=")?.endIndex {
 			let substring = url.substringFromIndex(start)
 			let end = substring.rangeOfString("&")?.startIndex ?? substring.endIndex
-			return substring.substringWithRange(Range<String.Index>(start: substring.startIndex, end: end))
+			return substring.substringWithRange(substring.startIndex..<end)
 		}
 		return nil
 	}

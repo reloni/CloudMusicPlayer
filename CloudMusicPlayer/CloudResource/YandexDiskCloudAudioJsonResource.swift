@@ -8,7 +8,7 @@
 
 import Foundation
 import SwiftyJSON
-import Alamofire
+//import Alamofire
 import RxSwift
 
 public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, CloudAudioResource {
@@ -17,9 +17,11 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 	}
 	
 	public var downloadUrl: Observable<String?>? {
-		guard let url = downloadResourceUrl, request = httpClient.httpUtilities.createUrlRequest(url, headers: getRequestHeaders()) else {
+		guard let url = downloadResourceUrl else {
 			return nil
 		}
+		
+		let request = httpClient.httpUtilities.createUrlRequest(url, headers: getRequestHeaders())
 		
 		return Observable.create { [unowned self] observer in
 			let task = self.httpClient.loadJsonData(request).bindNext { result in
