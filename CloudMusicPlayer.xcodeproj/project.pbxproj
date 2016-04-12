@@ -31,6 +31,10 @@
 		6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E235DA51C9833DB00351034 /* YandexRoot.json */; };
 		6E31A8961C9BF6750017802A /* StreamDataTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E31A8951C9BF6750017802A /* StreamDataTaskTests.swift */; };
 		6E31A89A1C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E31A8991C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift */; };
+		6E3572F01CBD003B008FAC87 /* LocalFileStreamDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3572EF1CBD003B008FAC87 /* LocalFileStreamDataTask.swift */; };
+		6E3572F21CBD067D008FAC87 /* LocalFileStreamDataTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3572F11CBD067D008FAC87 /* LocalFileStreamDataTaskTests.swift */; };
+		6E3572F41CBD103B008FAC87 /* ContentTypeDefinitionParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3572F31CBD103B008FAC87 /* ContentTypeDefinitionParsingTests.swift */; };
+		6E3572F61CBD25E7008FAC87 /* DownloadManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3572F51CBD25E7008FAC87 /* DownloadManagerTests.swift */; };
 		6E3A3F6C1C9981C9001975C8 /* YandexAudioDownloadResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */; };
 		6E3A3F6E1C99823B001975C8 /* YandexAudioItem.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */; };
 		6E3D8A5F1CB6807400B604F0 /* StreamResourceIdentifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3D8A5E1CB6807400B604F0 /* StreamResourceIdentifierTests.swift */; };
@@ -127,6 +131,10 @@
 		6E235DA51C9833DB00351034 /* YandexRoot.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexRoot.json; sourceTree = "<group>"; };
 		6E31A8951C9BF6750017802A /* StreamDataTaskTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDataTaskTests.swift; sourceTree = "<group>"; };
 		6E31A8991C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURLSessionDataEventsObserver.swift; sourceTree = "<group>"; };
+		6E3572EF1CBD003B008FAC87 /* LocalFileStreamDataTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalFileStreamDataTask.swift; sourceTree = "<group>"; };
+		6E3572F11CBD067D008FAC87 /* LocalFileStreamDataTaskTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalFileStreamDataTaskTests.swift; sourceTree = "<group>"; };
+		6E3572F31CBD103B008FAC87 /* ContentTypeDefinitionParsingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentTypeDefinitionParsingTests.swift; sourceTree = "<group>"; };
+		6E3572F51CBD25E7008FAC87 /* DownloadManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManagerTests.swift; sourceTree = "<group>"; };
 		6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioDownloadResponse.json; sourceTree = "<group>"; };
 		6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioItem.json; sourceTree = "<group>"; };
 		6E3D8A5E1CB6807400B604F0 /* StreamResourceIdentifierTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamResourceIdentifierTests.swift; sourceTree = "<group>"; };
@@ -226,6 +234,7 @@
 				6EE0CCCD1C96F31F002F4D9D /* NSURLTests.swift */,
 				6EE857B91C988BD3002809B5 /* HttpUtilitiesTests.swift */,
 				6E66B6351C9F3477004C466D /* NSURLSessionProtocolTests.swift */,
+				6E3572F31CBD103B008FAC87 /* ContentTypeDefinitionParsingTests.swift */,
 			);
 			name = Tests;
 			path = CloudMusicPlayerTests/Tests;
@@ -266,6 +275,7 @@
 		6E0A028A1C8A0C8B00AD9B38 /* StreamPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				6E3572EF1CBD003B008FAC87 /* LocalFileStreamDataTask.swift */,
 				6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */,
 				6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */,
 				6E07F0E71C9ABD34001027EA /* SPExtensions.swift */,
@@ -387,6 +397,8 @@
 				6E3D8A5E1CB6807400B604F0 /* StreamResourceIdentifierTests.swift */,
 				6E677F431CB7DDB0004EFC42 /* RxPlayerQueueTests.swift */,
 				6EF3753C1CBA8EB0006D69AC /* RxPlayerPlayControlsTests.swift */,
+				6E3572F11CBD067D008FAC87 /* LocalFileStreamDataTaskTests.swift */,
+				6E3572F51CBD25E7008FAC87 /* DownloadManagerTests.swift */,
 			);
 			name = StreamPlayer;
 			path = CloudMusicPlayerTests/Tests/StreamPlayer;
@@ -669,6 +681,7 @@
 				6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */,
 				6EE5F8761C550877004CF20C /* SettingsController.swift in Sources */,
 				6E8490C01CA9399600366361 /* StreamPlayerUtilities.swift in Sources */,
+				6E3572F01CBD003B008FAC87 /* LocalFileStreamDataTask.swift in Sources */,
 				6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */,
 				6E6DDE471C8DBA59001AE510 /* NSTimer.swift in Sources */,
 				6E182ED81C81E76300730C59 /* YandexDiskCloudJsonResource.swift in Sources */,
@@ -698,7 +711,9 @@
 				6EE0CCCE1C96F31F002F4D9D /* NSURLTests.swift in Sources */,
 				6E5159021CA3D61D001FD036 /* FakeStreamPlayer.swift in Sources */,
 				6EF3753D1CBA8EB0006D69AC /* RxPlayerPlayControlsTests.swift in Sources */,
+				6E3572F61CBD25E7008FAC87 /* DownloadManagerTests.swift in Sources */,
 				6E677F441CB7DDB0004EFC42 /* RxPlayerQueueTests.swift in Sources */,
+				6E3572F21CBD067D008FAC87 /* LocalFileStreamDataTaskTests.swift in Sources */,
 				6EE0CCC31C96B85D002F4D9D /* FakeHttp.swift in Sources */,
 				6E6311161CA3D844006C0072 /* AssetResourceLoaderTests.swift in Sources */,
 				6EE857BA1C988BD3002809B5 /* HttpUtilitiesTests.swift in Sources */,
@@ -712,6 +727,7 @@
 				6E13C7BC1C957FC80060DF24 /* YandexCloudResourceTests.swift in Sources */,
 				6E66B6361C9F3477004C466D /* NSURLSessionProtocolTests.swift in Sources */,
 				6E0296D31CA27E8E007EC58E /* StreamDataCacheTaskTests.swift in Sources */,
+				6E3572F41CBD103B008FAC87 /* ContentTypeDefinitionParsingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

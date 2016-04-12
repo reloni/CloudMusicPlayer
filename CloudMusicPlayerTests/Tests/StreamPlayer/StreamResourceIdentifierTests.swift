@@ -36,14 +36,16 @@ class StreamResourceIdentifierTests: XCTestCase {
 	}
 	
 	func testParseLocalUrl() {
-		let file = "file://Documents/File.txt"
-		if let content = file.streamResourceType {
+		let file = NSFileManager.temporaryDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).dat")
+		NSFileManager.defaultManager().createFileAtPath(file.path!, contents: nil, attributes: nil)
+		if let content = file.path!.streamResourceType {
 			XCTAssertEqual(content, StreamResourceType.LocalResource)
 		} else { XCTFail("Should return resource type") }
+		let _ = try? NSFileManager.defaultManager().removeItemAtURL(file)
 	}
 	
 	func testNotParseIncorrectUrl() {
-		let file = "fake://Documents/File.txt"
+		let file = "/Documents/File.txt"
 		XCTAssertNil(file.streamResourceType)
 	}
 }

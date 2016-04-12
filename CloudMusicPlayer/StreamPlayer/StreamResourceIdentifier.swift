@@ -28,9 +28,15 @@ public protocol StreamHttpResourceIdentifier {
 
 extension StreamResourceIdentifier {
 	public var streamResourceType: StreamResourceType? {
-		guard let url = streamResourceUrl, scheme = NSURLComponents(string: url)?.scheme else { return nil }
+		guard let url = streamResourceUrl else { return nil }
+		
+		guard let scheme = NSURLComponents(string: url)?.scheme else {
+			if NSFileManager.fileExistsAtPath(url, isDirectory: false) {
+				return .LocalResource
+			} else { return nil }
+		}
+		
 		switch scheme {
-			case "file": return .LocalResource
 			case "http": return .HttpResource
 			case "https": return .HttpsResource
 			default: return nil

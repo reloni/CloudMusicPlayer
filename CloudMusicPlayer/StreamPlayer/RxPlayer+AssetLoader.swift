@@ -34,6 +34,11 @@ public struct ContentTypeDefinition {
 		return ext.takeUnretainedValue() as String
 	}
 	
+	public static func getUtiTypeFromFileExtension(ext: String) -> String? {
+		guard let contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, ext, nil) else { return nil }
+		return contentType.takeUnretainedValue() as String
+	}
+	
 	public static func getFileExtensionFromMime(mimeType: String) -> String? {
 		guard let uti = getUtiFromMime(mimeType) else { return nil }
 		return getFileExtensionFromUti(uti)
@@ -42,6 +47,16 @@ public struct ContentTypeDefinition {
 	public static func getTypeDefinitionFromMime(mimeType: String) -> ContentTypeDefinition? {
 		guard let uti = getUtiFromMime(mimeType), ext = getFileExtensionFromUti(uti) else { return nil }
 		return ContentTypeDefinition(mime: mimeType, uti: uti, fileExtension: ext)
+	}
+		
+	public static func getMimeTypeFromFileExtension(ext: String) -> String? {
+		guard let uti = getUtiTypeFromFileExtension(ext), mime = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType) else { return nil }
+		return mime.takeUnretainedValue() as String
+	}
+	
+	public static func getMimeTypeFromUti(uti: String) -> String? {
+		guard let mime = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType) else { return nil }
+		return mime.takeUnretainedValue() as String
 	}
 }
 

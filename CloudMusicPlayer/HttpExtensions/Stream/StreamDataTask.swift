@@ -30,9 +30,7 @@ public enum StreamTaskEvents : StreamTaskEventsProtocol {
 }
 
 public protocol StreamDataTaskProtocol : StreamTaskProtocol {
-	var request: NSMutableURLRequestProtocol { get }
 	var taskProgress: Observable<StreamTaskEvents> { get }
-	var sessionConfiguration: NSURLSessionConfiguration { get }
 	var cacheProvider: CacheProvider? { get }
 }
 
@@ -42,7 +40,7 @@ public class StreamDataTask {
 	public let request: NSMutableURLRequestProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
 	public let sessionConfiguration: NSURLSessionConfiguration
-	public var cacheProvider: CacheProvider?
+	public internal(set) var cacheProvider: CacheProvider?
 	internal var response: NSHTTPURLResponseProtocol?
 		
 	internal lazy var dataTask: NSURLSessionDataTaskProtocol = { [unowned self] in
