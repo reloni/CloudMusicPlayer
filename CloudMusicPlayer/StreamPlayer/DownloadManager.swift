@@ -44,6 +44,12 @@ public class DownloadManager {
 	internal func createDownloadTask(identifier: StreamResourceIdentifier) -> StreamDataTaskProtocol? {
 		if let runningTask = pendingTasks[identifier.streamResourceUid] { return runningTask }
 		
+		if let file = fileStorage.getFromStorage(identifier.streamResourceUid), path = file.path {
+			print("Find in storage: \(identifier.streamResourceUid)")
+			return LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
+				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
+		}
+		
 		if let path = identifier.streamResourceUrl where identifier.streamResourceType == .LocalResource {
 			return LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 																			targetMimeType: identifier.streamResourceContentType?.definition.MIME))

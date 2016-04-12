@@ -132,7 +132,12 @@ extension Observable where Element : StreamTaskEventsProtocol {
 				}
 				let range = NSMakeRange(Int(startOffset), Int(responseLength))
 				
-				respondingDataRequest.respondWithData(data.subdataWithRange(range))
+				do {
+					respondingDataRequest.respondWithData(data.subdataWithRange(range))
+				} catch {
+					print("CRASH!")
+					return false
+				}
 				
 				return Int64(respondingDataRequest.requestedLength) <= respondingDataRequest.currentOffset + responseLength - respondingDataRequest.requestedOffset
 			}

@@ -35,7 +35,7 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 	}
 	
 	public func resume() {
-		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 			guard let data = NSData(contentsOfFile: self.filePath.path!) else {
 				self.subject.onNext(StreamTaskEvents.Success(cache: nil))
 				self.subject.onCompleted()
@@ -50,15 +50,22 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 			self.cacheProvider?.appendData(data)
 			self.cacheProvider?.setContentMimeType(response.getMimeType())
 			
-			self.subject.onNext(StreamTaskEvents.CacheData(self.cacheProvider!))
+			// simulate delay to be sure that player started loading
+			for _ in 0...5 {
+				self.subject.onNext(StreamTaskEvents.CacheData(self.cacheProvider!))
+				NSThread.sleepForTimeInterval(0.01)
+			}
 			
-			self.subject.onNext(StreamTaskEvents.Success(cache: self.cacheProvider))
+			self.subject.onNext(StreamTaskEvents.Success(cache: nil))
 			
 			self.subject.onCompleted()
 		}
 	}
 	
-	public func cancel() { }
+	public func cancel() {
+		print("canceling")
+		subject.onCompleted()
+	}
 	
 	public func suspend() { }
 }

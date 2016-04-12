@@ -33,9 +33,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 				//print("Resource count \(RxSwift.resourceCount)")
 		//}
 		
-		//Observable<Int>.interval(1, scheduler: MainScheduler.instance).bindNext { _ in
-		//	print("Resource count: \(RxSwift.resourceCount)")
-		//}.addDisposableTo(bag)
+//		Observable<Int>.interval(1, scheduler: MainScheduler.instance).bindNext { _ in
+//			print("Resource count: \(RxSwift.resourceCount)")
+//		}.addDisposableTo(bag)
 		
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
