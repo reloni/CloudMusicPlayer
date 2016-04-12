@@ -47,21 +47,24 @@ class LocalFileStreamDataTaskTests: XCTestCase {
 		NSFileManager.defaultManager().createFileAtPath(file.path!, contents: storedData, attributes: nil)
 		let task = LocalFileStreamDataTask(uid: NSUUID().UUIDString, filePath: file.path!)
 		
-		let receiveResponceExpectation = expectationWithDescription("Should receive responce")
-		let cacheDataExpectation = expectationWithDescription("Should cache data")
-		let successExpectation = expectationWithDescription("Should successifully complete")
+		var receiveResponceExpectation: XCTestExpectation? = expectationWithDescription("Should receive responce")
+		var cacheDataExpectation: XCTestExpectation? = expectationWithDescription("Should cache data")
+		var successExpectation: XCTestExpectation? = expectationWithDescription("Should successifully complete")
 		
 		task?.taskProgress.bindNext { e in
 			if case StreamTaskEvents.ReceiveResponse(let response) = e {
 				XCTAssertEqual(response.expectedContentLength, Int64(storedData.length))
 				XCTAssertEqual(response.MIMEType, "audio/mpeg")
-				receiveResponceExpectation.fulfill()
+				receiveResponceExpectation?.fulfill()
+				receiveResponceExpectation = nil
 			} else if case StreamTaskEvents.CacheData(let provider) = e {
 				XCTAssertTrue(provider.getData().isEqualToData(storedData))
 				XCTAssertEqual(provider.contentMimeType, "audio/mpeg")
-				cacheDataExpectation.fulfill()
+				cacheDataExpectation?.fulfill()
+				cacheDataExpectation = nil
 			} else if case StreamTaskEvents.Success = e {
-				successExpectation.fulfill()
+				successExpectation?.fulfill()
+				successExpectation = nil
 			}
 		}.addDisposableTo(bag)
 		
