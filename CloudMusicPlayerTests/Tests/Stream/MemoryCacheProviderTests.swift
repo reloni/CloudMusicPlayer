@@ -104,6 +104,51 @@ class MemoryCacheProviderTests: XCTestCase {
 		XCTAssertTrue(self.session.isInvalidatedAndCanceled, "Session should be invalidated")
 	}
 	
+	func testNotOverrideMimeType() {
+		let fakeResponse = FakeResponse(contentLenght: Int64(26))
+		fakeResponse.MIMEType = "audio/mpeg"
+		
+		let sessionInvalidationExpectation = expectationWithDescription("Should return correct data and invalidate session")
+		
+		session.task?.taskProgress.bindNext { [unowned self] progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					
+					self.streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response:
+						fakeResponse, completion: { _ in }))
+					
+					self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+				}
+			} else if case .cancel = progress {
+				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
+				// so fulfill expectation here after checking if session was invalidated
+				if self.session.isInvalidatedAndCanceled {
+					// set reference to nil (simutale real session dispose)
+					self.utilities.streamObserver = nil
+					self.streamObserver = nil
+					sessionInvalidationExpectation.fulfill()
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		let successExpectation = expectationWithDescription("Should successfuly cache data")
+	
+		// create memory cache provider with explicitly specified mime type
+		httpClient.loadStreamData(request, cacheProvider: MemoryCacheProvider(uid: NSUUID().UUIDString, contentMimeType: "application/octet-stream")).bindNext { result in
+			if case .Success(let cacheProvider) = result {
+				XCTAssertNotNil(cacheProvider, "Cache provider should be specified")
+				XCTAssertEqual(cacheProvider?.contentMimeType, "application/octet-stream", "Mime type should be preserved")
+				successExpectation.fulfill()
+			} else if case StreamTaskEvents.ReceiveData = result {
+				XCTFail("Shouldn't rise this event because CacheProvider was specified")
+			}
+			}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertTrue(self.session.isInvalidatedAndCanceled, "Session should be invalidated")
+	}
+	
 	func testSaveDataOnDisk() {
 		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
 		let testData = "Some test data string".dataUsingEncoding(NSUTF8StringEncoding)!

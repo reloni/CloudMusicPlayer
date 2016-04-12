@@ -43,7 +43,9 @@ extension MemoryCacheProvider : CacheProvider {
 	/// Set content MIME type. 
 	///Only if now contentMimeType property is nil
 	public func setContentMimeType(mimeType: String) {
-		if contentMimeType == nil { contentMimeType = mimeType }
+		if contentMimeType == nil {
+			contentMimeType = mimeType
+		}
 	}
 	
 	public var currentDataLength: UInt64 {
