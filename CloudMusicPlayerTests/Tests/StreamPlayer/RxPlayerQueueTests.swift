@@ -157,15 +157,20 @@ class RxPlayerQueueTests: XCTestCase {
 	func testAddItemsToQueue() {
 		let queue = RxPlayer()
 		
+		var eventExpectation: XCTestExpectation? = expectationWithDescription("Should rise AddNewItem event")
+		
 		var addedItem: RxPlayerQueueItem?
 		queue.rx_observe().bindNext { result in
 			if case PlayerEvents.AddNewItem(let newItem) = result {
 				addedItem = newItem
+				eventExpectation?.fulfill()
 			}
-			}.addDisposableTo(bag)
+		}.addDisposableTo(bag)
 		
 		// add first item
 		let firstAddedtem = queue.addFirst(audioItems[0])
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertEqual(firstAddedtem.streamIdentifier.streamResourceUid, audioItems[0].streamResourceUid, "Check correct first item returned by method")
 		XCTAssertEqual(1, queue.currentItems.count, "Check correct count in queue")
 		XCTAssertEqual(firstAddedtem, queue.first, "Check added item is first in queue")
@@ -178,8 +183,11 @@ class RxPlayerQueueTests: XCTestCase {
 			XCTFail("Event AddNewItem should be rised")
 		}
 		
+		eventExpectation = expectationWithDescription("Should rise AddNewItem event")
 		// add second item at first place
 		let secondAddedItem = queue.addFirst(audioItems[1])
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertEqual(audioItems[1].streamResourceUid, secondAddedItem.streamIdentifier.streamResourceUid, "Check correct second item returned by method")
 		XCTAssertEqual(2, queue.currentItems.count, "Check correct count in queue")
 		XCTAssertEqual(secondAddedItem, queue.first, "Check second added item is first in queue")
@@ -193,8 +201,11 @@ class RxPlayerQueueTests: XCTestCase {
 			XCTFail("Event AddNewItem should be rised")
 		}
 		
+		eventExpectation = expectationWithDescription("Should rise AddNewItem event")
 		// add third item at the end
 		let thirdAddedItem = queue.addLast(audioItems[2])
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertEqual(audioItems[2].streamResourceUid, thirdAddedItem.streamIdentifier.streamResourceUid, "Check correct third item returned by method")
 		XCTAssertEqual(3, queue.currentItems.count, "Check correct count in queue")
 		XCTAssertEqual(thirdAddedItem, queue.last, "Check third added item is last in queue")
@@ -207,8 +218,11 @@ class RxPlayerQueueTests: XCTestCase {
 			XCTFail("Event AddNewItem should be rised")
 		}
 		
+		eventExpectation = expectationWithDescription("Should rise AddNewItem event")
 		// add fourth item at third place
 		let fourthAddedItem = queue.addAfter(audioItems[3], afterItem: firstAddedtem.streamIdentifier.streamResourceUid)
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		XCTAssertEqual(audioItems[3].streamResourceUid, fourthAddedItem.streamIdentifier.streamResourceUid, "Check correct fourth item returned by method")
 		XCTAssertEqual(4, queue.currentItems.count, "Check correct count in queue")
 		XCTAssertNil(queue.last?.child, "Check last item in queue don't have child")
