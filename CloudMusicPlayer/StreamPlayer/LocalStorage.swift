@@ -25,12 +25,15 @@ public class LocalNsUserDefaultsStorage {
 	internal var tempSaveStorageDictionary = [String: String]()
 	internal var permanentSaveStorageDictionary = [String: String]()
 	internal let saveData: Bool
+	internal let userDefaults: NSUserDefaultsProtocol
 	//internal var permanentFileStorageDictionary = [String: NSURL]()
 	
 	public let tempCacheDirectory: NSURL
 	public let tempSaveStorageDirectory: NSURL
 	public let permanentSaveStorageDirectory: NSURL
-	public init(loadData: Bool = false) {
+	public init(loadData: Bool = false, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) {
+		self.userDefaults = userDefaults
+		
 		tempCacheDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.temporaryDirectory, subDirName: "LocalStorageTemp") ??
 			NSFileManager.temporaryDirectory
 		tempSaveStorageDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorage") ??
@@ -40,11 +43,11 @@ public class LocalNsUserDefaultsStorage {
 		
 		self.saveData = loadData
 		if saveData {
-			if let loadedData = NSUserDefaults.loadRawData(LocalNsUserDefaultsStorage.tempFileStorageId) as? [String: String] {
+			if let loadedData = userDefaults.loadRawData(LocalNsUserDefaultsStorage.tempFileStorageId) as? [String: String] {
 				tempSaveStorageDictionary = loadedData
 			}
 			
-			if let loadedData = NSUserDefaults.loadRawData(LocalNsUserDefaultsStorage.permanentFileStorageId) as? [String: String] {
+			if let loadedData = userDefaults.loadRawData(LocalNsUserDefaultsStorage.permanentFileStorageId) as? [String: String] {
 				permanentSaveStorageDictionary = loadedData
 			}
 		}
@@ -53,10 +56,8 @@ public class LocalNsUserDefaultsStorage {
 
 extension LocalNsUserDefaultsStorage : LocalStorageType {
 	internal func saveTo(destination: NSURL, provider: CacheProvider) -> NSURL? {
-		guard let file = provider.saveData(destination,
-		                                   fileExtension: ContentTypeDefinition.getFileExtensionFromMime(provider.contentMimeType ?? "")) else { return nil }
-		
-		return file
+		return provider.saveData(destination,
+		                                   fileExtension: ContentTypeDefinition.getFileExtensionFromMime(provider.contentMimeType ?? ""))
 	}
 	
 	public func createCacheProvider(uid: String, targetMimeType: String?) -> CacheProvider {
@@ -68,7 +69,7 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 			tempSaveStorageDictionary[provider.uid] = fileName
 			
 			if saveData {
-				NSUserDefaults.saveData(tempSaveStorageDictionary, forKey: LocalNsUserDefaultsStorage.tempFileStorageId)
+				userDefaults.saveData(tempSaveStorageDictionary, forKey: LocalNsUserDefaultsStorage.tempFileStorageId)
 			}
 			
 			return file
@@ -82,7 +83,7 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 			permanentSaveStorageDictionary[provider.uid] = fileName
 			
 			if saveData {
-				NSUserDefaults.saveData(permanentSaveStorageDictionary, forKey: LocalNsUserDefaultsStorage.permanentFileStorageId)
+				userDefaults.saveData(permanentSaveStorageDictionary, forKey: LocalNsUserDefaultsStorage.permanentFileStorageId)
 			}
 			
 			return file
