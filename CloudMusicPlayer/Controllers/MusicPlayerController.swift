@@ -90,6 +90,21 @@ class MusicPlayerController: UIViewController {
 //				self.playButton = newButton
 //			}
 //		}.addDisposableTo(bag)
+		
+		rxPlayer.currentItemMetadata.asDriver(onErrorJustReturn: nil).driveNext { [weak self] meta in
+			guard let meta = meta else { return }
+			
+			self?.trackLabel.text = meta.title
+			self?.artistLabel.text = meta.artist
+			self?.albumLabel.text = meta.album
+			if let artwork = meta.artwork {
+				self?.image.image = UIImage(data: artwork)
+			}
+		}.addDisposableTo(bag)
+		
+		rxPlayer.currentItemDuration.asDriver(onErrorJustReturn: nil).driveNext { [weak self] duration in
+			self?.fullTimeLabel.text = duration?.asString
+		}.addDisposableTo(bag)
 	}
 	
 	deinit {

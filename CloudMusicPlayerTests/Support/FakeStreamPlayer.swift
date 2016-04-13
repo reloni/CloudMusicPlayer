@@ -9,6 +9,7 @@
 import Foundation
 @testable import CloudMusicPlayer
 import RxSwift
+import AVFoundation
 
 public class FakeAVAssetResourceLoadingContentInformationRequest : AVAssetResourceLoadingContentInformationRequestProtocol {
 	public var byteRangeAccessSupported = false
@@ -52,10 +53,14 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 
 public class FakeInternalPlayer : InternalPlayerType {
 	public let publishSubject = PublishSubject<PlayerEvents>()
+	public let metadataSubject = BehaviorSubject<AudioItemMetadata?>(value: nil)
+	public let durationSubject = BehaviorSubject<CMTime?>(value: nil)
 	
 	public var nativePlayer: AVPlayerProtocol?
 	
 	public var events: Observable<PlayerEvents> { return publishSubject }
+	public var metadata: Observable<AudioItemMetadata?> { return metadataSubject.shareReplay(1) }
+	public var duration: Observable<CMTime?> { return durationSubject.shareReplay(1) }
 	
 	public func resume() {
 		publishSubject.onNext(.Resumed)
@@ -65,7 +70,8 @@ public class FakeInternalPlayer : InternalPlayerType {
 		publishSubject.onNext(.Paused)
 	}
 	
-	public func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol) {
+	public func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol,
+	                 loadMetadata: Bool) {
 		publishSubject.onNext(.Started)
 	}
 	
