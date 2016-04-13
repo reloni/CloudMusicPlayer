@@ -70,13 +70,46 @@ class LocalStorageTests: XCTestCase {
 		}
 	}
 	
-	func testGetCachedFile() {
+	func testGetCachedFileFromTemp() {
 		let storage = LocalNsUserDefaultsStorage()
 		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
 		provider.appendData("some data".dataUsingEncoding(NSUTF8StringEncoding)!)
 		let file = storage.saveToTempStorage(provider)
 		let cachedFile = storage.getFromStorage(provider.uid)
 		XCTAssertEqual(file, cachedFile, "Check file was cached")
+		file?.deleteFile()
+	}
+	
+	func testNotReturnCacheTempFileThatWasDeleted() {
+		let storage = LocalNsUserDefaultsStorage()
+		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
+		provider.appendData("some data".dataUsingEncoding(NSUTF8StringEncoding)!)
+		let file = storage.saveToTempStorage(provider)
+		// delete file from disk
+		file?.deleteFile()
+		let cachedFile = storage.getFromStorage(provider.uid)
+		XCTAssertNil(cachedFile, "Check not return file bacause it was deleted")
+	}
+	
+	func testGetCachedFileFromPermanent() {
+		let storage = LocalNsUserDefaultsStorage()
+		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
+		provider.appendData("some data".dataUsingEncoding(NSUTF8StringEncoding)!)
+		let file = storage.saveToPermanentStorage(provider)
+		let cachedFile = storage.getFromStorage(provider.uid)
+		XCTAssertEqual(file, cachedFile, "Check file was cached")
+		file?.deleteFile()
+	}
+	
+	func testNotReturnCachePermanentFileThatWasDeleted() {
+		let storage = LocalNsUserDefaultsStorage()
+		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
+		provider.appendData("some data".dataUsingEncoding(NSUTF8StringEncoding)!)
+		let file = storage.saveToPermanentStorage(provider)
+		// delete file from disk
+		file?.deleteFile()
+		let cachedFile = storage.getFromStorage(provider.uid)
+		XCTAssertNil(cachedFile, "Check not return file bacause it was deleted")
 	}
 	
 	func testNotGetNotExistedInCacheFile() {

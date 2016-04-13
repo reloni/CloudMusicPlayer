@@ -15,4 +15,10 @@ extension NSURL {
 		}
 		return false
 	}
+	
+	public func deleteFile() {
+		if fileExists() {
+			let _ = try? NSFileManager.defaultManager().removeItemAtURL(self)
+		}
+	}
 }
