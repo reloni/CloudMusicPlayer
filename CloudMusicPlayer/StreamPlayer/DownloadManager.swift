@@ -21,7 +21,7 @@ public class DownloadManager {
 	internal var pendingTasks = [String: StreamDataTaskProtocol]()
 	
 	public let saveData: Bool
-	internal let fileStorage: LocalStorageProtocol
+	internal let fileStorage: LocalStorageType
 	internal let httpUtilities: HttpUtilitiesProtocol
 	
 	internal static var instance: DownloadManagerType  {
@@ -35,7 +35,7 @@ public class DownloadManager {
 		}
 	}
 	
-	internal init(saveData: Bool = false, fileStorage: LocalStorageProtocol = LocalStorage(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
+	internal init(saveData: Bool = false, fileStorage: LocalStorageType = LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
 		self.saveData = saveData
 		self.fileStorage = fileStorage
 		self.httpUtilities = httpUtilities

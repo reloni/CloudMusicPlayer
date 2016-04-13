@@ -22,7 +22,7 @@ class LocalStorageTests: XCTestCase {
 	}
 	
 	func testPaths() {
-		let storage = LocalStorage()
+		let storage = LocalNsUserDefaultsStorage()
 		XCTAssertTrue(NSFileManager.fileExistsAtPath(storage.tempCacheDirectory.path!, isDirectory: true))
 		XCTAssertTrue(NSFileManager.fileExistsAtPath(storage.tempSaveStorageDirectory.path!, isDirectory: true))
 		XCTAssertTrue(NSFileManager.fileExistsAtPath(storage.permanentSaveStorageDirectory.path!, isDirectory: true))

@@ -10,11 +10,7 @@ import Foundation
 import RxSwift
 
 extension RxPlayer {
-	public func playUrl(url: StreamResourceIdentifier, contentTypeOverride: ContentType? = nil) {
-		playUrl(url, clearQueue: true, contentTypeOverride: contentTypeOverride)
-	}
-	
-	public func playUrl(url: StreamResourceIdentifier, clearQueue: Bool = true, contentTypeOverride: ContentType?) {
+	public func playUrl(url: StreamResourceIdentifier, clearQueue: Bool = true) {
 		if clearQueue {
 			initWithNewItems([url])
 			playing = true
