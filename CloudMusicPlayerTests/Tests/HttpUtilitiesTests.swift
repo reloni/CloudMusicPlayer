@@ -77,9 +77,9 @@ class HttpUtilitiesTests: XCTestCase {
 		let config = NSURLSessionConfiguration.defaultSessionConfiguration()
 		config.HTTPCookieAcceptPolicy = .Always
 		let task = utilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: config, cacheProvider: nil)
-		XCTAssertEqual(task.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
+		XCTAssertEqual((task as? StreamDataTask)?.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
 		XCTAssertTrue((task as? StreamDataTask)?.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
-		XCTAssertEqual(task.sessionConfiguration, config, "Check correct sessionConfig was passed")
+		XCTAssertEqual((task as? StreamDataTask)?.sessionConfiguration, config, "Check correct sessionConfig was passed")
 		XCTAssertNil(task.cacheProvider)
 	}
 	
@@ -89,9 +89,9 @@ class HttpUtilitiesTests: XCTestCase {
 		config.HTTPCookieAcceptPolicy = .Always
 		let cacheProvider = MemoryCacheProvider(uid: NSUUID().UUIDString)
 		let task = utilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: config, cacheProvider: cacheProvider)
-		XCTAssertEqual(task.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
+		XCTAssertEqual((task as? StreamDataTask)?.request.URL?.absoluteString, request.URL?.absoluteString, "Check correct request url")
 		XCTAssertTrue((task as? StreamDataTask)?.httpUtilities as? HttpUtilities === utilities, "Check correct HttpUtilities was passed")
-		XCTAssertEqual(task.sessionConfiguration, config, "Check correct sessionConfig was passed")
+		XCTAssertEqual((task as? StreamDataTask)?.sessionConfiguration, config, "Check correct sessionConfig was passed")
 		XCTAssertTrue(task.cacheProvider as? MemoryCacheProvider === cacheProvider)
 	}
 	

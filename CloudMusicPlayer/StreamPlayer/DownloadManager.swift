@@ -21,7 +21,7 @@ public class DownloadManager {
 	internal var pendingTasks = [String: StreamDataTaskProtocol]()
 	
 	public let saveData: Bool
-	internal let fileStorage: LocalStorageProtocol
+	internal let fileStorage: LocalStorageType
 	internal let httpUtilities: HttpUtilitiesProtocol
 	
 	internal static var instance: DownloadManagerType  {
@@ -35,7 +35,7 @@ public class DownloadManager {
 		}
 	}
 	
-	internal init(saveData: Bool = false, fileStorage: LocalStorageProtocol = LocalStorage(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
+	internal init(saveData: Bool = false, fileStorage: LocalStorageType = LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
 		self.saveData = saveData
 		self.fileStorage = fileStorage
 		self.httpUtilities = httpUtilities
@@ -43,6 +43,17 @@ public class DownloadManager {
 	
 	internal func createDownloadTask(identifier: StreamResourceIdentifier) -> StreamDataTaskProtocol? {
 		if let runningTask = pendingTasks[identifier.streamResourceUid] { return runningTask }
+		
+		if let file = fileStorage.getFromStorage(identifier.streamResourceUid), path = file.path {
+			print("Find in storage: \(identifier.streamResourceUid)")
+			return LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
+				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
+		}
+		
+		if let path = identifier.streamResourceUrl where identifier.streamResourceType == .LocalResource {
+			return LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
+																			targetMimeType: identifier.streamResourceContentType?.definition.MIME))
+		}
 		
 		guard identifier.streamResourceType == .HttpResource || identifier.streamResourceType == .HttpsResource else { return nil }
 		
