@@ -39,8 +39,6 @@ internal protocol InternalPlayerType {
 	func pause()
 	func resume()
 	var events: Observable<PlayerEvents> { get }
-	var metadata: Observable<AudioItemMetadata?> { get }
-	var duration: Observable<CMTime?> { get }
 	//var currentTime: Observable<CMTime?> { get }
 	var nativePlayer: AVPlayerProtocol? { get }
 }
@@ -49,9 +47,8 @@ internal class InternalPlayer {
 	var nativePlayer: AVPlayerProtocol?
 	var observer: AVAssetResourceLoaderEventsObserverProtocol?
 	let subject = PublishSubject<PlayerEvents>()
-	let metadataSubject = BehaviorSubject<AudioItemMetadata?>(value: nil)
-	let durationSubject = BehaviorSubject<CMTime?>(value: nil)
-	//let currentTimeSubject = BehaviorSubject<CMTime?>(value: nil)
+
+	let currentTimeSubject = BehaviorSubject<CMTime?>(value: nil)
 	var bag: DisposeBag!
 	var asset: AVURLAssetProtocol!
 	var playerItem: AVPlayerItemProtocol!
@@ -69,9 +66,8 @@ internal class InternalPlayer {
 
 extension InternalPlayer : InternalPlayerType {
 	var events: Observable<PlayerEvents> { return subject }
-	var metadata: Observable<AudioItemMetadata?> { return metadataSubject }
-	var duration: Observable<CMTime?> { return durationSubject }
-	//var currentTime: Observable<CMTime?> { return currentTimeSubject }
+
+	var currentTime: Observable<CMTime?> { return currentTimeSubject }
 	
 	func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol,
 	          loadMetadata: Bool = true) {
@@ -89,16 +85,6 @@ extension InternalPlayer : InternalPlayerType {
 				self?.nativePlayer?.play()
 				self?.subject.onNext(.Started)
 			}
-		}.addDisposableTo(bag)
-		
-		if loadMetadata {
-			self.asset.loadMetadata().bindNext { [weak self] meta in
-				self?.metadataSubject.onNext(meta)
-			}.addDisposableTo(bag)
-		}
-		
-		self.asset.loadDuration().bindNext { [weak self] duration in
-			self?.durationSubject.onNext(duration)
 		}.addDisposableTo(bag)
 	}
 	
@@ -131,10 +117,14 @@ public class RxPlayer {
 	
 	internal var itemsSet = NSMutableOrderedSet()
 	internal var queueEventsSubject = PublishSubject<PlayerEvents>()
-	internal var currentItemMetadataSubject = BehaviorSubject<AudioItemMetadata?>(value: nil)
+	internal var currentItemSubject = BehaviorSubject<RxPlayerQueueItem?>(value: nil)
 	
 	internal let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	public internal(set) var playing: Bool = false
+	
+	public var currentItem: Observable<RxPlayerQueueItem?> {
+		return currentItemSubject.shareReplay(1)
+	}
 	
 	public lazy var playerEvents: Observable<PlayerEvents> = {
 		return Observable.create { [weak self] observer in
@@ -150,14 +140,6 @@ public class RxPlayer {
 			}
 		}
 	}()
-	
-	public var currentItemMetadata: Observable<AudioItemMetadata?>  {
-		return internalPlayer.metadata.shareReplay(1)
-	}
-	
-	public var currentItemDuration: Observable<CMTime?> {
-		return internalPlayer.duration.shareReplay(1)
-	}
 	
 	internal lazy var dispatchQueueScheduler: Observable<Void> = {
 		return Observable<Void>.create { [weak self] observer in
@@ -177,6 +159,7 @@ public class RxPlayer {
 			queueEventsSubject.onNext(.CurrentItemChanged(current))
 			if playing && current != nil {
 				queueEventsSubject.onNext(.PreparingToPlay(current!))
+				currentItemSubject.onNext(current)
 			} else if current == nil {
 				playing = false
 			}
@@ -201,5 +184,6 @@ public class RxPlayer {
 	deinit {
 		print("Rx player deinit")
 		queueEventsSubject.onCompleted()
+		currentItemSubject.onCompleted()
 	}
 }

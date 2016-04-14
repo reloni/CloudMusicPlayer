@@ -25,7 +25,7 @@ class DownloadManagerTests: XCTestCase {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 		let file = NSFileManager.temporaryDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).dat")
 		NSFileManager.defaultManager().createFileAtPath(file.path!, contents: nil, attributes: nil)
-		let task = manager.createDownloadTask(file.path!)
+		let task = manager.createDownloadTask(file.path!, checkInPendingTasks: true)
 		XCTAssertTrue(task is LocalFileStreamDataTask, "Should create instance of LocalFileStreamDataTask")
 		let _ = try? NSFileManager.defaultManager().removeItemAtURL(file)
 	}
@@ -33,19 +33,19 @@ class DownloadManagerTests: XCTestCase {
 	func testNotCreateLocalFileStreamTaskForNotExistedFile() {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 		let file = NSFileManager.temporaryDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).dat")
-		let task = manager.createDownloadTask(file.path!)
+		let task = manager.createDownloadTask(file.path!, checkInPendingTasks: true)
 		XCTAssertNil(task, "Should not create a task")
 	}
 	
 	func testCreateUrlStreamTask() {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
-		let task = manager.createDownloadTask("https://somelink.com")
+		let task = manager.createDownloadTask("https://somelink.com", checkInPendingTasks: true)
 		XCTAssertTrue(task is StreamDataTask, "Should create instance of LocalFileStreamDataTask")
 	}
 	
 	func testNotCreateStreamTaskForIncorrectScheme() {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
-		let task = manager.createDownloadTask("incorrect://somelink.com")
+		let task = manager.createDownloadTask("incorrect://somelink.com", checkInPendingTasks: true)
 		XCTAssertNil(task, "Should not create a task")
 	}
 }

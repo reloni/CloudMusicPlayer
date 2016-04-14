@@ -38,6 +38,9 @@
 		6E3A3F6C1C9981C9001975C8 /* YandexAudioDownloadResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */; };
 		6E3A3F6E1C99823B001975C8 /* YandexAudioItem.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */; };
 		6E3D8A5F1CB6807400B604F0 /* StreamResourceIdentifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3D8A5E1CB6807400B604F0 /* StreamResourceIdentifierTests.swift */; };
+		6E4319761CBFAF2E007CC9AB /* Float.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4319751CBFAF2E007CC9AB /* Float.swift */; };
+		6E4319781CBFBD6C007CC9AB /* RxPlayerQueueItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4319771CBFBD6C007CC9AB /* RxPlayerQueueItem.swift */; };
+		6E43197B1CBFC0A8007CC9AB /* MetadataTest.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6E43197A1CBFC0A8007CC9AB /* MetadataTest.mp3 */; };
 		6E5159021CA3D61D001FD036 /* FakeStreamPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5159011CA3D61D001FD036 /* FakeStreamPlayer.swift */; };
 		6E5254481C675D8F00CA5463 /* OAuthResourceBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */; };
 		6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254491C676BE900CA5463 /* NSUserDefaults.swift */; };
@@ -59,6 +62,7 @@
 		6E8AFD831C78DBC200091B53 /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8AFD811C78DBC200091B53 /* RxCocoa.framework */; };
 		6E8AFD861C78E17C00091B53 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8AFD851C78E17C00091B53 /* SettingsViewModel.swift */; };
 		6E94918C1C7B7218006B7696 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */; };
+		6E97C15C1CBF73DE00D7B5B4 /* RxPlayerQueueItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E97C15B1CBF73DE00D7B5B4 /* RxPlayerQueueItemTests.swift */; };
 		6EA3A2511C9967FC0042E851 /* YandexMusicFolderContents.json in Resources */ = {isa = PBXBuildFile; fileRef = 6EA3A2501C9967FC0042E851 /* YandexMusicFolderContents.json */; };
 		6EA3A2531C9969B30042E851 /* YandexMusicDirItem.json in Resources */ = {isa = PBXBuildFile; fileRef = 6EA3A2521C9969B30042E851 /* YandexMusicDirItem.json */; };
 		6EA500841C53E6F100B9ED11 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EA500831C53E6F100B9ED11 /* Main.storyboard */; };
@@ -140,6 +144,9 @@
 		6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioDownloadResponse.json; sourceTree = "<group>"; };
 		6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioItem.json; sourceTree = "<group>"; };
 		6E3D8A5E1CB6807400B604F0 /* StreamResourceIdentifierTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamResourceIdentifierTests.swift; sourceTree = "<group>"; };
+		6E4319751CBFAF2E007CC9AB /* Float.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Float.swift; sourceTree = "<group>"; };
+		6E4319771CBFBD6C007CC9AB /* RxPlayerQueueItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxPlayerQueueItem.swift; sourceTree = "<group>"; };
+		6E43197A1CBFC0A8007CC9AB /* MetadataTest.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = MetadataTest.mp3; sourceTree = "<group>"; };
 		6E5159011CA3D61D001FD036 /* FakeStreamPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeStreamPlayer.swift; sourceTree = "<group>"; };
 		6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthResourceBase.swift; sourceTree = "<group>"; };
 		6E5254491C676BE900CA5463 /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
@@ -162,6 +169,7 @@
 		6E8AFD811C78DBC200091B53 /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxCocoa.framework; path = Carthage/Build/iOS/RxCocoa.framework; sourceTree = "<group>"; };
 		6E8AFD851C78E17C00091B53 /* SettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = Carthage/Build/iOS/SwiftyJSON.framework; sourceTree = "<group>"; };
+		6E97C15B1CBF73DE00D7B5B4 /* RxPlayerQueueItemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxPlayerQueueItemTests.swift; sourceTree = "<group>"; };
 		6EA3A2501C9967FC0042E851 /* YandexMusicFolderContents.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexMusicFolderContents.json; sourceTree = "<group>"; };
 		6EA3A2521C9969B30042E851 /* YandexMusicDirItem.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexMusicDirItem.json; sourceTree = "<group>"; };
 		6EA500831C53E6F100B9ED11 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
@@ -293,6 +301,7 @@
 				6E658BD71CB81FAF0011354C /* RxPlayer+PlayControl.swift */,
 				6E658BD91CB824990011354C /* RxPlayer+Streaming.swift */,
 				6EEC8F781CA0393100B30B85 /* RxPlayer+AssetLoader.swift */,
+				6E4319771CBFBD6C007CC9AB /* RxPlayerQueueItem.swift */,
 				6EF7476B1CBABC23008AA08B /* DownloadManager.swift */,
 			);
 			name = StreamPlayer;
@@ -310,6 +319,7 @@
 				6E8490C31CA9733B00366361 /* Collection.swift */,
 				6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */,
 				6EDB49821CBE419900F82E02 /* NSURL.swift */,
+				6E4319751CBFAF2E007CC9AB /* Float.swift */,
 			);
 			name = Extensions;
 			path = CloudMusicPlayer/Extensions;
@@ -361,6 +371,15 @@
 			path = "CloudMusicPlayerTests/Support JSON";
 			sourceTree = SOURCE_ROOT;
 		};
+		6E4319791CBFC089007CC9AB /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				6E43197A1CBFC0A8007CC9AB /* MetadataTest.mp3 */,
+			);
+			name = Misc;
+			path = CloudMusicPlayerTests/Misc;
+			sourceTree = SOURCE_ROOT;
+		};
 		6E5254461C675D7C00CA5463 /* CloudResource */ = {
 			isa = PBXGroup;
 			children = (
@@ -404,6 +423,7 @@
 				6EF3753C1CBA8EB0006D69AC /* RxPlayerPlayControlsTests.swift */,
 				6E3572F11CBD067D008FAC87 /* LocalFileStreamDataTaskTests.swift */,
 				6E3572F51CBD25E7008FAC87 /* DownloadManagerTests.swift */,
+				6E97C15B1CBF73DE00D7B5B4 /* RxPlayerQueueItemTests.swift */,
 			);
 			name = StreamPlayer;
 			path = CloudMusicPlayerTests/Tests/StreamPlayer;
@@ -471,6 +491,7 @@
 		6EEB98B51C4EBE1700DD5B95 /* CloudMusicPlayerTests */ = {
 			isa = PBXGroup;
 			children = (
+				6E4319791CBFC089007CC9AB /* Misc */,
 				6E36E32E1C9EFCB70039B91E /* Support JSON */,
 				6EECECD31C982369007B37CC /* Support */,
 				6E0296CF1CA27C09007EC58E /* Tests */,
@@ -621,6 +642,7 @@
 				6E3A3F6C1C9981C9001975C8 /* YandexAudioDownloadResponse.json in Resources */,
 				6EA3A2511C9967FC0042E851 /* YandexMusicFolderContents.json in Resources */,
 				6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */,
+				6E43197B1CBFC0A8007CC9AB /* MetadataTest.mp3 in Resources */,
 				6EA3A2531C9969B30042E851 /* YandexMusicDirItem.json in Resources */,
 				6E3A3F6E1C99823B001975C8 /* YandexAudioItem.json in Resources */,
 			);
@@ -675,7 +697,9 @@
 				6E8490BE1CA92B7E00366361 /* AudioItemMetadata.swift in Sources */,
 				6EECECD01C97EE54007B37CC /* HttpUtilities.swift in Sources */,
 				6EEB98A11C4EBE1700DD5B95 /* ViewController.swift in Sources */,
+				6E4319761CBFAF2E007CC9AB /* Float.swift in Sources */,
 				6E8AFD861C78E17C00091B53 /* SettingsViewModel.swift in Sources */,
+				6E4319781CBFBD6C007CC9AB /* RxPlayerQueueItem.swift in Sources */,
 				6E07F0E81C9ABD34001027EA /* SPExtensions.swift in Sources */,
 				6EEC8F791CA0393100B30B85 /* RxPlayer+AssetLoader.swift in Sources */,
 				6EC4E6141C8D789200957D42 /* MusicPlayerController.swift in Sources */,
@@ -725,6 +749,7 @@
 				6EE0CCC31C96B85D002F4D9D /* FakeHttp.swift in Sources */,
 				6E6311161CA3D844006C0072 /* AssetResourceLoaderTests.swift in Sources */,
 				6EE857BA1C988BD3002809B5 /* HttpUtilitiesTests.swift in Sources */,
+				6E97C15C1CBF73DE00D7B5B4 /* RxPlayerQueueItemTests.swift in Sources */,
 				6E12E0711CB3D68300091B9A /* LocalStorageTests.swift in Sources */,
 				6EE0CCCA1C96CBEE002F4D9D /* HttpClientBasicTests.swift in Sources */,
 				6E80F8B91C903CA200102A9C /* OAuthResourceTests.swift in Sources */,

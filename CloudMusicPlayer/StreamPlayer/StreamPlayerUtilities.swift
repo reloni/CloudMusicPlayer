@@ -12,6 +12,7 @@ import AVFoundation
 public protocol StreamPlayerUtilitiesProtocol {
 	func createavUrlAsset(url: NSURL) -> AVURLAssetProtocol
 	func createavPlayerItem(asset: AVURLAssetProtocol) -> AVPlayerItemProtocol
+	func createavPlayerItem(url: NSURL) -> AVPlayerItemProtocol	
 }
 
 public class StreamPlayerUtilities {
@@ -39,5 +40,9 @@ extension StreamPlayerUtilities: StreamPlayerUtilitiesProtocol {
 	
 	public func createavPlayerItem(asset: AVURLAssetProtocol) -> AVPlayerItemProtocol {
 		return AVPlayerItem(asset: asset as! AVURLAsset)
+	}
+	
+	public func createavPlayerItem(url: NSURL) -> AVPlayerItemProtocol {
+		return AVPlayerItem(URL: url)
 	}
 }

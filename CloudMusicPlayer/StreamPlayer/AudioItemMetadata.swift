@@ -30,7 +30,7 @@ public class AudioItemMetadata {
 		return self.metadata["artwork"] as? NSData
 	}()
 	
-	public lazy var duration: CMTime? = {
-		return self.metadata["duration"] as? CMTime
+	public lazy var duration: Float64? = {
+		return self.metadata["duration"] as? Float64
 	}()
 }

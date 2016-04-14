@@ -15,6 +15,7 @@ public protocol LocalStorageType {
 	func getFromStorage(uid: String) -> NSURL?
 	var tempCacheDirectory: NSURL { get }
 	var tempSaveStorageDirectory: NSURL { get }
+	func saveToTemporaryFolder(provider: CacheProvider) -> NSURL?
 	var permanentSaveStorageDirectory: NSURL { get }
 }
 
@@ -90,6 +91,10 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 		}
 		
 		return nil
+	}
+	
+	public func saveToTemporaryFolder(provider: CacheProvider) -> NSURL? {
+		return saveTo(tempCacheDirectory, provider: provider)
 	}
 	
 	public func getFromStorage(uid: String) -> NSURL? {
