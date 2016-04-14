@@ -59,12 +59,12 @@ public class RxPlayerQueueItem {
 			let disposable = downloadTask.taskProgress.bindNext { e in
 				if case StreamTaskEvents.CacheData(let prov) = e {
 					receivedDataLen = prov.getData().length
-					if receivedDataLen > 1024 * 256 {
+					if receivedDataLen >= 1024 * 256 {
 						if let file = downloadManager.fileStorage.saveToTemporaryFolder(prov) {
 							observer.onNext(self.loadFileMetadata(file, utilities: utilities))
 							file.deleteFile()
 						}
-						downloadTask.suspend()
+						downloadTask.cancel()
 						observer.onCompleted()
 					}
 				} else if case StreamTaskEvents.Error = e {
@@ -78,7 +78,7 @@ public class RxPlayerQueueItem {
 			
 			return AnonymousDisposable {
 				disposable.dispose()
-				downloadTask.suspend()
+				downloadTask.cancel()
 			}
 		}
 	}
