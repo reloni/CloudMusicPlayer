@@ -43,9 +43,6 @@ class RxPlayerQueueItemTests: XCTestCase {
 	}
 	
 	func testLoadMetadataFromCachedFile() {
-		let player = RxPlayer()
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		
 		let storage = LocalNsUserDefaultsStorage()
 		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerQueueItemTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
 		let copiedFile = storage.tempSaveStorageDirectory.URLByAppendingPathComponent("FileWithMetadata.mp3")
@@ -55,7 +52,11 @@ class RxPlayerQueueItemTests: XCTestCase {
 		//DownloadManager.initWithInstance(DownloadManager(saveData: false, fileStorage: storage, httpUtilities: FakeHttpUtilities()))
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: FakeHttpUtilities())
 		
-		player.rx_observe().streamContent(StreamPlayerUtilities(), downloadManager: downloadManager).subscribe().addDisposableTo(bag)
+		
+		let player = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(), downloadManager: downloadManager,
+		                      streamPlayerUtilities: StreamPlayerUtilities())
+		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -77,9 +78,6 @@ class RxPlayerQueueItemTests: XCTestCase {
 	}
 	
 	func testReturnNilMetadataIfReceiveError() {
-		let player = RxPlayer()
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		
 		let storage = LocalNsUserDefaultsStorage()
 		
 		let streamObserver = NSURLSessionDataEventsObserver()
@@ -89,7 +87,10 @@ class RxPlayerQueueItemTests: XCTestCase {
 		httpUtilities.fakeSession = session
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
-		player.rx_observe().streamContent(StreamPlayerUtilities(), downloadManager: downloadManager).subscribe().addDisposableTo(bag)
+		let player = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(), downloadManager: downloadManager,
+		                      streamPlayerUtilities: StreamPlayerUtilities())
+		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -117,8 +118,8 @@ class RxPlayerQueueItemTests: XCTestCase {
 	}
 	
 	func testReturnMetadataFromRemote() {
-		let player = RxPlayer()
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//let player = RxPlayer()
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		
 		let storage = LocalNsUserDefaultsStorage()
 		
@@ -129,7 +130,10 @@ class RxPlayerQueueItemTests: XCTestCase {
 		httpUtilities.fakeSession = session
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
-		player.rx_observe().streamContent(StreamPlayerUtilities(), downloadManager: downloadManager).subscribe().addDisposableTo(bag)
+		let player = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(), downloadManager: downloadManager,
+		                      streamPlayerUtilities: StreamPlayerUtilities())
+		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -171,13 +175,16 @@ class RxPlayerQueueItemTests: XCTestCase {
 	}
 	
 	func testRetirnNilMetadataForItemWithUnknownScheme() {
-		let player = RxPlayer()
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//let player = RxPlayer()
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		
 		let storage = LocalNsUserDefaultsStorage()
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: HttpUtilities())
 		
-		player.rx_observe().streamContent(StreamPlayerUtilities(), downloadManager: downloadManager).subscribe().addDisposableTo(bag)
+		let player = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(), downloadManager: downloadManager,
+		                      streamPlayerUtilities: StreamPlayerUtilities())
+		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let item = player.addLast("wrong://testitem.com")
 		
