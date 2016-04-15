@@ -186,4 +186,71 @@ class DownloadManagerTests: XCTestCase {
 		
 		XCTAssertEqual(0, manager.pendingTasks.count, "Should remove task from pending")
 	}
+	
+	func testCorrectCreateAndDisposeDownloadObservableWhenReceiveError() {
+		let streamObserver = NSURLSessionDataEventsObserver()
+		let httpUtilities = FakeHttpUtilities()
+		httpUtilities.streamObserver = streamObserver
+		let session = FakeSession(fakeTask: FakeDataTask(completion: nil))
+		httpUtilities.fakeSession = session
+		
+		let downloadTaskCancelationExpectation = expectationWithDescription("Should cancel underlying task")
+		// simulate http request
+		session.task?.taskProgress.bindNext { e in
+			if case FakeDataTaskMethods.resume(let tsk) = e {
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					let response = FakeResponse(contentLenght: 0)
+					response.MIMEType = "audio/mpeg"
+					streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: session, dataTask: tsk,
+						response: response, completion: { _ in }))
+					
+					let data = NSData()
+					streamObserver.sessionEventsSubject.onNext(.didReceiveData(session: session, dataTask: tsk, data: data))
+					let error = NSError(domain: "DownloadManagerTests", code: 15, userInfo: nil)
+					streamObserver.sessionEventsSubject.onNext(SessionDataEvents.didCompleteWithError(session: session, dataTask: tsk, error: error))
+				}
+			} else if case FakeDataTaskMethods.cancel = e {
+				downloadTaskCancelationExpectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
+		
+		let errorExpectation = expectationWithDescription("Should receive error message")
+		manager.createDownloadObservable("https://test.com", checkInPendingTasks: true).bindNext { e in
+			if case StreamTaskEvents.Error(let error) = e {
+				XCTAssertEqual(15, error.code, "Check receive error with correct code")
+				errorExpectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		XCTAssertEqual(1, manager.pendingTasks.count, "Should add task to pending")
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertEqual(0, manager.pendingTasks.count, "Should remove task from pending")
+	}
+	
+	func testSaveData() {
+		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString, contentMimeType: "audio/mpeg")
+		let saveData = "some data".dataUsingEncoding(NSUTF8StringEncoding)!
+		provider.appendData(saveData)
+		let manager = DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
+		let file = manager.saveData(provider)
+		if let file = file, restoredData = NSData(contentsOfURL: file) {
+			XCTAssertTrue(restoredData.isEqualToData(saveData), "Check saved data equal to cached data")
+		} else {
+			XCTFail("Failed to restore saved data")
+		}
+		file?.deleteFile()
+	}
+	
+	func testNotSaveData() {
+		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString, contentMimeType: "audio/mpeg")
+		let saveData = "some data".dataUsingEncoding(NSUTF8StringEncoding)!
+		provider.appendData(saveData)
+		// create manager and set saveData to false
+		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
+		let file = manager.saveData(provider)
+		XCTAssertNil(file, "Should not return saved file")
+	}
 }

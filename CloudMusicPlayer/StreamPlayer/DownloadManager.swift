@@ -54,10 +54,12 @@ public class DownloadManager {
 		self.httpUtilities = httpUtilities
 	}
 	
-	internal func saveData(cacheProvider: CacheProvider?) {
+	internal func saveData(cacheProvider: CacheProvider?) -> NSURL? {
 		if let cacheProvider = cacheProvider where saveData {
-			fileStorage.saveToTempStorage(cacheProvider)
+			return fileStorage.saveToTempStorage(cacheProvider)
 		}
+		
+		return nil
 	}
 }
 
