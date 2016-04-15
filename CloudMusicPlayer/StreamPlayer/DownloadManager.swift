@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol DownloadManagerType {
-	func getUrlDownloadTask(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> Observable<StreamTaskEvents>
+	func createDownloadObservable(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> Observable<StreamTaskEvents>
 	func createDownloadTask(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> StreamDataTaskProtocol?
 	var saveData: Bool { get }
 	var fileStorage: LocalStorageType { get }
@@ -25,6 +25,7 @@ public class DownloadManager {
 	public let saveData: Bool
 	public let fileStorage: LocalStorageType
 	internal let httpUtilities: HttpUtilitiesProtocol
+	internal let queue = dispatch_queue_create("com.cloudmusicplayer.downloadmanager.serialqueue", DISPATCH_QUEUE_SERIAL)
 	
 	internal static var instance: DownloadManagerType  {
 		initWithInstance()
@@ -56,19 +57,35 @@ public class DownloadManager {
 
 extension DownloadManager : DownloadManagerType {
 	public func createDownloadTask(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> StreamDataTaskProtocol? {
+		var result: StreamDataTaskProtocol?
+		dispatch_sync(queue) {
+			result = self.createDownloadTaskUnsafe(identifier, checkInPendingTasks: checkInPendingTasks)
+		}
+		return result
+	}
+		
+	internal func createDownloadTaskUnsafe(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> StreamDataTaskProtocol? {
 		if checkInPendingTasks {
 			if let runningTask = pendingTasks[identifier.streamResourceUid] { return runningTask }
 		}
 		
 		if let file = fileStorage.getFromStorage(identifier.streamResourceUid), path = file.path {
 			print("Find in storage: \(identifier.streamResourceUid)")
-			return LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
+			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
+			if checkInPendingTasks {
+				pendingTasks[identifier.streamResourceUid] = task
+			}
+			return task
 		}
 		
 		if let path = identifier.streamResourceUrl where identifier.streamResourceType == .LocalResource {
-			return LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
+			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
+			if checkInPendingTasks {
+				pendingTasks[identifier.streamResourceUid] = task
+			}
+			return task
 		}
 		
 		guard identifier.streamResourceType == .HttpResource || identifier.streamResourceType == .HttpsResource else { return nil }
@@ -78,20 +95,20 @@ extension DownloadManager : DownloadManagerType {
 				return nil
 		}
 		
-		return httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
+		let task = httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
 		                                          sessionConfiguration: NSURLSession.defaultConfig,
 		                                          cacheProvider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 																								targetMimeType: identifier.streamResourceContentType?.definition.MIME))
+		if checkInPendingTasks {
+			pendingTasks[identifier.streamResourceUid] = task
+		}
+		return task
 	}
 	
-	public func getUrlDownloadTask(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> Observable<StreamTaskEvents> {
+	public func createDownloadObservable(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> Observable<StreamTaskEvents> {
 		return Observable<StreamTaskEvents>.create { [unowned self] observer in
 			guard let task = self.createDownloadTask(identifier, checkInPendingTasks: checkInPendingTasks) else {
 				observer.onNext(StreamTaskEvents.Success(cache: nil)); observer.onCompleted(); return NopDisposable.instance
-			}
-			
-			if checkInPendingTasks {
-				self.pendingTasks[identifier.streamResourceUid] = task
 			}
 			
 			let disposable = task.taskProgress.bindNext { result in
@@ -114,6 +131,7 @@ extension DownloadManager : DownloadManagerType {
 			task.resume()
 			
 			return AnonymousDisposable {
+				print("Dispose download task")
 				task.cancel()
 				disposable.dispose()
 				if checkInPendingTasks {

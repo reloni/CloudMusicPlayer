@@ -45,7 +45,7 @@ extension Observable where Element : PlayerEventType {
 					
 					print("preparing \(item.streamIdentifier.streamResourceUid)")
 					
-					let disposable = downloadManager.getUrlDownloadTask(item.streamIdentifier, checkInPendingTasks: true)
+					let disposable = downloadManager.createDownloadObservable(item.streamIdentifier, checkInPendingTasks: true)
 						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType, utilities: playerUtilities).bindNext { e in
 							observer.onNext(e)
 							observer.onCompleted()

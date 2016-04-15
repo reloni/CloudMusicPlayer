@@ -9,7 +9,7 @@
 import XCTest
 @testable import CloudMusicPlayer
 
-class LocalStorageTests: XCTestCase {
+class LocalNsUserDefaultsStorageTests: XCTestCase {
 	
 	override func setUp() {
 		super.setUp()

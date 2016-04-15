@@ -51,6 +51,7 @@ public class RxPlayerQueueItem {
 			}
 			
 			guard let downloadTask = downloadManager.createDownloadTask(self.streamIdentifier, checkInPendingTasks: false) else {
+				observer.onNext(nil)
 				observer.onCompleted()
 				return NopDisposable.instance
 			}

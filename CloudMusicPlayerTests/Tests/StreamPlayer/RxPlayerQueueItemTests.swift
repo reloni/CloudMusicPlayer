@@ -169,4 +169,26 @@ class RxPlayerQueueItemTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
+	
+	func testRetirnNilMetadataForItemWithUnknownScheme() {
+		let player = RxPlayer()
+		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		
+		let storage = LocalNsUserDefaultsStorage()
+		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: HttpUtilities())
+		
+		player.rx_observe().streamContent(StreamPlayerUtilities(), downloadManager: downloadManager).subscribe().addDisposableTo(bag)
+		
+		let item = player.addLast("wrong://testitem.com")
+		
+		let metadataLoadExpectation = expectationWithDescription("Should load metadta from local file")
+		
+		item.loadMetadata(downloadManager, utilities: StreamPlayerUtilities()).bindNext { metadata in
+			XCTAssertNil(metadata)
+			
+			metadataLoadExpectation.fulfill()
+			}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
 }
