@@ -7,9 +7,11 @@
 //
 
 import XCTest
+import RxSwift
 @testable import CloudMusicPlayer
 
 class DownloadManagerTests: XCTestCase {
+	let bag = DisposeBag()
 	
 	override func setUp() {
 		super.setUp()
@@ -108,6 +110,80 @@ class DownloadManagerTests: XCTestCase {
 		}
 		
 		NSThread.sleepForTimeInterval(0.05)
-		XCTAssertEqual(1, manager.pendingTasks.count)
+		XCTAssertEqual(1, manager.pendingTasks.count, "Check only one task created")
+	}
+	
+	func testDownloadObservableForIncorrectUrl() {
+		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
+	
+		let errorExpectation = expectationWithDescription("Should send error message")
+		manager.createDownloadObservable("wrong://test.com", checkInPendingTasks: true).bindNext { e in
+			if case StreamTaskEvents.Error(let error) = e {
+				XCTAssertEqual(error.code, DownloadManagerError.UnsupportedUrlSchemeIrFileNotExists.rawValue, "Check returned error with correct errorCode")
+				XCTAssertEqual(error.userInfo["Url"] as? String, "wrong://test.com", "Check returned correct url in error info")
+				XCTAssertEqual(error.userInfo["Uid"] as? String, "wrong://test.com", "Check returned correct uid in error info")
+				
+				errorExpectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testDownloadObservableForNotExistedFile() {
+		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
+		
+		let errorExpectation = expectationWithDescription("Should send error message")
+		manager.createDownloadObservable("/Path/To/Not/existed.file", checkInPendingTasks: true).bindNext { e in
+			if case StreamTaskEvents.Error(let error) = e {
+				XCTAssertEqual(error.code, DownloadManagerError.UnsupportedUrlSchemeIrFileNotExists.rawValue, "Check returned error with correct errorCode")
+				XCTAssertEqual(error.userInfo["Url"] as? String, "/Path/To/Not/existed.file", "Check returned correct url in error info")
+				XCTAssertEqual(error.userInfo["Uid"] as? String, "/Path/To/Not/existed.file", "Check returned correct uid in error info")
+				
+				errorExpectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testCorrectCreateAndDisposeDownloadObservable() {
+		let streamObserver = NSURLSessionDataEventsObserver()
+		let httpUtilities = FakeHttpUtilities()
+		httpUtilities.streamObserver = streamObserver
+		let session = FakeSession(fakeTask: FakeDataTask(completion: nil))
+		httpUtilities.fakeSession = session
+		
+		let downloadTaskCancelationExpectation = expectationWithDescription("Should cancel underlying task")
+		// simulate http request
+		session.task?.taskProgress.bindNext { e in
+			if case FakeDataTaskMethods.resume(let tsk) = e {
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					let response = FakeResponse(contentLenght: 0)
+					response.MIMEType = "audio/mpeg"
+					streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: session, dataTask: tsk,
+						response: response, completion: { _ in }))
+					
+					let data = NSData()
+					streamObserver.sessionEventsSubject.onNext(.didReceiveData(session: session, dataTask: tsk, data: data))
+					streamObserver.sessionEventsSubject.onNext(SessionDataEvents.didCompleteWithError(session: session, dataTask: tsk, error: nil))
+				}
+			} else if case FakeDataTaskMethods.cancel = e {
+				downloadTaskCancelationExpectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
+		
+		let successExpectation = expectationWithDescription("Should receive success message")
+		manager.createDownloadObservable("https://test.com", checkInPendingTasks: true).bindNext { e in
+			if case StreamTaskEvents.Success = e {
+				
+				successExpectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		XCTAssertEqual(1, manager.pendingTasks.count, "Should add task to pending")
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertEqual(0, manager.pendingTasks.count, "Should remove task from pending")
 	}
 }

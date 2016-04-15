@@ -136,7 +136,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		let metadataLoadExpectation = expectationWithDescription("Should load metadta from local file")
 		let downloadTaskCancelationExpectation = expectationWithDescription("Should cancel task")
 		
-		// simulate http request failure and send error
+		// simulate http request 
 		session.task?.taskProgress.bindNext { e in
 			if case FakeDataTaskMethods.resume(let tsk) = e {
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {

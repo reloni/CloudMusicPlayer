@@ -16,7 +16,13 @@ public protocol DownloadManagerType {
 	var fileStorage: LocalStorageType { get }
 }
 
+public enum DownloadManagerError : Int {
+	case UnsupportedUrlSchemeIrFileNotExists = 1
+}
+
 public class DownloadManager {
+	private static let errorDomain = "DownloadManager"
+	
 	private static var _instance: DownloadManagerType!
 	private static var token: dispatch_once_t = 0
 	
@@ -106,23 +112,27 @@ extension DownloadManager : DownloadManagerType {
 	}
 	
 	public func createDownloadObservable(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> Observable<StreamTaskEvents> {
-		return Observable<StreamTaskEvents>.create { [unowned self] observer in
-			guard let task = self.createDownloadTask(identifier, checkInPendingTasks: checkInPendingTasks) else {
-				observer.onNext(StreamTaskEvents.Success(cache: nil)); observer.onCompleted(); return NopDisposable.instance
+		return Observable<StreamTaskEvents>.create { [weak self] observer in
+			guard let task = self?.createDownloadTask(identifier, checkInPendingTasks: checkInPendingTasks) else {
+				let	message = "Unable to download data"
+				let	code = DownloadManagerError.UnsupportedUrlSchemeIrFileNotExists.rawValue
+				let error = NSError(domain: DownloadManager.errorDomain, code: code, userInfo: [NSLocalizedDescriptionKey: message,
+					"Url": identifier.streamResourceUrl ?? "", "Uid": identifier.streamResourceUid])
+				observer.onNext(StreamTaskEvents.Error(error)); observer.onCompleted(); return NopDisposable.instance
 			}
 			
 			let disposable = task.taskProgress.bindNext { result in
 				observer.onNext(result)
 				
 				if case .Success(let provider) = result {
-					self.saveData(provider)
+					self?.saveData(provider)
 					if checkInPendingTasks {
-						self.pendingTasks[identifier.streamResourceUid] = nil
+						self?.pendingTasks[identifier.streamResourceUid] = nil
 					}
 					observer.onCompleted()
 				} else if case .Error = result {
 					if checkInPendingTasks {
-						self.pendingTasks[identifier.streamResourceUid] = nil
+						self?.pendingTasks[identifier.streamResourceUid] = nil
 					}
 					observer.onCompleted()
 				}
@@ -135,7 +145,7 @@ extension DownloadManager : DownloadManagerType {
 				task.cancel()
 				disposable.dispose()
 				if checkInPendingTasks {
-					self.pendingTasks[identifier.streamResourceUid] = nil
+					self?.pendingTasks[identifier.streamResourceUid] = nil
 				}
 			}
 		}
