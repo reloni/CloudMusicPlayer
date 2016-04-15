@@ -33,6 +33,8 @@ class MusicPlayerController: UIViewController {
 	var disposables = [Disposable]()
 	
 	override func viewDidLoad() {
+		bind()
+		
 //		reactivePlayButton.rx_tap.bindNext {
 //			guard let state = streamPlayer.getCurrentState() else { return }
 //			switch state {
@@ -91,20 +93,48 @@ class MusicPlayerController: UIViewController {
 //			}
 //		}.addDisposableTo(bag)
 		
-		rxPlayer.currentItemMetadata.asDriver(onErrorJustReturn: nil).driveNext { [weak self] meta in
-			guard let meta = meta else { return }
-			
-			self?.trackLabel.text = meta.title
-			self?.artistLabel.text = meta.artist
-			self?.albumLabel.text = meta.album
-			if let artwork = meta.artwork {
-				self?.image.image = UIImage(data: artwork)
-			}
-		}.addDisposableTo(bag)
+//		rxPlayer.currentItemMetadata.asDriver(onErrorJustReturn: nil).driveNext { [weak self] meta in
+//			guard let meta = meta else { return }
+//			
+//			self?.trackLabel.text = meta.title
+//			self?.artistLabel.text = meta.artist
+//			self?.albumLabel.text = meta.album
+//			if let artwork = meta.artwork {
+//				self?.image.image = UIImage(data: artwork)
+//			}
+//		}.addDisposableTo(bag)
+//		
+//		rxPlayer.currentItemDuration.asDriver(onErrorJustReturn: nil).driveNext { [weak self] duration in
+//			self?.fullTimeLabel.text = duration?.asString
+//		}.addDisposableTo(bag)
 		
-		rxPlayer.currentItemDuration.asDriver(onErrorJustReturn: nil).driveNext { [weak self] duration in
-			self?.fullTimeLabel.text = duration?.asString
-		}.addDisposableTo(bag)
+		//rxPlayer.current?.loadMetadata().asDriver(onErrorJustReturn: nil).driveNext { [weak self] meta in
+			//guard let meta = meta else { return }
+			
+			//self?.trackLabel.text = meta.title
+			//self?.artistLabel.text = meta.artist
+			//self?.albumLabel.text = meta.album
+			//if let artwork = meta.artwork {
+			//	self?.image.image = UIImage(data: artwork)
+			//}
+		//}.addDisposableTo(bag)
+	}
+	
+	func bind() {
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {			
+			rxPlayer.currentItem.flatMapLatest { e -> Observable<AudioItemMetadata?> in return e?.loadMetadata() ?? Observable.just(nil) }
+				.observeOn(MainScheduler.instance).bindNext { [weak self] meta in
+					guard let meta = meta else { return }
+					
+					self?.trackLabel.text = meta.title
+					self?.artistLabel.text = meta.artist
+					self?.albumLabel.text = meta.album
+					if let artwork = meta.artwork {
+						self?.image.image = UIImage(data: artwork)
+					}
+					self?.fullTimeLabel.text = meta.duration?.asTimeString
+			}.addDisposableTo(self.bag)
+		}
 	}
 	
 	deinit {

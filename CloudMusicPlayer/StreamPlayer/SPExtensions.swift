@@ -49,39 +49,13 @@ extension AVAssetResourceLoadingDataRequest : AVAssetResourceLoadingDataRequestP
 
 // AVAsset
 public protocol AVAssetProtocol {
+	var duration: CMTime { get }
 	func getMetadata() -> [String: AnyObject?]
-	func loadMetadata() -> Observable<AudioItemMetadata>
-	func loadDuration() -> Observable<CMTime>
+	func loadValuesAsynchronouslyForKeys(keys: [String], completionHandler: (() -> Void)?)
 }
 extension AVAsset: AVAssetProtocol {
 	public func getMetadata() -> [String: AnyObject?] {
 		return Dictionary<String, AnyObject?>(metadata.filter { $0.commonKey != nil }.map { ($0.commonKey!, $0.value as? AnyObject)})
-	}
-	
-	public func loadMetadata() -> Observable<AudioItemMetadata> {
-		return Observable.create { [weak self] observer in
-			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
-			
-			object.loadValuesAsynchronouslyForKeys(["metadata"]) {
-				observer.onNext(AudioItemMetadata(metadata: object.getMetadata()))
-				observer.onCompleted()
-			}
-			
-			return NopDisposable.instance
-		}
-	}
-	
-	public func loadDuration() -> Observable<CMTime> {
-		return Observable.create { [weak self] observer in
-			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
-			
-			object.loadValuesAsynchronouslyForKeys(["duration"]) {
-				observer.onNext(object.duration)
-				observer.onCompleted()
-			}
-			
-			return NopDisposable.instance
-		}
 	}
 }
 

@@ -35,8 +35,7 @@ extension Observable where Element : StreamTaskEventsProtocol {
 
 extension Observable where Element : PlayerEventType {
 	internal func streamContent(playerUtilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance,
-	                          downloadManager: DownloadManagerType = DownloadManager(
-		saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities.instance)) -> Observable<AssetLoadResult> {
+	                          downloadManager: DownloadManagerType) -> Observable<AssetLoadResult> {
 		
 		return self.filter { e in if case .PreparingToPlay = e as! PlayerEvents { return true } else { return false } }
 			.flatMap { e -> Observable<AssetLoadResult> in
@@ -46,7 +45,7 @@ extension Observable where Element : PlayerEventType {
 					
 					print("preparing \(item.streamIdentifier.streamResourceUid)")
 					
-					let disposable = downloadManager.getUrlDownloadTask(item.streamIdentifier)
+					let disposable = downloadManager.createDownloadObservable(item.streamIdentifier, checkInPendingTasks: true)
 						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType, utilities: playerUtilities).bindNext { e in
 							observer.onNext(e)
 							observer.onCompleted()
@@ -61,7 +60,11 @@ extension Observable where Element : PlayerEventType {
 	}
 	
 	public func streamContent(saveCachedData: Bool = false) -> Observable<AssetLoadResult> {
-		return streamContent(StreamPlayerUtilities.instance, downloadManager:
-			DownloadManager(saveData: saveCachedData, fileStorage: LocalNsUserDefaultsStorage(loadData: saveCachedData), httpUtilities: HttpUtilities.instance))
+		if !DownloadManager.isInitialized {
+			DownloadManager.initWithInstance(DownloadManager(saveData: saveCachedData,
+				fileStorage: LocalNsUserDefaultsStorage(loadData: saveCachedData), httpUtilities: HttpUtilities.instance))
+		}
+		
+		return streamContent(StreamPlayerUtilities.instance, downloadManager: DownloadManager.instance)
 	}
 }
