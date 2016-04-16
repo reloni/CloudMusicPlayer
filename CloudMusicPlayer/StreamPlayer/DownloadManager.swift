@@ -106,19 +106,21 @@ extension DownloadManager : DownloadManagerType {
 			}
 			
 			let disposable = task.taskProgress.bindNext { result in
-				observer.onNext(result)
-				
 				if case .Success(let provider) = result {
 					self?.saveData(provider)
 					if checkInPendingTasks {
 						self?.pendingTasks[identifier.streamResourceUid] = nil
 					}
+					observer.onNext(result)
 					observer.onCompleted()
 				} else if case .Error = result {
 					if checkInPendingTasks {
 						self?.pendingTasks[identifier.streamResourceUid] = nil
 					}
+					observer.onNext(result)
 					observer.onCompleted()
+				} else {
+					observer.onNext(result)
 				}
 			}
 			
