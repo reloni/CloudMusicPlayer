@@ -38,7 +38,7 @@ public class RxPlayerQueueItem {
 	}
 	
 	public func loadMetadata() -> Observable<AudioItemMetadata?> {
-		return loadMetadata(DownloadManager.instance, utilities: StreamPlayerUtilities())
+		return loadMetadata(player.downloadManager, utilities: player.streamPlayerUtilities)
 	}
 	
 	internal func loadMetadata(downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol) -> Observable<AudioItemMetadata?> {

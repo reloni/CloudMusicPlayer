@@ -13,13 +13,13 @@ public typealias AssetLoadResult =
 	(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])
 
 extension Observable where Element : StreamTaskEventsProtocol {
-	internal func streamContent(player: RxPlayer, contentType: ContentType? = nil, utilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance) ->
+	internal func streamContent(player: RxPlayer, contentType: ContentType? = nil) ->
 		Observable<AssetLoadResult> {
 			
-			let asset = utilities.createavUrlAsset(NSURL(string: "fake://domain.com")!)
+			let asset = player.streamPlayerUtilities.createavUrlAsset(NSURL(string: "fake://domain.com")!)
 			let observer = AVAssetResourceLoaderEventsObserver()
 			asset.getResourceLoader().setDelegate(observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
-			let playerItem = utilities.createavPlayerItem(asset)
+			let playerItem = player.streamPlayerUtilities.createavPlayerItem(asset)
 			
 			let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 			
@@ -34,8 +34,7 @@ extension Observable where Element : StreamTaskEventsProtocol {
 }
 
 extension Observable where Element : PlayerEventType {
-	internal func streamContent(playerUtilities: StreamPlayerUtilitiesProtocol = StreamPlayerUtilities.instance,
-	                          downloadManager: DownloadManagerType) -> Observable<AssetLoadResult> {
+	internal func streamContent() -> Observable<AssetLoadResult> {
 		
 		return self.filter { e in if case .PreparingToPlay = e as! PlayerEvents { return true } else { return false } }
 			.flatMap { e -> Observable<AssetLoadResult> in
@@ -45,8 +44,8 @@ extension Observable where Element : PlayerEventType {
 					
 					print("preparing \(item.streamIdentifier.streamResourceUid)")
 					
-					let disposable = downloadManager.createDownloadObservable(item.streamIdentifier, checkInPendingTasks: true)
-						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType, utilities: playerUtilities).bindNext { e in
+					let disposable = item.player.downloadManager.createDownloadObservable(item.streamIdentifier, checkInPendingTasks: true)
+						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType).bindNext { e in
 							observer.onNext(e)
 							observer.onCompleted()
 					}
@@ -59,12 +58,12 @@ extension Observable where Element : PlayerEventType {
 		}
 	}
 	
-	public func streamContent(saveCachedData: Bool = false) -> Observable<AssetLoadResult> {
-		if !DownloadManager.isInitialized {
-			DownloadManager.initWithInstance(DownloadManager(saveData: saveCachedData,
-				fileStorage: LocalNsUserDefaultsStorage(loadData: saveCachedData), httpUtilities: HttpUtilities.instance))
-		}
-		
-		return streamContent(StreamPlayerUtilities.instance, downloadManager: DownloadManager.instance)
-	}
+//	public func streamContent(saveCachedData: Bool = false) -> Observable<AssetLoadResult> {
+//		if !DownloadManager.isInitialized {
+//			DownloadManager.initWithInstance(DownloadManager(saveData: saveCachedData,
+//				fileStorage: LocalNsUserDefaultsStorage(loadData: saveCachedData), httpUtilities: HttpUtilities.instance))
+//		}
+//		
+//		return streamContent(StreamPlayerUtilities.instance, downloadManager: DownloadManager.instance)
+//	}
 }
