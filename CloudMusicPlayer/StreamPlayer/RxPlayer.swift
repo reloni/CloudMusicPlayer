@@ -39,7 +39,7 @@ internal protocol InternalPlayerType {
 	func pause()
 	func resume()
 	var events: Observable<PlayerEvents> { get }
-	//var currentTime: Observable<CMTime?> { get }
+	var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> { get }
 	var nativePlayer: AVPlayerProtocol? { get }
 }
 
@@ -48,7 +48,8 @@ internal class InternalPlayer {
 	var observer: AVAssetResourceLoaderEventsObserverProtocol?
 	let subject = PublishSubject<PlayerEvents>()
 
-	let currentTimeSubject = BehaviorSubject<CMTime?>(value: nil)
+	let currentTimeSubject = BehaviorSubject<(currentTime: CMTime?, duration: CMTime?)?>(value: nil)
+	var currentTimeDisposable: Disposable?
 	var bag: DisposeBag!
 	var asset: AVURLAssetProtocol!
 	var playerItem: AVPlayerItemProtocol!
@@ -67,7 +68,7 @@ internal class InternalPlayer {
 extension InternalPlayer : InternalPlayerType {
 	var events: Observable<PlayerEvents> { return subject }
 
-	var currentTime: Observable<CMTime?> { return currentTimeSubject }
+	var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> { return currentTimeSubject }
 	
 	func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol,
 	          loadMetadata: Bool = true) {
@@ -84,6 +85,11 @@ extension InternalPlayer : InternalPlayerType {
 			if status == AVPlayerItemStatus.ReadyToPlay {
 				self?.nativePlayer?.play()
 				self?.subject.onNext(.Started)
+				
+				self?.currentTimeDisposable = Observable<Int>.interval(1, scheduler: SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+					.bindNext { [weak self] _ in
+						self?.currentTimeSubject.onNext((currentTime: self?.playerItem.currentTime(), duration: self?.asset.duration))
+				}
 			}
 		}.addDisposableTo(bag)
 	}
@@ -93,11 +99,15 @@ extension InternalPlayer : InternalPlayerType {
 		nativePlayer = nil
 		asset = nil
 		playerItem = nil
+		bag = nil
+		currentTimeDisposable?.dispose()
+		currentTimeSubject.onNext(nil)
 		subject.onNext(.Stopped)
 	}
 	
 	func pause() {
 		if let nativePlayer = nativePlayer {
+			currentTimeDisposable?.dispose()
 			nativePlayer.setPlayerRate(0.0)
 			subject.onNext(.Paused)
 		}
@@ -105,6 +115,10 @@ extension InternalPlayer : InternalPlayerType {
 	
 	func resume() {
 		if let nativePlayer = nativePlayer {
+			currentTimeDisposable = Observable<Int>.interval(1, scheduler: SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+				.bindNext { [weak self] _ in
+					self?.currentTimeSubject.onNext((currentTime: self?.playerItem.currentTime(), duration: self?.asset.duration))
+			}
 			nativePlayer.setPlayerRate(1.0)
 			subject.onNext(.Resumed)
 		}
@@ -126,6 +140,10 @@ public class RxPlayer {
 	
 	public var currentItem: Observable<RxPlayerQueueItem?> {
 		return currentItemSubject.shareReplay(1)
+	}
+	
+	public var currentItemTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> {
+		return internalPlayer.currentTime.shareReplay(1)
 	}
 	
 	public lazy var playerEvents: Observable<PlayerEvents> = {

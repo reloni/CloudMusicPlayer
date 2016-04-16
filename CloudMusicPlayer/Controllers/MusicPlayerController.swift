@@ -134,6 +134,17 @@ class MusicPlayerController: UIViewController {
 					}
 					self?.fullTimeLabel.text = meta.duration?.asTimeString
 			}.addDisposableTo(self.bag)
+			
+			rxPlayer.currentItemTime.observeOn(MainScheduler.instance).bindNext { [weak self] time in
+				guard let time = time else { self?.currentTimeLabel.text = "0: 00"; return }
+				
+				self?.currentTimeLabel.text = time.currentTime?.asString
+				if let currentSec = time.currentTime?.safeSeconds, fullSec = time.duration?.safeSeconds {
+					self?.progressView.progress = Float(currentSec / fullSec)
+				} else {
+					self?.progressView.progress = 0
+				}
+			}.addDisposableTo(self.bag)
 		}
 	}
 	
