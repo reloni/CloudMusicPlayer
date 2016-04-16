@@ -23,30 +23,12 @@ public enum DownloadManagerError : Int {
 public class DownloadManager {
 	private static let errorDomain = "DownloadManager"
 	
-	//private static var _instance: DownloadManagerType!
-	//private static var token: dispatch_once_t = 0
-	
 	internal var pendingTasks = [String: StreamDataTaskProtocol]()
 	
 	public let saveData: Bool
 	public let fileStorage: LocalStorageType
 	internal let httpUtilities: HttpUtilitiesProtocol
 	internal let queue = dispatch_queue_create("com.cloudmusicplayer.downloadmanager.serialqueue", DISPATCH_QUEUE_SERIAL)
-	
-	//internal static var instance: DownloadManagerType  {
-	//	initWithInstance()
-	//	return DownloadManager._instance
-	//}
-	
-	//public static var isInitialized: Bool {
-	//	return DownloadManager._instance != nil
-	//}
-	
-	//internal static func initWithInstance(instance: DownloadManagerType? = nil) {
-	//	dispatch_once(&token) {
-	//		_instance = instance ?? DownloadManager()
-	//	}
-	//}
 	
 	public init(saveData: Bool = false, fileStorage: LocalStorageType = LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
 		self.saveData = saveData

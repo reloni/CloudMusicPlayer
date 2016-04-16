@@ -47,20 +47,7 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 }
 
 public class OAuthResourceManager {
-	private static var _instance: OAuthResourceManager?
-	private static var token: dispatch_once_t = 0
-	public static var instance: OAuthResourceManager  {
-		dispatch_once(&token) {
-			OAuthResourceManager._instance = OAuthResourceManager()
-		}
-		return OAuthResourceManager._instance!
-	}
-	
 	private var resourcesCache = [String: OAuthResource]()
-	
-	internal init() {
-		
-	}
 	
 	public func addResource(resource: OAuthResource) {
 		resourcesCache[resource.id] = resource

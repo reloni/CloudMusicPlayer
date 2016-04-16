@@ -17,23 +17,7 @@ public protocol HttpUtilitiesProtocol {
 	func createStreamDataTask(taskUid: String, request: NSMutableURLRequestProtocol, sessionConfiguration: NSURLSessionConfiguration, cacheProvider: CacheProvider?) -> StreamDataTaskProtocol
 }
 
-public class HttpUtilities {
-	private static var _instance: HttpUtilitiesProtocol?
-	private static var token: dispatch_once_t = 0
-	
-	public static var instance: HttpUtilitiesProtocol  {
-		initWithInstance()
-		return HttpUtilities._instance!
-	}
-	
-	internal static func initWithInstance(instance: HttpUtilitiesProtocol? = nil) {
-		dispatch_once(&token) {
-			_instance = instance ?? HttpUtilities()
-		}
-	}
-	
-	internal init() { }
-}
+public class HttpUtilities { }
 
 extension HttpUtilities : HttpUtilitiesProtocol {
 	public func createUrlRequest(baseUrl: String, parameters: [String : String]?) -> NSMutableURLRequestProtocol? {

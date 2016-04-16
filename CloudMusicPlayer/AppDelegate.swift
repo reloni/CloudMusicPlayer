@@ -63,7 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		//OAuthResource.parseCallbackUrl("")
 		//OAuthResource.parseCallbackUrl(url.absoluteString)
-		if let result = OAuthResourceManager.instance.parseCallbackUrl(url.absoluteString) {
+		if let result = OAuthResourceManager().parseCallbackUrl(url.absoluteString) {
 			result.resource.tokenId = result.token
 			result.resource.saveResource()
 		}

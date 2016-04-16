@@ -110,7 +110,7 @@ class YandexCloudResourceTests: XCTestCase {
 	
 	func testNotCreateRequestForLoadRootDataForOauthResourceWithoutTokenId() {
 		let oauthResWithoutTokenId = OAuthResourceBase(id: "fake", authUrl: "https://fake.com", clientId: nil, tokenId: nil)
-		let loadRequest = YandexDiskCloudJsonResource.loadRootResources(oauthResWithoutTokenId, httpRequest: HttpClient.instance)
+		let loadRequest = YandexDiskCloudJsonResource.loadRootResources(oauthResWithoutTokenId, httpRequest: HttpClient())
 		XCTAssertNil(loadRequest)
 	}
 	

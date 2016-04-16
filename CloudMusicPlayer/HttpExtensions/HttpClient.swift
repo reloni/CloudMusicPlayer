@@ -29,22 +29,9 @@ public protocol HttpClientProtocol {
 public class HttpClient {
 	public let urlSession: NSURLSessionProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
-	private static var _instance: HttpClientProtocol?
-	private static var token: dispatch_once_t = 0
 	
-	public static var instance: HttpClientProtocol  {
-		initWithInstance()
-		return HttpClient._instance!
-	}
-	
-	internal static func initWithInstance(instance: HttpClientProtocol? = nil, urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
-																				httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
-		dispatch_once(&token) {
-			_instance = instance ?? HttpClient(urlSession: urlSession, httpUtilities: httpUtilities)
-		}
-	}
-	
-	public init(urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig), httpUtilities: HttpUtilitiesProtocol = HttpUtilities.instance) {
+	public init(urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
+	            httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
 		self.urlSession = urlSession
 		self.httpUtilities = httpUtilities
 	}

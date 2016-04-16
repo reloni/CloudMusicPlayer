@@ -36,7 +36,7 @@ class OAuthResourceTests: XCTestCase {
 	}
 
 	func testCheckNotCachedResource() {
-		XCTAssertNil(OAuthResourceManager.instance.getResourceFromLocalCache("notexisted"))
+		XCTAssertNil(OAuthResourceManager().getResourceFromLocalCache("notexisted"))
 	}
 
 	func testAddNewResource() {
@@ -47,19 +47,20 @@ class OAuthResourceTests: XCTestCase {
 	
 	func testLoadNotExistedResource() {
 		let userDefaults = FakeNSUserDefaults(localCache: ["testResource": OAuthResourceBase(id: "testResource", authUrl: "https://test", clientId: nil, tokenId: nil)])
-			XCTAssertNil(OAuthResourceManager.instance.loadResourceFromUserDefaults("notExisted", userDefaults: userDefaults))
+			XCTAssertNil(OAuthResourceManager().loadResourceFromUserDefaults("notExisted", userDefaults: userDefaults))
 	}
 
 	func testLoadExistedResource() {
 		let defaults = FakeNSUserDefaults(localCache: ["testResource": OAuthResourceBase(id: "testResource", authUrl: "https://test", clientId: nil, tokenId: nil)])
-			XCTAssertEqual("testResource", OAuthResourceManager.instance.loadResourceFromUserDefaults("testResource", userDefaults: defaults)?.id)
+			XCTAssertEqual("testResource", OAuthResourceManager().loadResourceFromUserDefaults("testResource", userDefaults: defaults)?.id)
 	}
 	
 	func testCreatingYandexResource() {
+		let manager = OAuthResourceManager()
 		let defaults = FakeNSUserDefaults(localCache: ["testResource": OAuthResourceBase(id: "testResource", authUrl: "https://test", clientId: nil, tokenId: nil)])
-			let yandex = OAuthResourceManager.getYandexResource(defaults)
+			let yandex = OAuthResourceManager.getYandexResource(defaults, manager: manager)
 			XCTAssertEqual(2, defaults.localCache.count)
-			XCTAssertEqual(1, OAuthResourceManager.instance.resources.count)
-			XCTAssertEqual(yandex.id, OAuthResourceManager.instance.loadResourceFromUserDefaults(yandex.id, userDefaults: defaults)?.id)
+			XCTAssertEqual(1, manager.resources.count)
+			XCTAssertEqual(yandex.id, manager.loadResourceFromUserDefaults(yandex.id, userDefaults: defaults)?.id)
 	}
 }
