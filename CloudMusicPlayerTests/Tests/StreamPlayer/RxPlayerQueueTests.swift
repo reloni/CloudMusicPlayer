@@ -115,6 +115,7 @@ class RxPlayerQueueTests: XCTestCase {
 	
 	func testInitWithNewItems() {
 		let queue = RxPlayer(items: audioItems)
+		queue.toNext()
 		let newItems = [audioItems[0], audioItems[1]]
 		
 		let initExpectation = expectationWithDescription("Should rise event")

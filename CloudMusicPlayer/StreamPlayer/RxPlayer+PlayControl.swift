@@ -53,6 +53,7 @@ extension Observable where Element : PlayerEventType {
 			case .Pausing(let current): current.player.internalPlayer.pause()
 			case .Resuming(let current): current.player.internalPlayer.resume()
 			case .Stopping(let current): current.player.internalPlayer.stop()
+			case .FinishPlayingCurrentItem(let player): player.toNext()
 			default: break
 			}
 		}

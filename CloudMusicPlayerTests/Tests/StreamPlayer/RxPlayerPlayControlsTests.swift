@@ -239,4 +239,58 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		
 		XCTAssertEqual(4, player.count, "Should have 4 items in queue")
 	}
+	
+	func testSwitchToNextAfterCurrentItemFinishesPlaying() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		let fakeInternalPlayer = FakeInternalPlayer()
+		let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
+		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
+		player.toNext()
+		
+		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		
+		let expectation = expectationWithDescription("Should switch to next item")
+		var skipped = false
+		player.currentItem.bindNext { item in
+			if !skipped { skipped = true }
+			else {
+				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, "https://test.com/track2.mp3", "Check current item changed to next")
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		// send notification about finishing current item playing
+		fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, "https://test.com/track2.mp3", "Check correct current item")
+	}
+	
+	func testSwitchCurrentItemToNilAfterFinishing() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		let fakeInternalPlayer = FakeInternalPlayer()
+		let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
+		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
+		player.current = player.last
+		
+		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		
+		let expectation = expectationWithDescription("Should switch to next item")
+		var skipped = false
+		player.currentItem.bindNext { item in
+			if !skipped { skipped = true }
+			else {
+				XCTAssertNil(item, "Current item should be nil")
+				expectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		// send notification about finishing current item playing
+		fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertNil(player.current, "Current item should be nil")
+	}
 }

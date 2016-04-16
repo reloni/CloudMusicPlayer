@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -309,6 +309,7 @@
                         <outlet property="albumLabel" destination="ddN-Ld-Dto" id="6NN-N4-Tn2"/>
                         <outlet property="artistLabel" destination="4BQ-dH-K2Z" id="mys-jo-DRe"/>
                         <outlet property="currentTimeLabel" destination="AMu-oJ-Cmv" id="Hd5-mV-IzT"/>
+                        <outlet property="forwardButton" destination="sjr-Xs-oLv" id="Vr3-bk-eaf"/>
                         <outlet property="fullTimeLabel" destination="s9A-5y-MmW" id="6eu-0u-2xO"/>
                         <outlet property="image" destination="uwx-1t-gdc" id="hb4-10-bNd"/>
                         <outlet property="playButton" destination="4GH-QX-LY9" id="3FE-y8-HkB"/>

@@ -72,7 +72,7 @@ public class FakeInternalPlayer : InternalPlayerType {
 	}
 	
 	public func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol,
-	                 loadMetadata: Bool) {
+	                 hostPlayer: RxPlayer) {
 		publishSubject.onNext(.Started)
 	}
 	

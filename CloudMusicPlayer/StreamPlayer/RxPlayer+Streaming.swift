@@ -27,7 +27,7 @@ extension Observable where Element : StreamTaskEventsProtocol {
 				assetEvents: observer.loaderEvents.observeOn(scheduler),
 				targetAudioFormat: contentType)
 			
-			player.internalPlayer.play(playerItem, asset: asset, observer: observer, loadMetadata: true)
+			player.internalPlayer.play(playerItem, asset: asset, observer: observer, hostPlayer: player)
 			
 			return task
 	}
