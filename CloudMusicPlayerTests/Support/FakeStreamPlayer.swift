@@ -55,12 +55,13 @@ public class FakeInternalPlayer : InternalPlayerType {
 	public let publishSubject = PublishSubject<PlayerEvents>()
 	public let metadataSubject = BehaviorSubject<AudioItemMetadata?>(value: nil)
 	public let durationSubject = BehaviorSubject<CMTime?>(value: nil)
+	public let currentTimeSubject = BehaviorSubject<(currentTime: CMTime?, duration: CMTime?)?>(value: nil)
 	
 	public var nativePlayer: AVPlayerProtocol?
 	
 	public var events: Observable<PlayerEvents> { return publishSubject }
 	public var metadata: Observable<AudioItemMetadata?> { return metadataSubject.shareReplay(1) }
-	public var duration: Observable<CMTime?> { return durationSubject.shareReplay(1) }
+	public var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> { return currentTimeSubject.shareReplay(1) }
 	
 	public func resume() {
 		publishSubject.onNext(.Resumed)

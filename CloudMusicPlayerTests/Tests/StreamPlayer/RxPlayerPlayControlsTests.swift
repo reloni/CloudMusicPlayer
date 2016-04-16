@@ -23,6 +23,18 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		super.tearDown()
 	}
 	
+	func testCurrentItemObservableReturnNilForNewPlayer() {
+		let player = RxPlayer()
+		
+		let currentItemChangeExpectation = expectationWithDescription("Should send current item")
+		player.currentItem.bindNext { item in
+			XCTAssertNil(item, "Should return nil")
+			currentItemChangeExpectation.fulfill()
+			}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
 	func testStartPlaying() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())		
 		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
@@ -34,15 +46,21 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		
 		let preparingExpectation = expectationWithDescription("Should rise PreparingToPlay event")
 		let playStartedExpectation = expectationWithDescription("Should invoke Start on internal player")
+		let currentItemChangeExpectation = expectationWithDescription("Should change current item")
 		
 		let playingItem = "https://test.com/track1.mp3"
 		player.rx_observe().bindNext { e in
 			if case PlayerEvents.PreparingToPlay(let item) = e {
-				XCTAssertEqual(playingItem.streamResourceUid, item.streamIdentifier.streamResourceUid)
+				XCTAssertEqual(playingItem.streamResourceUid, item.streamIdentifier.streamResourceUid, "Check correct item preparing to play")
 				preparingExpectation.fulfill()
 			} else if case PlayerEvents.Started = e {
 				playStartedExpectation.fulfill()
 			}
+		}.addDisposableTo(bag)
+		
+		player.currentItem.filter { $0 != nil }.bindNext { item in
+			XCTAssertEqual(playingItem.streamResourceUid, item?.streamIdentifier.streamResourceUid, "Check correct item send as new current item")
+			currentItemChangeExpectation.fulfill()
 		}.addDisposableTo(bag)
 		
 		player.playUrl(playingItem)
@@ -132,12 +150,15 @@ class RxPlayerPlayControlsTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
+		
 		player.playUrl(playingItem)
+		
 		player.stop()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		
 		XCTAssertFalse(player.playing, "Playing property should be false")
+		XCTAssertNotNil(player.current)
 	}
 	
 	func testNotResumeWhenCurrentIsNil() {

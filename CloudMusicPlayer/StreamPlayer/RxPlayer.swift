@@ -133,23 +133,42 @@ public class RxPlayer {
 	
 	internal var itemsSet = NSMutableOrderedSet()
 	internal var queueEventsSubject = PublishSubject<PlayerEvents>()
-	internal var currentItemSubject = BehaviorSubject<RxPlayerQueueItem?>(value: nil)
+	//internal var currentItemSubject = BehaviorSubject<RxPlayerQueueItem?>(value: nil)
 	
 	internal let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	public internal(set) var playing: Bool = false
 	
 	public var currentItem: Observable<RxPlayerQueueItem?> {
-		return currentItemSubject.shareReplay(1)
+		//return currentItemSubject.shareReplay(1)
+		return Observable.create { [weak self] observer in
+			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+			
+			observer.onNext(object.current)
+			
+			let disposable = object.playerEvents.filter { e in
+				if case PlayerEvents.CurrentItemChanged = e { return true }
+				return false
+				}.map { e -> RxPlayerQueueItem? in
+				if case PlayerEvents.CurrentItemChanged(let item) = e {
+					return item
+				}
+				return nil
+				}.subscribe(observer)
+		
+		
+			return AnonymousDisposable {
+				disposable.dispose()
+			}
+		}
 	}
 	
 	public var currentItemTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> {
 		return internalPlayer.currentTime.shareReplay(1)
 	}
 	
-	public lazy var playerEvents: Observable<PlayerEvents> = {
+	public var playerEvents: Observable<PlayerEvents> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
-			
 			
 			let first = object.queueEventsSubject.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
 			let second = object.internalPlayer.events.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
@@ -159,7 +178,7 @@ public class RxPlayer {
 				second.dispose()
 			}
 		}
-	}()
+	}
 	
 	internal lazy var dispatchQueueScheduler: Observable<Void> = {
 		return Observable<Void>.create { [weak self] observer in
@@ -179,7 +198,7 @@ public class RxPlayer {
 			queueEventsSubject.onNext(.CurrentItemChanged(current))
 			if playing && current != nil {
 				queueEventsSubject.onNext(.PreparingToPlay(current!))
-				currentItemSubject.onNext(current)
+				//currentItemSubject.onNext(current)
 			} else if current == nil {
 				playing = false
 			}
@@ -214,6 +233,6 @@ public class RxPlayer {
 	deinit {
 		print("Rx player deinit")
 		queueEventsSubject.onCompleted()
-		currentItemSubject.onCompleted()
+		//currentItemSubject.onCompleted()
 	}
 }
