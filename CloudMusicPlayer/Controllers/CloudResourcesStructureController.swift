@@ -114,6 +114,21 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		
 		let cell = tableView.dequeueReusableCellWithIdentifier("CloudFolderCell", forIndexPath: indexPath) as! CloudFolderCell
 		cell.folderNameLabel.text = resource.name ?? "unresolved"
+		
+		if resource.type == "dir" {
+			cell.playButton.rx_tap.flatMapLatest { _ -> Observable<CloudRequestResult> in
+				return resource.loadChilds() ?? Observable<CloudRequestResult>.just(CloudRequestResult.Success(nil))
+				}.bindNext { result in
+					if case .Success(let childs) = result {
+						if let childs = childs {
+							rxPlayer.initWithNewItems(childs.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier })
+							print("Player items count: \(rxPlayer.count)")
+						}
+					}
+				}.addDisposableTo(bag!)
+		} else {
+			cell.playButton.hidden = true
+		}
 		return cell
 	}
 }
