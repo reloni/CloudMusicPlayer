@@ -75,7 +75,6 @@ class CloudResourcesStructureController: UIViewController {
 
 extension CloudResourcesStructureController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-
 		if viewModel.resources?[indexPath.row].type == "dir", let resource = viewModel.resources?[indexPath.row],
 			controller = storyboard?.instantiateViewControllerWithIdentifier("RootViewController") as? CloudResourcesStructureController {
 		
@@ -83,6 +82,7 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 			navigationController?.pushViewController(controller, animated: true)
 		} else if let audio  = viewModel.resources?[indexPath.row] as? CloudAudioResource {
 			self.play(audio)
+			//self.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
 		}
 	}
 	
@@ -99,10 +99,14 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		if resource.type == "dir" {
 			cell.playButton.rx_tap.flatMapLatest { _ -> Observable<CloudRequestResult> in
 				return resource.loadChilds() ?? Observable<CloudRequestResult>.just(CloudRequestResult.Success(nil))
-				}.bindNext { result in
+				}.bindNext { [weak self] result in
 					if case .Success(let childs) = result {
 						if let childs = childs {
 							rxPlayer.initWithNewItems(childs.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier })
+							dispatch_async(dispatch_get_main_queue()) {
+								self?.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
+							}
+							rxPlayer.resume(true)
 							print("Player items count: \(rxPlayer.count)")
 						}
 					}

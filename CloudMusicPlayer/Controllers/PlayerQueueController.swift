@@ -24,20 +24,28 @@ class PlayerQueueController: UIViewController {
 		playPauseButton.setTitle(rxPlayer.playing == true ? "Pause" : "Play", forState: .Normal)
 		
 		forwardButton.rx_tap.bindNext {
-			rxPlayer.toNext()
+			rxPlayer.toNext(true)
 			}.addDisposableTo(bag)
 		
 		backButton.rx_tap.bindNext {
-			rxPlayer.toPrevious()
+			rxPlayer.toPrevious(true)
 			}.addDisposableTo(bag)
 		
-		playPauseButton.rx_tap.bindNext { [unowned self] in
+		playPauseButton.rx_tap.bindNext {
 			if rxPlayer.playing {
 				rxPlayer.pause()
-				self.playPauseButton.setTitle("Play", forState: .Normal)
 			} else {
 				rxPlayer.resume(true)
-				self.playPauseButton.setTitle("Pause", forState: .Normal)
+			}
+		}.addDisposableTo(bag)
+		
+		rxPlayer.rx_observe().observeOn(MainScheduler.instance).bindNext { [weak self] e in
+			if case PlayerEvents.Started = e {
+				self?.playPauseButton.setTitle("Pause", forState: .Normal)
+			} else if case PlayerEvents.Paused = e {
+				self?.playPauseButton.setTitle("Play", forState: .Normal)
+			} else if case PlayerEvents.Stopped = e {
+				self?.playPauseButton.setTitle("Play", forState: .Normal)
 			}
 		}.addDisposableTo(bag)
 		

@@ -163,7 +163,7 @@
                     <navigationItem key="navigationItem" id="Knr-k4-Tw4">
                         <barButtonItem key="rightBarButtonItem" title="Playing&gt;" id="oKG-8n-mIN">
                             <connections>
-                                <segue destination="uRj-bh-FBA" kind="show" id="njG-ha-OH6"/>
+                                <segue destination="uRj-bh-FBA" kind="show" identifier="ShowPlayerQueueSegue" id="njG-ha-OH6"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
