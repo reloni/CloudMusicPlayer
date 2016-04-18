@@ -75,10 +75,6 @@ class CloudResourcesStructureController: UIViewController {
 
 extension CloudResourcesStructureController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-//		guard let controller = storyboard?.instantiateViewControllerWithIdentifier("RootViewController") as? CloudResourcesStructureController,
-//		 resource = viewModel.resources?[indexPath.row] where viewModel.resources?[indexPath.row].type == "dir" else {
-//			return
-//		}
 
 		if viewModel.resources?[indexPath.row].type == "dir", let resource = viewModel.resources?[indexPath.row],
 			controller = storyboard?.instantiateViewControllerWithIdentifier("RootViewController") as? CloudResourcesStructureController {
@@ -96,21 +92,6 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let resource = viewModel.resources![indexPath.row]
-		
-//		if let resource = resource as? CloudAudioResource {
-//			let cell = tableView.dequeueReusableCellWithIdentifier("CloudTrackCell", forIndexPath: indexPath) as! CloudTrackCell
-//			cell.track = resource
-//			cell.playButton.rx_tap.bindNext { [unowned self] in
-//				guard let track = cell.track else {
-//					return
-//				}
-//				self.play(track)
-//				}.addDisposableTo(viewModel.bag)
-//			cell.stopButton.rx_tap.bindNext { [unowned self] in
-//				self.stop()
-//			}.addDisposableTo(viewModel.bag)
-//			return cell
-//		}
 		
 		let cell = tableView.dequeueReusableCellWithIdentifier("CloudFolderCell", forIndexPath: indexPath) as! CloudFolderCell
 		cell.folderNameLabel.text = resource.name ?? "unresolved"

@@ -206,7 +206,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="BHK-EJ-grS">
-                                <rect key="frame" x="0.0" y="64" width="600" height="50"/>
+                                <rect key="frame" x="0.0" y="20" width="600" height="50"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ArtistLabel" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4BQ-dH-K2Z">
                                         <rect key="frame" x="0.0" y="0.0" width="600" height="17"/>
@@ -232,7 +232,7 @@
                                 </constraints>
                             </stackView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="0lI-3n-HA7">
-                                <rect key="frame" x="0.0" y="507" width="600" height="44"/>
+                                <rect key="frame" x="0.0" y="556" width="600" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="N6w-ZM-nTx"/>
                                 </constraints>
@@ -247,10 +247,10 @@
                                 </items>
                             </toolbar>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="249" verticalHuggingPriority="249" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="uwx-1t-gdc">
-                                <rect key="frame" x="20" y="122" width="560" height="352"/>
+                                <rect key="frame" x="20" y="78" width="560" height="445"/>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="CurTime" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AMu-oJ-Cmv">
-                                <rect key="frame" x="20" y="486" width="100" height="12"/>
+                                <rect key="frame" x="20" y="535" width="100" height="12"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="4BK-dk-j69"/>
                                     <constraint firstAttribute="width" constant="100" id="gm1-h8-3l6"/>
@@ -260,13 +260,13 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" misplaced="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="pdn-3b-NrR">
-                                <rect key="frame" x="128" y="482" width="344" height="20"/>
+                                <rect key="frame" x="128" y="531" width="344" height="20"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="20" id="75R-gc-Vox"/>
                                 </constraints>
                             </progressView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="TotalTime" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s9A-5y-MmW">
-                                <rect key="frame" x="480" y="486" width="100" height="12"/>
+                                <rect key="frame" x="480" y="535" width="100" height="12"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="4uk-A0-bOa"/>
                                     <constraint firstAttribute="width" constant="100" id="x3L-D9-H0T"/>
@@ -462,6 +462,14 @@
                             <constraint firstAttribute="trailingMargin" secondItem="HeT-73-VuK" secondAttribute="trailing" constant="-20" id="ykB-rg-27W"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="backButton" destination="gHb-03-RP7" id="ECM-e3-8ps"/>
+                        <outlet property="currentTimeLabel" destination="ry4-0V-TNw" id="P67-WU-xn3"/>
+                        <outlet property="forwardButton" destination="o1h-YL-9rb" id="QVC-4X-GxK"/>
+                        <outlet property="fullTimeLabel" destination="jgb-og-yIh" id="uLu-wJ-gIr"/>
+                        <outlet property="playPauseButton" destination="tVb-Nf-9G5" id="bcx-oT-TG1"/>
+                        <outlet property="progressBar" destination="R9m-bl-qWG" id="0IQ-Pi-NQY"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sbD-6u-deK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
