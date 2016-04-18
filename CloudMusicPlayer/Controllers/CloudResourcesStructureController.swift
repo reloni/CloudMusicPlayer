@@ -9,7 +9,6 @@
 import Foundation
 import UIKit
 import SwiftyJSON
-//import Alamofire
 import RxCocoa
 import RxSwift
 import AVFoundation
@@ -29,11 +28,9 @@ class CloudResourcesStructureController: UIViewController {
 		
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
-			parent.loadChilds()?.observeOn(MainScheduler.instance).bindNext { [unowned self] result in
-				if case .Success(let childs) = result {
-					self.viewModel.resources = childs
-					self.tableView.reloadData()
-				}
+			parent.loadChildResources().observeOn(MainScheduler.instance).bindNext { [unowned self] childs in
+				self.viewModel.resources = childs
+				self.tableView.reloadData()
 			}.addDisposableTo(bag!)
 		} else if navigationController?.viewControllers.first == self {
 			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource())?.observeOn(MainScheduler.instance).bindNext { [unowned self] result in
@@ -55,13 +52,10 @@ class CloudResourcesStructureController: UIViewController {
 	
 	func play(track: CloudAudioResource) {
 		if let identifier = track as? StreamResourceIdentifier {
-			//streamPlayer.playUrl(identifier, createNewQueue: true, customHttpHeaders: track.getRequestHeaders())
 			rxPlayer.playUrl(identifier)
 		} else {
 			track.downloadUrl?.bindNext { result in
 				guard let url = result else { return }
-				//streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
-				//streamPlayer.playUrl(url, createNewQueue: true, customHttpHeaders: track.getRequestHeaders())
 				rxPlayer.playUrl(url)
 				
 				}.addDisposableTo(bag!)
@@ -97,20 +91,16 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		cell.folderNameLabel.text = resource.name ?? "unresolved"
 		
 		if resource.type == "dir" {
-			cell.playButton.rx_tap.flatMapLatest { _ -> Observable<CloudRequestResult> in
-				return resource.loadChilds() ?? Observable<CloudRequestResult>.just(CloudRequestResult.Success(nil))
-				}.bindNext { [weak self] result in
-					if case .Success(let childs) = result {
-						if let childs = childs {
-							rxPlayer.initWithNewItems(childs.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier })
-							dispatch_async(dispatch_get_main_queue()) {
-								self?.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
-							}
-							rxPlayer.resume(true)
-							print("Player items count: \(rxPlayer.count)")
-						}
+			cell.playButton.rx_tap.flatMapLatest { _ -> Observable<[StreamResourceIdentifier]> in
+				return resource.loadChildResources().map { e in return e.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier } }
+				}.bindNext { [weak self] items in
+					rxPlayer.initWithNewItems(items)
+					dispatch_async(dispatch_get_main_queue()) {
+						self?.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
 					}
-				}.addDisposableTo(bag!)
+					rxPlayer.resume(true)
+					print("Player items count: \(rxPlayer.count)")
+			}.addDisposableTo(bag!)
 		} else {
 			cell.playButton.hidden = true
 		}

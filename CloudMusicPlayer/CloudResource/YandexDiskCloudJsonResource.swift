@@ -62,6 +62,33 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		return ["path": path]
 	}
 	
+	public func loadChildResources() -> Observable<[CloudResource]> {
+		guard let request = httpClient.httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders()) else {
+			return Observable.just([CloudResource]())
+		}
+		
+		return Observable.create { observer in
+			let task = self.httpClient.loadJsonData(request).bindNext { [unowned self] result in
+				
+				if case .SuccessJson(let json) = result {
+					if let data = YandexDiskCloudJsonResource.deserializeResponseData(json, res: self.oAuthResource, httpClient: self.httpClient) {
+						observer.onNext(data)
+					}
+				} else if case .Error(let error) = result {
+					if let error = error {
+						observer.onError(error)
+					}
+				}
+				
+				observer.onCompleted()
+			}
+			
+			return AnonymousDisposable {
+				task.dispose()
+			}
+		}
+	}
+	
 	public func loadChilds() -> Observable<CloudRequestResult>? {
 		guard let request = httpClient.httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders()) else {
 			return nil
