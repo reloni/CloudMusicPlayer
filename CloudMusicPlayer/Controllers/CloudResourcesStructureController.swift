@@ -33,11 +33,10 @@ class CloudResourcesStructureController: UIViewController {
 				self.tableView.reloadData()
 			}.addDisposableTo(bag!)
 		} else if navigationController?.viewControllers.first == self {
-			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource())?.observeOn(MainScheduler.instance).bindNext { [unowned self] result in
-				if case .Success(let childs) = result {
+			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource())?
+				.observeOn(MainScheduler.instance).bindNext { [unowned self] childs in
 					self.viewModel.resources = childs
 					self.tableView.reloadData()
-				}
 			}.addDisposableTo(bag!)
 		}
 	}

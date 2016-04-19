@@ -43,10 +43,6 @@ public class FakeCloudResource : CloudResource {
 		return Observable.just([CloudResource]())
 	}
 	
-	public func loadChilds() -> Observable<CloudRequestResult>? {
-		return nil
-	}
-	
 	public init(oaRes: OAuthResource, httpClient: HttpClientProtocol, httpUtilities: HttpUtilitiesProtocol) {
 		self.oAuthResource = oaRes
 		self.httpClient = httpClient

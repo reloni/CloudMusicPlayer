@@ -8,13 +8,7 @@
 
 import Foundation
 import SwiftyJSON
-//import Alamofire
 import RxSwift
-
-public enum CloudRequestResult {
-	case Success([CloudResource]?)
-	case Error(NSError?)
-}
 
 public protocol CloudResource {
 	var oAuthResource: OAuthResource { get }
@@ -29,7 +23,6 @@ public protocol CloudResource {
 	var resourcesUrl: String { get }
 	func getRequestHeaders() -> [String: String]?
 	func getRequestParameters() -> [String: String]?
-	func loadChilds() -> Observable<CloudRequestResult>?
 	func loadChildResources() -> Observable<[CloudResource]>
 }
 
