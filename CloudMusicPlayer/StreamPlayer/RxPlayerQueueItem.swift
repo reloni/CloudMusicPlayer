@@ -42,15 +42,16 @@ public class RxPlayerQueueItem {
 	}
 	
 	internal func loadMetadata(downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol) -> Observable<AudioItemMetadata?> {
-		return Observable.create { [unowned self] observer in
+		return Observable.create { [weak self] observer in
+			guard let object = self else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
 			
-			if let localFile = downloadManager.fileStorage.getFromStorage(self.streamIdentifier.streamResourceUid) {
-				observer.onNext(self.loadFileMetadata(localFile, utilities: utilities))
+			if let localFile = downloadManager.fileStorage.getFromStorage(object.streamIdentifier.streamResourceUid) {
+				observer.onNext(object.loadFileMetadata(localFile, utilities: utilities))
 				observer.onCompleted()
 				return NopDisposable.instance
 			}
 			
-			guard let downloadTask = downloadManager.createDownloadTask(self.streamIdentifier, checkInPendingTasks: false) else {
+			guard let downloadTask = downloadManager.createDownloadTask(object.streamIdentifier, checkInPendingTasks: false) else {
 				observer.onNext(nil)
 				observer.onCompleted()
 				return NopDisposable.instance
@@ -62,7 +63,7 @@ public class RxPlayerQueueItem {
 					receivedDataLen = prov.getData().length
 					if receivedDataLen >= 1024 * 256 {
 						if let file = downloadManager.fileStorage.saveToTemporaryFolder(prov) {
-							observer.onNext(self.loadFileMetadata(file, utilities: utilities))
+							observer.onNext(object.loadFileMetadata(file, utilities: utilities))
 							file.deleteFile()
 						}
 						downloadTask.cancel()
