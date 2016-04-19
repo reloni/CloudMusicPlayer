@@ -16,6 +16,10 @@ class SettingsController: UIViewController {
 	
 	@IBOutlet weak var logOutButton: UIButton!
 	
+	@IBOutlet weak var permanentStorageLabel: UILabel!
+	@IBOutlet weak var tempStorageLabel: UILabel!
+	@IBOutlet weak var temporaryFolderLabel: UILabel!
+
 	let model = SettingsViewModel()
 	
 	private let bag = DisposeBag()
@@ -41,5 +45,13 @@ class SettingsController: UIViewController {
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
 		// Dispose of any resources that can be recreated.
+	}
+	
+	override func viewWillAppear(animated: Bool) {
+		rxPlayer.downloadManager.fileStorage.calculateSize().observeOn(MainScheduler.instance).bindNext { [unowned self] size in
+			self.permanentStorageLabel.text = "\(Float64(size.permanentStorage) / (1024 * 1024)) Mb"
+			self.tempStorageLabel.text = "\(Float64(size.tempStorage) / (1024 * 1024)) Mb"
+			self.temporaryFolderLabel.text = "\(Float64(size.temporary) / (1024 * 1024)) Mb"
+			}.addDisposableTo(bag)
 	}
 }

@@ -23,13 +23,13 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 	
 	func testPaths() {
 		let storage = LocalNsUserDefaultsStorage()
-		XCTAssertTrue(NSFileManager.fileExistsAtPath(storage.tempCacheDirectory.path!, isDirectory: true))
-		XCTAssertTrue(NSFileManager.fileExistsAtPath(storage.tempSaveStorageDirectory.path!, isDirectory: true))
-		XCTAssertTrue(NSFileManager.fileExistsAtPath(storage.permanentSaveStorageDirectory.path!, isDirectory: true))
+		XCTAssertTrue(NSFileManager.fileExistsAtPath(storage.temporaryDirectory.path!, isDirectory: true))
+		XCTAssertTrue(NSFileManager.fileExistsAtPath(storage.tempStorageDirectory.path!, isDirectory: true))
+		XCTAssertTrue(NSFileManager.fileExistsAtPath(storage.permanentStorageDirectory.path!, isDirectory: true))
 	}
 	
 	func testSaveNewDatFileToTempStorage() {
-		let storage = LocalNsUserDefaultsStorage()
+		let storage = LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: false, userDefaults: FakeNSUserDefaults())
 		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
 		provider.appendData("some data".dataUsingEncoding(NSUTF8StringEncoding)!)
 		let file = storage.saveToTempStorage(provider)
@@ -41,7 +41,7 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 			} else {
 				XCTFail("Unable to load saved data")
 			}
-			XCTAssertTrue(storage.tempSaveStorageDirectory.URLByAppendingPathComponent(file.lastPathComponent!, isDirectory: false).fileExists(),
+			XCTAssertTrue(storage.tempStorageDirectory.URLByAppendingPathComponent(file.lastPathComponent!, isDirectory: false).fileExists(),
 			              "Check file saved in temp storage directory")
 			let _ = try? NSFileManager.defaultManager().removeItemAtURL(file)
 		} else {
@@ -50,7 +50,7 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 	}
 	
 	func testSaveNewFileToPermanentStorage() {
-		let storage = LocalNsUserDefaultsStorage()
+		let storage = LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: false, userDefaults: FakeNSUserDefaults())
 		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString, contentMimeType: "audio/mpeg")
 		provider.appendData("some data".dataUsingEncoding(NSUTF8StringEncoding)!)
 		let file = storage.saveToPermanentStorage(provider)
@@ -62,7 +62,7 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 			} else {
 				XCTFail("Unable to load saved data")
 			}
-			XCTAssertTrue(storage.permanentSaveStorageDirectory.URLByAppendingPathComponent(file.lastPathComponent!, isDirectory: false).fileExists(),
+			XCTAssertTrue(storage.permanentStorageDirectory.URLByAppendingPathComponent(file.lastPathComponent!, isDirectory: false).fileExists(),
 			              "Check file saved in permanent storage directory")
 			let _ = try? NSFileManager.defaultManager().removeItemAtURL(file)
 		} else {
@@ -119,9 +119,9 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 	}
 	
 	func testLoadWithoutInitialData() {
-		let storage = LocalNsUserDefaultsStorage(loadData: true, userDefaults: FakeNSUserDefaults(localCache: [String: AnyObject]()))
-		XCTAssertEqual(0, storage.tempSaveStorageDictionary.count)
-		XCTAssertEqual(0, storage.permanentSaveStorageDictionary.count)
+		let storage = LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true, userDefaults: FakeNSUserDefaults(localCache: [String: AnyObject]()))
+		XCTAssertEqual(0, storage.tempStorageDictionary.count)
+		XCTAssertEqual(0, storage.permanentStorageDictionary.count)
 	}
 	
 	func testLoadWithInitialData() {
@@ -129,31 +129,43 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		let permanentDict = ["Third file": "path"]
 		let userDefaults = FakeNSUserDefaults(localCache: [LocalNsUserDefaultsStorage.tempFileStorageId: tempDict,
 			LocalNsUserDefaultsStorage.permanentFileStorageId: permanentDict])
-		let storage = LocalNsUserDefaultsStorage(loadData: true, userDefaults: userDefaults)
-		XCTAssertEqual(2, storage.tempSaveStorageDictionary.count)
-		XCTAssertEqual(1, storage.permanentSaveStorageDictionary.count)
+		let storage = LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true, userDefaults: userDefaults)
+		XCTAssertEqual(2, storage.tempStorageDictionary.count)
+		XCTAssertEqual(1, storage.permanentStorageDictionary.count)
 	}
 	
 	func testPreserveDataAcrossSessions() {
 		let userDefaults = FakeNSUserDefaults(localCache: [String: AnyObject]())
-		let storage = LocalNsUserDefaultsStorage(loadData: true, userDefaults: userDefaults)
+		let storage = LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true, userDefaults: userDefaults)
 		
 		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString, contentMimeType: "audio/mpeg")
 		provider.appendData("some data".dataUsingEncoding(NSUTF8StringEncoding)!)
-		let cachedFile = storage.saveToTempStorage(provider)
+		let cachedInTempFile = storage.saveToTempStorage(provider)
+		let cachedInPermanentFile = storage.saveToPermanentStorage(provider)
 		
+		// check info about temp storage
 		if let savedFile = (userDefaults.localCache[LocalNsUserDefaultsStorage.tempFileStorageId] as? [String: AnyObject])?.first?.1 as? String {
-			XCTAssertEqual(cachedFile?.lastPathComponent, savedFile, "Check correct data saved in user defaults")
+			XCTAssertEqual(cachedInTempFile?.lastPathComponent, savedFile, "Check correct data saved in user defaults")
 		} else {
 			XCTFail("Failed to save data to user defaults")
 		}
 		
-		let newStorage = LocalNsUserDefaultsStorage(loadData: true, userDefaults: userDefaults)
-		XCTAssertEqual(newStorage.tempSaveStorageDictionary.first?.1, cachedFile?.lastPathComponent, "Check cached file loaded in new storage")
-		XCTAssertNotNil(newStorage.getFromStorage(provider.uid), "Check new storage return file, cached in previous version")
-		
-		if let cachedFile = cachedFile {
-			let _ = try? NSFileManager.defaultManager().removeItemAtURL(cachedFile)
+		// check info about permanent storage
+		if let savedFile = (userDefaults.localCache[LocalNsUserDefaultsStorage.permanentFileStorageId] as? [String: AnyObject])?.first?.1 as? String {
+			XCTAssertEqual(cachedInPermanentFile?.lastPathComponent, savedFile, "Check correct data saved in user defaults")
+		} else {
+			XCTFail("Failed to save data to user defaults")
 		}
+		
+		let newStorage = LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true, userDefaults: userDefaults)
+		
+		XCTAssertEqual(newStorage.tempStorageDictionary.first?.1, cachedInTempFile?.lastPathComponent, "Check cached file loaded in new storage")
+		XCTAssertNotNil(newStorage.getFromStorage(provider.uid), "Check new storage return temp file, cached in previous version")
+		
+		XCTAssertEqual(newStorage.permanentStorageDictionary.first?.1, cachedInPermanentFile?.lastPathComponent, "Check cached file loaded in new storage")
+		XCTAssertNotNil(newStorage.getFromStorage(provider.uid), "Check new storage return permanent file, cached in previous version")
+		
+		cachedInPermanentFile?.deleteFile()
+		cachedInTempFile?.deleteFile()
 	}
 }

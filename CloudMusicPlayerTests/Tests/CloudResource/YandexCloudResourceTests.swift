@@ -100,7 +100,6 @@ class YandexCloudResourceTests: XCTestCase {
 		let expectation = expectationWithDescription("Should return correct json data from YandexRoot file")
 
 		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient)?.bindNext { result in
-			//if case .Success(let json) = result where json?.count == 9 {
 			if result.count == 9 {
 				expectation.fulfill()
 			}
@@ -126,11 +125,6 @@ class YandexCloudResourceTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return error")
 		
-		//YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient)?.bindNext { result in
-		//	if case .Error(let error) = result where error?.code == 1 {
-		//		expectation.fulfill()
-		//	}
-		//	}.addDisposableTo(bag)
 		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient)?.doOnError { error in
 			if (error as NSError).code == 1 {
 				expectation.fulfill()

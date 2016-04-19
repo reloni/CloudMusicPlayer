@@ -17,6 +17,10 @@ class FakeNSUserDefaults: NSUserDefaultsProtocol {
 		self.localCache = localCache
 	}
 	
+	convenience init() {
+		self.init(localCache: [String: AnyObject]())
+	}
+	
 	func saveData(object: AnyObject, forKey: String) {
 		localCache[forKey] = object
 	}

@@ -7,49 +7,61 @@
 //
 
 import Foundation
+import RxSwift
+
+public struct StorageSize {
+	let temporary: UInt64
+	let tempStorage: UInt64
+	let permanentStorage: UInt64
+}
 
 public protocol LocalStorageType {
 	func createCacheProvider(uid: String, targetMimeType: String?) -> CacheProvider
+	/// Directory for temp storage.
+	/// Data may be deleted from this directory if it's size exceeds allowable size (set by tempStorageDiskSpace)
 	func saveToTempStorage(provider: CacheProvider) -> NSURL?
 	func saveToPermanentStorage(provider: CacheProvider) -> NSURL?
 	func getFromStorage(uid: String) -> NSURL?
-	var tempCacheDirectory: NSURL { get }
-	var tempSaveStorageDirectory: NSURL { get }
+	var temporaryDirectory: NSURL { get }
+	var tempStorageDirectory: NSURL { get }
 	func saveToTemporaryFolder(provider: CacheProvider) -> NSURL?
-	var permanentSaveStorageDirectory: NSURL { get }
+	var permanentStorageDirectory: NSURL { get }
+	var tempStorageDiskSpace: UInt { get }
+	func calculateSize() -> Observable<StorageSize>
 }
 
 public class LocalNsUserDefaultsStorage {
 	internal static let tempFileStorageId = "CMP_TempFileStorageDictionary"
 	internal static let permanentFileStorageId = "CMP_PermanentFileStorageDictionary"
 	
-	internal var tempSaveStorageDictionary = [String: String]()
-	internal var permanentSaveStorageDictionary = [String: String]()
+	internal var tempStorageDictionary = [String: String]()
+	internal var permanentStorageDictionary = [String: String]()
 	internal let saveData: Bool
 	internal let userDefaults: NSUserDefaultsProtocol
-	//internal var permanentFileStorageDictionary = [String: NSURL]()
+	public let tempStorageDiskSpace: UInt = 0
 	
-	public let tempCacheDirectory: NSURL
-	public let tempSaveStorageDirectory: NSURL
-	public let permanentSaveStorageDirectory: NSURL
-	public init(loadData: Bool = false, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) {
+	public let temporaryDirectory: NSURL
+	public let tempStorageDirectory: NSURL
+	public let permanentStorageDirectory: NSURL
+	public init(persistInformationAboutSavedFiles: Bool = false, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) {
 		self.userDefaults = userDefaults
-		
-		tempCacheDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.temporaryDirectory, subDirName: "LocalStorageTemp") ??
+
+		temporaryDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.temporaryDirectory, subDirName: "LocalStorageTemp") ??
 			NSFileManager.temporaryDirectory
-		tempSaveStorageDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorage") ??
+		
+		tempStorageDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorage") ??
 			NSFileManager.documentsDirectory
-		permanentSaveStorageDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "PermanentStorage") ??
+		permanentStorageDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "PermanentStorage") ??
 			NSFileManager.documentsDirectory
 		
-		self.saveData = loadData
+		self.saveData = persistInformationAboutSavedFiles
 		if saveData {
 			if let loadedData = userDefaults.loadRawData(LocalNsUserDefaultsStorage.tempFileStorageId) as? [String: String] {
-				tempSaveStorageDictionary = loadedData
+				tempStorageDictionary = loadedData
 			}
 			
 			if let loadedData = userDefaults.loadRawData(LocalNsUserDefaultsStorage.permanentFileStorageId) as? [String: String] {
-				permanentSaveStorageDictionary = loadedData
+				permanentStorageDictionary = loadedData
 			}
 		}
 	}
@@ -66,11 +78,11 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 	}
 	
 	public func saveToTempStorage(provider: CacheProvider) -> NSURL? {
-		if let file = saveTo(tempSaveStorageDirectory, provider: provider), fileName = file.lastPathComponent {
-			tempSaveStorageDictionary[provider.uid] = fileName
+		if let file = saveTo(tempStorageDirectory, provider: provider), fileName = file.lastPathComponent {
+			tempStorageDictionary[provider.uid] = fileName
 			
 			if saveData {
-				userDefaults.saveData(tempSaveStorageDictionary, forKey: LocalNsUserDefaultsStorage.tempFileStorageId)
+				userDefaults.saveData(tempStorageDictionary, forKey: LocalNsUserDefaultsStorage.tempFileStorageId)
 			}
 			
 			return file
@@ -80,11 +92,11 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 	}
 	
 	public func saveToPermanentStorage(provider: CacheProvider) -> NSURL? {
-		if let file = saveTo(permanentSaveStorageDirectory, provider: provider), fileName = file.lastPathComponent {
-			permanentSaveStorageDictionary[provider.uid] = fileName
+		if let file = saveTo(permanentStorageDirectory, provider: provider), fileName = file.lastPathComponent {
+			permanentStorageDictionary[provider.uid] = fileName
 			
 			if saveData {
-				userDefaults.saveData(permanentSaveStorageDictionary, forKey: LocalNsUserDefaultsStorage.permanentFileStorageId)
+				userDefaults.saveData(permanentStorageDictionary, forKey: LocalNsUserDefaultsStorage.permanentFileStorageId)
 			}
 			
 			return file
@@ -94,26 +106,41 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 	}
 	
 	public func saveToTemporaryFolder(provider: CacheProvider) -> NSURL? {
-		return saveTo(tempCacheDirectory, provider: provider)
+		return saveTo(temporaryDirectory, provider: provider)
 	}
 	
 	public func getFromStorage(uid: String) -> NSURL? {
-		if let fileName = tempSaveStorageDictionary[uid], path = tempSaveStorageDirectory.URLByAppendingPathComponent(fileName, isDirectory: false).path {
+		if let fileName = tempStorageDictionary[uid], path = tempStorageDirectory.URLByAppendingPathComponent(fileName, isDirectory: false).path {
 			if NSFileManager.fileExistsAtPath(path, isDirectory: false) {
 				return NSURL(fileURLWithPath: path)
 			} else {
-				tempSaveStorageDictionary[uid] = nil
+				tempStorageDictionary[uid] = nil
 			}
 		}
 		
-		if let fileName = permanentSaveStorageDictionary[uid], path = permanentSaveStorageDirectory.URLByAppendingPathComponent(fileName, isDirectory: false).path {
+		if let fileName = permanentStorageDictionary[uid], path = permanentStorageDirectory.URLByAppendingPathComponent(fileName, isDirectory: false).path {
 			if NSFileManager.fileExistsAtPath(path, isDirectory: false) {
 				return NSURL(fileURLWithPath: path)
 			} else {
-				permanentSaveStorageDictionary[uid] = nil
+				permanentStorageDictionary[uid] = nil
 			}
 		}
 		
 		return nil
+	}
+	
+	public func calculateSize() -> Observable<StorageSize> {
+		return calculateSize(NSFileManager.defaultManager())
+	}
+	
+	internal func calculateSize(fileManager: NSFileManagerType) -> Observable<StorageSize> {
+		return Observable.create { [unowned self] observer in
+			observer.onNext(StorageSize(temporary: fileManager.getDirectorySize(self.temporaryDirectory, recursive: true),
+				tempStorage: fileManager.getDirectorySize(self.tempStorageDirectory, recursive: true),
+				permanentStorage: fileManager.getDirectorySize(self.permanentStorageDirectory, recursive: true)))
+			observer.onCompleted()
+			
+			return NopDisposable.instance
+		}
 	}
 }
