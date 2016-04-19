@@ -609,6 +609,11 @@
 					6EEB989A1C4EBE1700DD5B95 = {
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = SJMSRXG797;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 					6EEB98B11C4EBE1700DD5B95 = {
 						CreatedOnToolsVersion = 7.2;
