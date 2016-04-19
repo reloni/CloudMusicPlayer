@@ -43,17 +43,14 @@ public class LocalNsUserDefaultsStorage {
 	public let temporaryDirectory: NSURL
 	public let tempStorageDirectory: NSURL
 	public let permanentStorageDirectory: NSURL
-	public init(persistInformationAboutSavedFiles: Bool = false, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) {
+	
+	internal init(tempStorageDirectory: NSURL, permanentStorageDirectory: NSURL, temporaryDirectory: NSURL,
+	              persistInformationAboutSavedFiles: Bool = false, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) {
+		
 		self.userDefaults = userDefaults
-
-		temporaryDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.temporaryDirectory, subDirName: "LocalStorageTemp") ??
-			NSFileManager.temporaryDirectory
-		
-		tempStorageDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorage") ??
-			NSFileManager.documentsDirectory
-		permanentStorageDirectory = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "PermanentStorage") ??
-			NSFileManager.documentsDirectory
-		
+		self.tempStorageDirectory = tempStorageDirectory
+		self.permanentStorageDirectory = permanentStorageDirectory
+		self.temporaryDirectory = temporaryDirectory
 		self.saveData = persistInformationAboutSavedFiles
 		if saveData {
 			if let loadedData = userDefaults.loadRawData(LocalNsUserDefaultsStorage.tempFileStorageId) as? [String: String] {
@@ -64,6 +61,19 @@ public class LocalNsUserDefaultsStorage {
 				permanentStorageDictionary = loadedData
 			}
 		}
+	}
+	
+	public convenience init(persistInformationAboutSavedFiles: Bool = false, userDefaults: NSUserDefaultsProtocol = NSUserDefaults.standardUserDefaults()) {
+		let temporaryDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.temporaryDirectory, subDirName: "LocalStorageTemp") ??
+			NSFileManager.temporaryDirectory
+		
+		let tempStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorage") ??
+			NSFileManager.documentsDirectory
+		let permanentStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "PermanentStorage") ??
+			NSFileManager.documentsDirectory
+		
+		self.init(tempStorageDirectory: tempStorageDir, permanentStorageDirectory: permanentStorageDir, temporaryDirectory: temporaryDir,
+		          persistInformationAboutSavedFiles: persistInformationAboutSavedFiles, userDefaults: userDefaults)
 	}
 }
 

@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import RxBlocking
 @testable import CloudMusicPlayer
 
 class LocalNsUserDefaultsStorageTests: XCTestCase {
@@ -167,5 +168,33 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		
 		cachedInPermanentFile?.deleteFile()
 		cachedInTempFile?.deleteFile()
+	}
+	
+	func testCalculateStorageSize() {
+		let tempStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorageDir")!
+		let permanentStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "PermanentStorageDir")!
+		let temporaryDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TemporaryDir")!
+		
+		let firstData = "first data".dataUsingEncoding(NSUTF8StringEncoding)!
+		let secondData = "second data".dataUsingEncoding(NSUTF8StringEncoding)!
+		
+		firstData.writeToURL(tempStorageDir.URLByAppendingPathComponent("first.dat"), atomically: true)
+		secondData.writeToURL(tempStorageDir.URLByAppendingPathComponent("second.dat"), atomically: true)
+		
+		firstData.writeToURL(permanentStorageDir.URLByAppendingPathComponent("first.dat"), atomically: true)
+		
+		secondData.writeToURL(temporaryDir.URLByAppendingPathComponent("second.dat"), atomically: true)
+		
+		let storage = LocalNsUserDefaultsStorage(tempStorageDirectory: tempStorageDir, permanentStorageDirectory: permanentStorageDir,
+		                                         temporaryDirectory: temporaryDir)
+		
+		let size = try! storage.calculateSize().toBlocking().toArray().first
+		XCTAssertEqual(size?.tempStorage, UInt64(firstData.length + secondData.length))
+		XCTAssertEqual(size?.permanentStorage, UInt64(firstData.length))
+		XCTAssertEqual(size?.temporary, UInt64(secondData.length))
+		
+		tempStorageDir.deleteFile()
+		permanentStorageDir.deleteFile()
+		temporaryDir.deleteFile()
 	}
 }
