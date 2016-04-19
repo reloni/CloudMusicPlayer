@@ -8,6 +8,12 @@
 
 import Foundation
 
+public protocol NSFileManagerType {
+	func isFileExistsAtPath(pathToFile: String) -> Bool
+	func isDirectoryExistsAtPath(pathtoDir: String) -> Bool
+	func getDirectorySize(directory: NSURL, recursive: Bool) -> UInt64
+}
+
 extension NSFileManager {
 	public static func fileExistsAtPath(path: String, isDirectory: Bool = false) -> Bool {
 		var isDir = ObjCBool(isDirectory)
@@ -39,5 +45,47 @@ extension NSFileManager {
 		} catch {
 			return nil
 		}
+	}
+	
+	public func getDirectorySize(directory: NSURL, recursive: Bool = false) -> UInt64 {
+		var result: UInt64 = 0
+		if fileOrDirectoryExistsAtPath(directory.path ?? "", isDirectory: true) {
+			guard let contents = try? contentsOfDirectoryAtURL(directory, includingPropertiesForKeys: nil, options: .SkipsHiddenFiles) else {
+				return result
+			}
+			
+			for content in contents {
+				if let path = content.path {
+					// if file
+					if isFileExistsAtPath(path) {
+						if let attrs: NSDictionary = try? attributesOfItemAtPath(path) {
+							result += attrs.fileSize()
+						}
+					} else if isDirectoryExistsAtPath(path) && recursive {
+						// if directory
+						result += getDirectorySize(content, recursive: recursive)
+					}
+				}
+			}
+		}
+		return result
+	}
+}
+
+extension NSFileManager: NSFileManagerType {
+	public func isFileExistsAtPath(pathToFile: String) -> Bool {
+		return fileOrDirectoryExistsAtPath(pathToFile, isDirectory: false)
+	}
+	
+	public func isDirectoryExistsAtPath(pathtoDir: String) -> Bool {
+		return fileOrDirectoryExistsAtPath(pathtoDir, isDirectory: true)
+	}
+	
+	public func fileOrDirectoryExistsAtPath(path: String, isDirectory: Bool) -> Bool {
+		var isDir = ObjCBool(isDirectory)
+		if fileExistsAtPath(path, isDirectory: &isDir) && isDirectory == isDir.boolValue {
+			return true
+		}
+		return false
 	}
 }

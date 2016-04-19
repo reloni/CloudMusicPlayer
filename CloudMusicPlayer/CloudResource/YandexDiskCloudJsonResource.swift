@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftyJSON
-//import Alamofire
 import RxSwift
 
 public class YandexDiskCloudJsonResource : CloudJsonResource {
@@ -62,9 +61,9 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		return ["path": path]
 	}
 	
-	public func loadChilds() -> Observable<CloudRequestResult>? {
+	public func loadChildResources() -> Observable<[CloudResource]> {
 		guard let request = httpClient.httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders()) else {
-			return nil
+			return Observable.just([CloudResource]())
 		}
 		
 		return YandexDiskCloudJsonResource.loadResources(request, oauthResource: oAuthResource, httpClient: httpClient)
@@ -94,17 +93,18 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}
 	
 	internal static func loadResources(request: NSMutableURLRequestProtocol, oauthResource: OAuthResource,
-		httpClient: HttpClientProtocol = HttpClient()) -> Observable<CloudRequestResult> {
+	                                   httpClient: HttpClientProtocol = HttpClient()) -> Observable<[CloudResource]> {
 		return Observable.create { observer in
-			let task = httpClient.loadJsonData(request).bindNext { result in
-				if case .SuccessJson(let json) = result {
-					observer.onNext(.Success(deserializeResponseData(json, res: oauthResource, httpClient: httpClient)))
-				} else if case .Error(let error) = result {
-					observer.onNext(.Error(error))
+			let task = httpClient.loadJsonData(request).doOnError { observer.onError($0) }.bindNext { json in
+					if let data = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource, httpClient: httpClient) {
+						observer.onNext(data)
+						
+					} else {
+						observer.onNext([CloudResource]())
+					}
+					
+					observer.onCompleted()
 				}
-				
-				observer.onCompleted()
-			}
 			
 			return AnonymousDisposable {
 				task.dispose()
@@ -112,7 +112,7 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		}
 	}
 	
-	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpClientProtocol = HttpClient()) -> Observable<CloudRequestResult>? {
+	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpClientProtocol = HttpClient()) -> Observable<[CloudResource]>? {
 			guard let request = createRequestForLoadRootResources(oauthResource) else { return nil }
 			
 			return loadResources(request, oauthResource: oauthResource, httpClient: httpRequest)

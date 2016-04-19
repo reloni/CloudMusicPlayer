@@ -16,7 +16,6 @@
 		6E0A02941C8A0D0B00AD9B38 /* NSFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A02931C8A0D0B00AD9B38 /* NSFileManager.swift */; };
 		6E106F191C916A740056205F /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E106F181C916A740056205F /* main.swift */; };
 		6E11835A1C7EF48400E71CC5 /* CloudResourceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1183591C7EF48400E71CC5 /* CloudResourceProtocols.swift */; };
-		6E11835C1C7EF6A000E71CC5 /* CloudResourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E11835B1C7EF6A000E71CC5 /* CloudResourceManager.swift */; };
 		6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E11F1D41C53E4F300297EBD /* LoginController.swift */; };
 		6E12B9121C6F6CB200E93FFB /* YandexOAuthResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E12B9111C6F6CB200E93FFB /* YandexOAuthResource.swift */; };
 		6E12E06F1CB3C56C00091B9A /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E12E06E1CB3C56C00091B9A /* LocalStorage.swift */; };
@@ -27,6 +26,7 @@
 		6E182ED81C81E76300730C59 /* YandexDiskCloudJsonResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182ED71C81E76300730C59 /* YandexDiskCloudJsonResource.swift */; };
 		6E182EDA1C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */; };
 		6E1F020E1C57F14800490013 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F020D1C57F14800490013 /* Keychain.swift */; };
+		6E1F5BF71CC638ED0035DA4A /* NSFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F5BF61CC638ED0035DA4A /* NSFileManagerTests.swift */; };
 		6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E235DA51C9833DB00351034 /* YandexRoot.json */; };
 		6E31A8961C9BF6750017802A /* StreamDataTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E31A8951C9BF6750017802A /* StreamDataTaskTests.swift */; };
 		6E31A89A1C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E31A8991C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift */; };
@@ -68,6 +68,9 @@
 		6EA638761C79FF4C00DD85A6 /* CloudResourcesStructureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA638751C79FF4C00DD85A6 /* CloudResourcesStructureController.swift */; };
 		6EA638781C7A002200DD85A6 /* CloudResourcesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA638771C7A002200DD85A6 /* CloudResourcesViewModel.swift */; };
 		6EAFAD821CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */; };
+		6EB1929B1CC3B0A200FF3024 /* cover_placeholder.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 6EB1929A1CC3B0A200FF3024 /* cover_placeholder.jpg */; };
+		6EB1929D1CC3B45D00FF3024 /* PlayerQueueController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB1929C1CC3B45D00FF3024 /* PlayerQueueController.swift */; };
+		6EB1929F1CC3BC8100FF3024 /* QueueTrackCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB1929E1CC3BC8100FF3024 /* QueueTrackCell.swift */; };
 		6EB8C2F81C5019FD0064A00B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 6EB8C2F71C5019FD0064A00B /* .gitignore */; };
 		6EBFE0FB1CAA7C7D0003D12C /* StreamResourceIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */; };
 		6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */; };
@@ -121,7 +124,6 @@
 		6E0A02931C8A0D0B00AD9B38 /* NSFileManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSFileManager.swift; sourceTree = "<group>"; };
 		6E106F181C916A740056205F /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		6E1183591C7EF48400E71CC5 /* CloudResourceProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourceProtocols.swift; sourceTree = "<group>"; };
-		6E11835B1C7EF6A000E71CC5 /* CloudResourceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourceManager.swift; sourceTree = "<group>"; };
 		6E11F1D41C53E4F300297EBD /* LoginController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginController.swift; path = CloudMusicPlayer/Controllers/LoginController.swift; sourceTree = SOURCE_ROOT; };
 		6E12B9111C6F6CB200E93FFB /* YandexOAuthResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexOAuthResource.swift; sourceTree = "<group>"; };
 		6E12E06E1CB3C56C00091B9A /* LocalStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStorage.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 		6E182ED71C81E76300730C59 /* YandexDiskCloudJsonResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexDiskCloudJsonResource.swift; sourceTree = "<group>"; };
 		6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexDiskCloudAudioJsonResource.swift; sourceTree = "<group>"; };
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
+		6E1F5BF61CC638ED0035DA4A /* NSFileManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSFileManagerTests.swift; sourceTree = "<group>"; };
 		6E235DA51C9833DB00351034 /* YandexRoot.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexRoot.json; sourceTree = "<group>"; };
 		6E31A8951C9BF6750017802A /* StreamDataTaskTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDataTaskTests.swift; sourceTree = "<group>"; };
 		6E31A8991C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURLSessionDataEventsObserver.swift; sourceTree = "<group>"; };
@@ -174,6 +177,9 @@
 		6EA638751C79FF4C00DD85A6 /* CloudResourcesStructureController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourcesStructureController.swift; sourceTree = "<group>"; };
 		6EA638771C7A002200DD85A6 /* CloudResourcesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourcesViewModel.swift; sourceTree = "<group>"; };
 		6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAssetResourceLoaderEventsObserver.swift; sourceTree = "<group>"; };
+		6EB1929A1CC3B0A200FF3024 /* cover_placeholder.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = cover_placeholder.jpg; sourceTree = "<group>"; };
+		6EB1929C1CC3B45D00FF3024 /* PlayerQueueController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerQueueController.swift; sourceTree = "<group>"; };
+		6EB1929E1CC3BC8100FF3024 /* QueueTrackCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QueueTrackCell.swift; sourceTree = "<group>"; };
 		6EB8C2F71C5019FD0064A00B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamResourceIdentifier.swift; sourceTree = "<group>"; };
 		6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableOrderedSet.swift; sourceTree = "<group>"; };
@@ -204,6 +210,8 @@
 		6EECECD11C97F664007B37CC /* FakeCloudResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeCloudResource.swift; sourceTree = "<group>"; };
 		6EF3753C1CBA8EB0006D69AC /* RxPlayerPlayControlsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxPlayerPlayControlsTests.swift; sourceTree = "<group>"; };
 		6EF7476B1CBABC23008AA08B /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		6EFA45D01CC67273007582EE /* RxBlocking.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxBlocking.framework; path = Carthage/Build/iOS/RxBlocking.framework; sourceTree = "<group>"; };
+		6EFA45D21CC6729E007582EE /* RxTests.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxTests.framework; path = Carthage/Build/iOS/RxTests.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -245,6 +253,7 @@
 				6EE857B91C988BD3002809B5 /* HttpUtilitiesTests.swift */,
 				6E66B6351C9F3477004C466D /* NSURLSessionProtocolTests.swift */,
 				6E3572F31CBD103B008FAC87 /* ContentTypeDefinitionParsingTests.swift */,
+				6E1F5BF61CC638ED0035DA4A /* NSFileManagerTests.swift */,
 			);
 			name = Tests;
 			path = CloudMusicPlayerTests/Tests;
@@ -331,6 +340,7 @@
 				6EA638751C79FF4C00DD85A6 /* CloudResourcesStructureController.swift */,
 				6E6555F81C7E3CBB0088E650 /* DetailsController.swift */,
 				6EC4E6131C8D789200957D42 /* MusicPlayerController.swift */,
+				6EB1929C1CC3B45D00FF3024 /* PlayerQueueController.swift */,
 			);
 			name = Controllers;
 			path = CloudMusicPlayer/Controllers;
@@ -350,6 +360,7 @@
 			children = (
 				6E182ED31C81D66300730C59 /* CloudFolderCell.swift */,
 				6E182ED51C81E14700730C59 /* CloudTrackCell.swift */,
+				6EB1929E1CC3BC8100FF3024 /* QueueTrackCell.swift */,
 			);
 			name = Controlls;
 			path = CloudMusicPlayer/Controlls;
@@ -383,7 +394,6 @@
 				6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */,
 				6E12B9111C6F6CB200E93FFB /* YandexOAuthResource.swift */,
 				6E1183591C7EF48400E71CC5 /* CloudResourceProtocols.swift */,
-				6E11835B1C7EF6A000E71CC5 /* CloudResourceManager.swift */,
 				6E182ED71C81E76300730C59 /* YandexDiskCloudJsonResource.swift */,
 				6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */,
 			);
@@ -408,6 +418,15 @@
 			);
 			name = Models;
 			path = CloudMusicPlayer/Models;
+			sourceTree = SOURCE_ROOT;
+		};
+		6EB192991CC3B05800FF3024 /* Img */ = {
+			isa = PBXGroup;
+			children = (
+				6EB1929A1CC3B0A200FF3024 /* cover_placeholder.jpg */,
+			);
+			name = Img;
+			path = CloudMusicPlayer/Img;
 			sourceTree = SOURCE_ROOT;
 		};
 		6ECBBC781CA3D5CC0053DBFB /* StreamPlayer */ = {
@@ -441,6 +460,8 @@
 		6EEB98921C4EBE1700DD5B95 = {
 			isa = PBXGroup;
 			children = (
+				6EFA45D21CC6729E007582EE /* RxTests.framework */,
+				6EFA45D01CC67273007582EE /* RxBlocking.framework */,
 				6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */,
 				6E8AFD801C78DBC200091B53 /* RxSwift.framework */,
 				6E8AFD811C78DBC200091B53 /* RxCocoa.framework */,
@@ -465,6 +486,7 @@
 		6EEB989D1C4EBE1700DD5B95 /* CloudMusicPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				6EB192991CC3B05800FF3024 /* Img */,
 				6E12B9131C6F835C00E93FFB /* Extensions */,
 				6EE0CCC41C96C96E002F4D9D /* HttpExtensions */,
 				6E0A028A1C8A0C8B00AD9B38 /* StreamPlayer */,
@@ -627,6 +649,7 @@
 			files = (
 				6EB8C2F81C5019FD0064A00B /* .gitignore in Resources */,
 				6EEB98AC1C4EBE1700DD5B95 /* LaunchScreen.storyboard in Resources */,
+				6EB1929B1CC3B0A200FF3024 /* cover_placeholder.jpg in Resources */,
 				6EEB98A91C4EBE1700DD5B95 /* Assets.xcassets in Resources */,
 				6EA500841C53E6F100B9ED11 /* Main.storyboard in Resources */,
 			);
@@ -664,6 +687,8 @@
 				"$(SRCROOT)/Carthage/Build/iOS/RxSwift.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RxCocoa.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/SwiftyJSON.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/RxTests.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/RxBlocking.framework",
 			);
 			outputPaths = (
 			);
@@ -710,6 +735,7 @@
 				6E8490C01CA9399600366361 /* StreamPlayerUtilities.swift in Sources */,
 				6E3572F01CBD003B008FAC87 /* LocalFileStreamDataTask.swift in Sources */,
 				6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */,
+				6EB1929D1CC3B45D00FF3024 /* PlayerQueueController.swift in Sources */,
 				6E6DDE471C8DBA59001AE510 /* NSTimer.swift in Sources */,
 				6E182ED81C81E76300730C59 /* YandexDiskCloudJsonResource.swift in Sources */,
 				6E0853101CB7DCF60004E193 /* RxPlayer+Observe.swift in Sources */,
@@ -718,6 +744,7 @@
 				6EEB98A71C4EBE1700DD5B95 /* CloudMusicPlayer.xcdatamodeld in Sources */,
 				6E12E06F1CB3C56C00091B9A /* LocalStorage.swift in Sources */,
 				6E11835A1C7EF48400E71CC5 /* CloudResourceProtocols.swift in Sources */,
+				6EB1929F1CC3BC8100FF3024 /* QueueTrackCell.swift in Sources */,
 				6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */,
 				6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */,
 				6EEB989F1C4EBE1700DD5B95 /* AppDelegate.swift in Sources */,
@@ -726,7 +753,6 @@
 				6E31A89A1C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift in Sources */,
 				6E1F020E1C57F14800490013 /* Keychain.swift in Sources */,
 				6E5254481C675D8F00CA5463 /* OAuthResourceBase.swift in Sources */,
-				6E11835C1C7EF6A000E71CC5 /* CloudResourceManager.swift in Sources */,
 				6E658BD81CB81FAF0011354C /* RxPlayer+PlayControl.swift in Sources */,
 				6EC021201C8B3E0200E30BE1 /* MusicPlayerViewModel.swift in Sources */,
 			);
@@ -756,6 +782,7 @@
 				6EECECD21C97F664007B37CC /* FakeCloudResource.swift in Sources */,
 				6E13C7BC1C957FC80060DF24 /* YandexCloudResourceTests.swift in Sources */,
 				6E66B6361C9F3477004C466D /* NSURLSessionProtocolTests.swift in Sources */,
+				6E1F5BF71CC638ED0035DA4A /* NSFileManagerTests.swift in Sources */,
 				6E3572F41CBD103B008FAC87 /* ContentTypeDefinitionParsingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

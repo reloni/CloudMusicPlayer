@@ -64,7 +64,7 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 	
 	public func cancel() {
 		print("canceling")
-		subject.onCompleted()
+		//subject.onCompleted()
 	}
 	
 	public func suspend() { }

@@ -13,21 +13,20 @@ import RxSwift
 class RxPlayerQueueTests: XCTestCase {
 	//var player: RxPlayer!
 	var audioItems: [StreamResourceIdentifier]!
-	var bag: DisposeBag!
+	var bag = DisposeBag()
 	
 	override func setUp() {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
 		//player = RxPlayer()
 		audioItems = ["fake one", "fake two", "fake three", "fake four"]
-		bag = DisposeBag()
 	}
 	
 	override func tearDown() {
 		// Put teardown code here. This method is called after the invocation of each test method in the class.
 		super.tearDown()
 		
-		bag = nil
+		//bag = nil
 	}
 	
 	func testCreateEmptyQueue() {
@@ -536,5 +535,141 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		XCTAssertEqual(true, eventValue, "Check queue rised event wih correct new value")
 		XCTAssertTrue(queue.repeatQueue, "RepeatQueue should be true")
+	}
+	
+	func testNotMoveitemsInQueueIfItemAlreadyExists() {
+		let player = RxPlayer(items: audioItems)
+		
+		// play url that exists in queue and set clearQueue to false
+		// so order of items should be preserved
+		player.playUrl(audioItems[1], clearQueue: false)
+		
+		XCTAssertEqual(audioItems[1].streamResourceUid, player.current?.streamIdentifier.streamResourceUid, "Check correct current item")
+		XCTAssertEqual(audioItems.map { $0.streamResourceUid }, player.currentItems.map { $0.streamIdentifier.streamResourceUid }, "Check order of items in queue")
+	}
+	
+	func testToNextStartPlaying() {
+		let queue = RxPlayer(items: audioItems)
+		// start playing first item and pause
+		queue.resume(true)
+		queue.pause()
+		
+		XCTAssertFalse(queue.playing, "Check player is not playing")
+		
+		let expectation = expectationWithDescription("Should rise event")
+
+		queue.rx_observe().bindNext { result in
+			if case PlayerEvents.CurrentItemChanged(let item) = result {
+				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, self.audioItems[1].streamResourceUid, "Check switched to second item")
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		queue.toNext(true)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertTrue(queue.playing)
+	}
+	
+	func testToNextNotStartPlayingOnLastItemIfRepeatQueueIsFalse() {
+		let queue = RxPlayer(items: audioItems)
+		queue.repeatQueue = false
+		// start playing last item and pause
+		queue.current = queue.last
+		queue.pause()
+		
+		XCTAssertFalse(queue.playing, "Check player is not playing")
+		
+		let expectation = expectationWithDescription("Should rise event")
+		
+		queue.rx_observe().bindNext { result in
+			if case PlayerEvents.CurrentItemChanged(let item) = result {
+				XCTAssertNil(item, "Check new current item is nil")
+				expectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		queue.toNext(true)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertFalse(queue.playing)
+	}
+	
+	func testToNextStartPlayingOnLastItemIfRepeatQueueIsTrue() {
+		let queue = RxPlayer(items: audioItems)
+		queue.repeatQueue = true
+		// start playing last item and pause
+		queue.current = queue.last
+		queue.pause()
+		
+		XCTAssertFalse(queue.playing, "Check player is not playing")
+		
+		let expectation = expectationWithDescription("Should rise event")
+		
+		queue.rx_observe().bindNext { result in
+			if case PlayerEvents.CurrentItemChanged(let item) = result {
+				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, queue.first?.streamIdentifier.streamResourceUid, "Check new item is first item in queue")
+				expectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		queue.toNext(true)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertTrue(queue.playing)
+	}
+	
+	
+	
+	func testToPreviousStartPlaying() {
+		let queue = RxPlayer(items: audioItems)
+		// start playing item and pause
+		queue.current = queue.getItemAtPosition(2)
+		queue.resume(true)
+		queue.pause()
+		
+		XCTAssertFalse(queue.playing, "Check player is not playing")
+		
+		let expectation = expectationWithDescription("Should rise event")
+		
+		queue.rx_observe().bindNext { result in
+			if case PlayerEvents.CurrentItemChanged(let item) = result {
+				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, self.audioItems[1].streamResourceUid, "Check switched to second item")
+				expectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		queue.toPrevious(true)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertTrue(queue.playing)
+	}
+	
+	func testToPreviousDoNothingOnfirstItemWhenStartPlayingIsTrue() {
+		let queue = RxPlayer(items: audioItems)
+		queue.repeatQueue = false
+		// start playing first item and pause
+		queue.current = queue.first
+		queue.pause()
+		
+		XCTAssertFalse(queue.playing, "Check player is not playing")
+		
+		
+		queue.rx_observe().bindNext { result in
+			if case PlayerEvents.CurrentItemChanged = result {
+				XCTFail("Should not change current item")
+			}
+		}.addDisposableTo(bag)
+		
+		queue.toPrevious(true)
+		
+		NSThread.sleepForTimeInterval(0.05)
+
+		XCTAssertEqual(queue.first?.streamIdentifier.streamResourceUid, audioItems.first?.streamResourceUid)
+		XCTAssertFalse(queue.playing)
 	}
 }

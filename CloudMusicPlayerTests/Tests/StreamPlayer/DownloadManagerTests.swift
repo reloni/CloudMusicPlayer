@@ -89,10 +89,10 @@ class DownloadManagerTests: XCTestCase {
 		let fileStorage = LocalNsUserDefaultsStorage()
 		let manager = DownloadManager(saveData: false, fileStorage: fileStorage, httpUtilities: HttpUtilities())
 		// create new file in temp storage directory
-		let file = fileStorage.tempSaveStorageDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).dat")
+		let file = fileStorage.tempStorageDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).dat")
 		NSFileManager.defaultManager().createFileAtPath(file.path!, contents: nil, attributes: nil)
 		// save this file in fileStorageCache
-		fileStorage.tempSaveStorageDictionary["https://somelink.com"] = file.lastPathComponent!
+		fileStorage.tempStorageDictionary["https://somelink.com"] = file.lastPathComponent!
 		// create download task
 		let task = manager.createDownloadTask("https://somelink.com", checkInPendingTasks: true)
 		XCTAssertTrue(task is LocalFileStreamDataTask, "Should create instance of LocalFileStreamDataTask, because file exists in cache")

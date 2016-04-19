@@ -45,9 +45,9 @@ class RxPlayerQueueItemTests: XCTestCase {
 	func testLoadMetadataFromCachedFile() {
 		let storage = LocalNsUserDefaultsStorage()
 		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerQueueItemTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
-		let copiedFile = storage.tempSaveStorageDirectory.URLByAppendingPathComponent("FileWithMetadata.mp3")
+		let copiedFile = storage.tempStorageDirectory.URLByAppendingPathComponent("FileWithMetadata.mp3")
 		let _ = try? NSFileManager.defaultManager().copyItemAtURL(metadataFile, toURL: copiedFile)
-		storage.tempSaveStorageDictionary["https://testitem.com"] = copiedFile.lastPathComponent
+		storage.tempStorageDictionary["https://testitem.com"] = copiedFile.lastPathComponent
 		
 		//DownloadManager.initWithInstance(DownloadManager(saveData: false, fileStorage: storage, httpUtilities: FakeHttpUtilities()))
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: FakeHttpUtilities())

@@ -38,11 +38,6 @@
                BlueprintName = "CloudMusicPlayerTests"
                ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "OAuthResourceTests/unspecifiedMethod_-[OAuthResourceTests (null)]()">
-               </Test>
-            </SkippedTests>
          </TestableReference>
          <TestableReference
             skipped = "YES">

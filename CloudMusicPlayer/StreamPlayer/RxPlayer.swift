@@ -78,7 +78,7 @@ extension InternalPlayer : InternalPlayerType {
 			
 			return Observable<Int>.interval(1, scheduler: SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
 				.bindNext { _ in
-					print("current time")
+					//print("current time")
 					if let playerItem = object.playerItem, asset = object.asset {
 						observer.onNext((currentTime: playerItem.currentTime(), duration: asset.duration))
 					} else {
@@ -255,7 +255,7 @@ public class RxPlayer {
 	
 	public convenience init(repeatQueue: Bool = false, saveData: Bool = false) {
 		self.init(repeatQueue: repeatQueue, internalPlayer: InternalPlayer(),
-		          downloadManager: DownloadManager(saveData: saveData, fileStorage: LocalNsUserDefaultsStorage(loadData: saveData),
+		          downloadManager: DownloadManager(saveData: saveData, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: saveData),
 								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities())
 	}
 	
@@ -266,7 +266,7 @@ public class RxPlayer {
 	
 	deinit {
 		print("Rx player deinit")
-		queueEventsSubject.onCompleted()
+		//queueEventsSubject.onCompleted()
 		//currentItemSubject.onCompleted()
 	}
 }

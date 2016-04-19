@@ -101,7 +101,11 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testResuming() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		let fakeInternalPlayer = FakeInternalPlayer()
+		// set fake native player instance, 
+		// so RxPlayer will think, that player paused and will invoke resume method
+		fakeInternalPlayer.nativePlayer = FakeNativePlayer()
+		let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
 		
 		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
@@ -122,6 +126,45 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		
 		player.playUrl(playingItem)
 		player.pause()
+		player.resume()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertTrue(player.playing, "Playing property should be true")
+	}
+	
+	func testResumingWhenNativePlayerIsNil() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
+		
+		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
+		let playingItem = player.first!.streamIdentifier
+		// set current item
+		player.current = player.first
+		
+		
+		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		
+		let resumingExpectation = expectationWithDescription("Should rise Resuming event")
+		let startedExpectation = expectationWithDescription("Should invoke Play on internal player")
+		let preparingToPlayExpectation = expectationWithDescription("Should rise PreparingToPlay event")
+		
+		player.rx_observe().bindNext { e in
+			if case PlayerEvents.Resuming(let item) = e {
+				XCTAssertEqual(playingItem.streamResourceUid, item.streamIdentifier.streamResourceUid)
+				resumingExpectation.fulfill()
+			} else if case PlayerEvents.Started = e {
+				startedExpectation.fulfill()
+			} else if case PlayerEvents.PreparingToPlay(let preparingItem) = e {
+				XCTAssertEqual(preparingItem.streamIdentifier.streamResourceUid, playingItem.streamResourceUid)
+				preparingToPlayExpectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		//player.playUrl(playingItem)
+		//player.pause()
 		player.resume()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
