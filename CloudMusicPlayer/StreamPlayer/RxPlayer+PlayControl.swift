@@ -17,12 +17,7 @@ extension RxPlayer {
 			current = first
 		} else {
 			playing = true
-			if let index = itemsSet.getIndexOfObject(url as! AnyObject) {
-				// if found item queue, set this item as current
-				current = getItemAtPosition(index)
-			} else {
-				current = addLast(url)
-			}
+			current = addLast(url)
 		}
 	}
 	
@@ -38,8 +33,8 @@ extension RxPlayer {
 			playing = true
 			queueEventsSubject.onNext(.Resuming(current))
 		} else if force {
-			//playing = true
-			toNext(true)
+			playing = true
+			toNext()
 		}
 	}
 	
@@ -56,14 +51,9 @@ extension Observable where Element : PlayerEventType {
 		return self.map { e in return e as! PlayerEvents }.map { e in
 			switch e {
 			case .Pausing(let current): current.player.internalPlayer.pause()
-			case .Resuming(let current):
-				if current.player.internalPlayer.nativePlayer == nil {
-					current.player.queueEventsSubject.onNext(PlayerEvents.PreparingToPlay(current))
-				} else {
-					current.player.internalPlayer.resume()
-				}
+			case .Resuming(let current): current.player.internalPlayer.resume()
 			case .Stopping(let current): current.player.internalPlayer.stop()
-			case .FinishPlayingCurrentItem(let player): player.toNext(true)
+			case .FinishPlayingCurrentItem(let player): player.toNext()
 			default: break
 			}
 		}

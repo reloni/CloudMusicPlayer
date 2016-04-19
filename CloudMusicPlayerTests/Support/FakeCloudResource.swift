@@ -39,10 +39,6 @@ public class FakeCloudResource : CloudResource {
 		
 	}
 	
-	public func loadChildResources() -> Observable<[CloudResource]> {
-		return Observable.just([CloudResource]())
-	}
-	
 	public func loadChilds() -> Observable<CloudRequestResult>? {
 		return nil
 	}

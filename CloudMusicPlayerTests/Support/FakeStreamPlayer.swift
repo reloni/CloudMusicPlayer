@@ -84,20 +84,3 @@ public class FakeInternalPlayer : InternalPlayerType {
 		publishSubject.onCompleted()
 	}
 }
-
-public class FakeNativePlayer: AVPlayerProtocol {
-	public var internalItemStatus: Observable<AVPlayerItemStatus?> {
-		return Observable.just(nil)
-	}
-	public var rate: Float = 0.0
-	public func replaceCurrentItemWithPlayerItem(item: AVPlayerItemProtocol?) {
-		
-	}
-	public func play() {
-		
-	}
-	public func setPlayerRate(rate: Float) {
-		
-	}
-	
-}
