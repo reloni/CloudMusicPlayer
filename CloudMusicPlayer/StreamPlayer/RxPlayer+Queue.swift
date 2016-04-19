@@ -67,8 +67,7 @@ extension RxPlayer {
 		shuffleQueue()
 	}
 	
-	public func toNext(startPlaying: Bool = false) -> RxPlayerQueueItem? {
-		playing = startPlaying
+	public func toNext() -> RxPlayerQueueItem? {
 		if current == nil {
 			current = first
 		} else {
@@ -77,12 +76,10 @@ extension RxPlayer {
 		return current
 	}
 	
-	public func toPrevious(startPlaying: Bool = false) -> RxPlayerQueueItem? {
+	public func toPrevious() -> RxPlayerQueueItem? {
 		if current == nil {
-			playing = startPlaying
 			current = first
 		} else if current != first {
-			playing = startPlaying
 			current = current?.parent
 		}
 		return current

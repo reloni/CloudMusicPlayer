@@ -30,7 +30,6 @@ public protocol CloudResource {
 	func getRequestHeaders() -> [String: String]?
 	func getRequestParameters() -> [String: String]?
 	func loadChilds() -> Observable<CloudRequestResult>?
-	func loadChildResources() -> Observable<[CloudResource]>
 }
 
 public protocol CloudAudioResource : CloudResource {

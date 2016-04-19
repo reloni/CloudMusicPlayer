@@ -10,6 +10,5 @@ import UIKit
 
 class CloudFolderCell: UITableViewCell {
 
-	@IBOutlet weak var playButton: UIButton!
 	@IBOutlet weak var folderNameLabel: UILabel!
 }

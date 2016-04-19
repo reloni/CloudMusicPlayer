@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import SwiftyJSON
+//import Alamofire
 import RxCocoa
 import RxSwift
 import AVFoundation
@@ -28,9 +29,11 @@ class CloudResourcesStructureController: UIViewController {
 		
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
-			parent.loadChildResources().observeOn(MainScheduler.instance).bindNext { [unowned self] childs in
-				self.viewModel.resources = childs
-				self.tableView.reloadData()
+			parent.loadChilds()?.observeOn(MainScheduler.instance).bindNext { [unowned self] result in
+				if case .Success(let childs) = result {
+					self.viewModel.resources = childs
+					self.tableView.reloadData()
+				}
 			}.addDisposableTo(bag!)
 		} else if navigationController?.viewControllers.first == self {
 			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource())?.observeOn(MainScheduler.instance).bindNext { [unowned self] result in
@@ -52,10 +55,13 @@ class CloudResourcesStructureController: UIViewController {
 	
 	func play(track: CloudAudioResource) {
 		if let identifier = track as? StreamResourceIdentifier {
+			//streamPlayer.playUrl(identifier, createNewQueue: true, customHttpHeaders: track.getRequestHeaders())
 			rxPlayer.playUrl(identifier)
 		} else {
 			track.downloadUrl?.bindNext { result in
 				guard let url = result else { return }
+				//streamPlayer.play(url, customHttpHeaders: track.getRequestHeaders())
+				//streamPlayer.playUrl(url, createNewQueue: true, customHttpHeaders: track.getRequestHeaders())
 				rxPlayer.playUrl(url)
 				
 				}.addDisposableTo(bag!)
@@ -69,6 +75,11 @@ class CloudResourcesStructureController: UIViewController {
 
 extension CloudResourcesStructureController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+//		guard let controller = storyboard?.instantiateViewControllerWithIdentifier("RootViewController") as? CloudResourcesStructureController,
+//		 resource = viewModel.resources?[indexPath.row] where viewModel.resources?[indexPath.row].type == "dir" else {
+//			return
+//		}
+
 		if viewModel.resources?[indexPath.row].type == "dir", let resource = viewModel.resources?[indexPath.row],
 			controller = storyboard?.instantiateViewControllerWithIdentifier("RootViewController") as? CloudResourcesStructureController {
 		
@@ -76,7 +87,6 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 			navigationController?.pushViewController(controller, animated: true)
 		} else if let audio  = viewModel.resources?[indexPath.row] as? CloudAudioResource {
 			self.play(audio)
-			//self.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
 		}
 	}
 	
@@ -87,23 +97,23 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let resource = viewModel.resources![indexPath.row]
 		
+//		if let resource = resource as? CloudAudioResource {
+//			let cell = tableView.dequeueReusableCellWithIdentifier("CloudTrackCell", forIndexPath: indexPath) as! CloudTrackCell
+//			cell.track = resource
+//			cell.playButton.rx_tap.bindNext { [unowned self] in
+//				guard let track = cell.track else {
+//					return
+//				}
+//				self.play(track)
+//				}.addDisposableTo(viewModel.bag)
+//			cell.stopButton.rx_tap.bindNext { [unowned self] in
+//				self.stop()
+//			}.addDisposableTo(viewModel.bag)
+//			return cell
+//		}
+		
 		let cell = tableView.dequeueReusableCellWithIdentifier("CloudFolderCell", forIndexPath: indexPath) as! CloudFolderCell
 		cell.folderNameLabel.text = resource.name ?? "unresolved"
-		
-		if resource.type == "dir" {
-			cell.playButton.rx_tap.flatMapLatest { _ -> Observable<[StreamResourceIdentifier]> in
-				return resource.loadChildResources().map { e in return e.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier } }
-				}.bindNext { [weak self] items in
-					rxPlayer.initWithNewItems(items)
-					dispatch_async(dispatch_get_main_queue()) {
-						self?.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
-					}
-					rxPlayer.resume(true)
-					print("Player items count: \(rxPlayer.count)")
-			}.addDisposableTo(bag!)
-		} else {
-			cell.playButton.hidden = true
-		}
 		return cell
 	}
 }

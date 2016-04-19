@@ -78,7 +78,7 @@ extension InternalPlayer : InternalPlayerType {
 			
 			return Observable<Int>.interval(1, scheduler: SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
 				.bindNext { _ in
-					//print("current time")
+					print("current time")
 					if let playerItem = object.playerItem, asset = object.asset {
 						observer.onNext((currentTime: playerItem.currentTime(), duration: asset.duration))
 					} else {
