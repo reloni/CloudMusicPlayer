@@ -19,6 +19,7 @@ class SettingsController: UIViewController {
 	@IBOutlet weak var permanentStorageLabel: UILabel!
 	@IBOutlet weak var tempStorageLabel: UILabel!
 	@IBOutlet weak var temporaryFolderLabel: UILabel!
+	@IBOutlet weak var clearStorageButton: UIButton!
 
 	let model = SettingsViewModel()
 	
@@ -40,6 +41,15 @@ class SettingsController: UIViewController {
 		
 		model.isSetUp.asDriver().asDriver(onErrorJustReturn: false).map { !$0 }.drive(logInButton.rx_enabled).addDisposableTo(bag)
 		model.isSetUp.asDriver().asDriver(onErrorJustReturn: false).drive(logOutButton.rx_enabled).addDisposableTo(bag)
+		
+		clearStorageButton.rx_tap.flatMapLatest { _ -> Observable<StorageSize> in
+			rxPlayer.downloadManager.fileStorage.clearStorage()
+			return rxPlayer.downloadManager.fileStorage.calculateSize()
+			}.observeOn(MainScheduler.instance).bindNext { [unowned self] size in
+				self.permanentStorageLabel.text = "\(Float64(size.permanentStorage) / (1024 * 1024)) Mb"
+				self.tempStorageLabel.text = "\(Float64(size.tempStorage) / (1024 * 1024)) Mb"
+				self.temporaryFolderLabel.text = "\(Float64(size.temporary) / (1024 * 1024)) Mb"
+			}.addDisposableTo(bag)
 	}
 	
 	override func didReceiveMemoryWarning() {

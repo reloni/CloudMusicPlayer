@@ -197,4 +197,33 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		permanentStorageDir.deleteFile()
 		temporaryDir.deleteFile()
 	}
+	
+	func testClearStorage() {
+		let tempStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorageDir")!
+		let permanentStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "PermanentStorageDir")!
+		let temporaryDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TemporaryDir")!
+		
+		let firstData = "first data".dataUsingEncoding(NSUTF8StringEncoding)!
+		let secondData = "second data".dataUsingEncoding(NSUTF8StringEncoding)!
+		
+		firstData.writeToURL(tempStorageDir.URLByAppendingPathComponent("first.dat"), atomically: true)
+		secondData.writeToURL(tempStorageDir.URLByAppendingPathComponent("second.dat"), atomically: true)
+		
+		firstData.writeToURL(permanentStorageDir.URLByAppendingPathComponent("first.dat"), atomically: true)
+		
+		secondData.writeToURL(temporaryDir.URLByAppendingPathComponent("second.dat"), atomically: true)
+		
+		let storage = LocalNsUserDefaultsStorage(tempStorageDirectory: tempStorageDir, permanentStorageDirectory: permanentStorageDir,
+		                                         temporaryDirectory: temporaryDir)
+		
+		storage.clearStorage()
+		
+		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(tempStorageDir)?.count)
+		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(permanentStorageDir)?.count)
+		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(temporaryDir)?.count)
+		
+		tempStorageDir.deleteFile()
+		permanentStorageDir.deleteFile()
+		temporaryDir.deleteFile()
+	}
 }

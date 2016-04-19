@@ -70,6 +70,13 @@ extension NSFileManager {
 		}
 		return result
 	}
+	
+	public func contentsOfDirectoryAtURL(directory: NSURL) -> [NSURL]? {
+		guard let contents = try? contentsOfDirectoryAtURL(directory, includingPropertiesForKeys: nil, options: .SkipsHiddenFiles) else {
+			return nil
+		}
+		return contents
+	}
 }
 
 extension NSFileManager: NSFileManagerType {

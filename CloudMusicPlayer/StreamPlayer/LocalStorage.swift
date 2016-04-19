@@ -28,6 +28,10 @@ public protocol LocalStorageType {
 	var permanentStorageDirectory: NSURL { get }
 	var tempStorageDiskSpace: UInt { get }
 	func calculateSize() -> Observable<StorageSize>
+	func clearTempStorage()
+	func clearPermanentStorage()
+	func clearTemporaryDirectory()
+	func clearStorage()
 }
 
 public class LocalNsUserDefaultsStorage {
@@ -151,6 +155,35 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 			observer.onCompleted()
 			
 			return NopDisposable.instance
+		}
+	}
+	
+	public func clearTempStorage() {
+		clearDirectory(tempStorageDirectory)
+	}
+	
+	public func clearPermanentStorage() {
+		clearDirectory(permanentStorageDirectory)
+	}
+	
+	public func clearTemporaryDirectory() {
+		clearDirectory(temporaryDirectory)
+	}
+	
+	public func clearStorage() {
+		clearTemporaryDirectory()
+		clearPermanentStorage()
+		clearTempStorage()
+	}
+	
+	internal func clearDirectory(directory: NSURL) {
+		guard let contents = try? NSFileManager.defaultManager()
+			.contentsOfDirectoryAtURL(directory, includingPropertiesForKeys: nil, options: NSDirectoryEnumerationOptions()) else {
+			return
+		}
+		
+		for c in contents {
+			c.deleteFile()
 		}
 	}
 }
