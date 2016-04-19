@@ -266,7 +266,7 @@ public class RxPlayer {
 	
 	deinit {
 		print("Rx player deinit")
-		queueEventsSubject.onCompleted()
+		//queueEventsSubject.onCompleted()
 		//currentItemSubject.onCompleted()
 	}
 }
