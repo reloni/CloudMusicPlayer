@@ -89,11 +89,11 @@ class HttpClientBasicTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return NSError")
 		
-		httpClient.loadData(request).bindNext { result in
-			if case .Error(let error) = result where error?.code == 1 {
+		httpClient.loadData(request).doOnError { error in
+			if (error as NSError).code == 1 {
 				expectation.fulfill()
 			}
-			}.addDisposableTo(bag)
+			}.subscribe().addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
@@ -110,8 +110,8 @@ class HttpClientBasicTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return json data")
 		
-		httpClient.loadJsonData(request).bindNext { result in
-			if case .SuccessJson(let json) = result where json["Test"] == "Value" {
+		httpClient.loadJsonData(request).bindNext { json in
+			if json?["Test"] == "Value" {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)
@@ -130,10 +130,9 @@ class HttpClientBasicTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should not return json data")
 		
-		httpClient.loadJsonData(request).bindNext { result in
-			guard case .SuccessJson(_) = result else {
+		httpClient.loadJsonData(request).bindNext { json in
+			if json == nil {
 				expectation.fulfill()
-				return
 			}
 		}.addDisposableTo(bag)
 		
@@ -226,8 +225,8 @@ class HttpClientBasicTests: XCTestCase {
 			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpClient: httpClient, httpUtilities: utilities)
 		fakeRes.resourcesUrl = "https://test.com"
 		
-		httpClient.loadDataForCloudResource(fakeRes)?.bindNext { result in
-			if case .SuccessJson(let json) = result where json["Test"] == "Value" {
+		httpClient.loadDataForCloudResource(fakeRes)?.bindNext { json in
+			if json?["Test"] == "Value" {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)

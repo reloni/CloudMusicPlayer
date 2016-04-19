@@ -13,16 +13,14 @@ import SwiftyJSON
 public enum HttpRequestResult {
 	case Success
 	case SuccessData(NSData)
-	case SuccessJson(JSON)
-	case Error(NSError?)
 }
 
 public protocol HttpClientProtocol {
 	var urlSession: NSURLSessionProtocol { get }
 	var httpUtilities: HttpUtilitiesProtocol { get }
-	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
+	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<JSON?>
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
-	func loadDataForCloudResource(resource: CloudResource) -> Observable<HttpRequestResult>?
+	func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON?>?
 	func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?) -> Observable<StreamTaskEvents>
 }
 
@@ -48,12 +46,19 @@ public class HttpClient {
 
 extension HttpClient : HttpClientProtocol {
 	public func loadJsonData(request: NSMutableURLRequestProtocol)
-		-> Observable<HttpRequestResult> {
-			return self.loadData(request).map { result in
-				if case .SuccessData(let data) = result {
-					return HttpRequestResult.SuccessJson(JSON(data: data))
-				} else {
-					return result
+		-> Observable<JSON?> {
+			return Observable.create { [unowned self] observer in
+				let task = self.loadData(request).doOnError { observer.onError($0) }.bindNext { result in
+					if case .SuccessData(let data) = result {
+						observer.onNext(JSON(data: data))
+					} else if case .Success = result {
+						observer.onNext(nil)
+					}
+					observer.onCompleted()
+				}
+				
+				return AnonymousDisposable {
+					task.dispose()
 				}
 			}.shareReplay(1)
 	}
@@ -64,8 +69,7 @@ extension HttpClient : HttpClientProtocol {
 				
 				let task = self.urlSession.dataTaskWithRequest(request) { data, response, error in
 					if let error = error {
-						observer.onNext(.Error(error))
-						observer.onCompleted()
+						observer.onError(error)
 						return
 					}
 					
@@ -87,7 +91,7 @@ extension HttpClient : HttpClientProtocol {
 			}.shareReplay(1)
 	}
 	
-	public func loadDataForCloudResource(resource: CloudResource) -> Observable<HttpRequestResult>? {
+	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON?>? {
 		guard let request = createRequestForCloudResource(resource) else { return nil }
 		return loadJsonData(request)
 	}

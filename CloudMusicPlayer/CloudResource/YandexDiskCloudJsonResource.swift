@@ -93,22 +93,18 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}
 	
 	internal static func loadResources(request: NSMutableURLRequestProtocol, oauthResource: OAuthResource,
-		httpClient: HttpClientProtocol = HttpClient()) -> Observable<[CloudResource]> {
+	                                   httpClient: HttpClientProtocol = HttpClient()) -> Observable<[CloudResource]> {
 		return Observable.create { observer in
-			let task = httpClient.loadJsonData(request).bindNext {result in
-				
-				if case .SuccessJson(let json) = result {
+			let task = httpClient.loadJsonData(request).doOnError { observer.onError($0) }.bindNext { json in
 					if let data = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource, httpClient: httpClient) {
 						observer.onNext(data)
+						
+					} else {
+						observer.onNext([CloudResource]())
 					}
-				} else if case .Error(let error) = result {
-					if let error = error {
-						observer.onError(error)
-					}
+					
+					observer.onCompleted()
 				}
-				
-				observer.onCompleted()
-			}
 			
 			return AnonymousDisposable {
 				task.dispose()
