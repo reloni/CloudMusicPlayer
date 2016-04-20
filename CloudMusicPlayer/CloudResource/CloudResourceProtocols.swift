@@ -14,6 +14,7 @@ public protocol CloudResource {
 	var oAuthResource: OAuthResource { get }
 	var parent: CloudResource? { get }
 	var httpClient: HttpClientProtocol { get }
+	var uid: String { get }
 	var name: String { get }
 	var path: String { get }
 	var type: String { get }

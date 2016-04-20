@@ -18,6 +18,9 @@ public class FakeCloudResource : CloudResource {
 	public var httpUtilities: HttpUtilitiesProtocol
 	public var name = ""
 	public var path = ""
+	public var uid: String {
+		return path
+	}
 	public var type = ""
 	public var mediaType: String? = nil
 	public var mimeType: String? = nil

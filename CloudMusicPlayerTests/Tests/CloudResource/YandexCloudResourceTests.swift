@@ -177,13 +177,7 @@ class YandexCloudResourceTests: XCTestCase {
 		}.addDisposableTo(bag)
 		
 		var loadedChilds: [CloudResource]?
-		
-		//item.loadChilds()?.bindNext { result in
-		//	if case .Success(let childs) = result {
-		//		loadedChilds = childs
-		//		expectation.fulfill()
-		//	}
-		//}.addDisposableTo(bag)
+
 		item.loadChildResources().bindNext { childs in
 			loadedChilds = childs
 			expectation.fulfill()
@@ -207,6 +201,31 @@ class YandexCloudResourceTests: XCTestCase {
 			XCTAssertEqual(audioItem?.type, "file")
 			XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
 		}
+	}
+	
+	func testReceiveErrorWhileLoadingChilds() {
+		let expectation = expectationWithDescription("Should receive error")
+		
+		guard let rootItem = JSON.getJsonFromFile("YandexMusicDirItem") else {
+			XCTFail("Fail to load json from file")
+			return
+		}
+		let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient)
+		
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		item.loadChildResources().doOnError { error in
+			XCTAssertEqual((error as NSError).code, 1)
+			expectation.fulfill()
+		}.subscribe().addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
 	func testGetDownloadUrl() {
