@@ -8,7 +8,7 @@
 
 import Foundation
 import RxSwift
-import CloudMusicPlayer
+@testable import CloudMusicPlayer
 
 public class FakeCloudResource : CloudResource {
 	public var oAuthResource: OAuthResource
@@ -46,7 +46,8 @@ public class FakeCloudResource : CloudResource {
 		return Observable.just([CloudResource]())
 	}
 	
-	public init(oaRes: OAuthResource, httpClient: HttpClientProtocol, httpUtilities: HttpUtilitiesProtocol) {
+	public init(oaRes: OAuthResource = OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil),
+	            httpClient: HttpClientProtocol = HttpClient(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
 		self.oAuthResource = oaRes
 		self.httpClient = httpClient
 		self.httpUtilities = httpUtilities

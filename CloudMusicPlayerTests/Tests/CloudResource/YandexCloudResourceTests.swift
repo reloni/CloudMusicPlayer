@@ -76,6 +76,7 @@ class YandexCloudResourceTests: XCTestCase {
 		XCTAssertNil(first?.parent)
 		XCTAssertNil(first?.mediaType)
 		XCTAssertNil(first?.mimeType)
+		XCTAssertNil(first?.parent)
 		XCTAssertEqual(oauthResource.id, first?.oAuthResource.id)
 		XCTAssertEqual((first?.getRequestHeaders())!, ["Authorization": oauthResource.tokenId!])
 		XCTAssertEqual((first?.getRequestParameters())!, ["path": first!.path])
@@ -174,33 +175,34 @@ class YandexCloudResourceTests: XCTestCase {
 					tsk.completion?(json?.rawDataSafe(), nil, nil)
 				}
 			}
-		}.addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
 		var loadedChilds: [CloudResource]?
-
+		
 		item.loadChildResources().bindNext { childs in
 			loadedChilds = childs
 			expectation.fulfill()
-		}.addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
-		waitForExpectationsWithTimeout(1) { result in
-			if result != nil { return }
-			
-			XCTAssertNotNil(loadedChilds)
-			XCTAssertEqual(4, loadedChilds?.count)
-			
-			let first = loadedChilds?.first
-			XCTAssertEqual(first?.name, "David Arkenstone")
-			XCTAssertEqual(first?.path, "disk:/Music/David Arkenstone")
-			XCTAssertEqual(first?.type, "dir")
-			XCTAssertTrue(first is YandexDiskCloudJsonResource)
-			
-			let audioItem = loadedChilds?.last as? CloudAudioResource
-			XCTAssertEqual(audioItem?.name, "TestTrack.mp3")
-			XCTAssertEqual(audioItem?.path, "disk:/Music/TestTrack.mp3")
-			XCTAssertEqual(audioItem?.type, "file")
-			XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
-		}
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertNotNil(loadedChilds)
+		XCTAssertEqual(4, loadedChilds?.count)
+		
+		let first = loadedChilds?.first
+		XCTAssertEqual(first?.name, "David Arkenstone")
+		XCTAssertEqual(first?.path, "disk:/Music/David Arkenstone")
+		XCTAssertEqual(first?.type, "dir")
+		XCTAssertTrue(first is YandexDiskCloudJsonResource)
+		XCTAssertEqual(item.uid, first?.parent?.uid)
+		
+		let audioItem = loadedChilds?.last as? CloudAudioResource
+		XCTAssertEqual(audioItem?.name, "TestTrack.mp3")
+		XCTAssertEqual(audioItem?.path, "disk:/Music/TestTrack.mp3")
+		XCTAssertEqual(audioItem?.type, "file")
+		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
+		XCTAssertEqual(item.uid, audioItem?.parent?.uid)
+		
 	}
 	
 	func testReceiveErrorWhileLoadingChilds() {
