@@ -10,7 +10,9 @@ import Foundation
 
 public protocol CloudResourceCacheProviderType {
 	func getCachedChilds(parent: CloudResource) -> NSData?
+	func getCachedChilds(parentUid: String) -> NSData?
 	func cacheChilds(parent: CloudResource, childsData: NSData)
+	func cacheChilds(parentUid: String, childsData: NSData)
 	func clearCache()
 }
 
@@ -35,11 +37,19 @@ public class CloudResourceNsUserDefaultsCacheProvider {
 
 extension CloudResourceNsUserDefaultsCacheProvider: CloudResourceCacheProviderType {
 	public func getCachedChilds(parent: CloudResource) -> NSData? {
-		return cachedData[parent.uid]
+		return getCachedChilds(parent.uid)
+	}
+	
+	public func getCachedChilds(parentUid: String) -> NSData? {
+		return cachedData[parentUid]
 	}
 	
 	public func cacheChilds(parent: CloudResource, childsData: NSData) {
-		cachedData[parent.uid] = childsData
+		return cacheChilds(parent.uid, childsData: childsData)
+	}
+	
+	public func cacheChilds(parentUid: String, childsData: NSData) {
+		cachedData[parentUid] = childsData
 		userDefaults.saveData(cachedData, forKey: CloudResourceNsUserDefaultsCacheProvider.userDefaultsId)
 	}
 	

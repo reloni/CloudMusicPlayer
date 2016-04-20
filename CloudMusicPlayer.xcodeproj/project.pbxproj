@@ -64,6 +64,7 @@
 		6E97C15C1CBF73DE00D7B5B4 /* RxPlayerQueueItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E97C15B1CBF73DE00D7B5B4 /* RxPlayerQueueItemTests.swift */; };
 		6EA16FEE1CC7668A00D4D257 /* CloudResourceCacheProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA16FED1CC7668A00D4D257 /* CloudResourceCacheProvider.swift */; };
 		6EA16FF41CC787D300D4D257 /* UserDefaultsCacheProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA16FF31CC787D300D4D257 /* UserDefaultsCacheProviderTests.swift */; };
+		6EA16FF81CC7A4C500D4D257 /* YandexMusicFolderContents_Cached.json in Resources */ = {isa = PBXBuildFile; fileRef = 6EA16FF71CC7A4C500D4D257 /* YandexMusicFolderContents_Cached.json */; };
 		6EA3A2511C9967FC0042E851 /* YandexMusicFolderContents.json in Resources */ = {isa = PBXBuildFile; fileRef = 6EA3A2501C9967FC0042E851 /* YandexMusicFolderContents.json */; };
 		6EA3A2531C9969B30042E851 /* YandexMusicDirItem.json in Resources */ = {isa = PBXBuildFile; fileRef = 6EA3A2521C9969B30042E851 /* YandexMusicDirItem.json */; };
 		6EA500841C53E6F100B9ED11 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EA500831C53E6F100B9ED11 /* Main.storyboard */; };
@@ -175,6 +176,7 @@
 		6E97C15B1CBF73DE00D7B5B4 /* RxPlayerQueueItemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxPlayerQueueItemTests.swift; sourceTree = "<group>"; };
 		6EA16FED1CC7668A00D4D257 /* CloudResourceCacheProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourceCacheProvider.swift; sourceTree = "<group>"; };
 		6EA16FF31CC787D300D4D257 /* UserDefaultsCacheProviderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsCacheProviderTests.swift; sourceTree = "<group>"; };
+		6EA16FF71CC7A4C500D4D257 /* YandexMusicFolderContents_Cached.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexMusicFolderContents_Cached.json; sourceTree = "<group>"; };
 		6EA3A2501C9967FC0042E851 /* YandexMusicFolderContents.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexMusicFolderContents.json; sourceTree = "<group>"; };
 		6EA3A2521C9969B30042E851 /* YandexMusicDirItem.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexMusicDirItem.json; sourceTree = "<group>"; };
 		6EA500831C53E6F100B9ED11 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
@@ -374,6 +376,7 @@
 		6E36E32E1C9EFCB70039B91E /* Support JSON */ = {
 			isa = PBXGroup;
 			children = (
+				6EA16FF71CC7A4C500D4D257 /* YandexMusicFolderContents_Cached.json */,
 				6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */,
 				6EA3A2521C9969B30042E851 /* YandexMusicDirItem.json */,
 				6EA3A2501C9967FC0042E851 /* YandexMusicFolderContents.json */,
@@ -672,6 +675,7 @@
 			files = (
 				6E3A3F6C1C9981C9001975C8 /* YandexAudioDownloadResponse.json in Resources */,
 				6EA3A2511C9967FC0042E851 /* YandexMusicFolderContents.json in Resources */,
+				6EA16FF81CC7A4C500D4D257 /* YandexMusicFolderContents_Cached.json in Resources */,
 				6E235DA61C9833DB00351034 /* YandexRoot.json in Resources */,
 				6E43197B1CBFC0A8007CC9AB /* MetadataTest.mp3 in Resources */,
 				6EA3A2531C9969B30042E851 /* YandexMusicDirItem.json in Resources */,

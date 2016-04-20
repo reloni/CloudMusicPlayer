@@ -60,4 +60,15 @@ class UserDefaultsCacheProviderTests: XCTestCase {
 		XCTAssertEqual(rootCloudResource.uid, (fakeUserDefaults.localCache.first?.1 as! [String: NSData]).first?.0)
 		XCTAssertEqual(true, (fakeUserDefaults.localCache.first?.1 as! [String: NSData]).first?.1.isEqualToData(fakeData))
 	}
+	
+	func testOwerwriteData() {
+		let fakeData = "some data".dataUsingEncoding(NSUTF8StringEncoding)!
+		let fakeUserDefaults = FakeNSUserDefaults(localCache: [CloudResourceNsUserDefaultsCacheProvider.userDefaultsId: ["disk:\\": fakeData]])
+		let cacheProvider = CloudResourceNsUserDefaultsCacheProvider(loadData: true, userDefaults: fakeUserDefaults)
+		let rootCloudResource = FakeCloudResource()
+		rootCloudResource.path = "disk:\\"
+		let newFakeData = "New data for cache".dataUsingEncoding(NSUTF8StringEncoding)!
+		cacheProvider.cacheChilds(rootCloudResource, childsData: newFakeData)
+		XCTAssertEqual(true, (fakeUserDefaults.localCache.first?.1 as! [String: NSData]).first?.1.isEqualToData(newFakeData))
+	}
 }

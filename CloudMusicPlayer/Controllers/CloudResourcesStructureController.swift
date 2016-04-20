@@ -28,17 +28,29 @@ class CloudResourcesStructureController: UIViewController {
 		
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
-			parent.loadChildResources().observeOn(MainScheduler.instance).bindNext { [unowned self] childs in
+			parent.loadChildResources().observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showAlert($0 as NSError) }
+				.bindNext { [unowned self] childs in
 				self.viewModel.resources = childs
 				self.tableView.reloadData()
 			}.addDisposableTo(bag!)
 		} else if navigationController?.viewControllers.first == self {
-			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource())?
-				.observeOn(MainScheduler.instance).bindNext { [unowned self] childs in
+			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource(), httpRequest: HttpClient(),
+				cacheProvider: CloudResourceNsUserDefaultsCacheProvider(loadCachedData: true))?
+				.observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showAlert($0 as NSError) }
+				.bindNext { [unowned self] childs in
 					self.viewModel.resources = childs
 					self.tableView.reloadData()
 			}.addDisposableTo(bag!)
 		}
+	}
+	
+	func showAlert(error: NSError) {
+		let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .Alert)
+		let ok = UIAlertAction(title: "OK", style: .Default) { [unowned self] _ in
+			self.dismissViewControllerAnimated(true, completion: nil)
+		}
+		alert.addAction(ok)
+		presentViewController(alert, animated: true, completion: nil)
 	}
 	
 	override func viewWillDisappear(animated: Bool) {

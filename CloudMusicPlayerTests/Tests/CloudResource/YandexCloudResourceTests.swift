@@ -202,7 +202,6 @@ class YandexCloudResourceTests: XCTestCase {
 		XCTAssertEqual(audioItem?.type, "file")
 		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
 		XCTAssertEqual(item.uid, audioItem?.parent?.uid)
-		
 	}
 	
 	func testReceiveErrorWhileLoadingChilds() {
@@ -288,5 +287,193 @@ class YandexCloudResourceTests: XCTestCase {
 		}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testLoadCachedChilds() {
+		let actualChildsexpectation = expectationWithDescription("Should return actual childs")
+		let cachedChildsExpectation = expectationWithDescription("Should return cached childs")
+		
+		guard let rootItem = JSON.getJsonFromFile("YandexMusicDirItem") else {
+			waitForExpectationsWithTimeout(1, handler: nil)
+			return
+		}
+		
+		let cachedJson = try! JSON.getJsonFromFile("YandexMusicFolderContents_Cached")?.rawData()
+		let fakeUserDefaults = FakeNSUserDefaults(localCache: [CloudResourceNsUserDefaultsCacheProvider.userDefaultsId: [rootItem["path"].stringValue: cachedJson!]])
+		let cacheProvider = CloudResourceNsUserDefaultsCacheProvider(loadData: true, userDefaults: fakeUserDefaults)
+		let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient, cacheProvider: cacheProvider)
+		
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(NSURL(baseUrl: item.resourcesUrl, parameters: item.getRequestParameters())?.absoluteString, tsk.originalRequest?.URL?.absoluteString,
+					"Check invoke url")
+				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(json?.rawDataSafe(), nil, nil)
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		var loadedChilds: [CloudResource]?
+		var cachedChilds: [CloudResource]?
+		
+		var responseCount = 0
+		
+		item.loadChildResources().bindNext { childs in
+			if responseCount == 0 {
+				// first responce should be with locally cached data
+				cachedChilds = childs
+				responseCount += 1
+				cachedChildsExpectation.fulfill()
+			} else if responseCount == 1 {
+				// second responce should be with actual data
+				loadedChilds = childs
+				responseCount += 1
+				actualChildsexpectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		// check cached items
+		XCTAssertNotNil(cachedChilds)
+		XCTAssertEqual(2, cachedChilds?.count)
+		
+		var first = cachedChilds?.first
+		XCTAssertEqual(first?.name, "Apocalyptica")
+		XCTAssertEqual(first?.path, "disk:/Music/Apocalyptica")
+		XCTAssertEqual(first?.type, "dir")
+		XCTAssertTrue(first is YandexDiskCloudJsonResource)
+		XCTAssertEqual(item.uid, first?.parent?.uid)
+		XCTAssertTrue((first as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
+		
+		var audioItem = cachedChilds?.last as? CloudAudioResource
+		XCTAssertEqual(audioItem?.name, "CachedTrack.mp3")
+		XCTAssertEqual(audioItem?.path, "disk:/Music/CachedTrack.mp3")
+		XCTAssertEqual(audioItem?.type, "file")
+		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
+		XCTAssertEqual(item.uid, audioItem?.parent?.uid)
+		XCTAssertTrue((audioItem as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
+		
+		// check loaded items
+		XCTAssertNotNil(loadedChilds)
+		XCTAssertEqual(4, loadedChilds?.count)
+		
+		first = loadedChilds?.first
+		XCTAssertEqual(first?.name, "David Arkenstone")
+		XCTAssertEqual(first?.path, "disk:/Music/David Arkenstone")
+		XCTAssertEqual(first?.type, "dir")
+		XCTAssertTrue(first is YandexDiskCloudJsonResource)
+		XCTAssertEqual(item.uid, first?.parent?.uid)
+		XCTAssertTrue((first as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
+		
+		audioItem = loadedChilds?.last as? CloudAudioResource
+		XCTAssertEqual(audioItem?.name, "TestTrack.mp3")
+		XCTAssertEqual(audioItem?.path, "disk:/Music/TestTrack.mp3")
+		XCTAssertEqual(audioItem?.type, "file")
+		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
+		XCTAssertEqual(item.uid, audioItem?.parent?.uid)
+		XCTAssertTrue((audioItem as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)		
+	}
+	
+	func testLoadAndCacheChilds() {
+		let expectation = expectationWithDescription("Should return childs")
+		
+		guard let rootItem = JSON.getJsonFromFile("YandexMusicDirItem") else {
+			XCTFail("Failed to load json data")
+			return
+		}
+		
+		let fakeUserDefaults = FakeNSUserDefaults()
+		let cacheProvider = CloudResourceNsUserDefaultsCacheProvider(loadData: true, userDefaults: fakeUserDefaults)
+		let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient, cacheProvider: cacheProvider)
+		
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(NSURL(baseUrl: item.resourcesUrl, parameters: item.getRequestParameters())?.absoluteString, tsk.originalRequest?.URL?.absoluteString, "Check invoke url")
+				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(json?.rawDataSafe(), nil, nil)
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		item.loadChildResources().bindNext { _ in
+			expectation.fulfill()
+			}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		guard let cachedData = (fakeUserDefaults.localCache.first?.1 as? [String: NSData])?.first?.1 else {
+			XCTFail("Data not cached")
+			return
+		}
+		
+		XCTAssertEqual(JSON.getJsonFromFile("YandexMusicFolderContents"), JSON(data: cachedData), "Sended json should be same as cached")
+	}
+	
+	func testCacheRootResources() {
+		let expectation = expectationWithDescription("Should return childs")
+		
+		let fakeUserDefaults = FakeNSUserDefaults()
+		let cacheProvider = CloudResourceNsUserDefaultsCacheProvider(loadData: true, userDefaults: fakeUserDefaults)
+		
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				let json = JSON.getJsonFromFile("YandexRoot")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(json?.rawDataSafe(), nil, nil)
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, cacheProvider: cacheProvider)?.bindNext { _ in
+			expectation.fulfill()
+		}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		guard let cachedData = (fakeUserDefaults.localCache.first?.1 as? [String: NSData])?.first?.1 else {
+			XCTFail("Data not cached")
+			return
+		}
+		
+		XCTAssertEqual(JSON.getJsonFromFile("YandexRoot"), JSON(data: cachedData), "Sended json should be same as cached")
+	}
+	
+	func testLoadCachedRootData() {
+		let actualRootsexpectation = expectationWithDescription("Should return actual root items")
+		let cachedRootExpectation = expectationWithDescription("Ahould return cached root items")
+		
+		let cachedJson = try! JSON.getJsonFromFile("YandexRoot")?.rawData()
+		let fakeUserDefaults = FakeNSUserDefaults(localCache: [CloudResourceNsUserDefaultsCacheProvider.userDefaultsId: ["/": cachedJson!]])
+		let cacheProvider = CloudResourceNsUserDefaultsCacheProvider(loadData: true, userDefaults: fakeUserDefaults)
+		
+		session.task?.taskProgress.bindNext { progress in
+			if case .resume(let tsk) = progress {
+				let json = JSON.getJsonFromFile("YandexRoot")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(json?.rawDataSafe(), nil, nil)
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		var responseCount = 0
+		
+		YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, cacheProvider: cacheProvider)?.bindNext { childs in
+			if responseCount == 0 {
+				// first responce should be with locally cached data
+				responseCount += 1
+				cachedRootExpectation.fulfill()
+			} else if responseCount == 1 {
+				// second responce should be with actual data
+				responseCount += 1
+				actualRootsexpectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertEqual(2, responseCount, "Check receive two responses")
 	}
 }

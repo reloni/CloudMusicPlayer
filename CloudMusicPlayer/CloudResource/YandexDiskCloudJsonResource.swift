@@ -78,16 +78,16 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}
 	
 	public static func deserializeResponseData(json: JSON?, res: OAuthResource, parent: CloudResource? = nil,
-		httpClient: HttpClientProtocol = HttpClient()) -> [CloudResource]? {
+	                                           httpClient: HttpClientProtocol = HttpClient(), cacheProvider: CloudResourceCacheProviderType? = nil) -> [CloudResource]? {
 		guard let items = json?["_embedded"]["items"].array else {
 			return nil
 		}
 		
 		return items.map { item in
 			if item["media_type"].stringValue == "audio" {
-				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient)
+				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider)
 			} else {
-				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient) }
+				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider) }
 		}
 	}
 		
@@ -105,17 +105,21 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	                                   cacheProvider: CloudResourceCacheProviderType? = nil) -> Observable<[CloudResource]> {
 		return Observable.create { observer in
 			// check cached data
-			if let forResource = forResource, cachedData = cacheProvider?.getCachedChilds(forResource),
+			if let cachedData = cacheProvider?.getCachedChilds(forResource?.uid ?? "/"),
 				cachedChilds = YandexDiskCloudJsonResource.deserializeResponseData(JSON(data: cachedData), res: oauthResource, parent: forResource,
-				httpClient: httpClient) {
+				httpClient: httpClient, cacheProvider: cacheProvider) {
 				observer.onNext(cachedChilds)
 			}
 			
 			// make request
 			let task = httpClient.loadJsonData(request).doOnError { observer.onError($0) }.bindNext { json in
-					if let data = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource, parent: forResource, httpClient: httpClient) {
-						observer.onNext(data)
+					if let data = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource, parent: forResource,
+						httpClient: httpClient, cacheProvider: cacheProvider) {
+						if let cacheProvider = cacheProvider, rawData = try? json?.rawData() {
+							if let rawData = rawData { cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData) }
+						}
 						
+						observer.onNext(data)
 					} else {
 						observer.onNext([CloudResource]())
 					}
