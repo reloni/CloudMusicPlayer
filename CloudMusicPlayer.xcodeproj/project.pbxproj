@@ -216,8 +216,6 @@
 		6EECECD11C97F664007B37CC /* FakeCloudResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeCloudResource.swift; sourceTree = "<group>"; };
 		6EF3753C1CBA8EB0006D69AC /* RxPlayerPlayControlsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxPlayerPlayControlsTests.swift; sourceTree = "<group>"; };
 		6EF7476B1CBABC23008AA08B /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
-		6EFA45D01CC67273007582EE /* RxBlocking.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxBlocking.framework; path = Carthage/Build/iOS/RxBlocking.framework; sourceTree = "<group>"; };
-		6EFA45D21CC6729E007582EE /* RxTests.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxTests.framework; path = Carthage/Build/iOS/RxTests.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -469,8 +467,6 @@
 		6EEB98921C4EBE1700DD5B95 = {
 			isa = PBXGroup;
 			children = (
-				6EFA45D21CC6729E007582EE /* RxTests.framework */,
-				6EFA45D01CC67273007582EE /* RxBlocking.framework */,
 				6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */,
 				6E8AFD801C78DBC200091B53 /* RxSwift.framework */,
 				6E8AFD811C78DBC200091B53 /* RxCocoa.framework */,
