@@ -94,9 +94,9 @@ extension PlayerQueueController : UITableViewDelegate {
 		
 		if let item = rxPlayer.getItemAtPosition(indexPath.row) {
 			cell.albumArtImage.image = nil
-			cell.artistNameLabel.text = ""
-			cell.trackTimeLabel.text = ""
-			cell.trackTitleLabel.text = ""//(item.streamIdentifier as? CloudAudioResource)?.name ?? ""
+			cell.artistNameLabel.text = nil
+			cell.trackTimeLabel.text = nil
+			cell.trackTitleLabel.text = (item.streamIdentifier as? CloudAudioResource)?.name ?? ""
 			
 			rxPlayer.currentItem.observeOn(MainScheduler.instance).bindNext { newCurrent in
 				if item.streamIdentifier.streamResourceUid == newCurrent?.streamIdentifier.streamResourceUid {
