@@ -109,7 +109,7 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	                                   cacheProvider: CloudResourceCacheProviderType? = nil,
 	                                   loadMode: CloudResourceLoadMode = .CacheAndRemote) -> Observable<[CloudResource]> {
 		return Observable.create { observer in
-		
+
 			// check cached data
 			if loadMode == .CacheAndRemote || loadMode == .CacheOnly {
 				if let cachedData = cacheProvider?.getCachedChilds(forResource?.uid ?? "/"),
