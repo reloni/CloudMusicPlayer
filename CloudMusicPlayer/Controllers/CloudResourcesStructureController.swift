@@ -17,6 +17,7 @@ class CloudResourcesStructureController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var stackView: UIStackView!
 	
+	@IBOutlet weak var errorLabel: UILabel!
 	let viewModel = CloudResourcesViewModel()
 	var bag: DisposeBag?
 	
@@ -25,12 +26,16 @@ class CloudResourcesStructureController: UIViewController {
 		super.viewDidLoad()
 	}
 	
+	override func viewWillAppear(animated: Bool) {
+		errorLabel.hidden = true
+	}
+	
 	override func viewDidAppear(animated: Bool) {
 		bag = DisposeBag()
 		
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
-			parent.loadChildResources().observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showAlert($0 as NSError) }
+			parent.loadChildResources().observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }
 				.bindNext { [unowned self] childs in
 				self.viewModel.resources = childs
 				self.tableView.reloadData()
@@ -38,7 +43,7 @@ class CloudResourcesStructureController: UIViewController {
 		} else if navigationController?.viewControllers.first == self {
 			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource(), httpRequest: HttpClient(),
 				cacheProvider: CloudResourceNsUserDefaultsCacheProvider(loadCachedData: true))?
-				.observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showAlert($0 as NSError) }
+				.observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }
 				.bindNext { [unowned self] childs in
 					self.viewModel.resources = childs
 					self.tableView.reloadData()
@@ -53,6 +58,15 @@ class CloudResourcesStructureController: UIViewController {
 		}
 		alert.addAction(ok)
 		presentViewController(alert, animated: true, completion: nil)
+	}
+	
+	func showErrorLabel(error: NSError) {
+		UIView.animateWithDuration(0.5, animations: { [unowned self] in
+			self.errorLabel.hidden = false
+			self.errorLabel.text = error.localizedDescription
+		}) { _ in
+			UIView.animateWithDuration(0.5, delay: 4.0, options: [], animations: { [unowned self] in self.errorLabel.hidden = true }, completion: nil)
+		}
 	}
 	
 	override func viewWillDisappear(animated: Bool) {
@@ -104,9 +118,9 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		cell.folderNameLabel.text = resource.name ?? "unresolved"
 		
 		if resource.type == "dir" {
+			// create new bag to dispose previous observers
 			cell.bag = DisposeBag()
 			cell.playButton.rx_tap.shareReplay(1).flatMapLatest { _ -> Observable<[StreamResourceIdentifier]> in
-				print("tap")
 				return resource.loadChildResources(.RemoteOnly).map { e in return e.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier } }
 				}.bindNext { [weak self] items in
 					rxPlayer.initWithNewItems(items)
