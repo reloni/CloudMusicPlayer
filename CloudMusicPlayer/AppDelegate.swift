@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import AVFoundation
 
 import RxSwift
 
@@ -24,6 +25,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		#if DEBUG
 			NSLog("Documents Path: %@", NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first ?? "")
 		#endif
+		
+		let _ = try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
 		
 		rxPlayer.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		rxPlayer.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
