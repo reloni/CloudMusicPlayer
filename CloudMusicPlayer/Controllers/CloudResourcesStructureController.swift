@@ -103,7 +103,7 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		
 		if resource.type == "dir" {
 			cell.playButton.rx_tap.flatMapLatest { _ -> Observable<[StreamResourceIdentifier]> in
-				return resource.loadChildResources().map { e in return e.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier } }
+				return resource.loadChildResources(.RemoteOnly).map { e in return e.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier } }
 				}.bindNext { [weak self] items in
 					rxPlayer.initWithNewItems(items)
 					dispatch_async(dispatch_get_main_queue()) {

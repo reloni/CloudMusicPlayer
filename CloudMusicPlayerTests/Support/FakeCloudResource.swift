@@ -46,6 +46,10 @@ public class FakeCloudResource : CloudResource {
 		return Observable.just([CloudResource]())
 	}
 	
+	public func loadChildResources(loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]> {
+		return Observable.just([CloudResource]())
+	}
+	
 	public init(oaRes: OAuthResource = OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil),
 	            httpClient: HttpClientProtocol = HttpClient(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
 		self.oAuthResource = oaRes

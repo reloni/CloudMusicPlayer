@@ -10,6 +10,12 @@ import Foundation
 import SwiftyJSON
 import RxSwift
 
+public enum CloudResourceLoadMode {
+	case CacheAndRemote
+	case CacheOnly
+	case RemoteOnly
+}
+
 public protocol CloudResource {
 	var oAuthResource: OAuthResource { get }
 	var parent: CloudResource? { get }
@@ -25,6 +31,7 @@ public protocol CloudResource {
 	func getRequestHeaders() -> [String: String]?
 	func getRequestParameters() -> [String: String]?
 	func loadChildResources() -> Observable<[CloudResource]>
+	func loadChildResources(loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]>
 }
 
 public protocol CloudAudioResource : CloudResource {
