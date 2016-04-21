@@ -65,7 +65,7 @@ class CloudResourcesStructureController: UIViewController {
 			self.errorLabel.hidden = false
 			self.errorLabel.text = error.localizedDescription
 		}) { _ in
-			UIView.animateWithDuration(0.5, delay: 4.0, options: [], animations: { [unowned self] in self.errorLabel.hidden = true }, completion: nil)
+			UIView.animateWithDuration(0.5, delay: 2.0, options: [], animations: { [unowned self] in self.errorLabel.hidden = true }, completion: nil)
 		}
 	}
 	
@@ -87,21 +87,6 @@ class CloudResourcesStructureController: UIViewController {
 				
 				}.addDisposableTo(bag!)
 		}
-	}
-	
-	func stop() {
-		//rxPlayer.stop()
-	}
-	
-	func loadChildsRemote(resource: CloudResource) -> Observable<CloudResource> {
-		let a = resource.loadChildResources(.RemoteOnly).flatMapLatest { e -> Observable<CloudResource> in
-			return e.toObservable()
-		}.flatMap { [unowned self] e -> Observable<CloudResource> in
-			//print("Shit \(e.name)")
-			return [e].toObservable().concat(self.loadChildsRemote(e))
-			//return self.loadChildsRemote(e)
-		}
-		return a
 	}
 }
 
@@ -132,20 +117,16 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 			// create new bag to dispose previous observers
 			cell.bag = DisposeBag()
 			cell.playButton.rx_tap.bindNext {
-				self.loadChildsRemote(resource).bindNext { r in
-					print("result \(r.name)")
+				resource.loadChildResourcesRecursive().map { e in return e.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier } }
+					.bindNext { [weak self] items in
+						rxPlayer.initWithNewItems(items)
+						dispatch_async(dispatch_get_main_queue()) {
+							self?.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
+						}
+						rxPlayer.resume(true)
+						print("Player items count: \(rxPlayer.count)")
 				}.addDisposableTo(self.bag!)
 			}.addDisposableTo(cell.bag)
-//			cell.playButton.rx_tap.shareReplay(1).flatMapLatest { _ -> Observable<[StreamResourceIdentifier]> in
-//				return resource.loadChildResources(.RemoteOnly).map { e in return e.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier } }
-//				}.bindNext { [weak self] items in
-//					rxPlayer.initWithNewItems(items)
-//					dispatch_async(dispatch_get_main_queue()) {
-//						self?.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
-//					}
-//					rxPlayer.resume(true)
-//					print("Player items count: \(rxPlayer.count)")
-//			}.addDisposableTo(cell.bag)
 		} else {
 			cell.playButton.hidden = true
 		}

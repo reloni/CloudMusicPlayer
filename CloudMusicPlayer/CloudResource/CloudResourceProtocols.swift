@@ -32,6 +32,7 @@ public protocol CloudResource {
 	func getRequestParameters() -> [String: String]?
 	func loadChildResources() -> Observable<[CloudResource]>
 	func loadChildResources(loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]>
+	func loadChildResourcesRecursive() -> Observable<[CloudResource]>
 }
 
 public protocol CloudAudioResource : CloudResource {

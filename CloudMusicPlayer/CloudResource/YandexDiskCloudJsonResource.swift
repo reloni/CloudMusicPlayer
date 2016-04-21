@@ -81,6 +81,18 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		return loadChildResources(.CacheAndRemote)
 	}
 	
+	internal static func recursiveLoadChildsRemote(resource: CloudResource) -> Observable<CloudResource> {
+		return resource.loadChildResources(.RemoteOnly).flatMapLatest { e -> Observable<CloudResource> in
+			return e.toObservable()
+			}.flatMap { e -> Observable<CloudResource> in
+				return [e].toObservable().concat(YandexDiskCloudJsonResource.recursiveLoadChildsRemote(e))
+		}
+	}
+	
+	public func loadChildResourcesRecursive() -> Observable<[CloudResource]> {
+		return YandexDiskCloudJsonResource.recursiveLoadChildsRemote(self).toArray()
+	}
+	
 	public static func deserializeResponseData(json: JSON?, res: OAuthResource, parent: CloudResource? = nil,
 	                                           httpClient: HttpClientProtocol = HttpClient(), cacheProvider: CloudResourceCacheProviderType? = nil) -> [CloudResource]? {
 		guard let items = json?["_embedded"]["items"].array else {

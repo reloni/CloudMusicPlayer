@@ -46,6 +46,8 @@ class PlayerQueueController: UIViewController {
 				self?.playPauseButton.setTitle("Play", forState: .Normal)
 			} else if case PlayerEvents.Stopped = e {
 				self?.playPauseButton.setTitle("Play", forState: .Normal)
+			} else if case PlayerEvents.Resumed = e {
+				self?.playPauseButton.setTitle("Pause", forState: .Normal)
 			}
 		}.addDisposableTo(bag)
 		
