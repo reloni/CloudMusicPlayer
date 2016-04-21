@@ -15,6 +15,8 @@ import AVFoundation
 
 class CloudResourcesStructureController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
+	@IBOutlet weak var stackView: UIStackView!
+	
 	let viewModel = CloudResourcesViewModel()
 	var bag: DisposeBag?
 	
@@ -102,7 +104,9 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		cell.folderNameLabel.text = resource.name ?? "unresolved"
 		
 		if resource.type == "dir" {
-			cell.playButton.rx_tap.flatMapLatest { _ -> Observable<[StreamResourceIdentifier]> in
+			cell.bag = DisposeBag()
+			cell.playButton.rx_tap.shareReplay(1).flatMapLatest { _ -> Observable<[StreamResourceIdentifier]> in
+				print("tap")
 				return resource.loadChildResources(.RemoteOnly).map { e in return e.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier } }
 				}.bindNext { [weak self] items in
 					rxPlayer.initWithNewItems(items)
@@ -111,7 +115,7 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 					}
 					rxPlayer.resume(true)
 					print("Player items count: \(rxPlayer.count)")
-			}.addDisposableTo(bag!)
+			}.addDisposableTo(cell.bag)
 		} else {
 			cell.playButton.hidden = true
 		}
