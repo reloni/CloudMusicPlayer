@@ -1,0 +1,34 @@
+{
+  "_embedded": {
+    "sort": "",
+    "items": [
+      {
+        "path": "disk:/Music/Apocalyptica",
+        "type": "dir",
+        "name": "Apocalyptica",
+        "modified": "2016-02-27T12:54:50+00:00",
+        "created": "2016-02-27T12:54:50+00:00"
+      },
+      {
+        "name": "CachedTrack.mp3",
+        "created": "2016-03-05T11:49:31+00:00",
+        "modified": "2016-03-05T11:49:31+00:00",
+        "media_type": "audio",
+        "path": "disk:/Music/CachedTrack.mp3",
+        "md5": "33e68f0c72fd6e403c4c73e103e7e3ab",
+        "type": "file",
+        "mime_type": "audio/mpeg",
+        "size": 8293071
+      }
+    ],
+    "limit": 20,
+    "offset": 0,
+    "path": "disk:/Music",
+    "total": 2
+  },
+  "name": "Music",
+  "created": "2016-02-27T12:53:33+00:00",
+  "modified": "2016-02-27T12:53:33+00:00",
+  "path": "disk:/Music",
+  "type": "dir"
+}

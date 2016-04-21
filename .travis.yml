@@ -16,7 +16,8 @@ before_install:
   - SIMULATOR_ID=$(xcrun instruments -s | grep -o "iPhone 6s (9.3) \[.*\]" | grep -o "\[.*\]" | sed "s/^\[\(.*\)\]$/\1/")
 
 before_script:
-- carthage bootstrap --platform ios
+- carthage version
+#- carthage bootstrap --platform ios
 
 script: 
 - open -a "simulator" --args -CurrentDeviceUDID $SIMULATOR_ID
