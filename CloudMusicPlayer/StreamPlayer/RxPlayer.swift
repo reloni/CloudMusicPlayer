@@ -155,6 +155,7 @@ extension InternalPlayer : InternalPlayerType {
 public class RxPlayer {
 	internal let internalPlayer: InternalPlayerType
 	internal let downloadManager: DownloadManagerType
+	internal let mediaLibrary: MediaLibraryType
 	internal let streamPlayerUtilities: StreamPlayerUtilitiesProtocol
 	
 	internal var itemsSet = NSMutableOrderedSet()
@@ -246,22 +247,23 @@ public class RxPlayer {
 	}
 	
 	internal init(repeatQueue: Bool, internalPlayer: InternalPlayerType, downloadManager: DownloadManagerType,
-	              streamPlayerUtilities: StreamPlayerUtilitiesProtocol) {
+	              streamPlayerUtilities: StreamPlayerUtilitiesProtocol, mediaLibrary: MediaLibraryType) {
 		self.repeatQueue = repeatQueue
 		self.internalPlayer = internalPlayer
 		self.downloadManager = downloadManager
 		self.streamPlayerUtilities = streamPlayerUtilities
+		self.mediaLibrary = mediaLibrary
 	}
 	
 	public convenience init(repeatQueue: Bool = false, saveData: Bool = false) {
 		self.init(repeatQueue: repeatQueue, internalPlayer: InternalPlayer(),
 		          downloadManager: DownloadManager(saveData: saveData, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: saveData),
-								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities())
+								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: DefaultMediaLibrary())
 	}
 	
 	internal convenience init(repeatQueue: Bool = false, internalPlayer: InternalPlayerType, downloadManager: DownloadManagerType) {
 		self.init(repeatQueue: repeatQueue, internalPlayer: internalPlayer,
-		          downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
+		          downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: DefaultMediaLibrary())
 	}
 	
 	deinit {

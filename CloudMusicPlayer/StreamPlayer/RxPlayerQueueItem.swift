@@ -37,16 +37,27 @@ public class RxPlayerQueueItem {
 		return AudioItemMetadata(metadata: metadataArray)
 	}
 	
-	public func loadMetadata() -> Observable<AudioItemMetadata?> {
+	public func loadMetadata() -> Observable<MediaItemMetadataType?> {
 		return loadMetadata(player.downloadManager, utilities: player.streamPlayerUtilities)
 	}
 	
-	internal func loadMetadata(downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol) -> Observable<AudioItemMetadata?> {
+	internal func loadMetadata(downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol) -> Observable<MediaItemMetadataType?> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
 			
+			if let metadata = object.player.mediaLibrary.getMetadata(object.streamIdentifier) {
+				observer.onNext(metadata)
+				observer.onCompleted()
+				return NopDisposable.instance
+			}
+			
 			if let localFile = downloadManager.fileStorage.getFromStorage(object.streamIdentifier.streamResourceUid) {
-				observer.onNext(object.loadFileMetadata(localFile, utilities: utilities))
+				let metadata = object.loadFileMetadata(localFile, utilities: utilities)
+				if let metadata = metadata {
+					object.player.mediaLibrary.saveMetadata(object.streamIdentifier, metadata: metadata)
+				}
+				
+				observer.onNext(metadata)
 				observer.onCompleted()
 				return NopDisposable.instance
 			}
@@ -63,7 +74,12 @@ public class RxPlayerQueueItem {
 					receivedDataLen = prov.getData().length
 					if receivedDataLen >= 1024 * 256 {
 						if let file = downloadManager.fileStorage.saveToTemporaryFolder(prov) {
-							observer.onNext(object.loadFileMetadata(file, utilities: utilities))
+							let metadata = object.loadFileMetadata(file, utilities: utilities)
+							if let metadata = metadata {
+								object.player.mediaLibrary.saveMetadata(object.streamIdentifier, metadata: metadata)
+							}
+							
+							observer.onNext(metadata)
 							file.deleteFile()
 						}
 						downloadTask.cancel()

@@ -122,7 +122,7 @@ class MusicPlayerController: UIViewController {
 	
 	func bind() {
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {			
-			rxPlayer.currentItem.flatMapLatest { e -> Observable<AudioItemMetadata?> in return e?.loadMetadata() ?? Observable.just(nil) }
+			rxPlayer.currentItem.flatMapLatest { e -> Observable<MediaItemMetadataType?> in return e?.loadMetadata() ?? Observable.just(nil) }
 				.observeOn(MainScheduler.instance).bindNext { [weak self] meta in
 					print("new metadata")
 					guard let meta = meta else { return }
