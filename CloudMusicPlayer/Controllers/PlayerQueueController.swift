@@ -76,20 +76,19 @@ class PlayerQueueController: UIViewController {
 	}
 	
 	func reloadTableView() {
-//		queueTableView.indexPathsForVisibleRows?.forEach { indexPath in
-//			if let cell = queueTableView.cellForRowAtIndexPath(indexPath) as? QueueTrackCell, item = rxPlayer.getItemAtPosition(indexPath.row) {
-//				if let meta = rxPlayer.mediaLibrary.getMetadata(item.streamIdentifier) {
-//					setCellMetadata(cell, meta: meta)
-//				} else {
-//					//dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned cell, item] in
-//						//item.loadMetadata().observeOn(MainScheduler.instance).bindNext { [unowned self, cell] meta in
-//							//self.setCellMetadata(cell, meta: meta)
-//						//	}.addDisposableTo(cell.bag)
-//						
-//					//}
-//				}
-//			}
-//		}
+		queueTableView.indexPathsForVisibleRows?.forEach { indexPath in
+			if let cell = queueTableView.cellForRowAtIndexPath(indexPath) as? QueueTrackCell, item = rxPlayer.getItemAtPosition(indexPath.row) {
+				if let meta = rxPlayer.mediaLibrary.getMetadata(item.streamIdentifier) {
+					setCellMetadata(cell, meta: meta)
+				} else {
+					dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+						item.loadMetadata().observeOn(MainScheduler.instance).bindNext { [unowned cell, unowned self] meta in
+							self.setCellMetadata(cell, meta: meta)
+							}.addDisposableTo(cell.bag)
+					}
+				}
+			}
+		}
 	}
 	
 	func setCellMetadata(cell: QueueTrackCell, meta: MediaItemMetadataType?) {
@@ -125,13 +124,17 @@ extension PlayerQueueController : UITableViewDelegate {
 		cell.selectionStyle = .None
 		
 		if let item = rxPlayer.getItemAtPosition(indexPath.row) {
-			cell.albumArtImage.image = nil
-			cell.artistNameLabel.text = nil
-			cell.trackTimeLabel.text = nil
-			cell.trackTitleLabel.text = (item.streamIdentifier as? CloudAudioResource)?.name ?? ""
+			if let meta = rxPlayer.mediaLibrary.getMetadata(item.streamIdentifier) {
+				setCellMetadata(cell, meta: meta)
+			} else {
+				cell.albumArtImage.image = nil
+				cell.artistNameLabel.text = nil
+				cell.trackTimeLabel.text = nil
+				cell.trackTitleLabel.text = (item.streamIdentifier as? CloudAudioResource)?.name ?? ""
+			}
 			
 			//cell.bag = DisposeBag()
-			rxPlayer.currentItem.observeOn(MainScheduler.instance).bindNext { newCurrent in
+			rxPlayer.currentItem.observeOn(MainScheduler.instance).bindNext { [unowned cell] newCurrent in
 				if item.streamIdentifier.streamResourceUid == newCurrent?.streamIdentifier.streamResourceUid {
 					cell.backgroundColor = UIColor(red: 204/255, green: 255/255, blue: 253/255, alpha: 1)
 				} else {
