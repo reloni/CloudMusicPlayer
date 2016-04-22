@@ -30,7 +30,7 @@ public class RxPlayerQueueItem {
 	
 	internal func loadFileMetadata(file: NSURL, utilities: StreamPlayerUtilitiesProtocol) -> AudioItemMetadata? {
 		guard file.fileExists() else { return nil }
-
+		
 		let item = utilities.createavPlayerItem(file)
 		var metadataArray = item.getAsset().getMetadata()
 		metadataArray["duration"] = item.getAsset().duration.safeSeconds

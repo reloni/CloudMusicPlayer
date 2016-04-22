@@ -113,5 +113,6 @@ extension StreamDataTask : StreamDataTaskProtocol {
 	
 	public func cancel() {
 		dataTask.cancel()
+		session.invalidateAndCancel()
 	}
 }

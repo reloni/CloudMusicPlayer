@@ -18,6 +18,7 @@ class PlayerQueueController: UIViewController {
 	@IBOutlet weak var backButton: UIButton!
 	@IBOutlet weak var playPauseButton: UIButton!
 	@IBOutlet weak var forwardButton: UIButton!
+	@IBOutlet weak var queueTableView: UITableView!
 	
 	override func viewDidLoad() {
 		automaticallyAdjustsScrollViewInsets = false
@@ -70,6 +71,30 @@ class PlayerQueueController: UIViewController {
 		}
 	}
 	
+	override func viewDidAppear(animated: Bool) {
+		reloadTableView()
+	}
+	
+	func reloadTableView() {
+		queueTableView.indexPathsForVisibleRows?.forEach { indexPath in
+			let cell = queueTableView.cellForRowAtIndexPath(indexPath)
+			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+				if let item = rxPlayer.getItemAtPosition(indexPath.row), cell = cell as? QueueTrackCell {
+					//print("Begin display: \((item.streamIdentifier as? CloudAudioResource)?.name ?? "")")
+					item.loadMetadata().observeOn(MainScheduler.instance).bindNext { [unowned cell] meta in
+						if let artwork = meta?.artwork {
+							cell.albumArtImage.image = nil
+							cell.albumArtImage.image = UIImage(data: artwork)
+						}
+						cell.artistNameLabel.text = meta?.artist
+						cell.trackTimeLabel.text = meta?.duration?.asTimeString
+						cell.trackTitleLabel.text = meta?.title
+					}.addDisposableTo(cell.bag)
+				}
+			}
+		}
+	}
+	
 	deinit {
 		print("PlayerQueueController deinit")
 	}
@@ -98,27 +123,45 @@ extension PlayerQueueController : UITableViewDelegate {
 			cell.trackTimeLabel.text = nil
 			cell.trackTitleLabel.text = (item.streamIdentifier as? CloudAudioResource)?.name ?? ""
 			
+			//cell.bag = DisposeBag()
 			rxPlayer.currentItem.observeOn(MainScheduler.instance).bindNext { newCurrent in
 				if item.streamIdentifier.streamResourceUid == newCurrent?.streamIdentifier.streamResourceUid {
 					cell.backgroundColor = UIColor(red: 204/255, green: 255/255, blue: 253/255, alpha: 1)
 				} else {
 					cell.backgroundColor = UIColor.whiteColor()
 				}
-			}.addDisposableTo(self.bag)
-			
-			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-				item.loadMetadata().observeOn(MainScheduler.instance).bindNext { meta in
-					if let artwork = meta?.artwork {
-						cell.albumArtImage.image = UIImage(data: artwork)
-					}
-					cell.artistNameLabel.text = meta?.artist
-					cell.trackTimeLabel.text = meta?.duration?.asTimeString
-					cell.trackTitleLabel.text = meta?.title
-					
-					}.addDisposableTo(self.bag)
-			}
+			}.addDisposableTo(cell.bag)
 		}
 		
 		return cell
+	}
+	
+	func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+		//print("begin display")
+//		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+//			if let item = rxPlayer.getItemAtPosition(indexPath.row), cell = cell as? QueueTrackCell {
+//				//print("Begin display: \((item.streamIdentifier as? CloudAudioResource)?.name ?? "")")
+//				cell.bag = DisposeBag()
+//				item.loadMetadata().observeOn(MainScheduler.instance).bindNext { meta in
+//					if let artwork = meta?.artwork {
+//						cell.albumArtImage.image = UIImage(data: artwork)
+//					}
+//					cell.artistNameLabel.text = meta?.artist
+//					cell.trackTimeLabel.text = meta?.duration?.asTimeString
+//					cell.trackTitleLabel.text = meta?.title
+//				}.addDisposableTo(cell.bag)
+//			}
+//		}
+	}
+	
+	func tableView(tableView: UITableView, didEndDisplayingCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+		if let cell = cell as? QueueTrackCell {
+			//print("end display: \(cell.trackTitleLabel.text)")
+			cell.bag = DisposeBag()
+		}
+	}
+	
+	func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+		reloadTableView()
 	}
 }
