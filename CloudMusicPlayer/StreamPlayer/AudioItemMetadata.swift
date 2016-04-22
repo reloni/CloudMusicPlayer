@@ -33,4 +33,8 @@ public class AudioItemMetadata {
 	public lazy var duration: Float64? = {
 		return self.metadata["duration"] as? Float64
 	}()
+	
+	deinit {
+		print("metadataitem deinit")
+	}
 }
