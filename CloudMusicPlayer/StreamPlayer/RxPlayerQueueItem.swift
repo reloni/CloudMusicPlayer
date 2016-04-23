@@ -62,14 +62,15 @@ public class RxPlayerQueueItem {
 				return NopDisposable.instance
 			}
 			
-			guard let downloadTask = downloadManager.createDownloadTask(object.streamIdentifier, checkInPendingTasks: false) else {
-				observer.onNext(nil)
-				observer.onCompleted()
-				return NopDisposable.instance
-			}
+//			guard let downloadTask = downloadManager.createDownloadTask(object.streamIdentifier, checkInPendingTasks: false) else {
+//				observer.onNext(nil)
+//				observer.onCompleted()
+//				return NopDisposable.instance
+//			}
+			let downloadObservable = downloadManager.createDownloadObservable(object.streamIdentifier, checkInPendingTasks: false)
 			
 			var receivedDataLen = 0
-			let disposable = downloadTask.taskProgress.bindNext { e in
+			let disposable = downloadObservable.bindNext { e in
 				if case StreamTaskEvents.CacheData(let prov) = e {
 					receivedDataLen = prov.getData().length
 					if receivedDataLen >= 1024 * 256 {
@@ -82,21 +83,22 @@ public class RxPlayerQueueItem {
 							observer.onNext(metadata)
 							file.deleteFile()
 						}
-						downloadTask.cancel()
+						//downloadTask.cancel()
 						observer.onCompleted()
 					}
 				} else if case StreamTaskEvents.Error = e {
-					downloadTask.cancel()
+					//downloadTask.cancel()
 					observer.onNext(nil)
 					observer.onCompleted()
 				}
 			}
 			
-			downloadTask.resume()
+			//downloadTask.resume()
 			
 			return AnonymousDisposable {
+				print("dispose metadata task")
 				disposable.dispose()
-				downloadTask.cancel()
+				//downloadTask.cancel()
 			}
 		}
 	}
