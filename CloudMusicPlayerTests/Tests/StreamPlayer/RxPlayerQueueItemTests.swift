@@ -54,7 +54,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		
 		
 		let player = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(), downloadManager: downloadManager,
-		                      streamPlayerUtilities: StreamPlayerUtilities())
+		                      streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: DefaultMediaLibrary())
 		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
@@ -88,7 +88,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
 		let player = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(), downloadManager: downloadManager,
-		                      streamPlayerUtilities: StreamPlayerUtilities())
+		                      streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: DefaultMediaLibrary())
 		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
@@ -131,7 +131,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
 		let player = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(), downloadManager: downloadManager,
-		                      streamPlayerUtilities: StreamPlayerUtilities())
+		                      streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: DefaultMediaLibrary())
 		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
@@ -182,7 +182,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: HttpUtilities())
 		
 		let player = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(), downloadManager: downloadManager,
-		                      streamPlayerUtilities: StreamPlayerUtilities())
+		                      streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: DefaultMediaLibrary())
 		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		

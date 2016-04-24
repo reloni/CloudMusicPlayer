@@ -104,6 +104,75 @@ class MemoryCacheProviderTests: XCTestCase {
 		XCTAssertTrue(self.session.isInvalidatedAndCanceled, "Session should be invalidated")
 	}
 	
+	func testCacheCorrectDataIfDataTaskHasMoreThanOneObserver() {
+		let testData = ["First", "Second", "Third", "Fourth"]
+		let dataSended = NSMutableData()
+		let fakeResponse = FakeResponse(contentLenght: Int64(26))
+		fakeResponse.MIMEType = "audio/mpeg"
+		
+		let sessionInvalidationExpectation = expectationWithDescription("Should return correct data and invalidate session")
+		
+		session.task?.taskProgress.bindNext { [unowned self] progress in
+			if case .resume(let tsk) = progress {
+				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+					
+					self.streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response:
+						fakeResponse, completion: { _ in }))
+					
+					for i in 0...testData.count - 1 {
+						let sendData = testData[i].dataUsingEncoding(NSUTF8StringEncoding)!
+						dataSended.appendData(sendData)
+						self.streamObserver.sessionEventsSubject.onNext(.didReceiveData(session: self.session, dataTask: tsk, data: sendData))
+						// simulate delay
+						NSThread.sleepForTimeInterval(0.01)
+					}
+					self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
+				}
+			} else if case .cancel = progress {
+				// task will be canceled if method cancelAndInvalidate invoked on FakeSession,
+				// so fulfill expectation here after checking if session was invalidated
+				if self.session.isInvalidatedAndCanceled {
+					// set reference to nil (simutale real session dispose)
+					self.utilities.streamObserver = nil
+					self.streamObserver = nil
+					sessionInvalidationExpectation.fulfill()
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		var receiveChunkCounter = 0
+		
+		let successExpectation = expectationWithDescription("Should successfuly cache data")
+		
+		let task = StreamDataTask(taskUid: NSUUID().UUIDString, request: request, httpUtilities: utilities,
+		                          sessionConfiguration: NSURLSession.defaultConfig, cacheProvider: MemoryCacheProvider(uid: NSUUID().UUIDString))
+		//httpClient.loadStreamData(request, cacheProvider: MemoryCacheProvider(uid: NSUUID().UUIDString)).bindNext { result in
+		task.taskProgress.bindNext { result in
+			if case StreamTaskEvents.CacheData = result {
+				receiveChunkCounter += 1
+			} else if case .Success(let cacheProvider) = result {
+				XCTAssertNotNil(cacheProvider, "Cache provider should be specified")
+				XCTAssertEqual(fakeResponse.expectedContentLength, cacheProvider?.expectedDataLength, "Should have expectedDataLength same as length in response")
+				XCTAssertEqual(fakeResponse.MIMEType, cacheProvider?.contentMimeType, "Should have mime type same as mime type of request")
+				//XCTAssertEqual(cacheProvider?.getData().length, dataSended, "Should cache all sended data")
+				XCTAssertEqual(testData.count, receiveChunkCounter, "Should cache correct data chunk amount")
+				XCTAssertEqual(true, cacheProvider?.getData().isEqualToData(dataSended), "Sended data end cached data should be equal")
+				successExpectation.fulfill()
+			} else if case StreamTaskEvents.ReceiveData = result {
+				XCTFail("Shouldn't rise this event because CacheProvider was specified")
+			}
+			}.addDisposableTo(bag)
+		
+		// bind to task events one more time
+		task.taskProgress.bindNext { _ in }.addDisposableTo(bag)
+		
+		task.resume()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertTrue(self.session.isInvalidatedAndCanceled, "Session should be invalidated")
+	}
+	
 	func testNotOverrideMimeType() {
 		let fakeResponse = FakeResponse(contentLenght: Int64(26))
 		fakeResponse.MIMEType = "audio/mpeg"
