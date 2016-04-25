@@ -67,7 +67,7 @@ public class RxPlayerQueueItem {
 //				observer.onCompleted()
 //				return NopDisposable.instance
 //			}
-			let downloadObservable = downloadManager.createDownloadObservable(object.streamIdentifier, checkInPendingTasks: false)
+			let downloadObservable = downloadManager.createDownloadObservable(object.streamIdentifier)
 			
 			var receivedDataLen = 0
 			let disposable = downloadObservable.bindNext { e in
@@ -84,11 +84,13 @@ public class RxPlayerQueueItem {
 							file.deleteFile()
 						}
 						//downloadTask.cancel()
+						print("Complete metadata task")
 						observer.onCompleted()
 					}
 				} else if case StreamTaskEvents.Error = e {
 					//downloadTask.cancel()
 					observer.onNext(nil)
+					print("complete metadata task with error")
 					observer.onCompleted()
 				}
 			}

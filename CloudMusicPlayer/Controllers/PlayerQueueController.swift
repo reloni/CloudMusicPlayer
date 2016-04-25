@@ -76,6 +76,7 @@ class PlayerQueueController: UIViewController {
 	}
 	
 	func reloadTableView() {
+		//return;
 		queueTableView.indexPathsForVisibleRows?.forEach { indexPath in
 			if let cell = queueTableView.cellForRowAtIndexPath(indexPath) as? QueueTrackCell, item = rxPlayer.getItemAtPosition(indexPath.row) {
 				if let meta = rxPlayer.mediaLibrary.getMetadata(item.streamIdentifier) {

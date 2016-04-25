@@ -10,8 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol DownloadManagerType {
-	func createDownloadObservable(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> Observable<StreamTaskEvents>
-	func createDownloadTask(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> StreamDataTaskProtocol?
+	func createDownloadObservable(identifier: StreamResourceIdentifier) -> Observable<StreamTaskEvents>
 	var saveData: Bool { get }
 	var fileStorage: LocalStorageType { get }
 }
@@ -20,10 +19,18 @@ public enum DownloadManagerError : Int {
 	case UnsupportedUrlSchemeIrFileNotExists = 1
 }
 
+public class PendingTask {
+	internal let task: StreamDataTaskProtocol
+	public internal(set) var taskDependenciesCount: UInt = 1
+	public init(task: StreamDataTaskProtocol) {
+		self.task = task
+	}
+}
+
 public class DownloadManager {
 	private static let errorDomain = "DownloadManager"
 	
-	internal var pendingTasks = [String: StreamDataTaskProtocol]()
+	internal var pendingTasks = [String: PendingTask]()
 	
 	public let saveData: Bool
 	public let fileStorage: LocalStorageType
@@ -43,28 +50,39 @@ public class DownloadManager {
 		
 		return nil
 	}
-}
-
-extension DownloadManager : DownloadManagerType {
-	public func createDownloadTask(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> StreamDataTaskProtocol? {
-		var result: StreamDataTaskProtocol?
+	
+	internal func removePendingTaskSync(uid: String, force: Bool = false) {
 		dispatch_sync(queue) {
-			result = self.createDownloadTaskUnsafe(identifier, checkInPendingTasks: checkInPendingTasks)
+			guard let pendingTask = self.pendingTasks[uid] else {
+				self.pendingTasks[uid] = nil
+				return
+			}
+			
+			pendingTask.taskDependenciesCount -= 1
+			if pendingTask.taskDependenciesCount <= 0 || force {
+				print("cancel pending task!!!!")
+				pendingTask.task.cancel()
+				self.pendingTasks[uid] = nil
+			}
 		}
-		return result
+		
+		//print("Pending tasks: \(pendingTasks.count)")
 	}
-		
-	internal func createDownloadTaskUnsafe(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> StreamDataTaskProtocol? {
-		if checkInPendingTasks {
-			if let runningTask = pendingTasks[identifier.streamResourceUid] { return runningTask }
+	
+	internal func createDownloadTaskUnsafe(identifier: StreamResourceIdentifier) -> StreamDataTaskProtocol? {
+		if let runningTask = pendingTasks[identifier.streamResourceUid] {
+			print("return running task: \(identifier.streamResourceUid)")
+			runningTask.taskDependenciesCount += 1
+			return runningTask.task
 		}
-		
+
 		if let file = fileStorage.getFromStorage(identifier.streamResourceUid), path = file.path {
 			print("Find in storage: \(identifier.streamResourceUid)")
 			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
-			if checkInPendingTasks {
-				pendingTasks[identifier.streamResourceUid] = task
+			if let task = task {
+				pendingTasks[identifier.streamResourceUid] = PendingTask(task: task)
+				return task
 			}
 			return task
 		}
@@ -72,10 +90,12 @@ extension DownloadManager : DownloadManagerType {
 		if let path = identifier.streamResourceUrl where identifier.streamResourceType == .LocalResource {
 			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
-			if checkInPendingTasks {
-				pendingTasks[identifier.streamResourceUid] = task
+			if let task = task {
+				pendingTasks[identifier.streamResourceUid] = PendingTask(task: task)
+				return task
+			} else {
+				return nil
 			}
-			return task
 		}
 		
 		guard identifier.streamResourceType == .HttpResource || identifier.streamResourceType == .HttpsResource else { return nil }
@@ -86,18 +106,28 @@ extension DownloadManager : DownloadManagerType {
 		}
 		
 		let task = httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
-		                                          sessionConfiguration: NSURLSession.defaultConfig,
-		                                          cacheProvider: fileStorage.createCacheProvider(identifier.streamResourceUid,
-																								targetMimeType: identifier.streamResourceContentType?.definition.MIME))
-		if checkInPendingTasks {
-			pendingTasks[identifier.streamResourceUid] = task
-		}
+		                                              sessionConfiguration: NSURLSession.defaultConfig,
+		                                              cacheProvider: fileStorage.createCacheProvider(identifier.streamResourceUid,
+																										targetMimeType: identifier.streamResourceContentType?.definition.MIME))
+		
+		pendingTasks[identifier.streamResourceUid] = PendingTask(task: task)
+		
 		return task
 	}
 	
-	public func createDownloadObservable(identifier: StreamResourceIdentifier, checkInPendingTasks: Bool) -> Observable<StreamTaskEvents> {
+	public func createDownloadTaskSync(identifier: StreamResourceIdentifier) -> StreamDataTaskProtocol? {
+		var result: StreamDataTaskProtocol?
+		dispatch_sync(queue) {
+			result = self.createDownloadTaskUnsafe(identifier)
+		}
+		return result
+	}
+}
+
+extension DownloadManager : DownloadManagerType {
+	public func createDownloadObservable(identifier: StreamResourceIdentifier) -> Observable<StreamTaskEvents> {
 		return Observable<StreamTaskEvents>.create { [weak self] observer in
-			guard let task = self?.createDownloadTask(identifier, checkInPendingTasks: checkInPendingTasks) else {
+			guard let task = self?.createDownloadTaskSync(identifier) else {
 				let	message = "Unable to download data"
 				let	code = DownloadManagerError.UnsupportedUrlSchemeIrFileNotExists.rawValue
 				let error = NSError(domain: DownloadManager.errorDomain, code: code, userInfo: [NSLocalizedDescriptionKey: message,
@@ -108,15 +138,11 @@ extension DownloadManager : DownloadManagerType {
 			let disposable = task.taskProgress.bindNext { result in
 				if case .Success(let provider) = result {
 					self?.saveData(provider)
-					if checkInPendingTasks {
-						self?.pendingTasks[identifier.streamResourceUid] = nil
-					}
+					self?.removePendingTaskSync(identifier.streamResourceUid, force: true)
 					observer.onNext(result)
 					observer.onCompleted()
 				} else if case .Error = result {
-					if checkInPendingTasks {
-						self?.pendingTasks[identifier.streamResourceUid] = nil
-					}
+					self?.removePendingTaskSync(identifier.streamResourceUid, force: true)
 					observer.onNext(result)
 					observer.onCompleted()
 				} else {
@@ -128,11 +154,8 @@ extension DownloadManager : DownloadManagerType {
 			
 			return AnonymousDisposable {
 				print("Dispose download task")
-				task.cancel()
 				disposable.dispose()
-				if checkInPendingTasks {
-					self?.pendingTasks[identifier.streamResourceUid] = nil
-				}
+				self?.removePendingTaskSync(identifier.streamResourceUid)
 			}
 		}
 	}
