@@ -70,7 +70,7 @@ public class RxPlayerQueueItem {
 			let downloadObservable = downloadManager.createDownloadObservable(object.streamIdentifier)
 			
 			var receivedDataLen = 0
-			let disposable = downloadObservable.bindNext { e in
+			let disposable = downloadObservable.doOnError { observer.onError($0) }.bindNext { e in
 				if case StreamTaskEvents.CacheData(let prov) = e {
 					receivedDataLen = prov.getData().length
 					if receivedDataLen >= 1024 * 256 {
@@ -87,11 +87,6 @@ public class RxPlayerQueueItem {
 						print("Complete metadata task")
 						observer.onCompleted()
 					}
-				} else if case StreamTaskEvents.Error = e {
-					//downloadTask.cancel()
-					observer.onNext(nil)
-					print("complete metadata task with error")
-					observer.onCompleted()
 				}
 			}
 			

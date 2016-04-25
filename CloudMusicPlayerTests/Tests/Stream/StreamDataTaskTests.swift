@@ -106,11 +106,11 @@ class StreamDataTaskTests: XCTestCase {
 		}.addDisposableTo(bag)
 
 		let expectation = expectationWithDescription("Should return NSError")
-		httpClient.loadStreamData(request, cacheProvider: nil).bindNext { result in
-			if case .Error(let error) = result where error.code == 1 {
+		httpClient.loadStreamData(request, cacheProvider: nil).doOnError { error in
+			if (error as NSError).code == 1 {
 				expectation.fulfill()
 			}
-		}.addDisposableTo(bag)
+		}.subscribe().addDisposableTo(bag)
 
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}

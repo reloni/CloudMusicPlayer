@@ -149,14 +149,13 @@ extension Observable where Element : StreamTaskEventsProtocol {
 					}
 				}
 				
-				let streamEvents = self.bindNext { e in
+				let streamEvents = self.doOnError { observer.onError($0) }.bindNext { e in
 					switch e as! StreamTaskEvents {
 					case .Success(let cacheProvider):
 						if let cacheProvider = cacheProvider { processRequests(cacheProvider) }
 						observer.onNext(); observer.onCompleted()
 					case .ReceiveResponse(let receivedResponse): response = receivedResponse
 					case .CacheData(let cacheProvider): processRequests(cacheProvider)
-					case .Error: observer.onNext(); observer.onCompleted()
 					default: break
 					}
 				}

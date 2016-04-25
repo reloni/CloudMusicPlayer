@@ -102,15 +102,14 @@ class DownloadManagerTests: XCTestCase {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 	
 		let errorExpectation = expectationWithDescription("Should send error message")
-		manager.createDownloadObservable("wrong://test.com").bindNext { e in
-			if case StreamTaskEvents.Error(let error) = e {
-				XCTAssertEqual(error.code, DownloadManagerError.UnsupportedUrlSchemeIrFileNotExists.rawValue, "Check returned error with correct errorCode")
-				XCTAssertEqual(error.userInfo["Url"] as? String, "wrong://test.com", "Check returned correct url in error info")
-				XCTAssertEqual(error.userInfo["Uid"] as? String, "wrong://test.com", "Check returned correct uid in error info")
+		manager.createDownloadObservable("wrong://test.com").doOnError { error in
+			let error = error as NSError
+			XCTAssertEqual(error.code, DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue, "Check returned error with correct errorCode")
+			XCTAssertEqual(error.userInfo["Url"] as? String, "wrong://test.com", "Check returned correct url in error info")
+			XCTAssertEqual(error.userInfo["Uid"] as? String, "wrong://test.com", "Check returned correct uid in error info")
 				
-				errorExpectation.fulfill()
-			}
-		}.addDisposableTo(bag)
+			errorExpectation.fulfill()
+		}.subscribe().addDisposableTo(bag)
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
@@ -118,15 +117,15 @@ class DownloadManagerTests: XCTestCase {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 		
 		let errorExpectation = expectationWithDescription("Should send error message")
-		manager.createDownloadObservable("/Path/To/Not/existed.file").bindNext { e in
-			if case StreamTaskEvents.Error(let error) = e {
-				XCTAssertEqual(error.code, DownloadManagerError.UnsupportedUrlSchemeIrFileNotExists.rawValue, "Check returned error with correct errorCode")
-				XCTAssertEqual(error.userInfo["Url"] as? String, "/Path/To/Not/existed.file", "Check returned correct url in error info")
-				XCTAssertEqual(error.userInfo["Uid"] as? String, "/Path/To/Not/existed.file", "Check returned correct uid in error info")
+		manager.createDownloadObservable("/Path/To/Not/existed.file").doOnError { error in
+			let error = error as NSError
+			XCTAssertEqual(error.code, DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue, "Check returned error with correct errorCode")
+			XCTAssertEqual(error.userInfo["Url"] as? String, "/Path/To/Not/existed.file", "Check returned correct url in error info")
+			XCTAssertEqual(error.userInfo["Uid"] as? String, "/Path/To/Not/existed.file", "Check returned correct uid in error info")
 				
-				errorExpectation.fulfill()
-			}
-			}.addDisposableTo(bag)
+			errorExpectation.fulfill()
+			
+			}.subscribe().addDisposableTo(bag)
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
@@ -202,12 +201,11 @@ class DownloadManagerTests: XCTestCase {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
 		
 		let errorExpectation = expectationWithDescription("Should receive error message")
-		manager.createDownloadObservable("https://test.com").bindNext { e in
-			if case StreamTaskEvents.Error(let error) = e {
-				XCTAssertEqual(15, error.code, "Check receive error with correct code")
-				errorExpectation.fulfill()
-			}
-			}.addDisposableTo(bag)
+		manager.createDownloadObservable("https://test.com").doOnError { error in
+			let error = error as NSError
+			XCTAssertEqual(15, error.code, "Check receive error with correct code")
+			errorExpectation.fulfill()
+			}.subscribe().addDisposableTo(bag)
 		XCTAssertEqual(1, manager.pendingTasks.count, "Should add task to pending")
 		
 		waitForExpectationsWithTimeout(1, handler: nil)

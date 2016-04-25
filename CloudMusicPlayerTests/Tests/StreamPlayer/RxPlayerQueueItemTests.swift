@@ -77,7 +77,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		copiedFile.deleteFile()
 	}
 	
-	func testReturnNilMetadataIfReceiveError() {
+	func testReceiveErrorWhileLoadMetadata() {
 		let storage = LocalNsUserDefaultsStorage()
 		
 		let streamObserver = NSURLSessionDataEventsObserver()
@@ -102,17 +102,18 @@ class RxPlayerQueueItemTests: XCTestCase {
 			if case FakeDataTaskMethods.resume(let tsk) = e {
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 					streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: session, dataTask: tsk,
-						error: NSError(domain: "HttpRequestTests", code: 1, userInfo: nil)))
+						error: NSError(domain: "HttpRequestTests", code: 17, userInfo: nil)))
 				}
 			} else if case FakeDataTaskMethods.cancel = e {
 				downloadTaskCancelationExpectation.fulfill()
 			}
 			}.addDisposableTo(bag)
 		
-		item.loadMetadata(downloadManager, utilities: StreamPlayerUtilities()).bindNext { metadata in
-			XCTAssertNil(metadata, "Should return nil as metadata due internal http error")
-			metadataLoadExpectation.fulfill()
-			}.addDisposableTo(bag)
+		item.loadMetadata(downloadManager, utilities: StreamPlayerUtilities()).doOnError { error in
+			if (error as NSError).code == 17 {
+				metadataLoadExpectation.fulfill()
+			}
+			}.subscribe().addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
@@ -188,13 +189,13 @@ class RxPlayerQueueItemTests: XCTestCase {
 		
 		let item = player.addLast("wrong://testitem.com")
 		
-		let metadataLoadExpectation = expectationWithDescription("Should load metadta from local file")
+		let metadataLoadExpectation = expectationWithDescription("Should not load metadata for incorrect scheme")
 		
-		item.loadMetadata(downloadManager, utilities: StreamPlayerUtilities()).bindNext { metadata in
-			XCTAssertNil(metadata)
-			
-			metadataLoadExpectation.fulfill()
-			}.addDisposableTo(bag)
+		item.loadMetadata(downloadManager, utilities: StreamPlayerUtilities()).doOnError { error in
+			if (error as NSError).code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
+				metadataLoadExpectation.fulfill()
+			}
+		}.subscribe().addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}

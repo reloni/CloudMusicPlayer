@@ -25,7 +25,7 @@ public enum StreamTaskEvents : StreamTaskEventsProtocol {
 	/// Send this event only if CacheProvider is nil
 	case ReceiveData(NSData)
 	case ReceiveResponse(NSHTTPURLResponseProtocol)
-	case Error(NSError)
+	//case Error(NSError)
 	case Success(cache: CacheProvider?)
 }
 
@@ -93,7 +93,8 @@ public class StreamDataTask {
 						session.invalidateAndCancel()
 						
 						if let error = error {
-							observer.onNext(StreamTaskEvents.Error(error))
+							//observer.onNext(StreamTaskEvents.Error(error))
+							observer.onError(error)
 							observer.onCompleted()
 						}
 						

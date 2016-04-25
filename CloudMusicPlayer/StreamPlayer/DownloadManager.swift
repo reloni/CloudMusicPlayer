@@ -16,7 +16,7 @@ public protocol DownloadManagerType {
 }
 
 public enum DownloadManagerError : Int {
-	case UnsupportedUrlSchemeIrFileNotExists = 1
+	case UnsupportedUrlSchemeOrFileNotExists = 1
 }
 
 public class PendingTask {
@@ -129,19 +129,17 @@ extension DownloadManager : DownloadManagerType {
 		return Observable<StreamTaskEvents>.create { [weak self] observer in
 			guard let task = self?.createDownloadTaskSync(identifier) else {
 				let	message = "Unable to download data"
-				let	code = DownloadManagerError.UnsupportedUrlSchemeIrFileNotExists.rawValue
+				let	code = DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue
 				let error = NSError(domain: DownloadManager.errorDomain, code: code, userInfo: [NSLocalizedDescriptionKey: message,
 					"Url": identifier.streamResourceUrl ?? "", "Uid": identifier.streamResourceUid])
-				observer.onNext(StreamTaskEvents.Error(error)); observer.onCompleted(); return NopDisposable.instance
+				observer.onError(error); return NopDisposable.instance
 			}
 			
-			let disposable = task.taskProgress.bindNext { result in
+			let disposable = task.taskProgress.doOnError {
+				self?.removePendingTaskSync(identifier.streamResourceUid, force: true); observer.onError($0)
+				}.bindNext { result in
 				if case .Success(let provider) = result {
 					self?.saveData(provider)
-					self?.removePendingTaskSync(identifier.streamResourceUid, force: true)
-					observer.onNext(result)
-					observer.onCompleted()
-				} else if case .Error = result {
 					self?.removePendingTaskSync(identifier.streamResourceUid, force: true)
 					observer.onNext(result)
 					observer.onCompleted()
