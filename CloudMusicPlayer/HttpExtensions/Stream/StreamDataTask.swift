@@ -25,7 +25,7 @@ public enum StreamTaskEvents : StreamTaskEventsProtocol {
 	/// Send this event only if CacheProvider is nil
 	case ReceiveData(NSData)
 	case ReceiveResponse(NSHTTPURLResponseProtocol)
-	case Error(NSError)
+	//case Error(NSError)
 	case Success(cache: CacheProvider?)
 }
 
@@ -35,8 +35,10 @@ public protocol StreamDataTaskProtocol : StreamTaskProtocol {
 }
 
 public class StreamDataTask {
+	internal let queue = dispatch_queue_create("com.cloudmusicplayer.streamdatatask.serialqueue.\(NSUUID().UUIDString)", DISPATCH_QUEUE_SERIAL)
 	public let uid: String
-
+	var resumed = false
+	
 	public let request: NSMutableURLRequestProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
 	public let sessionConfiguration: NSURLSessionConfiguration
@@ -64,38 +66,48 @@ public class StreamDataTask {
 		uid = taskUid
 	}
 	
-	public lazy var taskProgress: Observable<StreamTaskEvents> = { [unowned self] in
-		return self.observer.sessionEvents.filter { e in
-			if case .didReceiveResponse(_, _, let response, let completionHandler) = e {
-				completionHandler(.Allow)
-				return response as? NSHTTPURLResponseProtocol != nil
-			} else { return true }
-			}.map { e -> StreamTaskEvents in
-				switch e {
-				case .didReceiveResponse(_, _, let response, _):
-					self.response = response as? NSHTTPURLResponseProtocol
-					self.cacheProvider?.expectedDataLength = self.response!.expectedContentLength
-					//self.cacheProvider?.contentMimeType = self.response!.MIMEType
-					self.cacheProvider?.setContentMimeType(self.response!.getMimeType())
-					return StreamTaskEvents.ReceiveResponse(self.response!)
-				case .didReceiveData(_, _, let data):
-					if let cacheProvider = self.cacheProvider {
-						cacheProvider.appendData(data)
-						return StreamTaskEvents.CacheData(cacheProvider)
-					} else {
-						return StreamTaskEvents.ReceiveData(data)
+	public lazy var taskProgress: Observable<StreamTaskEvents> = {
+		return Observable.create { [weak self] observer in
+			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+			
+			let disposable = object.observer.sessionEvents.shareReplay(1).filter { e in
+				if case .didReceiveResponse(_, _, let response, let completionHandler) = e {
+					completionHandler(.Allow)
+					return response as? NSHTTPURLResponseProtocol != nil
+				} else { return true }
+				}.shareReplay(1).bindNext { e in
+					switch e {
+					case .didReceiveResponse(_, _, let response, _):
+						object.response = response as? NSHTTPURLResponseProtocol
+						object.cacheProvider?.expectedDataLength = object.response!.expectedContentLength
+						object.cacheProvider?.setContentMimeType(object.response!.getMimeType())
+						observer.onNext(StreamTaskEvents.ReceiveResponse(object.response!))
+					case .didReceiveData(_, _, let data):
+						if let cacheProvider = object.cacheProvider {
+							cacheProvider.appendData(data)
+							observer.onNext(StreamTaskEvents.CacheData(cacheProvider))
+						} else {
+							observer.onNext(StreamTaskEvents.ReceiveData(data))
+						}
+					case .didCompleteWithError(let session, _, let error):
+						session.invalidateAndCancel()
+						
+						if let error = error {
+							//observer.onNext(StreamTaskEvents.Error(error))
+							observer.onError(error)
+							observer.onCompleted()
+						}
+						
+						observer.onNext(StreamTaskEvents.Success(cache: object.cacheProvider))
+						observer.onCompleted()
 					}
-				case .didCompleteWithError(let session, _, let error):
-					session.invalidateAndCancel()
-					
-					if let error = error {
-						return StreamTaskEvents.Error(error)
-					}
-					
-					return StreamTaskEvents.Success(cache: self.cacheProvider)
-				}
-			}.shareReplay(1)
-		}()
+			}
+			
+			return AnonymousDisposable {
+				disposable.dispose()
+			}
+		}.shareReplay(1)
+	}()
 	
 	deinit {
 		print("StreamDataTask deinit")
@@ -104,7 +116,9 @@ public class StreamDataTask {
 
 extension StreamDataTask : StreamDataTaskProtocol {
 	public func resume() {
-		dataTask.resume()
+		dispatch_sync(queue) {
+			if !self.resumed { self.resumed = true; self.dataTask.resume() }
+		}
 	}
 	
 	public func suspend() {

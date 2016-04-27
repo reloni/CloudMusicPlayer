@@ -46,12 +46,14 @@ public class FakeDataTask : NSURLSessionDataTaskProtocol {
 	let taskProgress = PublishSubject<FakeDataTaskMethods>()
 	var originalRequest: NSMutableURLRequestProtocol?
 	var isCancelled = false
+	var resumeInvokeCount = 0
 	
 	public init(completion: DataTaskResult?) {
 		self.completion = completion
 	}
 	
 	public func resume() {
+		resumeInvokeCount += 1
 		taskProgress.onNext(.resume(self))
 	}
 	

@@ -38,3 +38,4 @@ public class AudioItemMetadata {
 		print("metadataitem deinit")
 	}
 }
+extension AudioItemMetadata: MediaItemMetadataType { }

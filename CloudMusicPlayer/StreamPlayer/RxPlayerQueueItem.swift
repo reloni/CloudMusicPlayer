@@ -37,50 +37,65 @@ public class RxPlayerQueueItem {
 		return AudioItemMetadata(metadata: metadataArray)
 	}
 	
-	public func loadMetadata() -> Observable<AudioItemMetadata?> {
+	public func loadMetadata() -> Observable<MediaItemMetadataType?> {
 		return loadMetadata(player.downloadManager, utilities: player.streamPlayerUtilities)
 	}
 	
-	internal func loadMetadata(downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol) -> Observable<AudioItemMetadata?> {
+	internal func loadMetadata(downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol) -> Observable<MediaItemMetadataType?> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
 			
-			if let localFile = downloadManager.fileStorage.getFromStorage(object.streamIdentifier.streamResourceUid) {
-				observer.onNext(object.loadFileMetadata(localFile, utilities: utilities))
+			if let metadata = object.player.mediaLibrary.getMetadata(object.streamIdentifier) {
+				observer.onNext(metadata)
 				observer.onCompleted()
 				return NopDisposable.instance
 			}
 			
-			guard let downloadTask = downloadManager.createDownloadTask(object.streamIdentifier, checkInPendingTasks: false) else {
-				observer.onNext(nil)
+			if let localFile = downloadManager.fileStorage.getFromStorage(object.streamIdentifier.streamResourceUid) {
+				let metadata = object.loadFileMetadata(localFile, utilities: utilities)
+				if let metadata = metadata {
+					object.player.mediaLibrary.saveMetadata(object.streamIdentifier, metadata: metadata)
+				}
+				
+				observer.onNext(metadata)
 				observer.onCompleted()
 				return NopDisposable.instance
 			}
+			
+//			guard let downloadTask = downloadManager.createDownloadTask(object.streamIdentifier, checkInPendingTasks: false) else {
+//				observer.onNext(nil)
+//				observer.onCompleted()
+//				return NopDisposable.instance
+//			}
+			let downloadObservable = downloadManager.createDownloadObservable(object.streamIdentifier)
 			
 			var receivedDataLen = 0
-			let disposable = downloadTask.taskProgress.bindNext { e in
+			let disposable = downloadObservable.doOnError { observer.onError($0) }.bindNext { e in
 				if case StreamTaskEvents.CacheData(let prov) = e {
 					receivedDataLen = prov.getData().length
 					if receivedDataLen >= 1024 * 256 {
 						if let file = downloadManager.fileStorage.saveToTemporaryFolder(prov) {
-							observer.onNext(object.loadFileMetadata(file, utilities: utilities))
+							let metadata = object.loadFileMetadata(file, utilities: utilities)
+							if let metadata = metadata {
+								object.player.mediaLibrary.saveMetadata(object.streamIdentifier, metadata: metadata)
+							}
+							
+							observer.onNext(metadata)
 							file.deleteFile()
 						}
-						downloadTask.cancel()
+						//downloadTask.cancel()
+						print("Complete metadata task")
 						observer.onCompleted()
 					}
-				} else if case StreamTaskEvents.Error = e {
-					downloadTask.cancel()
-					observer.onNext(nil)
-					observer.onCompleted()
 				}
 			}
 			
-			downloadTask.resume()
+			//downloadTask.resume()
 			
 			return AnonymousDisposable {
+				print("dispose metadata task")
 				disposable.dispose()
-				downloadTask.cancel()
+				//downloadTask.cancel()
 			}
 		}
 	}
