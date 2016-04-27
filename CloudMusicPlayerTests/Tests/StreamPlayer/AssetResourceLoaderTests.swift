@@ -129,13 +129,17 @@ class AssetResourceLoaderTests: XCTestCase {
 		let assetRequest = FakeAVAssetResourceLoadingRequest(contentInformationRequest: FakeAVAssetResourceLoadingContentInformationRequest(),
 			dataRequest: FakeAVAssetResourceLoadingDataRequest())
 		
+		let expectation = expectationWithDescription("Should receive result from asset loader")
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
 			result = e
+			expectation.fulfill()
 			}.addDisposableTo(bag)
 		
 		self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
 		self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: FakeDataTask(completion: nil), error: nil))
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
 		
 		XCTAssertEqual(1, result?.resultRequestCollection.count)
 		XCTAssertEqual(assetRequest.hash, result?.resultRequestCollection.first?.1.hash)

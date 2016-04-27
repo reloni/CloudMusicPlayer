@@ -28,9 +28,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		let _ = try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
 		
-		rxPlayer.rx_observe().streamContent().subscribe().addDisposableTo(bag)
-		rxPlayer.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		rxPlayer.rx_observe().bindNext { print("Player event: \($0)") }.addDisposableTo(bag)
+		rxPlayer.rx_observe().doOnError { print("StreamContentError \($0)") }.streamContent().doOnError { print("StreamContentError: \($0)") }.subscribe().addDisposableTo(bag)
+		rxPlayer.rx_observe().doOnError { print("DispatchPlayerControlEventsError \($0)") }.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		//rxPlayer.startQueueDispatching().subscribe().addDisposableTo(bag)
 		//rxPlayer.rx_observe().dispatchQueue().subscribe().addDisposableTo(bag)
 		

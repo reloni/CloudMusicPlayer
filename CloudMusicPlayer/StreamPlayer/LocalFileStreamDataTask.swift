@@ -11,6 +11,7 @@ import RxSwift
 
 public class LocalFileStreamDataTask {
 	public let uid: String
+	public var resumed: Bool = false
 	public internal(set) var cacheProvider: CacheProvider?
 	public let filePath: NSURL
 	internal let subject = PublishSubject<StreamTaskEvents>()
@@ -42,6 +43,7 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 				return
 			}
 			
+			self.resumed = true
 			let response = LocalFileResponse(expectedContentLength: Int64(data.length),
 			                                 mimeType: ContentTypeDefinition.getMimeTypeFromFileExtension(self.filePath.pathExtension!))
 			
@@ -58,16 +60,18 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 			
 			self.subject.onNext(StreamTaskEvents.Success(cache: nil))
 			
+			self.resumed = false
 			self.subject.onCompleted()
 		}
 	}
 	
 	public func cancel() {
-		print("canceling")
-		//subject.onCompleted()
+		resumed = false
 	}
 	
-	public func suspend() { }
+	public func suspend() {
+		resumed = false
+	}
 }
 
 public class LocalFileResponse {

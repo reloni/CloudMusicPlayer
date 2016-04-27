@@ -168,6 +168,7 @@ extension PlayerQueueController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didEndDisplayingCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
 		if let cell = cell as? QueueTrackCell {
 			//print("end display: \(cell.trackTitleLabel.text)")
+			
 			cell.bag = DisposeBag()
 		}
 	}

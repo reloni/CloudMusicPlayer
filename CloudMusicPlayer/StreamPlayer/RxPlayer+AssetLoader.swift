@@ -132,13 +132,17 @@ extension Observable where Element : StreamTaskEventsProtocol {
 				}
 				let range = NSMakeRange(Int(startOffset), Int(responseLength))
 				
-				respondingDataRequest.respondWithData(data.subdataWithRange(range))
+				let dataToRespond = data.subdataWithRange(range)
+				respondingDataRequest.respondWithData(dataToRespond)
 				
 				return Int64(respondingDataRequest.requestedLength) <= respondingDataRequest.currentOffset + responseLength - respondingDataRequest.requestedOffset
 			}
 			
+			let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility,
+			                                             internalSerialQueueName: "com.cloudmusicplayer.assetloader.serialscheduler.\(NSUUID().UUIDString)")
+			
 			return Observable<Void>.create { observer in
-				let assetEvents = assetLoaderEvents.bindNext { e in
+				let assetEvents = assetLoaderEvents.observeOn(scheduler).bindNext { e in
 					switch e {
 					case .DidCancelLoading(let loadingRequest):
 						resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
@@ -149,7 +153,7 @@ extension Observable where Element : StreamTaskEventsProtocol {
 					}
 				}
 				
-				let streamEvents = self.doOnError { observer.onError($0) }.bindNext { e in
+				let streamEvents = self.observeOn(scheduler).doOnError { observer.onError($0) }.bindNext { e in
 					switch e as! StreamTaskEvents {
 					case .Success(let cacheProvider):
 						if let cacheProvider = cacheProvider { processRequests(cacheProvider) }

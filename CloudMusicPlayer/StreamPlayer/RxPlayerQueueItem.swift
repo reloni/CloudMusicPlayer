@@ -67,7 +67,7 @@ public class RxPlayerQueueItem {
 //				observer.onCompleted()
 //				return NopDisposable.instance
 //			}
-			let downloadObservable = downloadManager.createDownloadObservable(object.streamIdentifier)
+			let downloadObservable = downloadManager.createDownloadObservable(object.streamIdentifier, priority: .Low)
 			
 			var receivedDataLen = 0
 			let disposable = downloadObservable.doOnError { observer.onError($0) }.bindNext { e in
