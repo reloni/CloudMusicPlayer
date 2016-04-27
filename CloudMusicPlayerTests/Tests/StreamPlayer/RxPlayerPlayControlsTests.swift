@@ -219,9 +219,10 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		player.rx_observe().bindNext { e in
 			XCTFail("Should not rise any events while resuming")
 		}.addDisposableTo(bag)
+		
 		player.resume()
 		
-		
+		NSThread.sleepForTimeInterval(0.5)
 		XCTAssertFalse(player.playing, "Playing property should be false")
 	}
 	

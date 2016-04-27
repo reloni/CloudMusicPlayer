@@ -204,7 +204,7 @@ public class RxPlayer {
 				first.dispose()
 				second.dispose()
 			}
-		}.shareReplay(1)
+		}
 	}()
 	
 	internal lazy var dispatchQueueScheduler: Observable<Void> = {
