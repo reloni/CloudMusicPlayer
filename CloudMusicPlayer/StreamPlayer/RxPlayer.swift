@@ -258,12 +258,12 @@ public class RxPlayer {
 	public convenience init(repeatQueue: Bool = false, saveData: Bool = false) {
 		self.init(repeatQueue: repeatQueue, internalPlayer: InternalPlayer(),
 		          downloadManager: DownloadManager(saveData: saveData, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: saveData),
-								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: DefaultMediaLibrary())
+								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: NonRetentiveMediaLibrary())
 	}
 	
 	internal convenience init(repeatQueue: Bool = false, internalPlayer: InternalPlayerType, downloadManager: DownloadManagerType) {
 		self.init(repeatQueue: repeatQueue, internalPlayer: internalPlayer,
-		          downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: DefaultMediaLibrary())
+		          downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: NonRetentiveMediaLibrary())
 	}
 	
 	deinit {

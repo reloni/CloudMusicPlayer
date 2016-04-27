@@ -29,11 +29,11 @@ public struct MediaItemMetadata : MediaItemMetadataType {
 	public internal(set) var duration: Float64?
 }
 
-public class DefaultMediaLibrary {
+public class NonRetentiveMediaLibrary {
 	internal var library = [String: MediaItemMetadataType]()
 }
 
-extension DefaultMediaLibrary : MediaLibraryType {
+extension NonRetentiveMediaLibrary : MediaLibraryType {
 	public func getMetadata(resource: StreamResourceIdentifier) -> MediaItemMetadataType? {
 		return library[resource.streamResourceUid]
 	}
