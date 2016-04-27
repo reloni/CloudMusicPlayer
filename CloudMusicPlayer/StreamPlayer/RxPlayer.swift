@@ -192,7 +192,7 @@ public class RxPlayer {
 		return internalPlayer.currentTime.shareReplay(1)
 	}
 	
-	public var playerEvents: Observable<PlayerEvents> {
+	public lazy var playerEvents: Observable<PlayerEvents> = {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
@@ -200,11 +200,12 @@ public class RxPlayer {
 			let second = object.internalPlayer.events.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
 			
 			return AnonymousDisposable {
+				print("Dispose player events")
 				first.dispose()
 				second.dispose()
 			}
-		}
-	}
+		}.shareReplay(1)
+	}()
 	
 	internal lazy var dispatchQueueScheduler: Observable<Void> = {
 		return Observable<Void>.create { [weak self] observer in

@@ -21,10 +21,8 @@ extension Observable where Element : StreamTaskEventsProtocol {
 			asset.getResourceLoader().setDelegate(observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
 			let playerItem = player.streamPlayerUtilities.createavPlayerItem(asset)
 			
-			let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-			
-			let task = self.observeOn(scheduler).loadWithAsset(
-				assetEvents: observer.loaderEvents.observeOn(scheduler),
+			let task = self.loadWithAsset(
+				assetEvents: observer.loaderEvents,
 				targetAudioFormat: contentType)
 			
 			player.internalPlayer.play(playerItem, asset: asset, observer: observer, hostPlayer: player)
@@ -44,7 +42,7 @@ extension Observable where Element : PlayerEventType {
 					
 					print("preparing \(item.streamIdentifier.streamResourceUid)")
 					
-					let disposable = item.player.downloadManager.createDownloadObservable(item.streamIdentifier)
+					let disposable = item.player.downloadManager.createDownloadObservable(item.streamIdentifier, priority: .Normal)
 						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType).bindNext { e in
 							observer.onNext(e)
 							observer.onCompleted()

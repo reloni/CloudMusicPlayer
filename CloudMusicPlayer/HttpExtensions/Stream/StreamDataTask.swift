@@ -15,6 +15,7 @@ public protocol StreamTaskProtocol {
 	func resume()
 	func suspend()
 	func cancel()
+	var resumed: Bool { get }
 }
 
 public protocol StreamTaskEventsProtocol { }
@@ -37,7 +38,7 @@ public protocol StreamDataTaskProtocol : StreamTaskProtocol {
 public class StreamDataTask {
 	internal let queue = dispatch_queue_create("com.cloudmusicplayer.streamdatatask.serialqueue.\(NSUUID().UUIDString)", DISPATCH_QUEUE_SERIAL)
 	public let uid: String
-	var resumed = false
+	public var resumed = false
 	
 	public let request: NSMutableURLRequestProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
@@ -122,10 +123,12 @@ extension StreamDataTask : StreamDataTaskProtocol {
 	}
 	
 	public func suspend() {
+		self.resumed = false
 		dataTask.suspend()
 	}
 	
 	public func cancel() {
+		resumed = false
 		dataTask.cancel()
 		session.invalidateAndCancel()
 	}
