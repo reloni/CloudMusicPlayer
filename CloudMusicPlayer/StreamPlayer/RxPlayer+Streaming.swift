@@ -43,7 +43,7 @@ extension Observable where Element : PlayerEventType {
 					print("preparing \(item.streamIdentifier.streamResourceUid)")
 					
 					let disposable = item.player.downloadManager.createDownloadObservable(item.streamIdentifier, priority: .Normal)
-						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType).bindNext { e in
+						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType).doOnError { observer.onError($0) }.bindNext { e in
 							observer.onNext(e)
 							observer.onCompleted()
 					}
@@ -55,13 +55,4 @@ extension Observable where Element : PlayerEventType {
 				}
 		}
 	}
-	
-//	public func streamContent(saveCachedData: Bool = false) -> Observable<AssetLoadResult> {
-//		if !DownloadManager.isInitialized {
-//			DownloadManager.initWithInstance(DownloadManager(saveData: saveCachedData,
-//				fileStorage: LocalNsUserDefaultsStorage(loadData: saveCachedData), httpUtilities: HttpUtilities.instance))
-//		}
-//		
-//		return streamContent(StreamPlayerUtilities.instance, downloadManager: DownloadManager.instance)
-//	}
 }
