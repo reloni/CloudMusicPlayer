@@ -142,6 +142,7 @@ extension Observable where Element : StreamTaskEventsProtocol {
 			                                             internalSerialQueueName: "com.cloudmusicplayer.assetloader.serialscheduler.\(NSUUID().UUIDString)")
 			
 			return Observable<Void>.create { observer in
+				print("create asset loader")
 				let assetEvents = assetLoaderEvents.observeOn(scheduler).bindNext { e in
 					switch e {
 					case .DidCancelLoading(let loadingRequest):
@@ -173,6 +174,6 @@ extension Observable where Element : StreamTaskEventsProtocol {
 					print("return final data")
 					return Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
 						.just((receivedResponse: response, utiType: getUtiType(), resultRequestCollection: resourceLoadingRequests))
-				}.shareReplay(1)
+				}.shareReplay(0)
 	}
 }

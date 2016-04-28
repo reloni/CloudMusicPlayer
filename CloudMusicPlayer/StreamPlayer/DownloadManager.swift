@@ -38,7 +38,7 @@ public class PendingTask {
 public class DownloadManager {
 	private static let errorDomain = "DownloadManager"
 	
-	internal let serialScheduler: SerialDispatchQueueScheduler
+	internal let serialScheduler: SerialDispatchQueueScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	internal var pendingTasks = [String: PendingTask]()
 	internal let simultaneousTasksCount: UInt
 	internal let runningTaskCheckTimeout: Double
@@ -56,7 +56,7 @@ public class DownloadManager {
 		self.simultaneousTasksCount = simultaneousTasksCount == 0 ? 1 : simultaneousTasksCount
 		self.runningTaskCheckTimeout = runningTaskCheckTimeout <= 0.0 ? 1.0 : runningTaskCheckTimeout
 		
-		serialScheduler = SerialDispatchQueueScheduler(queue: queue, internalSerialQueueName: "com.cloudmusicplayer.downloadmanager.serialscheduler")
+		//serialScheduler = SerialDispatchQueueScheduler(queue: queue, internalSerialQueueName: "com.cloudmusicplayer.downloadmanager.serialscheduler")
 	}
 	
 	public convenience init(saveData: Bool = false, fileStorage: LocalStorageType = LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
@@ -73,19 +73,21 @@ public class DownloadManager {
 	
 	internal func removePendingTaskSync(uid: String, force: Bool = false) {
 		dispatch_sync(queue) {
-			guard let pendingTask = self.pendingTasks[uid] else {
-				self.pendingTasks[uid] = nil
-				return
-			}
-			
-			pendingTask.taskDependenciesCount -= 1
-			if pendingTask.taskDependenciesCount <= 0 || force {
-				pendingTask.task.cancel()
-				self.pendingTasks[uid] = nil
-			}
+			self.removePendingTaskSync(uid, force: force)
+		}
+	}
+	
+	internal func removePendingTaskUnsafe(uid: String, force: Bool = false) {
+		guard let pendingTask = self.pendingTasks[uid] else {
+			self.pendingTasks[uid] = nil
+			return
 		}
 		
-		//print("Pending tasks: \(pendingTasks.count)")
+		pendingTask.taskDependenciesCount -= 1
+		if pendingTask.taskDependenciesCount <= 0 || force {
+			pendingTask.task.cancel()
+			self.pendingTasks[uid] = nil
+		}
 	}
 	
 	internal func createDownloadTaskUnsafe(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> StreamDataTaskProtocol? {
@@ -149,7 +151,7 @@ public class DownloadManager {
 			guard let object = self, pendingTask = object.pendingTasks[identifier.streamResourceUid] else { observer.onCompleted(); return NopDisposable.instance }
 			
 			if (object.pendingTasks.filter { $0.1.task.resumed &&
-				$0.1.priority.rawValue <= pendingTask.priority.rawValue }.count < Int(object.simultaneousTasksCount)) {
+				$0.1.priority.rawValue >= pendingTask.priority.rawValue }.count < Int(object.simultaneousTasksCount)) {
 				pendingTask.task.resume()
 				observer.onCompleted()
 				return NopDisposable.instance
@@ -159,51 +161,58 @@ public class DownloadManager {
 				guard !pendingTask.task.resumed else { return }
 				
 				if (object.pendingTasks.filter { $0.1.task.resumed &&
-					$0.1.priority.rawValue <= pendingTask.priority.rawValue }.count < Int(object.simultaneousTasksCount)) {
+					$0.1.priority.rawValue >= pendingTask.priority.rawValue }.count < Int(object.simultaneousTasksCount)) {
 					
 					pendingTask.task.resume()
 					observer.onCompleted()
 				}
 			}
+			
+			
 		}
 	}
 }
 
 extension DownloadManager : DownloadManagerType {
-	public func createDownloadObservable(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> Observable<StreamTaskEvents> {
+	public func createDownloadObservable(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> Observable<StreamTaskEvents> {		
 		return Observable<StreamTaskEvents>.create { [weak self] observer in
+			var result: Disposable?
+			
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
-			
-			guard let task = object.createDownloadTaskSync(identifier, priority: priority) else {
-				let	message = "Unable to download data"
-				let	code = DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue
-				let error = NSError(domain: DownloadManager.errorDomain, code: code, userInfo: [NSLocalizedDescriptionKey: message,
-					"Url": identifier.streamResourceUrl ?? "", "Uid": identifier.streamResourceUid])
-				observer.onError(error); return NopDisposable.instance
-			}
-			
-			let disposable = task.taskProgress.doOnError {
-				self?.removePendingTaskSync(identifier.streamResourceUid, force: true); observer.onError($0)
-				}.bindNext { result in
-				if case .Success(let provider) = result {
-					object.saveData(provider)
-					object.removePendingTaskSync(identifier.streamResourceUid, force: true)
-					observer.onNext(result)
-					observer.onCompleted()
-				} else {
-					observer.onNext(result)
+
+			dispatch_sync(object.queue) {
+				guard let task = object.createDownloadTaskUnsafe(identifier, priority: priority) else {
+					let	message = "Unable to download data"
+					let	code = DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue
+					let error = NSError(domain: DownloadManager.errorDomain, code: code, userInfo: [NSLocalizedDescriptionKey: message,
+						"Url": identifier.streamResourceUrl ?? "", "Uid": identifier.streamResourceUid])
+					observer.onError(error); result = NopDisposable.instance; return;
+				}
+				
+				let disposable = task.taskProgress.doOnError {
+					self?.removePendingTaskUnsafe(identifier.streamResourceUid, force: true); observer.onError($0)
+					}.bindNext { result in
+						if case .Success(let provider) = result {
+							object.saveData(provider)
+							object.removePendingTaskUnsafe(identifier.streamResourceUid, force: true)
+							observer.onNext(result)
+							observer.onCompleted()
+						} else {
+							observer.onNext(result)
+						}
+				}
+				
+				let monitoring = object.monitorTask(identifier, monitoringInterval: Observable<Int>.interval(object.runningTaskCheckTimeout,
+					scheduler: object.serialScheduler)).subscribe()
+				
+				result = AnonymousDisposable {
+					monitoring.dispose()
+					disposable.dispose()
+					self?.removePendingTaskUnsafe(identifier.streamResourceUid)
 				}
 			}
 			
-			//task.resume()
-			let monitoring = object.monitorTask(identifier, monitoringInterval: Observable<Int>.interval(object.runningTaskCheckTimeout,
-				scheduler: object.serialScheduler)).subscribe()
-			
-			return AnonymousDisposable {
-				monitoring.dispose()
-				disposable.dispose()
-				self?.removePendingTaskSync(identifier.streamResourceUid)
-			}
+			return result!
 		}
 	}
 }

@@ -40,37 +40,39 @@ class PlayerQueueController: UIViewController {
 			}
 		}.addDisposableTo(bag)
 		
-		rxPlayer.rx_observe().observeOn(MainScheduler.instance).bindNext { [weak self] e in
-			if case PlayerEvents.Started = e {
-				self?.playPauseButton.setTitle("Pause", forState: .Normal)
-			} else if case PlayerEvents.Paused = e {
-				self?.playPauseButton.setTitle("Play", forState: .Normal)
-			} else if case PlayerEvents.Stopped = e {
-				self?.playPauseButton.setTitle("Play", forState: .Normal)
-			} else if case PlayerEvents.Resumed = e {
-				self?.playPauseButton.setTitle("Pause", forState: .Normal)
-			}
-		}.addDisposableTo(bag)
+//		rxPlayer.rx_observe().observeOn(MainScheduler.instance).bindNext { [weak self] e in
+//			if case PlayerEvents.Started = e {
+//				self?.playPauseButton.setTitle("Pause", forState: .Normal)
+//			} else if case PlayerEvents.Paused = e {
+//				self?.playPauseButton.setTitle("Play", forState: .Normal)
+//			} else if case PlayerEvents.Stopped = e {
+//				self?.playPauseButton.setTitle("Play", forState: .Normal)
+//			} else if case PlayerEvents.Resumed = e {
+//				self?.playPauseButton.setTitle("Pause", forState: .Normal)
+//			}
+//		}.addDisposableTo(bag)
 		
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-			rxPlayer.currentItem.flatMapLatest { e -> Observable<MediaItemMetadataType?> in
-				guard let e = e else { return Observable.just(nil) }
-				return rxPlayer.loadMetadata(e.streamIdentifier)
-				//return e?.loadMetadata() ?? Observable.just(nil)
-				}.map { e -> String in
-					return e?.duration?.asTimeString ?? "0: 00"
-				}.observeOn(MainScheduler.instance).bindTo(self.fullTimeLabel.rx_text).addDisposableTo(self.bag)
+//			rxPlayer.currentItem.flatMapLatest { e -> Observable<MediaItemMetadataType?> in
+//				guard let e = e else { return Observable.just(nil) }
+//				return rxPlayer.loadMetadata(e.streamIdentifier)
+//				//return e?.loadMetadata() ?? Observable.just(nil)
+//				}.map { e -> String in
+//					return e?.duration?.asTimeString ?? "0: 00"
+//				}.observeOn(MainScheduler.instance).bindTo(self.fullTimeLabel.rx_text).addDisposableTo(self.bag)
 			
-			rxPlayer.currentItemTime.observeOn(MainScheduler.instance).bindNext { [weak self] time in
+			rxPlayer.currentItemTime.bindNext { [weak self] time in
 				guard let time = time else { self?.currentTimeLabel.text = "0: 00"; return }
 				
-				self?.currentTimeLabel.text = time.currentTime?.asString
-				if let currentSec = time.currentTime?.safeSeconds, fullSec = time.duration?.safeSeconds {
-					self?.progressBar.progress = Float(currentSec / fullSec)
-				} else {
-					self?.progressBar.progress = 0
+				dispatch_async(dispatch_get_main_queue()) { [weak self] in
+					self?.currentTimeLabel.text = time.currentTime?.asString
+					if let currentSec = time.currentTime?.safeSeconds, fullSec = time.duration?.safeSeconds {
+						self?.progressBar.progress = Float(currentSec / fullSec)
+					} else {
+						self?.progressBar.progress = 0
+					}
 				}
-				}.addDisposableTo(self.bag)
+			}.addDisposableTo(self.bag)
 			
 			rxPlayer.loadMetadataForItemsInQueue().bindNext { [weak self] meta in
 				self?.queueTableView.indexPathsForVisibleRows?.forEach { indexPath in

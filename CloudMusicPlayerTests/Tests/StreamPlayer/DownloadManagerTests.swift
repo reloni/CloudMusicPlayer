@@ -100,6 +100,19 @@ class DownloadManagerTests: XCTestCase {
 		XCTAssertEqual(1, manager.pendingTasks.count, "Check only one task created")
 	}
 	
+	func testThreadSafetyForCreateObservable() {
+		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
+		
+		for _ in 0...10 {
+			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+				manager.createDownloadObservable("https://somelink.com", priority: .Normal).subscribe().addDisposableTo(self.bag)
+			}
+		}
+		
+		NSThread.sleepForTimeInterval(0.05)
+		XCTAssertEqual(1, manager.pendingTasks.count, "Check only one task created")
+	}
+	
 	func testDownloadObservableForIncorrectUrl() {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 	

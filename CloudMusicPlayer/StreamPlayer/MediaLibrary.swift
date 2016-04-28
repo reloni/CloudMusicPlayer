@@ -14,6 +14,7 @@ public protocol MediaLibraryType {
 	func getMetadata(resource: StreamResourceIdentifier) -> MediaItemMetadataType?
 	func saveMetadata(resource: StreamResourceIdentifier, metadata: MediaItemMetadataType)
 	func metadataExists(resource: StreamResourceIdentifier) -> Bool
+	func clearLibrary()
 }
 
 public protocol MediaItemMetadataType {
@@ -49,6 +50,10 @@ extension NonRetentiveMediaLibrary : MediaLibraryType {
 	
 	public func metadataExists(resource: StreamResourceIdentifier) -> Bool {
 		return library[resource.streamResourceUid] != nil
+	}
+	
+	public func clearLibrary() {
+		library.removeAll()
 	}
 }
 
@@ -93,6 +98,13 @@ public class RealmMediaItemMetadata : Object, MediaItemMetadataType {
 }
 
 extension RealmMediaLibrary : MediaLibraryType {
+	public func clearLibrary() {
+		let realm = try? Realm()
+		if let realm = realm {
+			let _ = try? realm.write { realm.deleteAll() }
+		}
+	}
+	
 	public func getMetadata(resource: StreamResourceIdentifier) -> MediaItemMetadataType? {
 		let realm = try? Realm()
 		if let realm = realm {
