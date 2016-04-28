@@ -57,6 +57,8 @@
 		6E8490C01CA9399600366361 /* StreamPlayerUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8490BF1CA9399600366361 /* StreamPlayerUtilities.swift */; };
 		6E8490C41CA9733B00366361 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8490C31CA9733B00366361 /* Collection.swift */; };
 		6E87A9F81CB146F500F999FB /* MemoryCacheProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E87A9F71CB146F500F999FB /* MemoryCacheProviderTests.swift */; };
+		6E89443B1CD1F77900BCE0B1 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8944391CD1F77900BCE0B1 /* Realm.framework */; };
+		6E89443C1CD1F77900BCE0B1 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E89443A1CD1F77900BCE0B1 /* RealmSwift.framework */; };
 		6E8AFD821C78DBC200091B53 /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8AFD801C78DBC200091B53 /* RxSwift.framework */; };
 		6E8AFD831C78DBC200091B53 /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8AFD811C78DBC200091B53 /* RxCocoa.framework */; };
 		6E8AFD861C78E17C00091B53 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8AFD851C78E17C00091B53 /* SettingsViewModel.swift */; };
@@ -170,6 +172,8 @@
 		6E8490BF1CA9399600366361 /* StreamPlayerUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerUtilities.swift; sourceTree = "<group>"; };
 		6E8490C31CA9733B00366361 /* Collection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		6E87A9F71CB146F500F999FB /* MemoryCacheProviderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryCacheProviderTests.swift; sourceTree = "<group>"; };
+		6E8944391CD1F77900BCE0B1 /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Realm.framework; path = Carthage/Build/iOS/Realm.framework; sourceTree = "<group>"; };
+		6E89443A1CD1F77900BCE0B1 /* RealmSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RealmSwift.framework; path = Carthage/Build/iOS/RealmSwift.framework; sourceTree = "<group>"; };
 		6E8AFD801C78DBC200091B53 /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
 		6E8AFD811C78DBC200091B53 /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxCocoa.framework; path = Carthage/Build/iOS/RxCocoa.framework; sourceTree = "<group>"; };
 		6E8AFD851C78E17C00091B53 /* SettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
@@ -225,6 +229,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E89443B1CD1F77900BCE0B1 /* Realm.framework in Frameworks */,
+				6E89443C1CD1F77900BCE0B1 /* RealmSwift.framework in Frameworks */,
 				6E94918C1C7B7218006B7696 /* SwiftyJSON.framework in Frameworks */,
 				6E8AFD821C78DBC200091B53 /* RxSwift.framework in Frameworks */,
 				6E8AFD831C78DBC200091B53 /* RxCocoa.framework in Frameworks */,
@@ -470,6 +476,8 @@
 		6EEB98921C4EBE1700DD5B95 = {
 			isa = PBXGroup;
 			children = (
+				6E8944391CD1F77900BCE0B1 /* Realm.framework */,
+				6E89443A1CD1F77900BCE0B1 /* RealmSwift.framework */,
 				6E94918B1C7B7218006B7696 /* SwiftyJSON.framework */,
 				6E8AFD801C78DBC200091B53 /* RxSwift.framework */,
 				6E8AFD811C78DBC200091B53 /* RxCocoa.framework */,
@@ -703,6 +711,8 @@
 				"$(SRCROOT)/Carthage/Build/iOS/SwiftyJSON.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RxTests.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RxBlocking.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/Realm.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/RealmSwift.framework",
 			);
 			outputPaths = (
 			);

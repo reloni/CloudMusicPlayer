@@ -196,15 +196,21 @@ public class RxPlayer {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
-			let first = object.queueEventsSubject.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
-			let second = object.internalPlayer.events.shareReplay(1).observeOn(object.serialScheduler).subscribe(observer)
+			let first = object.queueEventsSubject.doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
+				print("new player event: \(e)")
+				observer.onNext(e)
+			}
+			let second = object.internalPlayer.events.doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
+				print("new player event: \(e)")
+				observer.onNext(e)
+			}
 			
 			return AnonymousDisposable {
 				print("Dispose player events")
 				first.dispose()
 				second.dispose()
 			}
-		}
+		}.shareReplay(0)
 	}()
 	
 	internal lazy var dispatchQueueScheduler: Observable<Void> = {

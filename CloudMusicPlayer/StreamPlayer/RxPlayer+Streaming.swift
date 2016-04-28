@@ -40,8 +40,6 @@ extension Observable where Element : PlayerEventType {
 				return Observable<AssetLoadResult>.create { observer in
 					guard case let .PreparingToPlay(item) = e as! PlayerEvents else { observer.onCompleted(); return NopDisposable.instance }
 					
-					print("preparing \(item.streamIdentifier.streamResourceUid)")
-					
 					let disposable = item.player.downloadManager.createDownloadObservable(item.streamIdentifier, priority: .Normal)
 						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType).doOnError { observer.onError($0) }.bindNext { e in
 							observer.onNext(e)
@@ -49,7 +47,6 @@ extension Observable where Element : PlayerEventType {
 					}
 					
 					return AnonymousDisposable {
-						print("Dispatch dispoding")
 						disposable.dispose()
 					}
 				}

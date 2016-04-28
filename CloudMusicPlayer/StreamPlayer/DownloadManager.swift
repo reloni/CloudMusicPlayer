@@ -80,7 +80,6 @@ public class DownloadManager {
 			
 			pendingTask.taskDependenciesCount -= 1
 			if pendingTask.taskDependenciesCount <= 0 || force {
-				print("cancel pending task!!!!")
 				pendingTask.task.cancel()
 				self.pendingTasks[uid] = nil
 			}
@@ -91,7 +90,6 @@ public class DownloadManager {
 	
 	internal func createDownloadTaskUnsafe(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> StreamDataTaskProtocol? {
 		if let runningTask = pendingTasks[identifier.streamResourceUid] {
-			print("return running task: \(identifier.streamResourceUid)")
 			runningTask.taskDependenciesCount += 1
 			if runningTask.priority.rawValue < priority.rawValue {
 				runningTask.priority = priority
@@ -100,7 +98,6 @@ public class DownloadManager {
 		}
 
 		if let file = fileStorage.getFromStorage(identifier.streamResourceUid), path = file.path {
-			print("Find in storage: \(identifier.streamResourceUid)")
 			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
 			if let task = task {
@@ -203,7 +200,6 @@ extension DownloadManager : DownloadManagerType {
 				scheduler: object.serialScheduler)).subscribe()
 			
 			return AnonymousDisposable {
-				print("Dispose download task")
 				monitoring.dispose()
 				disposable.dispose()
 				self?.removePendingTaskSync(identifier.streamResourceUid)

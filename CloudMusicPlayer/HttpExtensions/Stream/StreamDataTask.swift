@@ -109,10 +109,6 @@ public class StreamDataTask {
 			}
 		}.shareReplay(1)
 	}()
-	
-	deinit {
-		print("StreamDataTask deinit")
-	}
 }
 
 extension StreamDataTask : StreamDataTaskProtocol {

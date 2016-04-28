@@ -84,7 +84,6 @@ public class RxPlayerQueueItem {
 							file.deleteFile()
 						}
 						//downloadTask.cancel()
-						print("Complete metadata task")
 						observer.onCompleted()
 					}
 				}
@@ -93,15 +92,10 @@ public class RxPlayerQueueItem {
 			//downloadTask.resume()
 			
 			return AnonymousDisposable {
-				print("dispose metadata task")
 				disposable.dispose()
 				//downloadTask.cancel()
 			}
 		}
-	}
-	
-	deinit {
-		print("RxPlayerQueueItem deinit")
 	}
 }
 

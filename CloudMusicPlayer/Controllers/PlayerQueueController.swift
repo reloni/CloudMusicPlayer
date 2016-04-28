@@ -76,7 +76,7 @@ class PlayerQueueController: UIViewController {
 	}
 	
 	func reloadTableView() {
-		//return;
+		return;
 		queueTableView.indexPathsForVisibleRows?.forEach { indexPath in
 			if let cell = queueTableView.cellForRowAtIndexPath(indexPath) as? QueueTrackCell, item = rxPlayer.getItemAtPosition(indexPath.row) {
 				if let meta = rxPlayer.mediaLibrary.getMetadata(item.streamIdentifier) {
@@ -166,14 +166,14 @@ extension PlayerQueueController : UITableViewDelegate {
 	}
 	
 	func tableView(tableView: UITableView, didEndDisplayingCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
-		if let cell = cell as? QueueTrackCell {
+		//if let cell = cell as? QueueTrackCell {
 			//print("end display: \(cell.trackTitleLabel.text)")
 			
-			cell.bag = DisposeBag()
-		}
+			//cell.bag = DisposeBag()
+		//}
 	}
 	
 	func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
-		reloadTableView()
+		//reloadTableView()
 	}
 }

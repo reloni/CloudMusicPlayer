@@ -33,10 +33,6 @@ public class MemoryCacheProvider {
 		self.uid = uid
 		self.contentMimeType = contentMimeType
 	}
-	
-	deinit {
-		print("cache provider deinit")
-	}
 }
 
 extension MemoryCacheProvider : CacheProvider {

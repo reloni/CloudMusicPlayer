@@ -16,8 +16,4 @@ class QueueTrackCell: UITableViewCell {
 	@IBOutlet weak var trackTitleLabel: UILabel!
 	@IBOutlet weak var artistNameLabel: UILabel!
 	@IBOutlet weak var trackTimeLabel: UILabel!
-
-	deinit {
-		print("track cell deinit")
-	}
 }
