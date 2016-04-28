@@ -13,7 +13,9 @@ import AVFoundation
 import RxSwift
 
 //var streamPlayer = StreamAudioPlayer(allowSaveCachedData: true)
-var rxPlayer = RxPlayer(repeatQueue: false, saveData: true)
+var rxPlayer = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(),
+                        downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
+													httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: RealmMediaLibrary())
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
