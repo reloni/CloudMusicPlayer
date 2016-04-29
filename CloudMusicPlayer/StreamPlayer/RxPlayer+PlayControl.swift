@@ -53,7 +53,7 @@ extension RxPlayer {
 
 extension Observable where Element : PlayerEventType {
 	public func dispatchPlayerControlEvents() -> Observable<Void> {
-		return self.map { e in return e as! PlayerEvents }.map { e in
+		return self.catchError { _ in print("catch error"); return Observable.empty() }.map { e in return e as! PlayerEvents }.map { e in
 			switch e {
 			case .Pausing(let current): current.player.internalPlayer.pause()
 			case .Resuming(let current):

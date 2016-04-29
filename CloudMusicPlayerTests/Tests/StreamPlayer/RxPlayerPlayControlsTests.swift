@@ -216,7 +216,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		
 		player.initWithNewItems([playingItem])
 		
-		player.rx_observe().bindNext { e in
+		player.rx_observe().skip(1).bindNext { e in
 			XCTFail("Should not rise any events while resuming")
 		}.addDisposableTo(bag)
 		

@@ -44,6 +44,7 @@ class SettingsController: UIViewController {
 		
 		clearStorageButton.rx_tap.flatMapLatest { _ -> Observable<StorageSize> in
 			rxPlayer.downloadManager.fileStorage.clearStorage()
+			rxPlayer.mediaLibrary.clearLibrary()
 			return rxPlayer.downloadManager.fileStorage.calculateSize()
 			}.observeOn(MainScheduler.instance).bindNext { [unowned self] size in
 				self.permanentStorageLabel.text = "\(Float64(size.permanentStorage) / (1024 * 1024)) Mb"

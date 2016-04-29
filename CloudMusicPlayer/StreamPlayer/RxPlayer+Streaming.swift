@@ -32,15 +32,13 @@ extension Observable where Element : StreamTaskEventsProtocol {
 }
 
 extension Observable where Element : PlayerEventType {
-	internal func streamContent() -> Observable<AssetLoadResult> {
+	internal func streamContent_old() -> Observable<AssetLoadResult> {
 		
 		return self.filter { e in if case .PreparingToPlay = e as! PlayerEvents { return true } else { return false } }
 			.flatMap { e -> Observable<AssetLoadResult> in
 				
 				return Observable<AssetLoadResult>.create { observer in
 					guard case let .PreparingToPlay(item) = e as! PlayerEvents else { observer.onCompleted(); return NopDisposable.instance }
-					
-					print("preparing \(item.streamIdentifier.streamResourceUid)")
 					
 					let disposable = item.player.downloadManager.createDownloadObservable(item.streamIdentifier, priority: .Normal)
 						.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType).doOnError { observer.onError($0) }.bindNext { e in
@@ -49,10 +47,29 @@ extension Observable where Element : PlayerEventType {
 					}
 					
 					return AnonymousDisposable {
-						print("Dispatch dispoding")
 						disposable.dispose()
 					}
 				}
+		}
+	}
+	
+	internal func streamContent() -> Observable<AssetLoadResult> {
+		return Observable<AssetLoadResult>.create { observer in
+			var currentStreamData: Disposable?
+			let disposable = self.filter { e in if case .PreparingToPlay = e as! PlayerEvents { return true } else { return false } }.doOnNext { e in
+				guard case let .PreparingToPlay(item) = e as! PlayerEvents else { return }
+				
+				print("start streaming")
+				currentStreamData?.dispose()
+				currentStreamData = item.player.downloadManager.createDownloadObservable(item.streamIdentifier, priority: .Normal)
+					.streamContent(item.player, contentType: item.streamIdentifier.streamResourceContentType).doOnNext { observer.onNext($0) }.subscribe()
+				}.subscribe()
+			
+			return AnonymousDisposable {
+				print("stream content disposed")
+				disposable.dispose()
+				currentStreamData?.dispose()
+			}
 		}
 	}
 }

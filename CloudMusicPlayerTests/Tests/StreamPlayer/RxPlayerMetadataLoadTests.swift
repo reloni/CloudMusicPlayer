@@ -28,7 +28,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerQueueItemTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
 		let player = RxPlayer()
 		let item = player.addLast("http://testitem.com")
-		let metadata = item.loadFileMetadata(metadataFile, utilities: StreamPlayerUtilities())
+		let metadata = player.loadFileMetadata(item.streamIdentifier, file: metadataFile, utilities: StreamPlayerUtilities())
 		XCTAssertEqual(metadata?.album, "Of Her")
 		XCTAssertEqual(metadata?.artist, "Yusuke Tsutsumi")
 		XCTAssertEqual(metadata?.duration?.asTimeString, "04: 27")
@@ -39,7 +39,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 	func testNotLoadMetadataFromNotExistedFile() {
 		let player = RxPlayer()
 		let item = player.addLast("https://testitem.com")
-		XCTAssertNil(item.loadFileMetadata(NSURL(fileURLWithPath: "/Documents/File.mp3"), utilities: StreamPlayerUtilities()), "Should not return metadata")
+		XCTAssertNil(player.loadFileMetadata(item.streamIdentifier, file: NSURL(fileURLWithPath: "/Documents/File.mp3"), utilities: StreamPlayerUtilities()), "Should not return metadata")
 	}
 	
 	func testLoadMetadataFromCachedFile() {
@@ -62,7 +62,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		
 		let metadataLoadExpectation = expectationWithDescription("Should load metadta from local file")
 		
-		item.loadMetadata(downloadManager, utilities: StreamPlayerUtilities()).bindNext { metadata in
+		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).bindNext { metadata in
 			XCTAssertEqual(metadata?.album, "Of Her")
 			XCTAssertEqual(metadata?.artist, "Yusuke Tsutsumi")
 			XCTAssertEqual(metadata?.duration?.asTimeString, "04: 27")
@@ -109,7 +109,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		item.loadMetadata(downloadManager, utilities: StreamPlayerUtilities()).doOnError { error in
+		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).doOnError { error in
 			if (error as NSError).code == 17 {
 				metadataLoadExpectation.fulfill()
 			}
@@ -162,7 +162,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		item.loadMetadata(downloadManager, utilities: StreamPlayerUtilities()).bindNext { metadata in
+		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).bindNext { metadata in
 			XCTAssertEqual(metadata?.album, "Of Her")
 			XCTAssertEqual(metadata?.artist, "Yusuke Tsutsumi")
 			XCTAssertEqual(metadata?.duration?.asTimeString, "04: 27")
@@ -191,7 +191,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		
 		let metadataLoadExpectation = expectationWithDescription("Should not load metadata for incorrect scheme")
 		
-		item.loadMetadata(downloadManager, utilities: StreamPlayerUtilities()).doOnError { error in
+		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).doOnError { error in
 			if (error as NSError).code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
 				metadataLoadExpectation.fulfill()
 			}

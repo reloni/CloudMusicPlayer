@@ -400,10 +400,33 @@ SWIFT_CLASS("_TtC7RxCocoa26RxImagePickerDelegateProxy")
 
 
 
+
+/// For more information take a look at DelegateProxyType.
 SWIFT_CLASS("_TtC7RxCocoa24RxSearchBarDelegateProxy")
 @interface RxSearchBarDelegateProxy : DelegateProxy <UISearchBarDelegate>
+
+/// For more information take a look at DelegateProxyType.
 + (id _Nullable)currentDelegateFor:(id _Nonnull)object;
+
+/// For more information take a look at DelegateProxyType.
 + (void)setCurrentDelegate:(id _Nullable)delegate toObject:(id _Nonnull)object;
+
+/// For more information take a look at DelegateProxyType.
++ (id _Nonnull)createProxyForObject:(id _Nonnull)object;
+- (nonnull instancetype)initWithParentObject:(id _Nonnull)parentObject OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+
+/// For more information take a look at DelegateProxyType.
+SWIFT_CLASS("_TtC7RxCocoa31RxSearchControllerDelegateProxy")
+@interface RxSearchControllerDelegateProxy : DelegateProxy <UISearchControllerDelegate>
+
+/// For more information take a look at DelegateProxyType.
++ (void)setCurrentDelegate:(id _Nullable)delegate toObject:(id _Nonnull)object;
+
+/// For more information take a look at DelegateProxyType.
++ (id _Nullable)currentDelegateFor:(id _Nonnull)object;
 - (nonnull instancetype)initWithParentObject:(id _Nonnull)parentObject OBJC_DESIGNATED_INITIALIZER;
 @end
 
@@ -603,10 +626,23 @@ SWIFT_CLASS("_TtC7RxCocoa25TableViewDataSourceNotSet")
 
 @interface UISearchBar (SWIFT_EXTENSION(RxCocoa))
 
+/// Factory method that enables subclasses to implement their own rx_delegate.
+///
+/// \returns  Instance of delegate proxy that wraps <code>delegate
+/// </code>.
+- (RxSearchBarDelegateProxy * _Nonnull)rx_createDelegateProxy;
+
 /// Reactive wrapper for delegate.
 ///
 /// For more information take a look at <code>DelegateProxyType
 /// </code> protocol documentation.
+@property (nonatomic, readonly, strong) DelegateProxy * _Nonnull rx_delegate;
+@end
+
+
+@interface UISearchController (SWIFT_EXTENSION(RxCocoa))
+
+/// Reactive wrapper for delegate. For more information take a look at DelegateProxyType protocol documentation.
 @property (nonatomic, readonly, strong) DelegateProxy * _Nonnull rx_delegate;
 @end
 

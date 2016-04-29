@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension Float64 {
+extension Float {
 	public var asTimeString: String {
 		let minutes = Int(self / 60)
 		return String(format: "%02d: %02d", minutes, Int(self) - minutes * 60)

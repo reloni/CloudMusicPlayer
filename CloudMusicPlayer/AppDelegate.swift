@@ -13,7 +13,9 @@ import AVFoundation
 import RxSwift
 
 //var streamPlayer = StreamAudioPlayer(allowSaveCachedData: true)
-var rxPlayer = RxPlayer(repeatQueue: false, saveData: true)
+var rxPlayer = RxPlayer(repeatQueue: false, internalPlayer: InternalPlayer(),
+                        downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
+													httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: RealmMediaLibrary())
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -28,8 +30,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		let _ = try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
 		
+		//let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Background)
+		
 		rxPlayer.rx_observe().doOnError { print("StreamContentError \($0)") }.streamContent().doOnError { print("StreamContentError: \($0)") }.subscribe().addDisposableTo(bag)
-		rxPlayer.rx_observe().doOnError { print("DispatchPlayerControlEventsError \($0)") }.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//rxPlayer.rx_observe().doOnError { print("DispatchPlayerControlEventsError \($0)") }.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		//rxPlayer.startQueueDispatching().subscribe().addDisposableTo(bag)
 		//rxPlayer.rx_observe().dispatchQueue().subscribe().addDisposableTo(bag)
 		

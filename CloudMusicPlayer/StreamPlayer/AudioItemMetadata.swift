@@ -10,9 +10,11 @@ import Foundation
 import AVFoundation
 
 public class AudioItemMetadata {
+	public internal(set) var resourceUid: String
 	internal let metadata: [String: AnyObject?]
-	public init(metadata: [String: AnyObject?]) {
+	public init(resourceUid: String, metadata: [String: AnyObject?]) {
 		self.metadata = metadata
+		self.resourceUid = resourceUid
 	}
 	public lazy var title: String? = {
 		return self.metadata["title"] as? String
@@ -30,12 +32,8 @@ public class AudioItemMetadata {
 		return self.metadata["artwork"] as? NSData
 	}()
 	
-	public lazy var duration: Float64? = {
-		return self.metadata["duration"] as? Float64
+	public lazy var duration: Float? = {
+		return self.metadata["duration"] as? Float
 	}()
-	
-	deinit {
-		print("metadataitem deinit")
-	}
 }
 extension AudioItemMetadata: MediaItemMetadataType { }

@@ -28,9 +28,6 @@ extension NSURLSessionDataEventsObserver : NSURLSessionDataEventsObserverProtoco
 
 public class NSURLSessionDataEventsObserver : NSObject, NSURLSessionDataDelegate {
 	internal let sessionEventsSubject = PublishSubject<SessionDataEvents>()
-	deinit {
-		print("NSURLSessionDataEventsObserver deinit")
-	}
 }
 
 extension NSURLSessionDataEventsObserver {
