@@ -36,13 +36,15 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	}
 	
 	func testStartPlaying() {
-		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())		
-		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
 		XCTAssertFalse(player.playing, "Playing property should be false")
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let preparingExpectation = expectationWithDescription("Should rise PreparingToPlay event")
 		let playStartedExpectation = expectationWithDescription("Should invoke Start on internal player")
@@ -72,11 +74,13 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testPausing() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let pausingExpectation = expectationWithDescription("Should rise Pausing event")
 		let pausedExpectation = expectationWithDescription("Should invoke Pause on internal player")
@@ -101,15 +105,21 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testResuming() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let fakeInternalPlayer = FakeInternalPlayer()
+		//let fakeInternalPlayer = FakeInternalPlayer()
 		// set fake native player instance, 
 		// so RxPlayer will think, that player paused and will invoke resume method
-		fakeInternalPlayer.nativePlayer = FakeNativePlayer()
-		let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
+		//fakeInternalPlayer.nativePlayer = FakeNativePlayer()
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		// set fake native player instance,
+		// so RxPlayer will think, that player paused and will invoke resume method
+		(player.internalPlayer as! FakeInternalPlayer).nativePlayer = FakeNativePlayer()
+		
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let resumingExpectation = expectationWithDescription("Should rise Resuming event")
 		let resumedExpectation = expectationWithDescription("Should invoke Resume on internal player")
@@ -135,8 +145,10 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testResumingWhenNativePlayerIsNil() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		let playingItem = player.first!.streamIdentifier
@@ -144,8 +156,8 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		player.current = player.first
 		
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let resumingExpectation = expectationWithDescription("Should rise Resuming event")
 		let startedExpectation = expectationWithDescription("Should invoke Play on internal player")
@@ -174,11 +186,13 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testStopping() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let stoppingExpectation = expectationWithDescription("Should rise Stopping event")
 		let stoppedExpectation = expectationWithDescription("Should invoke Stopped on internal player")
@@ -206,11 +220,13 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testNotResumeWhenCurrentIsNil() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let playingItem = "https://test.com/track1.mp3"
 		
@@ -228,11 +244,13 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testForceResumeFromNextIfCurrentIsNil() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let playingItems: [StreamResourceIdentifier] = ["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"]
 		player.initWithNewItems(playingItems)
@@ -255,13 +273,15 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testPlayUrlAddNewItemToEndAndSetAsCurrent() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(items: ["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.toNext()
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let preparingExpectation = expectationWithDescription("Should start play new item")
 		let currentItemChangedExpectation = expectationWithDescription("Should change current item")
@@ -286,13 +306,15 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testSwitchToNextAfterCurrentItemFinishesPlaying() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let fakeInternalPlayer = FakeInternalPlayer()
-		let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
+		//let fakeInternalPlayer = FakeInternalPlayer()
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.toNext()
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let expectation = expectationWithDescription("Should switch to next item")
 		var skipped = false
@@ -305,7 +327,8 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		}.addDisposableTo(bag)
 		
 		// send notification about finishing current item playing
-		fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
+		//fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
+		(player.internalPlayer as! FakeInternalPlayer).finishPlayingCurrentItem()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, "https://test.com/track2.mp3", "Check correct current item")
@@ -313,13 +336,15 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testSwitchCurrentItemToNilAfterFinishing() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let fakeInternalPlayer = FakeInternalPlayer()
-		let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
+		//let fakeInternalPlayer = FakeInternalPlayer()
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
+		                      mediaLibrary: NonRetentiveMediaLibrary())
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.current = player.last
 		
-		player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
 		
 		let expectation = expectationWithDescription("Should switch to next item")
 		var skipped = false
@@ -332,7 +357,8 @@ class RxPlayerPlayControlsTests: XCTestCase {
 			}.addDisposableTo(bag)
 		
 		// send notification about finishing current item playing
-		fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
+		//fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
+		(player.internalPlayer as! FakeInternalPlayer).finishPlayingCurrentItem()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		XCTAssertNil(player.current, "Current item should be nil")

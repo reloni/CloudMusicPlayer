@@ -29,14 +29,18 @@ public enum PlayerEvents : PlayerEventType {
 	case Stopped
 	case Pausing(RxPlayerQueueItem)
 	case Paused
-	case FinishPlayingCurrentItem(RxPlayer)
-	case DispatchQueue(RxPlayer)
-	case Unknown
+	case FinishPlayingCurrentItem
 }
 
 public class RxPlayer {
-	internal lazy var internalPlayer: InternalPlayerType = {
-		return self.streamPlayerUtilities.createInternalPlayer(self)
+	internal lazy var eventsCallback: (PlayerEvents) -> () = {
+		return { [weak self] (event: PlayerEvents) in
+			self?.playerEventsSubject.onNext(event)
+		}
+	}()
+	
+	internal lazy var internalPlayer: InternalPlayerType = { [unowned self] in
+		return self.streamPlayerUtilities.createInternalPlayer(self, eventsCallback: self.eventsCallback)
 	}()
 	internal let downloadManager: DownloadManagerType
 	internal let mediaLibrary: MediaLibraryType
@@ -83,20 +87,26 @@ public class RxPlayer {
 				print("new player event: \(e)")
 				observer.onNext(e)
 			}
-			let second = object.internalPlayer.events.shareReplay(0).doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
-				print("new player event: \(e)")
-				observer.onNext(e)
-			}
+			//let second = object.internalPlayer.events.shareReplay(0).doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
+			//	print("new player event: \(e)")
+			//	observer.onNext(e)
+			//}
 			
 			return AnonymousDisposable {
 				print("Dispose player events")
 				first.dispose()
-				second.dispose()
+				//second.dispose()
 			}
 		}.shareReplay(0)
 	}()
 		
 	internal var currentStreamTask: Disposable?
+	internal func startStreamTask() {
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+			self.currentStreamTask?.dispose()
+			self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier).subscribe()
+		}
+	}
 	internal var _current: RxPlayerQueueItem?
 	public var current: RxPlayerQueueItem? {
 		get {
@@ -111,10 +121,7 @@ public class RxPlayer {
 			playerEventsSubject.onNext(.CurrentItemChanged(_current))
 			if playing && _current != nil {
 				playerEventsSubject.onNext(.PreparingToPlay(_current!))
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					self.currentStreamTask?.dispose()
-					self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier).subscribe()
-				}
+				startStreamTask()
 			} else if _current == nil {
 				playing = false
 				internalPlayer.stop()

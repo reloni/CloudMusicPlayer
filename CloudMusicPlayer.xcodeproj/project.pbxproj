@@ -324,8 +324,8 @@
 				6EEC8F781CA0393100B30B85 /* RxPlayer+AssetLoader.swift */,
 				6E4319771CBFBD6C007CC9AB /* RxPlayerQueueItem.swift */,
 				6EF7476B1CBABC23008AA08B /* DownloadManager.swift */,
-				6ED9205F1CCA4B8000900CCB /* MediaLibrary.swift */,
 				6E89443D1CD22BD800BCE0B1 /* RxPlayer+LoadMetadata.swift */,
+				6ED9205F1CCA4B8000900CCB /* MediaLibrary.swift */,
 			);
 			name = StreamPlayer;
 			path = CloudMusicPlayer/StreamPlayer;

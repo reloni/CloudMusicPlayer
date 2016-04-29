@@ -38,7 +38,12 @@ extension RxPlayer {
 		if let current = current {
 			playing = true
 			playerEventsSubject.onNext(.Resuming(current))
-			internalPlayer.resume()
+			if internalPlayer.nativePlayer == nil {
+				playerEventsSubject.onNext(.PreparingToPlay(_current!))
+				startStreamTask()
+			} else {
+				internalPlayer.resume()
+			}
 		} else if force {
 			//playing = true
 			toNext(true)
