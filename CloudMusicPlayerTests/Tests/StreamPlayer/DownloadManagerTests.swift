@@ -96,12 +96,18 @@ class DownloadManagerTests: XCTestCase {
 			}
 		}
 		
-		NSThread.sleepForTimeInterval(0.05)
+		NSThread.sleepForTimeInterval(0.5)
 		XCTAssertEqual(1, manager.pendingTasks.count, "Check only one task created")
 	}
 	
 	func testThreadSafetyForCreateObservable() {
-		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
+		let streamObserver = NSURLSessionDataEventsObserver()
+		let httpUtilities = FakeHttpUtilities()
+		httpUtilities.streamObserver = streamObserver
+		let session = FakeSession(fakeTask: FakeDataTask(completion: nil))
+		httpUtilities.fakeSession = session
+		
+		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
 		
 		for _ in 0...10 {
 			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
@@ -109,8 +115,9 @@ class DownloadManagerTests: XCTestCase {
 			}
 		}
 		
-		NSThread.sleepForTimeInterval(0.05)
+		NSThread.sleepForTimeInterval(0.5)
 		XCTAssertEqual(1, manager.pendingTasks.count, "Check only one task created")
+		XCTAssertEqual(session.task?.resumeInvokeCount, 1)
 	}
 	
 	func testDownloadObservableForIncorrectUrl() {
