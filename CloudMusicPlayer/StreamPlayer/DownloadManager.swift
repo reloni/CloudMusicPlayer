@@ -55,8 +55,6 @@ public class DownloadManager {
 		self.httpUtilities = httpUtilities
 		self.simultaneousTasksCount = simultaneousTasksCount == 0 ? 1 : simultaneousTasksCount
 		self.runningTaskCheckTimeout = runningTaskCheckTimeout <= 0.0 ? 1.0 : runningTaskCheckTimeout
-		
-		//serialScheduler = SerialDispatchQueueScheduler(queue: queue, internalSerialQueueName: "com.cloudmusicplayer.downloadmanager.serialscheduler")
 	}
 	
 	public convenience init(saveData: Bool = false, fileStorage: LocalStorageType = LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
@@ -109,6 +107,7 @@ public class DownloadManager {
 			return task
 		}
 		
+		let resourceType = identifier.streamResourceType
 		if let path = identifier.streamResourceUrl where identifier.streamResourceType == .LocalResource {
 			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
@@ -120,7 +119,7 @@ public class DownloadManager {
 			}
 		}
 		
-		guard identifier.streamResourceType == .HttpResource || identifier.streamResourceType == .HttpsResource else { return nil }
+		guard resourceType == .HttpResource || resourceType == .HttpsResource else { print("not http or https!!"); return nil }
 		
 		guard let url = identifier.streamResourceUrl,
 			urlRequest = httpUtilities.createUrlRequest(url, parameters: nil, headers: (identifier as? StreamHttpResourceIdentifier)?.streamHttpHeaders) else {
@@ -131,7 +130,7 @@ public class DownloadManager {
 		                                              sessionConfiguration: NSURLSession.defaultConfig,
 		                                              cacheProvider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 																										targetMimeType: identifier.streamResourceContentType?.definition.MIME))
-		
+
 		pendingTasks[identifier.streamResourceUid] = PendingTask(task: task, priority: priority)
 		
 		return task
@@ -152,7 +151,7 @@ public class DownloadManager {
 			
 			if (object.pendingTasks.filter { $0.1.task.resumed &&
 				$0.1.priority.rawValue >= pendingTask.priority.rawValue }.count < Int(object.simultaneousTasksCount)) {
-				pendingTask.task.resume()
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {	pendingTask.task.resume() }
 				observer.onCompleted()
 				return NopDisposable.instance
 			}
@@ -167,14 +166,12 @@ public class DownloadManager {
 					observer.onCompleted()
 				}
 			}
-			
-			
 		}
 	}
 }
 
 extension DownloadManager : DownloadManagerType {
-	public func createDownloadObservable(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> Observable<StreamTaskEvents> {		
+	public func createDownloadObservable(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> Observable<StreamTaskEvents> {
 		return Observable<StreamTaskEvents>.create { [weak self] observer in
 			var result: Disposable?
 			
@@ -189,14 +186,14 @@ extension DownloadManager : DownloadManagerType {
 					observer.onError(error); result = NopDisposable.instance; return;
 				}
 				
-				let disposable = task.taskProgress.doOnError {
+				let disposable = task.taskProgress.observeOn(object.serialScheduler).doOnError {
 					self?.removePendingTaskUnsafe(identifier.streamResourceUid, force: true); observer.onError($0)
-					}.bindNext { result in
+					}.doOnCompleted { observer.onCompleted() }.bindNext { result in
 						if case .Success(let provider) = result {
 							object.saveData(provider)
 							object.removePendingTaskUnsafe(identifier.streamResourceUid, force: true)
 							observer.onNext(result)
-							observer.onCompleted()
+							//observer.onCompleted()
 						} else {
 							observer.onNext(result)
 						}

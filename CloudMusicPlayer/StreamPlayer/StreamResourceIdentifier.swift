@@ -8,6 +8,7 @@
 
 import Foundation
 import RxSwift
+import RxBlocking
 
 public enum StreamResourceType {
 	case LocalResource
@@ -29,19 +30,28 @@ public protocol StreamHttpResourceIdentifier {
 extension StreamResourceIdentifier {
 	public var streamResourceType: StreamResourceType? {
 		guard let url = streamResourceUrl else { return nil }
-		
-		guard let scheme = NSURLComponents(string: url)?.scheme else {
-			if NSFileManager.fileExistsAtPath(url, isDirectory: false) {
-				return .LocalResource
-			} else { return nil }
-		}
-		
-		switch scheme {
-			case "http": return .HttpResource
-			case "https": return .HttpsResource
-			default: return nil
+		if url.hasPrefix("https") {
+			return .HttpsResource
+		} else if url.hasPrefix("http") {
+			return .HttpResource
+		} else if NSFileManager.fileExistsAtPath(url) {
+			return .LocalResource
+		} else {
+			return nil
 		}
 	}
+//		guard let scheme = NSURLComponents(string: url)?.scheme else {
+//			if NSFileManager.fileExistsAtPath(url, isDirectory: false) {
+//				return .LocalResource
+//			} else { return nil }
+//		}
+//		
+//		switch scheme {
+//			case "http": return .HttpResource
+//			case "https": return .HttpsResource
+//			default: return nil
+//		}
+//	}
 }
 
 extension StreamHttpResourceIdentifier {
@@ -83,19 +93,24 @@ extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
 	}
 	
 	public var streamResourceUrl: String? {
-		let dispatchGroup = dispatch_group_create()
-		var url: String? = nil
-		// use dispatch group to perfort sync operation
-		dispatch_group_enter(dispatchGroup)
-		let disposable = downloadUrl?.bindNext { result in
-			url = result
-			dispatch_group_leave(dispatchGroup)
-		}
+//		let dispatchGroup = dispatch_group_create()
+//		var url: String? = nil
+//		// use dispatch group to perfort sync operation
+//		dispatch_group_enter(dispatchGroup)
+//		let disposable = downloadUrl?.bindNext { result in
+//			url = result
+//			dispatch_group_leave(dispatchGroup)
+//		}
+//		
+//		// wait until async is completed
+//		dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, Int64(2 * NSEC_PER_SEC)))
+//		disposable?.dispose()
+//		return url
 		
-		// wait until async is completed
-		dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, Int64(2 * NSEC_PER_SEC)))
-		disposable?.dispose()
-		return url
+		do {
+			let array = try downloadUrl?.toBlocking().toArray()
+			return array?.first ?? nil
+		} catch { return nil }
 	}
 	
 	public var streamResourceContentType: ContentType? {

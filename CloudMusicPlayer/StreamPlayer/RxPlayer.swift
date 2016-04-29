@@ -35,14 +35,15 @@ public enum PlayerEvents : PlayerEventType {
 }
 
 public class RxPlayer {
-	internal let internalPlayer: InternalPlayerType
+	internal lazy var internalPlayer: InternalPlayerType = {
+		return self.streamPlayerUtilities.createInternalPlayer(self)
+	}()
 	internal let downloadManager: DownloadManagerType
 	internal let mediaLibrary: MediaLibraryType
 	internal let streamPlayerUtilities: StreamPlayerUtilitiesProtocol
 	
 	internal var itemsSet = NSMutableOrderedSet()
-	internal var queueEventsSubject = PublishSubject<PlayerEvents>()
-	//internal var currentItemSubject = BehaviorSubject<RxPlayerQueueItem?>(value: nil)
+	internal var playerEventsSubject = PublishSubject<PlayerEvents>()
 	
 	internal let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	public internal(set) var playing: Bool = false
@@ -78,7 +79,7 @@ public class RxPlayer {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
-			let first = object.queueEventsSubject.shareReplay(0).doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
+			let first = object.playerEventsSubject.shareReplay(0).doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
 				print("new player event: \(e)")
 				observer.onNext(e)
 			}
@@ -94,20 +95,8 @@ public class RxPlayer {
 			}
 		}.shareReplay(0)
 	}()
-	
-	internal lazy var dispatchQueueScheduler: Observable<Void> = {
-		return Observable<Void>.create { [weak self] observer in
-			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
-			
-			let disposable = Observable<Int>.interval(5, scheduler: object.serialScheduler)
-				.bindNext { _ in object.queueEventsSubject.onNext(.DispatchQueue(object)) }
-			
-			return AnonymousDisposable {
-				disposable.dispose()
-			}
-		}
-	}()
-	
+		
+	internal var currentStreamTask: Disposable?
 	internal var _current: RxPlayerQueueItem?
 	public var current: RxPlayerQueueItem? {
 		get {
@@ -119,9 +108,13 @@ public class RxPlayer {
 			}
 			_current = newValue
 			
-			queueEventsSubject.onNext(.CurrentItemChanged(_current))
+			playerEventsSubject.onNext(.CurrentItemChanged(_current))
 			if playing && _current != nil {
-				queueEventsSubject.onNext(.PreparingToPlay(_current!))
+				playerEventsSubject.onNext(.PreparingToPlay(_current!))
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					self.currentStreamTask?.dispose()
+					self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier).subscribe()
+				}
 			} else if _current == nil {
 				playing = false
 				internalPlayer.stop()
@@ -131,28 +124,27 @@ public class RxPlayer {
 	
 	public internal(set) var repeatQueue: Bool {
 		didSet {
-			queueEventsSubject.onNext(.RepeatChanged(repeatQueue))
+			playerEventsSubject.onNext(.RepeatChanged(repeatQueue))
 		}
 	}
 	
-	internal init(repeatQueue: Bool, internalPlayer: InternalPlayerType, downloadManager: DownloadManagerType,
+	internal init(repeatQueue: Bool, downloadManager: DownloadManagerType,
 	              streamPlayerUtilities: StreamPlayerUtilitiesProtocol, mediaLibrary: MediaLibraryType) {
 		self.repeatQueue = repeatQueue
-		self.internalPlayer = internalPlayer
 		self.downloadManager = downloadManager
 		self.streamPlayerUtilities = streamPlayerUtilities
 		self.mediaLibrary = mediaLibrary
 	}
 	
 	public convenience init(repeatQueue: Bool = false, saveData: Bool = false) {
-		self.init(repeatQueue: repeatQueue, internalPlayer: InternalPlayer(),
+		self.init(repeatQueue: repeatQueue,
 		          downloadManager: DownloadManager(saveData: saveData, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: saveData),
 								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: NonRetentiveMediaLibrary())
 	}
 	
-	internal convenience init(repeatQueue: Bool = false, internalPlayer: InternalPlayerType, downloadManager: DownloadManagerType) {
-		self.init(repeatQueue: repeatQueue, internalPlayer: internalPlayer,
-		          downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: NonRetentiveMediaLibrary())
+	internal convenience init(repeatQueue: Bool = false, downloadManager: DownloadManagerType) {
+		self.init(repeatQueue: repeatQueue, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(),
+		          mediaLibrary: NonRetentiveMediaLibrary())
 	}
 	
 	deinit {
