@@ -29,14 +29,21 @@ extension RxPlayer {
 	public func pause() {
 		playing = false
 		if let current = current {
-			queueEventsSubject.onNext(.Pausing(current))
+			playerEventsSubject.onNext(.Pausing(current))
+			internalPlayer.pause()
 		}
 	}
 	
 	public func resume(force: Bool = false) {
 		if let current = current {
 			playing = true
-			queueEventsSubject.onNext(.Resuming(current))
+			playerEventsSubject.onNext(.Resuming(current))
+			if internalPlayer.nativePlayer == nil {
+				playerEventsSubject.onNext(.PreparingToPlay(_current!))
+				startStreamTask()
+			} else {
+				internalPlayer.resume()
+			}
 		} else if force {
 			//playing = true
 			toNext(true)
@@ -46,26 +53,8 @@ extension RxPlayer {
 	public func stop() {
 		playing = false
 		if let current = current {
-			queueEventsSubject.onNext(.Stopping(current))
-		}
-	}
-}
-
-extension Observable where Element : PlayerEventType {
-	public func dispatchPlayerControlEvents() -> Observable<Void> {
-		return self.catchError { _ in print("catch error"); return Observable.empty() }.map { e in return e as! PlayerEvents }.map { e in
-			switch e {
-			case .Pausing(let current): current.player.internalPlayer.pause()
-			case .Resuming(let current):
-				if current.player.internalPlayer.nativePlayer == nil {
-					current.player.queueEventsSubject.onNext(PlayerEvents.PreparingToPlay(current))
-				} else {
-					current.player.internalPlayer.resume()
-				}
-			case .Stopping(let current): current.player.internalPlayer.stop()
-			case .FinishPlayingCurrentItem(let player): player.toNext(true)
-			default: break
-			}
+			playerEventsSubject.onNext(.Stopping(current))
+			internalPlayer.stop()
 		}
 	}
 }

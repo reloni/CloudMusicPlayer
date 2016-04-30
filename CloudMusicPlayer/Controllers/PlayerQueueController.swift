@@ -53,13 +53,13 @@ class PlayerQueueController: UIViewController {
 //		}.addDisposableTo(bag)
 		
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-//			rxPlayer.currentItem.flatMapLatest { e -> Observable<MediaItemMetadataType?> in
-//				guard let e = e else { return Observable.just(nil) }
-//				return rxPlayer.loadMetadata(e.streamIdentifier)
-//				//return e?.loadMetadata() ?? Observable.just(nil)
-//				}.map { e -> String in
-//					return e?.duration?.asTimeString ?? "0: 00"
-//				}.observeOn(MainScheduler.instance).bindTo(self.fullTimeLabel.rx_text).addDisposableTo(self.bag)
+			rxPlayer.currentItem.flatMapLatest { e -> Observable<MediaItemMetadataType?> in
+				guard let e = e else { return Observable.just(nil) }
+				return rxPlayer.loadMetadata(e.streamIdentifier)
+				//return e?.loadMetadata() ?? Observable.just(nil)
+				}.map { e -> String in
+					return e?.duration?.asTimeString ?? "0: 00"
+				}.observeOn(MainScheduler.instance).bindTo(self.fullTimeLabel.rx_text).addDisposableTo(self.bag)
 			
 			rxPlayer.currentItemTime.bindNext { [weak self] time in
 				guard let time = time else { self?.currentTimeLabel.text = "0: 00"; return }
@@ -134,11 +134,13 @@ extension PlayerQueueController : UITableViewDelegate {
 			}
 			
 			cell.bag = DisposeBag()
-			rxPlayer.currentItem.observeOn(MainScheduler.instance).bindNext { [unowned cell] newCurrent in
-				if item.streamIdentifier.streamResourceUid == newCurrent?.streamIdentifier.streamResourceUid {
-					cell.backgroundColor = UIColor(red: 204/255, green: 255/255, blue: 253/255, alpha: 1)
-				} else {
-					cell.backgroundColor = UIColor.whiteColor()
+			rxPlayer.currentItem.bindNext { [unowned cell] newCurrent in
+				dispatch_async(dispatch_get_main_queue()) {
+					if item.streamIdentifier.streamResourceUid == newCurrent?.streamIdentifier.streamResourceUid {
+						cell.backgroundColor = UIColor(red: 204/255, green: 255/255, blue: 253/255, alpha: 1)
+					} else {
+						cell.backgroundColor = UIColor.whiteColor()
+					}
 				}
 			}.addDisposableTo(cell.bag)
 		}

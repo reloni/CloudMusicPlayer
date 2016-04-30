@@ -42,14 +42,14 @@ extension RxPlayer {
 		} else {
 			itemsSet.addObjectsFromArray(items.map { $0 as! AnyObject })
 		}
-		queueEventsSubject.onNext(.InitWithNewItems(currentItems))
+		playerEventsSubject.onNext(.InitWithNewItems(currentItems))
 	}
 	
 	internal func shuffleQueue() {
 		var items = itemsSet.array
 		items.shuffleInPlace()
 		itemsSet = NSMutableOrderedSet(array: items)
-		queueEventsSubject.onNext(.Shuflle(currentItems))
+		playerEventsSubject.onNext(.Shuflle(currentItems))
 	}
 	
 	/// Shuffle queue and set current item to nil
@@ -91,7 +91,7 @@ extension RxPlayer {
 	public func remove(item: StreamResourceIdentifier) {
 		guard let index = itemsSet.getIndexOfObject(item as! AnyObject) else { return }
 		itemsSet.removeObjectAtIndex(index)
-		queueEventsSubject.onNext(.RemoveItem(RxPlayerQueueItem(player: self, streamIdentifier: item)))
+		playerEventsSubject.onNext(.RemoveItem(RxPlayerQueueItem(player: self, streamIdentifier: item)))
 	}
 	
 	public func remove(item: RxPlayerQueueItem) {
@@ -153,9 +153,9 @@ extension RxPlayer {
 		let queueItem = RxPlayerQueueItem(player: self, streamIdentifier: item)
 		
 		if isItemRemoved {
-			queueEventsSubject.onNext(.ChangeItemsOrder(self))
+			playerEventsSubject.onNext(.ChangeItemsOrder(self))
 		} else {
-			queueEventsSubject.onNext(.AddNewItem(queueItem))
+			playerEventsSubject.onNext(.AddNewItem(queueItem))
 		}
 		
 		return queueItem

@@ -52,36 +52,48 @@ public class FakeAVAssetResourceLoadingRequest : NSObject, AVAssetResourceLoadin
 }
 
 public class FakeInternalPlayer : InternalPlayerType {
-	public let publishSubject = PublishSubject<PlayerEvents>()
-	public let metadataSubject = BehaviorSubject<AudioItemMetadata?>(value: nil)
+	//public let publishSubject = PublishSubject<PlayerEvents>()
+	//public let metadataSubject = BehaviorSubject<AudioItemMetadata?>(value: nil)
 	public let durationSubject = BehaviorSubject<CMTime?>(value: nil)
 	public let currentTimeSubject = BehaviorSubject<(currentTime: CMTime?, duration: CMTime?)?>(value: nil)
+	public let hostPlayer: RxPlayer
+	public let eventsCallback: (PlayerEvents) -> ()
 	
 	public var nativePlayer: AVPlayerProtocol?
 	
-	public var events: Observable<PlayerEvents> { return publishSubject }
-	public var metadata: Observable<AudioItemMetadata?> { return metadataSubject.shareReplay(1) }
+	//public var events: Observable<PlayerEvents> { return publishSubject }
+	//public var metadata: Observable<AudioItemMetadata?> { return metadataSubject.shareReplay(1) }
 	public var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> { return currentTimeSubject.shareReplay(1) }
 	
 	public func resume() {
-		publishSubject.onNext(.Resumed)
+		//publishSubject.onNext(.Resumed)
+		eventsCallback(.Resumed)
 	}
 	
 	public func pause() {
-		publishSubject.onNext(.Paused)
+		//publishSubject.onNext(.Paused)
+		eventsCallback(.Paused)
 	}
 	
-	public func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol,
-	                 hostPlayer: RxPlayer) {
-		publishSubject.onNext(.Started)
+	public func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult> {
+		eventsCallback(.Started)
+		return Observable.empty()
 	}
 	
 	public func stop() {
-		publishSubject.onNext(.Stopped)
+		//publishSubject.onNext(.Stopped)
+		eventsCallback(.Stopped)
 	}
 	
-	deinit {
-		publishSubject.onCompleted()
+	public func finishPlayingCurrentItem() {
+		eventsCallback(.FinishPlayingCurrentItem)
+		hostPlayer.toNext(true)
+	}
+	
+	init(hostPlayer: RxPlayer, callback: (PlayerEvents) -> (), nativePlayer: AVPlayerProtocol? = nil) {
+		self.hostPlayer = hostPlayer
+		self.eventsCallback = callback
+		self.nativePlayer = nativePlayer
 	}
 }
 
@@ -99,5 +111,26 @@ public class FakeNativePlayer: AVPlayerProtocol {
 	public func setPlayerRate(rate: Float) {
 		
 	}
+}
+
+public class FakeStreamPlayerUtilities : StreamPlayerUtilitiesProtocol {
+	init() {
+		
+	}
 	
+	public func createavUrlAsset(url: NSURL) -> AVURLAssetProtocol {
+		return StreamPlayerUtilities().createavUrlAsset(url)
+	}
+	
+	public func createavPlayerItem(url: NSURL) -> AVPlayerItemProtocol {
+		return StreamPlayerUtilities().createavPlayerItem(url)
+	}
+	
+	public func createavPlayerItem(asset: AVURLAssetProtocol) -> AVPlayerItemProtocol {
+		return StreamPlayerUtilities().createavPlayerItem(asset)
+	}
+	
+	public func createInternalPlayer(hostPlayer: RxPlayer, eventsCallback: (PlayerEvents) -> ()) -> InternalPlayerType {
+		return FakeInternalPlayer(hostPlayer: hostPlayer, callback: eventsCallback)
+	}
 }

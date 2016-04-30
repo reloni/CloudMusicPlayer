@@ -58,7 +58,7 @@ extension NonRetentiveMediaLibrary : MediaLibraryType {
 }
 
 public class RealmMediaLibrary {
-	
+	//internal let queue = dispatch_queue_create("com.cloudmusicplayer.realmmedialibrary.serialqueue", DISPATCH_QUEUE_SERIAL)
 }
 
 public class RealmMediaItemMetadata : Object, MediaItemMetadataType {
@@ -99,50 +99,64 @@ public class RealmMediaItemMetadata : Object, MediaItemMetadataType {
 
 extension RealmMediaLibrary : MediaLibraryType {
 	public func clearLibrary() {
-		let realm = try? Realm()
-		if let realm = realm {
-			let _ = try? realm.write { realm.deleteAll() }
-		}
+		//dispatch_sync(queue) {
+			let realm = try? Realm()
+			if let realm = realm {
+				let _ = try? realm.write { realm.deleteAll() }
+			}
+		//}
 	}
 	
 	public func getMetadata(resource: StreamResourceIdentifier) -> MediaItemMetadataType? {
-		let realm = try? Realm()
-		if let realm = realm {
-			return realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", resource.streamResourceUid).first
-		}
-		return nil
+		var result: MediaItemMetadataType?
+		//dispatch_sync(queue) {
+			let realm = try? Realm()
+			if let realm = realm {
+				if let meta = realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", resource.streamResourceUid).first {
+					result = MediaItemMetadata(resourceUid: meta.resourceUid, artist: meta.artist, title: meta.title,
+					                           album: meta.album, artwork: meta.artwork, duration: meta.duration)
+				}
+				
+			}
+		//}
+		return result
 	}
 	
 	public func metadataExists(resource: StreamResourceIdentifier) -> Bool {
-		let realm = try? Realm()
-		if let realm = realm {
-			return realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", resource.streamResourceUid).first != nil
-		}
-		return false
+		var result: Bool = false
+		//dispatch_sync(queue) {
+			let realm = try? Realm()
+			if let realm = realm {
+				result = realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", resource.streamResourceUid).first != nil
+			}
+		//}
+		return result
 	}
 	
 	public func saveMetadata(resource: StreamResourceIdentifier, metadata: MediaItemMetadataType) {
-		let realm = try? Realm()
-		if let realm = realm {
-			if let meta = realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", resource.streamResourceUid).first {
-				let _ = try? realm.write {
+		//dispatch_sync(queue) {
+			let realm = try? Realm()
+			if let realm = realm {
+				if let meta = realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", resource.streamResourceUid).first {
+					let _ = try? realm.write {
+						meta.album = metadata.album
+						meta.artist = metadata.artist
+						meta.artwork = metadata.artwork
+						meta.internalDuration = RealmOptional<Float>(metadata.duration)
+						meta.title = metadata.title
+					}
+				} else {
+					let meta = RealmMediaItemMetadata(uid: resource.streamResourceUid)
 					meta.album = metadata.album
 					meta.artist = metadata.artist
 					meta.artwork = metadata.artwork
 					meta.internalDuration = RealmOptional<Float>(metadata.duration)
 					meta.title = metadata.title
-				}
-			} else {
-				let meta = RealmMediaItemMetadata(uid: resource.streamResourceUid)
-				meta.album = metadata.album
-				meta.artist = metadata.artist
-				meta.artwork = metadata.artwork
-				meta.internalDuration = RealmOptional<Float>(metadata.duration)
-				meta.title = metadata.title
-				let _ = try? realm.write {
-					realm.add(meta)
+					let _ = try? realm.write {
+						realm.add(meta)
+					}
 				}
 			}
-		}
+		//}
 	}
 }

@@ -29,139 +29,25 @@ public enum PlayerEvents : PlayerEventType {
 	case Stopped
 	case Pausing(RxPlayerQueueItem)
 	case Paused
-	case FinishPlayingCurrentItem(RxPlayer)
-	case DispatchQueue(RxPlayer)
-	case Unknown
+	case FinishPlayingCurrentItem
 }
-
-internal protocol InternalPlayerType {
-	func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol,
-	          hostPlayer: RxPlayer)
-	func stop()
-	func pause()
-	func resume()
-	var events: Observable<PlayerEvents> { get }
-	var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> { get }
-	var nativePlayer: AVPlayerProtocol? { get }
-}
-
-internal class InternalPlayer {
-	var nativePlayer: AVPlayerProtocol?
-	var observer: AVAssetResourceLoaderEventsObserverProtocol?
-	let subject = PublishSubject<PlayerEvents>()
-
-	//let currentTimeSubject = BehaviorSubject<(currentTime: CMTime?, duration: CMTime?)?>(value: nil)
-	var currentTimeDisposable: Disposable?
-	var bag: DisposeBag?
-	var asset: AVURLAssetProtocol?
-	var playerItem: AVPlayerItemProtocol?
-	var hostPlayer: RxPlayer?
-	
-	deinit {
-		stop()
-	}
-	
-	internal func dispose() {
-		stop()
-		subject.onCompleted()
-		bag = nil
-	}
-}
-
-extension InternalPlayer : InternalPlayerType {
-	var events: Observable<PlayerEvents> { return subject }
-
-	var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> {
-		return Observable.create { [weak self] observer in
-			guard let object = self else {
-				observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance
-			}
-			
-			return Observable<Int>.interval(1, scheduler: SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
-				.bindNext { _ in
-					//print("current time")
-					if let playerItem = object.playerItem, asset = object.asset {
-						observer.onNext((currentTime: playerItem.currentTime(), duration: asset.duration))
-					} else {
-						observer.onNext(nil)
-					}
-			}
-		}
-	}
-	
-	func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol,
-	          hostPlayer: RxPlayer) {
-		stop()
-		bag = DisposeBag()
-		
-		self.asset = asset
-		self.playerItem = playerItem
-		self.observer = observer
-		self.hostPlayer = hostPlayer
-		self.nativePlayer = AVPlayer(playerItem: playerItem as! AVPlayerItem)
-		
-		nativePlayer?.internalItemStatus.bindNext { [weak self] status in
-			print("player status: \(status?.rawValue)")
-			if status == AVPlayerItemStatus.ReadyToPlay {
-				self?.nativePlayer?.play()
-				self?.subject.onNext(.Started)
-				
-				if let object = self {
-					NSNotificationCenter.defaultCenter().addObserver(object, selector:
-						#selector(object.finishPlayingItem), name: AVPlayerItemDidPlayToEndTimeNotification, object: object.playerItem as? AVPlayerItem)
-				}
-			}
-		}.addDisposableTo(bag!)
-	}
-	
-	func flush() {
-		NSNotificationCenter.defaultCenter().removeObserver(self, name: AVPlayerItemDidPlayToEndTimeNotification, object: playerItem as? AVPlayerItem)
-		nativePlayer?.replaceCurrentItemWithPlayerItem(nil)
-		nativePlayer = nil
-		asset = nil
-		playerItem = nil
-		bag = nil
-		currentTimeDisposable?.dispose()
-	}
-	
-	func stop() {
-		flush()
-		subject.onNext(.Stopped)
-	}
-	
-	func pause() {
-		if let nativePlayer = nativePlayer {
-			currentTimeDisposable?.dispose()
-			nativePlayer.setPlayerRate(0.0)
-			subject.onNext(.Paused)
-		}
-	}
-	
-	func resume() {
-		if let nativePlayer = nativePlayer {
-			nativePlayer.setPlayerRate(1.0)
-			subject.onNext(.Resumed)
-		}
-	}
-	
-	@objc func finishPlayingItem() {
-		flush()
-		guard let player = hostPlayer else { return }
-		subject.onNext(.FinishPlayingCurrentItem(player))
-		print("finish playing item")
-	}
-}
-
 
 public class RxPlayer {
-	internal let internalPlayer: InternalPlayerType
+	internal lazy var eventsCallback: (PlayerEvents) -> () = {
+		return { [weak self] (event: PlayerEvents) in
+			self?.playerEventsSubject.onNext(event)
+		}
+	}()
+	
+	internal lazy var internalPlayer: InternalPlayerType = { [unowned self] in
+		return self.streamPlayerUtilities.createInternalPlayer(self, eventsCallback: self.eventsCallback)
+	}()
 	internal let downloadManager: DownloadManagerType
 	internal let mediaLibrary: MediaLibraryType
 	internal let streamPlayerUtilities: StreamPlayerUtilitiesProtocol
 	
 	internal var itemsSet = NSMutableOrderedSet()
-	internal var queueEventsSubject = PublishSubject<PlayerEvents>()
-	//internal var currentItemSubject = BehaviorSubject<RxPlayerQueueItem?>(value: nil)
+	internal var playerEventsSubject = PublishSubject<PlayerEvents>()
 	
 	internal let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	public internal(set) var playing: Bool = false
@@ -197,11 +83,7 @@ public class RxPlayer {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
-			let first = object.queueEventsSubject.shareReplay(0).doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
-				print("new player event: \(e)")
-				observer.onNext(e)
-			}
-			let second = object.internalPlayer.events.shareReplay(0).doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
+			let first = object.playerEventsSubject.shareReplay(0).doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
 				print("new player event: \(e)")
 				observer.onNext(e)
 			}
@@ -209,24 +91,17 @@ public class RxPlayer {
 			return AnonymousDisposable {
 				print("Dispose player events")
 				first.dispose()
-				second.dispose()
 			}
 		}.shareReplay(0)
 	}()
-	
-	internal lazy var dispatchQueueScheduler: Observable<Void> = {
-		return Observable<Void>.create { [weak self] observer in
-			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
-			
-			let disposable = Observable<Int>.interval(5, scheduler: object.serialScheduler)
-				.bindNext { _ in object.queueEventsSubject.onNext(.DispatchQueue(object)) }
-			
-			return AnonymousDisposable {
-				disposable.dispose()
-			}
+		
+	internal var currentStreamTask: Disposable?
+	internal func startStreamTask() {
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+			self.currentStreamTask?.dispose()
+			self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier).subscribe()
 		}
-	}()
-	
+	}
 	internal var _current: RxPlayerQueueItem?
 	public var current: RxPlayerQueueItem? {
 		get {
@@ -238,9 +113,10 @@ public class RxPlayer {
 			}
 			_current = newValue
 			
-			queueEventsSubject.onNext(.CurrentItemChanged(_current))
+			playerEventsSubject.onNext(.CurrentItemChanged(_current))
 			if playing && _current != nil {
-				queueEventsSubject.onNext(.PreparingToPlay(_current!))
+				playerEventsSubject.onNext(.PreparingToPlay(_current!))
+				startStreamTask()
 			} else if _current == nil {
 				playing = false
 				internalPlayer.stop()
@@ -250,33 +126,30 @@ public class RxPlayer {
 	
 	public internal(set) var repeatQueue: Bool {
 		didSet {
-			queueEventsSubject.onNext(.RepeatChanged(repeatQueue))
+			playerEventsSubject.onNext(.RepeatChanged(repeatQueue))
 		}
 	}
 	
-	internal init(repeatQueue: Bool, internalPlayer: InternalPlayerType, downloadManager: DownloadManagerType,
+	internal init(repeatQueue: Bool, downloadManager: DownloadManagerType,
 	              streamPlayerUtilities: StreamPlayerUtilitiesProtocol, mediaLibrary: MediaLibraryType) {
 		self.repeatQueue = repeatQueue
-		self.internalPlayer = internalPlayer
 		self.downloadManager = downloadManager
 		self.streamPlayerUtilities = streamPlayerUtilities
 		self.mediaLibrary = mediaLibrary
 	}
 	
 	public convenience init(repeatQueue: Bool = false, saveData: Bool = false) {
-		self.init(repeatQueue: repeatQueue, internalPlayer: InternalPlayer(),
+		self.init(repeatQueue: repeatQueue,
 		          downloadManager: DownloadManager(saveData: saveData, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: saveData),
 								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: NonRetentiveMediaLibrary())
 	}
 	
-	internal convenience init(repeatQueue: Bool = false, internalPlayer: InternalPlayerType, downloadManager: DownloadManagerType) {
-		self.init(repeatQueue: repeatQueue, internalPlayer: internalPlayer,
-		          downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: NonRetentiveMediaLibrary())
+	internal convenience init(repeatQueue: Bool = false, downloadManager: DownloadManagerType) {
+		self.init(repeatQueue: repeatQueue, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(),
+		          mediaLibrary: NonRetentiveMediaLibrary())
 	}
 	
 	deinit {
 		print("Rx player deinit")
-		//queueEventsSubject.onCompleted()
-		//currentItemSubject.onCompleted()
 	}
 }
