@@ -10,12 +10,14 @@ import Foundation
 import RxSwift
 import AVFoundation
 
+public typealias AssetLoadResult =
+	(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])
+
 public protocol InternalPlayerType {
 	func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult>
 	func stop()
 	func pause()
 	func resume()
-	//var events: Observable<PlayerEvents> { get }
 	var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> { get }
 	var nativePlayer: AVPlayerProtocol? { get }
 }
@@ -24,7 +26,6 @@ public class InternalPlayer {
 	public var nativePlayer: AVPlayerProtocol?
 	var observer: AVAssetResourceLoaderEventsObserverProtocol?
 	let eventsCallback: (PlayerEvents) -> ()
-	//let subject = PublishSubject<PlayerEvents>()
 	
 	var currentTimeDisposable: Disposable?
 	var bag: DisposeBag
@@ -36,10 +37,6 @@ public class InternalPlayer {
 		stop()
 	}
 	
-	internal func dispose() {
-		stop()
-	}
-	
 	internal init(hostPlayer: RxPlayer, eventsCallback: (PlayerEvents) -> ()) {
 		self.hostPlayer = hostPlayer
 		self.eventsCallback = eventsCallback
@@ -48,8 +45,6 @@ public class InternalPlayer {
 }
 
 extension InternalPlayer : InternalPlayerType {
-	//public var events: Observable<PlayerEvents> { return subject }
-	
 	public var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else {
@@ -96,7 +91,6 @@ extension InternalPlayer : InternalPlayerType {
 			print("player status: \(status?.rawValue)")
 			if status == AVPlayerItemStatus.ReadyToPlay {
 				self?.nativePlayer?.play()
-				//self?.subject.onNext(.Started)
 				self?.eventsCallback(.Started)
 				
 				if let object = self {
@@ -119,7 +113,6 @@ extension InternalPlayer : InternalPlayerType {
 	
 	public func stop() {
 		flush()
-		//subject.onNext(.Stopped)
 		eventsCallback(.Stopped)
 	}
 	
@@ -127,7 +120,6 @@ extension InternalPlayer : InternalPlayerType {
 		if let nativePlayer = nativePlayer {
 			currentTimeDisposable?.dispose()
 			nativePlayer.setPlayerRate(0.0)
-			//subject.onNext(.Paused)
 			eventsCallback(.Paused)
 		}
 	}
@@ -135,17 +127,13 @@ extension InternalPlayer : InternalPlayerType {
 	public func resume() {
 		if let nativePlayer = nativePlayer {
 			nativePlayer.setPlayerRate(1.0)
-			//subject.onNext(.Resumed)
 			eventsCallback(.Resumed)
 		}
 	}
 	
 	@objc func finishPlayingItem() {
 		flush()
-		//guard let player = hostPlayer else { return }
-		//subject.onNext(.FinishPlayingCurrentItem(hostPlayer))
 		eventsCallback(.FinishPlayingCurrentItem)
 		hostPlayer.toNext(true)
-		print("finish playing item")
 	}
 }

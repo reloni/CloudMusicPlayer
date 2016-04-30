@@ -92,21 +92,7 @@ extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
 		return path
 	}
 	
-	public var streamResourceUrl: String? {
-//		let dispatchGroup = dispatch_group_create()
-//		var url: String? = nil
-//		// use dispatch group to perfort sync operation
-//		dispatch_group_enter(dispatchGroup)
-//		let disposable = downloadUrl?.bindNext { result in
-//			url = result
-//			dispatch_group_leave(dispatchGroup)
-//		}
-//		
-//		// wait until async is completed
-//		dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, Int64(2 * NSEC_PER_SEC)))
-//		disposable?.dispose()
-//		return url
-		
+	public var streamResourceUrl: String? {		
 		do {
 			let array = try downloadUrl?.toBlocking().toArray()
 			return array?.first ?? nil

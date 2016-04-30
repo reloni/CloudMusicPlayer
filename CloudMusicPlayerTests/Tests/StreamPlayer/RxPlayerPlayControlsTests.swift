@@ -43,15 +43,15 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		
 		XCTAssertFalse(player.playing, "Playing property should be false")
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let preparingExpectation = expectationWithDescription("Should rise PreparingToPlay event")
 		let playStartedExpectation = expectationWithDescription("Should invoke Start on internal player")
 		let currentItemChangeExpectation = expectationWithDescription("Should change current item")
 		
 		let playingItem = "https://test.com/track1.mp3"
-		player.rx_observe().bindNext { e in
+		player.playerEvents.bindNext { e in
 			if case PlayerEvents.PreparingToPlay(let item) = e {
 				XCTAssertEqual(playingItem.streamResourceUid, item.streamIdentifier.streamResourceUid, "Check correct item preparing to play")
 				preparingExpectation.fulfill()
@@ -79,14 +79,14 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
 		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let pausingExpectation = expectationWithDescription("Should rise Pausing event")
 		let pausedExpectation = expectationWithDescription("Should invoke Pause on internal player")
 		
 		let playingItem = "https://test.com/track1.mp3"
-		player.rx_observe().bindNext { e in
+		player.playerEvents.bindNext { e in
 			if case PlayerEvents.Pausing(let item) = e {
 				XCTAssertEqual(playingItem.streamResourceUid, item.streamIdentifier.streamResourceUid)
 				pausingExpectation.fulfill()
@@ -118,14 +118,14 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		// so RxPlayer will think, that player paused and will invoke resume method
 		(player.internalPlayer as! FakeInternalPlayer).nativePlayer = FakeNativePlayer()
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let resumingExpectation = expectationWithDescription("Should rise Resuming event")
 		let resumedExpectation = expectationWithDescription("Should invoke Resume on internal player")
 		
 		let playingItem = "https://test.com/track1.mp3"
-		player.rx_observe().bindNext { e in
+		player.playerEvents.bindNext { e in
 			if case PlayerEvents.Resuming(let item) = e {
 				XCTAssertEqual(playingItem.streamResourceUid, item.streamIdentifier.streamResourceUid)
 				resumingExpectation.fulfill()
@@ -156,14 +156,14 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		player.current = player.first
 		
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let resumingExpectation = expectationWithDescription("Should rise Resuming event")
 		let startedExpectation = expectationWithDescription("Should invoke Play on internal player")
 		let preparingToPlayExpectation = expectationWithDescription("Should rise PreparingToPlay event")
 		
-		player.rx_observe().bindNext { e in
+		player.playerEvents.bindNext { e in
 			if case PlayerEvents.Resuming(let item) = e {
 				XCTAssertEqual(playingItem.streamResourceUid, item.streamIdentifier.streamResourceUid)
 				resumingExpectation.fulfill()
@@ -191,14 +191,14 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
 		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let stoppingExpectation = expectationWithDescription("Should rise Stopping event")
 		let stoppedExpectation = expectationWithDescription("Should invoke Stopped on internal player")
 		
 		let playingItem = "https://test.com/track1.mp3"
-		player.rx_observe().bindNext { e in
+		player.playerEvents.bindNext { e in
 			if case PlayerEvents.Stopping(let item) = e {
 				XCTAssertEqual(playingItem.streamResourceUid, item.streamIdentifier.streamResourceUid)
 				stoppingExpectation.fulfill()
@@ -225,14 +225,14 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
 		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let playingItem = "https://test.com/track1.mp3"
 		
 		player.initWithNewItems([playingItem])
 		
-		player.rx_observe().skip(1).bindNext { e in
+		player.playerEvents.skip(1).bindNext { e in
 			XCTFail("Should not rise any events while resuming")
 		}.addDisposableTo(bag)
 		
@@ -249,15 +249,15 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
 		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let playingItems: [StreamResourceIdentifier] = ["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"]
 		player.initWithNewItems(playingItems)
 		
 		let preparingToPlayExpectation = expectationWithDescription("Should rise PrepareToPlay event")
 		
-		player.rx_observe().bindNext { e in
+		player.playerEvents.bindNext { e in
 			if case PlayerEvents.PreparingToPlay(let item) = e {
 				XCTAssertEqual(playingItems[0].streamResourceUid, item.streamIdentifier.streamResourceUid, "Should resume from first item")
 				preparingToPlayExpectation.fulfill()
@@ -280,14 +280,14 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.toNext()
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let preparingExpectation = expectationWithDescription("Should start play new item")
 		let currentItemChangedExpectation = expectationWithDescription("Should change current item")
 		
 		let newItem = "https://test.com/track4.mp3"
-		player.rx_observe().bindNext { e in
+		player.playerEvents.bindNext { e in
 			if case PlayerEvents.PreparingToPlay(let item) = e {
 				XCTAssertEqual(newItem.streamResourceUid, item.streamIdentifier.streamResourceUid, "Should start playing new item")
 				preparingExpectation.fulfill()
@@ -313,8 +313,8 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.toNext()
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let expectation = expectationWithDescription("Should switch to next item")
 		var skipped = false
@@ -343,8 +343,8 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.current = player.last
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let expectation = expectationWithDescription("Should switch to next item")
 		var skipped = false

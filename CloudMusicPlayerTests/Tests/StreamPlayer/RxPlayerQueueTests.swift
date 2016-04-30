@@ -67,7 +67,7 @@ class RxPlayerQueueTests: XCTestCase {
 		let expectation = expectationWithDescription("Should rise event")
 		
 		var itemsFromEvent: [RxPlayerQueueItem]?
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.Shuflle(let newItems) = result {
 				itemsFromEvent = newItems
 				expectation.fulfill()
@@ -123,7 +123,7 @@ class RxPlayerQueueTests: XCTestCase {
 		var itemsFromEvent: [RxPlayerQueueItem]?
 		// init current item with value
 		var currentItem: RxPlayerQueueItem? = RxPlayerQueueItem(player: queue, streamIdentifier: audioItems[0])
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.InitWithNewItems(let newItems) = result {
 				itemsFromEvent = newItems
 				initExpectation.fulfill()
@@ -160,7 +160,7 @@ class RxPlayerQueueTests: XCTestCase {
 		var eventExpectation: XCTestExpectation? = expectationWithDescription("Should rise AddNewItem event")
 		
 		var addedItem: RxPlayerQueueItem?
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.AddNewItem(let newItem) = result {
 				addedItem = newItem
 				eventExpectation?.fulfill()
@@ -243,7 +243,7 @@ class RxPlayerQueueTests: XCTestCase {
 	func testNotAddExistedItemToQueue() {
 		let queue = RxPlayer(items: audioItems)
 		
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.AddNewItem = result {
 				XCTFail("Event AddNewItem should not be rised")
 			}
@@ -271,7 +271,7 @@ class RxPlayerQueueTests: XCTestCase {
 		var expectation = expectationWithDescription("Should rise event")
 		
 		var queueFromEvent: RxPlayer?
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.ChangeItemsOrder(let resultQueue) = result {
 				queueFromEvent = resultQueue
 				expectation.fulfill()
@@ -323,7 +323,7 @@ class RxPlayerQueueTests: XCTestCase {
 		let expectation = expectationWithDescription("Should rise event")
 		
 		var queueFromEvent: RxPlayer?
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.ChangeItemsOrder(let resultQueue) = result {
 				queueFromEvent = resultQueue
 				expectation.fulfill()
@@ -352,7 +352,7 @@ class RxPlayerQueueTests: XCTestCase {
 		let expectation = expectationWithDescription("Should rise event")
 		
 		var queueFromEvent: RxPlayer?
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.ChangeItemsOrder(let resultQueue) = result {
 				queueFromEvent = resultQueue
 				expectation.fulfill()
@@ -408,7 +408,7 @@ class RxPlayerQueueTests: XCTestCase {
 		let expectation = expectationWithDescription("Should rise event")
 		
 		var newCurrent: RxPlayerQueueItem?
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				newCurrent = item
 				expectation.fulfill()
@@ -434,7 +434,7 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		// init new current with value
 		var newCurrent: RxPlayerQueueItem? = queue.current
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				newCurrent = item
 				expectation.fulfill()
@@ -458,7 +458,7 @@ class RxPlayerQueueTests: XCTestCase {
 		let expectation = expectationWithDescription("Should rise event")
 		
 		var newCurrent: RxPlayerQueueItem?
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				newCurrent = item
 				expectation.fulfill()
@@ -482,7 +482,7 @@ class RxPlayerQueueTests: XCTestCase {
 		let expectation = expectationWithDescription("Should rise event")
 		
 		var removedItem: RxPlayerQueueItem?
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.RemoveItem(let item) = result {
 				removedItem = item
 				expectation.fulfill()
@@ -505,7 +505,7 @@ class RxPlayerQueueTests: XCTestCase {
 		let queue = RxPlayer(items: audioItems)
 		let notExisted = RxPlayerQueueItem(player: queue, streamIdentifier: "fake five")
 		
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.RemoveItem = result {
 				XCTFail("Should not rise this event, because we try to delete item not existed in queue")
 			}
@@ -522,7 +522,7 @@ class RxPlayerQueueTests: XCTestCase {
 		let expectation = expectationWithDescription("Should rise event")
 		
 		var eventValue: Bool?
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.RepeatChanged(let newVal) = result {
 				eventValue = newVal
 				expectation.fulfill()
@@ -558,7 +558,7 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should rise event")
 
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, self.audioItems[1].streamResourceUid, "Check switched to second item")
 				expectation.fulfill()
@@ -583,7 +583,7 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should rise event")
 		
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				XCTAssertNil(item, "Check new current item is nil")
 				expectation.fulfill()
@@ -608,7 +608,7 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should rise event")
 		
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, queue.first?.streamIdentifier.streamResourceUid, "Check new item is first item in queue")
 				expectation.fulfill()
@@ -635,7 +635,7 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should rise event")
 		
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
 				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, self.audioItems[1].streamResourceUid, "Check switched to second item")
 				expectation.fulfill()
@@ -659,7 +659,7 @@ class RxPlayerQueueTests: XCTestCase {
 		XCTAssertFalse(queue.playing, "Check player is not playing")
 		
 		
-		queue.rx_observe().bindNext { result in
+		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.CurrentItemChanged = result {
 				XCTFail("Should not change current item")
 			}

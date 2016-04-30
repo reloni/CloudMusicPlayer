@@ -58,8 +58,8 @@ class RxPlayerQueueItemTests: XCTestCase {
 		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
 		                      mediaLibrary: NonRetentiveMediaLibrary())
 		
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -94,8 +94,8 @@ class RxPlayerQueueItemTests: XCTestCase {
 		//                      streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: NonRetentiveMediaLibrary())
 		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
 		                      mediaLibrary: NonRetentiveMediaLibrary())
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -125,7 +125,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 	
 	func testReturnMetadataFromRemote() {
 		//let player = RxPlayer()
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		
 		let storage = LocalNsUserDefaultsStorage()
 		
@@ -140,8 +140,8 @@ class RxPlayerQueueItemTests: XCTestCase {
 		//                      streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: NonRetentiveMediaLibrary())
 		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
 		                      mediaLibrary: NonRetentiveMediaLibrary())
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -184,7 +184,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 	
 	func testRetirnNilMetadataForItemWithUnknownScheme() {
 		//let player = RxPlayer()
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		
 		let storage = LocalNsUserDefaultsStorage()
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: HttpUtilities())
@@ -193,8 +193,8 @@ class RxPlayerQueueItemTests: XCTestCase {
 		//                      streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: NonRetentiveMediaLibrary())
 		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
 		                      mediaLibrary: NonRetentiveMediaLibrary())
-		//player.rx_observe().dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//player.rx_observe().streamContent().subscribe().addDisposableTo(bag)
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
 		
 		let item = player.addLast("wrong://testitem.com")
 		
