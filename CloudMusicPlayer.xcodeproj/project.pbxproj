@@ -79,6 +79,8 @@
 		6EB8C2F81C5019FD0064A00B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 6EB8C2F71C5019FD0064A00B /* .gitignore */; };
 		6EBCBA4A1CD51759007AE9DA /* SJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBCBA491CD51759007AE9DA /* SJSON.swift */; };
 		6EBCBA4C1CD5198A007AE9DA /* SJSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBCBA4B1CD5198A007AE9DA /* SJSONTests.swift */; };
+		6EBE02181CD6152B00FBB3FD /* GoogleOAuthResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBE02171CD6152B00FBB3FD /* GoogleOAuthResource.swift */; };
+		6EBE021A1CD62ED300FBB3FD /* GoogleDriveCloudJsonResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBE02191CD62ED300FBB3FD /* GoogleDriveCloudJsonResource.swift */; };
 		6EBFE0FB1CAA7C7D0003D12C /* StreamResourceIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */; };
 		6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */; };
 		6EC021201C8B3E0200E30BE1 /* MusicPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */; };
@@ -196,6 +198,8 @@
 		6EB8C2F71C5019FD0064A00B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		6EBCBA491CD51759007AE9DA /* SJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SJSON.swift; sourceTree = "<group>"; };
 		6EBCBA4B1CD5198A007AE9DA /* SJSONTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SJSONTests.swift; sourceTree = "<group>"; };
+		6EBE02171CD6152B00FBB3FD /* GoogleOAuthResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogleOAuthResource.swift; sourceTree = "<group>"; };
+		6EBE02191CD62ED300FBB3FD /* GoogleDriveCloudJsonResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogleDriveCloudJsonResource.swift; sourceTree = "<group>"; };
 		6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamResourceIdentifier.swift; sourceTree = "<group>"; };
 		6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableOrderedSet.swift; sourceTree = "<group>"; };
 		6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicPlayerViewModel.swift; sourceTree = "<group>"; };
@@ -413,8 +417,10 @@
 			children = (
 				6E5254471C675D8F00CA5463 /* OAuthResourceBase.swift */,
 				6E12B9111C6F6CB200E93FFB /* YandexOAuthResource.swift */,
+				6EBE02171CD6152B00FBB3FD /* GoogleOAuthResource.swift */,
 				6E1183591C7EF48400E71CC5 /* CloudResourceProtocols.swift */,
 				6E182ED71C81E76300730C59 /* YandexDiskCloudJsonResource.swift */,
+				6EBE02191CD62ED300FBB3FD /* GoogleDriveCloudJsonResource.swift */,
 				6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */,
 				6EA16FED1CC7668A00D4D257 /* CloudResourceCacheProvider.swift */,
 			);
@@ -759,6 +765,7 @@
 				6EEC8F791CA0393100B30B85 /* RxPlayer+AssetLoader.swift in Sources */,
 				6EC4E6141C8D789200957D42 /* MusicPlayerController.swift in Sources */,
 				6EAFAD821CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift in Sources */,
+				6EBE02181CD6152B00FBB3FD /* GoogleOAuthResource.swift in Sources */,
 				6EA638781C7A002200DD85A6 /* CloudResourcesViewModel.swift in Sources */,
 				6EE0CCC61C96CAA4002F4D9D /* HttpClient.swift in Sources */,
 				6E182ED61C81E14700730C59 /* CloudTrackCell.swift in Sources */,
@@ -767,6 +774,7 @@
 				6E8490C01CA9399600366361 /* StreamPlayerUtilities.swift in Sources */,
 				6E3572F01CBD003B008FAC87 /* LocalFileStreamDataTask.swift in Sources */,
 				6EA3B5021CD334E1002E25BA /* InternalPlayer.swift in Sources */,
+				6EBE021A1CD62ED300FBB3FD /* GoogleDriveCloudJsonResource.swift in Sources */,
 				6E11F1D51C53E4F300297EBD /* LoginController.swift in Sources */,
 				6EB1929D1CC3B45D00FF3024 /* PlayerQueueController.swift in Sources */,
 				6E6DDE471C8DBA59001AE510 /* NSTimer.swift in Sources */,
