@@ -89,7 +89,7 @@ extension _SwiftNativeNSString : StreamResourceIdentifier {
 
 extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
 	public var streamResourceUid: String {
-		return path
+		return uid
 	}
 	
 	public var streamResourceUrl: String? {		

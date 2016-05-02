@@ -29,6 +29,7 @@ class SettingsController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		
 		// Do any additional setup after loading the view, typically from a nib.
 		logInButton.rx_tap.bindNext { [unowned self] in
 			if let url = self.model.yandexOauth.getAuthUrl?() {
@@ -43,8 +44,8 @@ class SettingsController: UIViewController {
 			}.addDisposableTo(bag)
 		
 		logOutButton.rx_tap.bindNext { [unowned self] in
-			self.model.yandexOauth.tokenId = nil
-			self.model.yandexOauth.saveResource()
+			self.model.googleOauth.tokenId = nil
+			self.model.googleOauth.saveResource()
 		}.addDisposableTo(bag)
 		
 		googleLogOutButton.rx_tap.bindNext { [unowned self] in
@@ -67,6 +68,8 @@ class SettingsController: UIViewController {
 				self.tempStorageLabel.text = "\(Float64(size.tempStorage) / (1024 * 1024)) Mb"
 				self.temporaryFolderLabel.text = "\(Float64(size.temporary) / (1024 * 1024)) Mb"
 			}.addDisposableTo(bag)
+		
+		
 	}
 	
 	override func didReceiveMemoryWarning() {

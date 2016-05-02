@@ -27,12 +27,12 @@ internal class SettingsViewModel {
 			}.addDisposableTo(bag)
 		}
 		
-//		if let googleOauth = googleOauth as? OAuthResourceBase {
-//			googleOauth.rx_observe(String.self, "tokenId").subscribeNext { [weak self] id in
-//				if let strongSelf = self {
-//					strongSelf.isGoogleSetUp.value = id != nil
-//				}
-//				}.addDisposableTo(bag)
-//		}
+		if let googleOauth = googleOauth as? OAuthResourceBase {
+			googleOauth.rx_observe(String.self, "tokenId").subscribeNext { [weak self] id in
+				if let strongSelf = self {
+					strongSelf.isGoogleSetUp.value = id != nil
+				}
+				}.addDisposableTo(bag)
+		}
 	}
 }

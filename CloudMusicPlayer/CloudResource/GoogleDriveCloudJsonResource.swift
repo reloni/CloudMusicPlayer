@@ -10,7 +10,7 @@ import Foundation
 import SwiftyJSON
 import RxSwift
 
-public class GoogleDriveCloudJsonResource : CloudJsonResource {
+public class GoogleDriveCloudJsonResource : CloudResource {
 	public static let apiUrl = "https://www.googleapis.com/drive/v3"
 	public static let resourcesApiUrl = apiUrl + "/files"
 	public private (set) var parent: CloudResource?
@@ -23,20 +23,16 @@ public class GoogleDriveCloudJsonResource : CloudJsonResource {
 		return raw["name"].stringValue
 	}
 	
-	public var path: String {
-		return raw["path"].stringValue
-	}
-	
 	public var uid: String {
-		return path
+		return raw["id"].stringValue
 	}
 	
-	public var type: String {
-		return raw["kind"].stringValue
-	}
-	
-	public var mediaType: String? {
-		return raw["media_type"].string
+	public var type: CloudResourceType {
+		guard let mimeType = mimeType else { return .Unknown }
+		switch (mimeType) {
+		case "application/vnd.google-apps.folder": return .Folder
+		default: return .File
+		}
 	}
 	
 	public var mimeType: String? {
@@ -44,11 +40,11 @@ public class GoogleDriveCloudJsonResource : CloudJsonResource {
 	}
 	
 	public var rootUrl: String = {
-		return YandexDiskCloudJsonResource.apiUrl
+		return GoogleDriveCloudJsonResource.apiUrl
 	}()
 	
 	public var resourcesUrl: String = {
-		return YandexDiskCloudAudioJsonResource.resourcesApiUrl
+		return GoogleDriveCloudJsonResource.resourcesApiUrl
 	}()
 	
 	init (raw: JSON, oAuthResource: OAuthResource, parent: CloudResource?, httpClient: HttpClientProtocol = HttpClient(),
@@ -61,11 +57,14 @@ public class GoogleDriveCloudJsonResource : CloudJsonResource {
 	}
 	
 	public func getRequestHeaders() -> [String : String]? {
-		return ["Authorization": oAuthResource.tokenId ?? ""]
+		if let token = oAuthResource.tokenId {
+			return ["Authorization": "Bearer \(token)"]
+		}
+		return nil
 	}
 	
 	public func getRequestParameters() -> [String : String]? {
-		return ["path": path]
+		return ["q": "\'\(uid)\' in parents"]
 	}
 	
 	public func loadChildResources(loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]> {
@@ -73,7 +72,7 @@ public class GoogleDriveCloudJsonResource : CloudJsonResource {
 			return Observable.just([CloudResource]())
 		}
 		
-		return YandexDiskCloudJsonResource.loadResources(request, oauthResource: oAuthResource, httpClient: httpClient, forResource: self,
+		return GoogleDriveCloudJsonResource.loadResources(request, oauthResource: oAuthResource, httpClient: httpClient, forResource: self,
 		                                                 cacheProvider: cacheProvider, loadMode: loadMode)
 	}
 	
@@ -85,25 +84,25 @@ public class GoogleDriveCloudJsonResource : CloudJsonResource {
 		return resource.loadChildResources(.RemoteOnly).flatMapLatest { e -> Observable<CloudResource> in
 			return e.toObservable()
 			}.flatMap { e -> Observable<CloudResource> in
-				return [e].toObservable().concat(YandexDiskCloudJsonResource.recursiveLoadChildsRemote(e))
+				return [e].toObservable().concat(GoogleDriveCloudJsonResource.recursiveLoadChildsRemote(e))
 		}
 	}
 	
 	public func loadChildResourcesRecursive() -> Observable<[CloudResource]> {
-		return YandexDiskCloudJsonResource.recursiveLoadChildsRemote(self).toArray()
+		return GoogleDriveCloudJsonResource.recursiveLoadChildsRemote(self).toArray()
 	}
 	
 	public static func deserializeResponseData(json: JSON?, res: OAuthResource, parent: CloudResource? = nil,
 	                                           httpClient: HttpClientProtocol = HttpClient(), cacheProvider: CloudResourceCacheProviderType? = nil) -> [CloudResource]? {
-		guard let items = json?["_embedded"]["items"].array else {
+		guard let items = json?["files"].array else {
 			return nil
 		}
 		
 		return items.map { item in
-			if item["media_type"].stringValue == "audio" {
+			if item["mimeType"].stringValue == "audio/mpeg" {
 				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider)
 			} else {
-				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider) }
+				return GoogleDriveCloudJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider) }
 		}
 	}
 	
@@ -112,8 +111,9 @@ public class GoogleDriveCloudJsonResource : CloudJsonResource {
 			guard let token = oauthResource.tokenId else {
 				return nil
 			}
-			
-			return httpUtilities.createUrlRequest(resourcesApiUrl, parameters: ["path": "/"], headers: ["Authorization": token])
+
+			return httpUtilities.createUrlRequest(resourcesApiUrl, parameters: ["q": "\'0AChKrpwk2445Uk9PVA\' in parents"],
+			                                      headers: ["Authorization": "Bearer \(token)"])
 	}
 	
 	internal static func loadResources(request: NSMutableURLRequestProtocol, oauthResource: OAuthResource,
@@ -124,8 +124,8 @@ public class GoogleDriveCloudJsonResource : CloudJsonResource {
 			
 			// check cached data
 			if loadMode == .CacheAndRemote || loadMode == .CacheOnly {
-				if let cachedData = cacheProvider?.getCachedChilds(forResource?.uid ?? "/"),
-					cachedChilds = YandexDiskCloudJsonResource.deserializeResponseData(JSON(data: cachedData), res: oauthResource, parent: forResource,
+				if let cachedData = cacheProvider?.getCachedChilds(forResource?.uid ?? "0AChKrpwk2445Uk9PVA"),
+					cachedChilds = GoogleDriveCloudJsonResource.deserializeResponseData(JSON(data: cachedData), res: oauthResource, parent: forResource,
 						httpClient: httpClient, cacheProvider: cacheProvider) {
 					observer.onNext(cachedChilds)
 				}
@@ -138,7 +138,7 @@ public class GoogleDriveCloudJsonResource : CloudJsonResource {
 			}
 			
 			let task = httpClient.loadJsonData(request).doOnError { observer.onError($0) }.bindNext { json in
-				if let data = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource, parent: forResource,
+				if let data = GoogleDriveCloudJsonResource.deserializeResponseData(json, res: oauthResource, parent: forResource,
 					httpClient: httpClient, cacheProvider: cacheProvider) {
 					if let cacheProvider = cacheProvider, rawData = try? json?.rawData() {
 						if let rawData = rawData { cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData) }

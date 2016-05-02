@@ -10,7 +10,7 @@ import Foundation
 import SwiftyJSON
 import RxSwift
 
-public class YandexDiskCloudJsonResource : CloudJsonResource {
+public class YandexDiskCloudJsonResource : CloudResource {
 	public static let apiUrl = "https://cloud-api.yandex.net:443/v1/disk"
 	public static let resourcesApiUrl = apiUrl + "/resources"
 	public private (set) var parent: CloudResource?
@@ -23,20 +23,16 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 		return raw["name"].stringValue
 	}
 	
-	public var path: String {
+	public var uid: String {
 		return raw["path"].stringValue
 	}
 	
-	public var uid: String {
-		return path
-	}
-	
-	public var type: String {
-		return raw["type"].stringValue
-	}
-	
-	public var mediaType: String? {
-		return raw["media_type"].string
+	public var type: CloudResourceType {
+		switch (raw["type"].stringValue) {
+			case "file": return .File
+			case "dir": return .Folder
+			default: return .Unknown
+		}
 	}
 	
 	public var mimeType: String? {
@@ -65,7 +61,7 @@ public class YandexDiskCloudJsonResource : CloudJsonResource {
 	}
 	
 	public func getRequestParameters() -> [String : String]? {
-		return ["path": path]
+		return ["path": uid]
 	}
 	
 	public func loadChildResources(loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]> {
