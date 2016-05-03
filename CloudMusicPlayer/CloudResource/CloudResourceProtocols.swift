@@ -30,9 +30,6 @@ public protocol CloudResource {
 	var uid: String { get }
 	var name: String { get }
 	var type: CloudResourceType { get }
-	//var path: String { get }
-	//var type: String { get }
-	//var mediaType: String? { get }
 	var mimeType: String? { get }
 	var rootUrl: String { get }
 	var resourcesUrl: String { get }
@@ -44,5 +41,5 @@ public protocol CloudResource {
 }
 
 public protocol CloudAudioResource : CloudResource {
-	var downloadUrl: Observable<String?>? { get }
+	var downloadUrl: Observable<String> { get }
 }

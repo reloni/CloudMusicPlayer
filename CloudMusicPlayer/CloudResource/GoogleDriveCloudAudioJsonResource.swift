@@ -10,31 +10,20 @@ import Foundation
 import SwiftyJSON
 import RxSwift
 
-public class GoogleDriveCloudAudioJsonResource : YandexDiskCloudJsonResource, CloudAudioResource {
+public class GoogleDriveCloudAudioJsonResource : GoogleDriveCloudJsonResource, CloudAudioResource {
 	internal var downloadResourceUrl: NSURL? {
-		return NSURL(baseUrl: resourcesUrl + "/download", parameters: getRequestParameters())
+		return NSURL(baseUrl: "\(resourcesUrl)/\(uid)", parameters: ["alt": "media"])
 	}
 	
-	public var downloadUrl: Observable<String?>? {
+	public var downloadUrl: Observable<String> {
 		guard let url = downloadResourceUrl else {
-			return nil
+			return Observable.empty()
 		}
-			return nil
-//		let request = httpClient.httpUtilities.createUrlRequest(url, headers: getRequestHeaders())
-//		
-//		return Observable.create { [unowned self] observer in
-//			let task = self.httpClient.loadJsonData(request).bindNext { json in
-//				if let href = json?["href"].string {
-//					observer.onNext(href)
-//				} else {
-//					observer.onNext(nil)
-//				}
-//				observer.onCompleted()
-//			}
-//			
-//			return AnonymousDisposable {
-//				task.dispose()
-//			}
-//		}
+		
+		return Observable.create { observer in
+			observer.onNext(url.absoluteString)
+			observer.onCompleted()
+			return NopDisposable.instance
+		}
 	}
 }

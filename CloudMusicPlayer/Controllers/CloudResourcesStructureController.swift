@@ -82,8 +82,8 @@ class CloudResourcesStructureController: UIViewController {
 		if let identifier = track as? StreamResourceIdentifier {
 			rxPlayer.playUrl(identifier)
 		} else {
-			track.downloadUrl?.bindNext { result in
-				guard let url = result else { return }
+			track.downloadUrl.bindNext { url in
+				//guard let url = result else { return }
 				rxPlayer.playUrl(url)
 				
 				}.addDisposableTo(bag!)

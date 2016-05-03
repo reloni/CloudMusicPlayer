@@ -15,9 +15,9 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 		return NSURL(baseUrl: resourcesUrl + "/download", parameters: getRequestParameters())
 	}
 	
-	public var downloadUrl: Observable<String?>? {
+	public var downloadUrl: Observable<String> {
 		guard let url = downloadResourceUrl else {
-			return nil
+			return Observable.empty()
 		}
 		
 		let request = httpClient.httpUtilities.createUrlRequest(url, headers: getRequestHeaders())
@@ -26,9 +26,9 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 			let task = self.httpClient.loadJsonData(request).bindNext { json in
 				if let href = json?["href"].string {
 					observer.onNext(href)
-				} else {
-					observer.onNext(nil)
-				}
+				} //else {
+					//observer.onNext(nil)
+				//}
 				observer.onCompleted()
 			}
 			

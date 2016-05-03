@@ -100,7 +100,7 @@ public class GoogleDriveCloudJsonResource : CloudResource {
 		
 		return items.map { item in
 			if item["mimeType"].stringValue == "audio/mpeg" {
-				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider)
+				return GoogleDriveCloudAudioJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider)
 			} else {
 				return GoogleDriveCloudJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider) }
 		}
