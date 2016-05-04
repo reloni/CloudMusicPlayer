@@ -111,7 +111,7 @@ class HttpClientBasicTests: XCTestCase {
 		let expectation = expectationWithDescription("Should return json data")
 		
 		httpClient.loadJsonData(request).bindNext { json in
-			if json?["Test"] == "Value" {
+			if json["Test"] == "Value" {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)
@@ -130,10 +130,8 @@ class HttpClientBasicTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should not return json data")
 		
-		httpClient.loadJsonData(request).bindNext { json in
-			if json == nil {
-				expectation.fulfill()
-			}
+		httpClient.loadJsonData(request).doOnCompleted { expectation.fulfill() }.bindNext { json in
+			XCTFail("Should not return data")
 		}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
@@ -225,8 +223,8 @@ class HttpClientBasicTests: XCTestCase {
 			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpClient: httpClient, httpUtilities: utilities)
 		fakeRes.resourcesUrl = "https://test.com"
 		
-		httpClient.loadDataForCloudResource(fakeRes)?.bindNext { json in
-			if json?["Test"] == "Value" {
+		httpClient.loadDataForCloudResource(fakeRes).bindNext { json in
+			if json["Test"] == "Value" {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)
@@ -234,7 +232,7 @@ class HttpClientBasicTests: XCTestCase {
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
-	func testNotReturnRequestForCloudResourceWithIncorrectUrl() {
+	func testNotReturnDataForCloudResourceWithIncorrectUrl() {
 		// use real http utilities in this case to test that request will not created
 		let client = HttpClient(urlSession: session, httpUtilities: HttpUtilities())
 		
@@ -242,6 +240,9 @@ class HttpClientBasicTests: XCTestCase {
 			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpClient: client, httpUtilities: client.httpUtilities)
 		fakeRes.resourcesUrl = "incorrect url"
 		
-		XCTAssertNil(client.loadDataForCloudResource(fakeRes), "Should not return request due to incorrect url")
+		let expectation = expectationWithDescription("Should return empty observable")
+		client.loadDataForCloudResource(fakeRes).doOnCompleted { expectation.fulfill() }.bindNext { _ in XCTFail("Should not return data") }.addDisposableTo(bag)
+		waitForExpectationsWithTimeout(1, handler: nil)
+		//XCTAssertNil(client.loadDataForCloudResource(fakeRes), "Should not return request due to incorrect url")
 	}
 }

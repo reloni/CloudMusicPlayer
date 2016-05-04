@@ -11,6 +11,7 @@ import CloudMusicPlayer
 import RxSwift
 
 public class FakeRequest : NSMutableURLRequestProtocol {
+	public var HTTPMethod: String? = "GET"
 	var headers = [String: String]()
 	public var URL: NSURL?
 	public var allHTTPHeaderFields: [String: String]? {
@@ -23,6 +24,10 @@ public class FakeRequest : NSMutableURLRequestProtocol {
 	
 	public func addValue(value: String, forHTTPHeaderField: String) {
 		headers[forHTTPHeaderField] = value
+	}
+	
+	public func setHttpMethod(method: String) {
+		HTTPMethod = method
 	}
 }
 

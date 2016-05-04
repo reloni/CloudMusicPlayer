@@ -28,7 +28,9 @@ extension NSURLResponse : NSURLResponseProtocol { }
 
 
 // NSURLRequestProtocol
-public protocol NSURLRequestProtocol { }
+public protocol NSURLRequestProtocol {
+	var HTTPMethod: String? { get }
+}
 extension NSURLRequest : NSURLRequestProtocol { }
 
 
@@ -37,8 +39,13 @@ public protocol NSMutableURLRequestProtocol : NSURLRequestProtocol {
 	func addValue(value: String, forHTTPHeaderField: String)
 	var URL: NSURL? { get }
 	var allHTTPHeaderFields: [String: String]? { get }
+	func setHttpMethod(method: String)
 }
-extension NSMutableURLRequest : NSMutableURLRequestProtocol { }
+extension NSMutableURLRequest : NSMutableURLRequestProtocol {
+	public func setHttpMethod(method: String) {
+		HTTPMethod = method
+	}
+}
 
 
 public protocol NSURLSessionTaskProtocol { }

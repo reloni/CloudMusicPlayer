@@ -18,9 +18,9 @@ public enum HttpRequestResult {
 public protocol HttpClientProtocol {
 	var urlSession: NSURLSessionProtocol { get }
 	var httpUtilities: HttpUtilitiesProtocol { get }
-	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<JSON?>
+	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<JSON>
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
-	func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON?>?
+	func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON>
 	func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?) -> Observable<StreamTaskEvents>
 }
 
@@ -46,14 +46,14 @@ public class HttpClient {
 
 extension HttpClient : HttpClientProtocol {
 	public func loadJsonData(request: NSMutableURLRequestProtocol)
-		-> Observable<JSON?> {
+		-> Observable<JSON> {
 			return Observable.create { [unowned self] observer in
 				let task = self.loadData(request).doOnError { observer.onError($0) }.bindNext { result in
 					if case .SuccessData(let data) = result {
 						observer.onNext(JSON(data: data))
-					} else if case .Success = result {
-						observer.onNext(nil)
-					}
+					} //else if case .Success = result {
+						//observer.onNext(nil)
+					//}
 					observer.onCompleted()
 				}
 				
@@ -91,8 +91,8 @@ extension HttpClient : HttpClientProtocol {
 			}.shareReplay(1)
 	}
 	
-	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON?>? {
-		guard let request = createRequestForCloudResource(resource) else { return nil }
+	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON> {
+		guard let request = createRequestForCloudResource(resource) else { return Observable.empty() }
 		return loadJsonData(request)
 	}
 	
