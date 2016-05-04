@@ -40,9 +40,9 @@ public class GoogleOAuthResource : OAuthResourceBase {
 				let client = HttpClient()
 				let array = try client.loadJsonData(request).toBlocking().toArray()
 				if let result = array.first {
-					if let result = result {
+					//if let result = result {
 						return result["access_token"].string
-					}
+					//}
 				}
 			} catch {
 				return nil

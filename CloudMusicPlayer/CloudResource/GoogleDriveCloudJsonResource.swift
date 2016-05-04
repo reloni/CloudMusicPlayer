@@ -19,6 +19,18 @@ public class GoogleDriveCloudJsonResource : CloudResource {
 	public var raw: JSON
 	internal let cacheProvider: CloudResourceCacheProviderType?
 	
+	internal static var _rootFolderId: String?
+	internal static func getRootFolderId(oauthResource: OAuthResource, httpClient: HttpClientProtocol) -> String? {
+		if GoogleDriveCloudJsonResource._rootFolderId != nil { return GoogleDriveCloudJsonResource._rootFolderId }
+		
+		guard let url = NSURL(baseUrl: resourcesApiUrl + "/root", parameters: nil), token = oauthResource.tokenId else { return nil }
+		let req = httpClient.httpUtilities.createUrlRequest(url, headers: ["Authorization": "Bearer \(token)"])
+		let array = try? httpClient.loadJsonData(req).toBlocking().toArray()
+		guard let json = array?.first, rootId = json["id"].string else { return nil }
+		GoogleDriveCloudJsonResource._rootFolderId = rootId
+		return rootId
+	}
+	
 	public var name: String {
 		return raw["name"].stringValue
 	}
@@ -106,13 +118,13 @@ public class GoogleDriveCloudJsonResource : CloudResource {
 		}
 	}
 	
-	internal static func createRequestForLoadRootResources(oauthResource: OAuthResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities())
+	internal static func createRequestForLoadRootResources(oauthResource: OAuthResource, httpClient: HttpClientProtocol = HttpClient())
 		-> NSMutableURLRequestProtocol? {
-			guard let token = oauthResource.tokenId else {
+			guard let token = oauthResource.tokenId, rootId = GoogleDriveCloudJsonResource.getRootFolderId(oauthResource, httpClient: httpClient) else {
 				return nil
 			}
 
-			return httpUtilities.createUrlRequest(resourcesApiUrl, parameters: ["q": "\'0AChKrpwk2445Uk9PVA\' in parents"],
+			return httpClient.httpUtilities.createUrlRequest(resourcesApiUrl, parameters: ["q": "\'\(rootId)\' in parents"],
 			                                      headers: ["Authorization": "Bearer \(token)"])
 	}
 	
@@ -124,7 +136,8 @@ public class GoogleDriveCloudJsonResource : CloudResource {
 			
 			// check cached data
 			if loadMode == .CacheAndRemote || loadMode == .CacheOnly {
-				if let cachedData = cacheProvider?.getCachedChilds(forResource?.uid ?? "0AChKrpwk2445Uk9PVA"),
+				if let rootId = GoogleDriveCloudJsonResource.getRootFolderId(oauthResource, httpClient: httpClient),
+					cachedData = cacheProvider?.getCachedChilds(forResource?.uid ?? rootId),
 					cachedChilds = GoogleDriveCloudJsonResource.deserializeResponseData(JSON(data: cachedData), res: oauthResource, parent: forResource,
 						httpClient: httpClient, cacheProvider: cacheProvider) {
 					observer.onNext(cachedChilds)
@@ -140,8 +153,10 @@ public class GoogleDriveCloudJsonResource : CloudResource {
 			let task = httpClient.loadJsonData(request).doOnError { observer.onError($0) }.bindNext { json in
 				if let data = GoogleDriveCloudJsonResource.deserializeResponseData(json, res: oauthResource, parent: forResource,
 					httpClient: httpClient, cacheProvider: cacheProvider) {
-					if let cacheProvider = cacheProvider, rawData = try? json?.rawData() {
-						if let rawData = rawData { cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData) }
+					if let rootId = GoogleDriveCloudJsonResource.getRootFolderId(oauthResource, httpClient: httpClient),
+						cacheProvider = cacheProvider, rawData = try? json.rawData() {
+						//if let rawData = rawData { cacheProvider.cacheChilds(forResource?.uid ?? "0AChKrpwk2445Uk9PVA", childsData: rawData) }
+						cacheProvider.cacheChilds(forResource?.uid ?? rootId, childsData: rawData)
 					}
 					
 					observer.onNext(data)
@@ -161,6 +176,7 @@ public class GoogleDriveCloudJsonResource : CloudResource {
 	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpClientProtocol = HttpClient(),
 	                                     cacheProvider: CloudResourceCacheProviderType? = nil,
 	                                     loadMode: CloudResourceLoadMode = .CacheAndRemote) -> Observable<[CloudResource]>? {
+		
 		guard let request = createRequestForLoadRootResources(oauthResource) else { return nil }
 		
 		return loadResources(request, oauthResource: oauthResource, httpClient: httpRequest, forResource: nil, cacheProvider: cacheProvider, loadMode: loadMode)

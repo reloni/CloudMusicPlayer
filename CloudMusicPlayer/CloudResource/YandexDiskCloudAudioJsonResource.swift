@@ -24,7 +24,7 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 		
 		return Observable.create { [unowned self] observer in
 			let task = self.httpClient.loadJsonData(request).bindNext { json in
-				if let href = json?["href"].string {
+				if let href = json["href"].string {
 					observer.onNext(href)
 				} //else {
 					//observer.onNext(nil)

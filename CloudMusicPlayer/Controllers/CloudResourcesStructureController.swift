@@ -32,7 +32,7 @@ class CloudResourcesStructureController: UIViewController {
 	
 	override func viewDidAppear(animated: Bool) {
 		bag = DisposeBag()
-		
+
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
 			parent.loadChildResources().observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }

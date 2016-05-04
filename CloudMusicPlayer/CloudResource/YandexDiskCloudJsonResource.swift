@@ -136,8 +136,9 @@ public class YandexDiskCloudJsonResource : CloudResource {
 			let task = httpClient.loadJsonData(request).doOnError { observer.onError($0) }.bindNext { json in
 				if let data = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource, parent: forResource,
 					httpClient: httpClient, cacheProvider: cacheProvider) {
-					if let cacheProvider = cacheProvider, rawData = try? json?.rawData() {
-						if let rawData = rawData { cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData) }
+					if let cacheProvider = cacheProvider, rawData = try? json.rawData() {
+						//if let rawData = rawData { cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData) }
+						cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData)
 					}
 					
 					observer.onNext(data)
