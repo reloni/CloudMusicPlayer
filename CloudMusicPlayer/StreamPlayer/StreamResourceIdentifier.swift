@@ -111,26 +111,26 @@ extension YandexDiskCloudJsonResource : StreamHttpResourceIdentifier {
 	}
 }
 
-extension GoogleDriveCloudAudioJsonResource : StreamResourceIdentifier {
-	public var streamResourceUid: String {
-		return uid
-	}
-	
-	public var streamResourceUrl: String? {
-		do {
-			let array = try downloadUrl.toBlocking().toArray()
-			return array.first ?? nil
-		} catch { return nil }
-	}
-	
-	public var streamResourceContentType: ContentType? {
-		guard let mime = mimeType, type = ContentType(rawValue: mime) else { return nil }
-		return type
-	}
-}
-
-extension GoogleDriveCloudJsonResource : StreamHttpResourceIdentifier {
-	public var streamHttpHeaders: [String: String]? {
-		return getRequestHeaders()
-	}
-}
+//extension GoogleDriveCloudAudioJsonResource : StreamResourceIdentifier {
+//	public var streamResourceUid: String {
+//		return uid
+//	}
+//	
+//	public var streamResourceUrl: String? {
+//		do {
+//			let array = try downloadUrl.toBlocking().toArray()
+//			return array.first ?? nil
+//		} catch { return nil }
+//	}
+//	
+//	public var streamResourceContentType: ContentType? {
+//		guard let mime = mimeType, type = ContentType(rawValue: mime) else { return nil }
+//		return type
+//	}
+//}
+//
+//extension GoogleDriveCloudJsonResource : StreamHttpResourceIdentifier {
+//	public var streamHttpHeaders: [String: String]? {
+//		return getRequestHeaders()
+//	}
+//}

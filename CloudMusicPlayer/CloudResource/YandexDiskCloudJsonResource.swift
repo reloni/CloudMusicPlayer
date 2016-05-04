@@ -11,13 +11,17 @@ import SwiftyJSON
 import RxSwift
 
 public class YandexDiskCloudJsonResource : CloudResource {
+	public static func getRootResource(httpClient: HttpClientProtocol = HttpClient(),
+	                                   oauth: OAuthResource) -> Observable<CloudResource> {
+		return Observable.just(YandexDiskCloudJsonResource(raw: JSON(["name": "disk", "path": "/"]), httpClient: httpClient, oauth: oauth, parent: nil))
+	}
+	
 	public static let apiUrl = "https://cloud-api.yandex.net:443/v1/disk"
 	public static let resourcesApiUrl = apiUrl + "/resources"
-	public private (set) var parent: CloudResource?
-	public private (set) var httpClient: HttpClientProtocol
+	public internal (set) var parent: CloudResource?
+	public internal (set) var httpClient: HttpClientProtocol
 	public let oAuthResource: OAuthResource
 	public var raw: JSON
-	internal let cacheProvider: CloudResourceCacheProviderType?
 	
 	public var name: String {
 		return raw["name"].stringValue
@@ -47,13 +51,11 @@ public class YandexDiskCloudJsonResource : CloudResource {
 		return YandexDiskCloudAudioJsonResource.resourcesApiUrl
 	}()
 	
-	init (raw: JSON, oAuthResource: OAuthResource, parent: CloudResource?, httpClient: HttpClientProtocol = HttpClient(),
-	      cacheProvider: CloudResourceCacheProviderType? = nil) {
+	init (raw: JSON, httpClient: HttpClientProtocol, oauth: OAuthResource, parent: CloudResource?) {
 		self.raw = raw
 		self.parent = parent
-		self.oAuthResource = oAuthResource
+		self.oAuthResource = oauth
 		self.httpClient = httpClient
-		self.cacheProvider = cacheProvider
 	}
 	
 	public func getRequestHeaders() -> [String : String]? {
@@ -64,102 +66,118 @@ public class YandexDiskCloudJsonResource : CloudResource {
 		return ["path": uid]
 	}
 	
-	public func loadChildResources(loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]> {
+	public func loadChildResources() -> Observable<JSON> {
 		guard let request = httpClient.httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders()) else {
-			return Observable.just([CloudResource]())
+			return Observable.empty()
 		}
 		
-		return YandexDiskCloudJsonResource.loadResources(request, oauthResource: oAuthResource, httpClient: httpClient, forResource: self,
-		                                                 cacheProvider: cacheProvider, loadMode: loadMode)
+		return httpClient.loadJsonData(request)
 	}
 	
-	public func loadChildResources() -> Observable<[CloudResource]> {
-		return loadChildResources(.CacheAndRemote)
-	}
-	
-	internal static func recursiveLoadChildsRemote(resource: CloudResource) -> Observable<CloudResource> {
-		return resource.loadChildResources(.RemoteOnly).flatMapLatest { e -> Observable<CloudResource> in
-			return e.toObservable()
+	public func loadChildResourcesRecursive() -> Observable<CloudResource> {
+		return loadChildResources().flatMapLatest { json in
+			return self.deserializeResponse(json)
 			}.flatMap { e -> Observable<CloudResource> in
-				return [e].toObservable().concat(YandexDiskCloudJsonResource.recursiveLoadChildsRemote(e))
+				return [e].toObservable().concat(e.loadChildResourcesRecursive())
 		}
 	}
 	
-	public func loadChildResourcesRecursive() -> Observable<[CloudResource]> {
-		return YandexDiskCloudJsonResource.recursiveLoadChildsRemote(self).toArray()
-	}
-	
-	public static func deserializeResponseData(json: JSON?, res: OAuthResource, parent: CloudResource? = nil,
-	                                           httpClient: HttpClientProtocol = HttpClient(), cacheProvider: CloudResourceCacheProviderType? = nil) -> [CloudResource]? {
-		guard let items = json?["_embedded"]["items"].array else {
-			return nil
+	public func deserializeResponse(json: JSON) -> Observable<CloudResource> {
+		guard let items = json["_embedded"]["items"].array else {
+			return Observable.empty()
 		}
 		
-		return items.map { item in
+		return items.map { item -> CloudResource in
 			if item["media_type"].stringValue == "audio" {
-				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider)
+				return YandexDiskCloudAudioJsonResource(raw: item, httpClient: httpClient, oauth: oAuthResource, parent: parent)
 			} else {
-				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider) }
-		}
-	}
-		
-	internal static func createRequestForLoadRootResources(oauthResource: OAuthResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities())
-		-> NSMutableURLRequestProtocol? {
-			guard let token = oauthResource.tokenId else {
-			return nil
-		}
-
-		return httpUtilities.createUrlRequest(resourcesApiUrl, parameters: ["path": "/"], headers: ["Authorization": token])
+				return YandexDiskCloudJsonResource(raw: item, httpClient: httpClient, oauth: oAuthResource, parent: parent) }
+		}.toObservable()
 	}
 	
-	internal static func loadResources(request: NSMutableURLRequestProtocol, oauthResource: OAuthResource,
-	                                   httpClient: HttpClientProtocol = HttpClient(), forResource: CloudResource? = nil,
-	                                   cacheProvider: CloudResourceCacheProviderType? = nil,
-	                                   loadMode: CloudResourceLoadMode = .CacheAndRemote) -> Observable<[CloudResource]> {
-		return Observable.create { observer in
-
-			// check cached data
-			if loadMode == .CacheAndRemote || loadMode == .CacheOnly {
-				if let cachedData = cacheProvider?.getCachedChilds(forResource?.uid ?? "/"),
-					cachedChilds = YandexDiskCloudJsonResource.deserializeResponseData(JSON(data: cachedData), res: oauthResource, parent: forResource,
-						httpClient: httpClient, cacheProvider: cacheProvider) {
-					observer.onNext(cachedChilds)
-				}
-			}
-			
-			// make request
-			guard loadMode == .CacheAndRemote || loadMode == .RemoteOnly else {
-				observer.onCompleted()
-				return NopDisposable.instance
-			}
-			
-			let task = httpClient.loadJsonData(request).doOnError { observer.onError($0) }.bindNext { json in
-				if let data = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource, parent: forResource,
-					httpClient: httpClient, cacheProvider: cacheProvider) {
-					if let cacheProvider = cacheProvider, rawData = try? json.rawData() {
-						//if let rawData = rawData { cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData) }
-						cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData)
-					}
-					
-					observer.onNext(data)
-				} else {
-					observer.onNext([CloudResource]())
-				}
-				
-				observer.onCompleted()
-			}
-			
-			return AnonymousDisposable {
-				task.dispose()
-			}
-		}
-	}
+//	internal static func recursiveLoadChildsRemote(resource: CloudResource) -> Observable<CloudResource> {
+//		return resource.loadChildResources(.RemoteOnly).flatMapLatest { e -> Observable<CloudResource> in
+//			return e.toObservable()
+//			}.flatMap { e -> Observable<CloudResource> in
+//				return [e].toObservable().concat(YandexDiskCloudJsonResource.recursiveLoadChildsRemote(e))
+//		}
+//	}
 	
-	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpClientProtocol = HttpClient(),
-	                                     cacheProvider: CloudResourceCacheProviderType? = nil,
-	                                     loadMode: CloudResourceLoadMode = .CacheAndRemote) -> Observable<[CloudResource]>? {
-			guard let request = createRequestForLoadRootResources(oauthResource) else { return nil }
-			
-			return loadResources(request, oauthResource: oauthResource, httpClient: httpRequest, forResource: nil, cacheProvider: cacheProvider, loadMode: loadMode)
-	}
+//	public func loadChildResourcesRecursive() -> Observable<[CloudResource]> {
+//		return YandexDiskCloudJsonResource.recursiveLoadChildsRemote(self).toArray()
+//	}
+	
+//	public static func deserializeResponseData(json: JSON?, res: OAuthResource, parent: CloudResource? = nil,
+//	                                           httpClient: HttpClientProtocol = HttpClient(), cacheProvider: CloudResourceCacheProviderType? = nil) -> [CloudResource]? {
+//		guard let items = json?["_embedded"]["items"].array else {
+//			return nil
+//		}
+//		
+//		return items.map { item in
+//			if item["media_type"].stringValue == "audio" {
+//				return YandexDiskCloudAudioJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider)
+//			} else {
+//				return YandexDiskCloudJsonResource(raw: item, oAuthResource: res, parent: parent, httpClient: httpClient, cacheProvider: cacheProvider) }
+//		}
+//	}
+	
+//	internal static func createRequestForLoadRootResources(oauthResource: OAuthResource, httpUtilities: HttpUtilitiesProtocol = HttpUtilities())
+//		-> NSMutableURLRequestProtocol? {
+//			guard let token = oauthResource.tokenId else {
+//			return nil
+//		}
+//
+//		return httpUtilities.createUrlRequest(resourcesApiUrl, parameters: ["path": "/"], headers: ["Authorization": token])
+//	}
+	
+//	internal static func loadResources(request: NSMutableURLRequestProtocol, oauthResource: OAuthResource,
+//	                                   httpClient: HttpClientProtocol = HttpClient(), forResource: CloudResource? = nil,
+//	                                   cacheProvider: CloudResourceCacheProviderType? = nil,
+//	                                   loadMode: CloudResourceLoadMode = .CacheAndRemote) -> Observable<[CloudResource]> {
+//		return Observable.create { observer in
+//
+//			// check cached data
+//			if loadMode == .CacheAndRemote || loadMode == .CacheOnly {
+//				if let cachedData = cacheProvider?.getCachedChilds(forResource?.uid ?? "/"),
+//					cachedChilds = YandexDiskCloudJsonResource.deserializeResponseData(JSON(data: cachedData), res: oauthResource, parent: forResource,
+//						httpClient: httpClient, cacheProvider: cacheProvider) {
+//					observer.onNext(cachedChilds)
+//				}
+//			}
+//			
+//			// make request
+//			guard loadMode == .CacheAndRemote || loadMode == .RemoteOnly else {
+//				observer.onCompleted()
+//				return NopDisposable.instance
+//			}
+//			
+//			let task = httpClient.loadJsonData(request).doOnError { observer.onError($0) }.bindNext { json in
+//				if let data = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource, parent: forResource,
+//					httpClient: httpClient, cacheProvider: cacheProvider) {
+//					if let cacheProvider = cacheProvider, rawData = try? json.rawData() {
+//						//if let rawData = rawData { cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData) }
+//						cacheProvider.cacheChilds(forResource?.uid ?? "/", childsData: rawData)
+//					}
+//					
+//					observer.onNext(data)
+//				} else {
+//					observer.onNext([CloudResource]())
+//				}
+//				
+//				observer.onCompleted()
+//			}
+//			
+//			return AnonymousDisposable {
+//				task.dispose()
+//			}
+//		}
+//	}
+//	
+//	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpClientProtocol = HttpClient(),
+//	                                     cacheProvider: CloudResourceCacheProviderType? = nil,
+//	                                     loadMode: CloudResourceLoadMode = .CacheAndRemote) -> Observable<[CloudResource]>? {
+//			guard let request = createRequestForLoadRootResources(oauthResource) else { return nil }
+//			
+//			return loadResources(request, oauthResource: oauthResource, httpClient: httpRequest, forResource: nil, cacheProvider: cacheProvider, loadMode: loadMode)
+//	}
 }

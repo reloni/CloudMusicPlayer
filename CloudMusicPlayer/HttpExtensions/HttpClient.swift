@@ -20,7 +20,7 @@ public protocol HttpClientProtocol {
 	var httpUtilities: HttpUtilitiesProtocol { get }
 	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<JSON>
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
-	func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON>
+	//func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON>
 	func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?) -> Observable<StreamTaskEvents>
 }
 
@@ -34,14 +34,14 @@ public class HttpClient {
 		self.httpUtilities = httpUtilities
 	}
 	
-	internal func createRequestForCloudResource(resource: CloudResource) -> NSMutableURLRequestProtocol? {
-		guard let request: NSMutableURLRequestProtocol =
-			httpUtilities.createUrlRequest(resource.resourcesUrl, parameters: resource.getRequestParameters()) else {
-				return nil
-		}
-		resource.getRequestHeaders()?.forEach { request.addValue($1, forHTTPHeaderField: $0) }
-		return request
-	}
+//	internal func createRequestForCloudResource(resource: CloudResource) -> NSMutableURLRequestProtocol? {
+//		guard let request: NSMutableURLRequestProtocol =
+//			httpUtilities.createUrlRequest(resource.resourcesUrl, parameters: resource.getRequestParameters()) else {
+//				return nil
+//		}
+//		resource.getRequestHeaders()?.forEach { request.addValue($1, forHTTPHeaderField: $0) }
+//		return request
+//	}
 }
 
 extension HttpClient : HttpClientProtocol {
@@ -91,10 +91,10 @@ extension HttpClient : HttpClientProtocol {
 			}.shareReplay(1)
 	}
 	
-	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON> {
-		guard let request = createRequestForCloudResource(resource) else { return Observable.empty() }
-		return loadJsonData(request)
-	}
+//	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON> {
+//		guard let request = createRequestForCloudResource(resource) else { return Observable.empty() }
+//		return loadJsonData(request)
+//	}
 	
 	public func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?)
 		-> Observable<StreamTaskEvents> {
