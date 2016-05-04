@@ -44,8 +44,8 @@ class SettingsController: UIViewController {
 			}.addDisposableTo(bag)
 		
 		logOutButton.rx_tap.bindNext { [unowned self] in
-			self.model.googleOauth.tokenId = nil
-			self.model.googleOauth.saveResource()
+			self.model.yandexOauth.tokenId = nil
+			self.model.yandexOauth.saveResource()
 		}.addDisposableTo(bag)
 		
 		googleLogOutButton.rx_tap.bindNext { [unowned self] in

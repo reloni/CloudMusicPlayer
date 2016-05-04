@@ -7,9 +7,12 @@
 //
 
 import Foundation
+import RxSwift
+import SwiftyJSON
 
 public class GoogleOAuthResource : OAuthResourceBase {
 	public static let id = "com.antonefimenko.cloudmusicplayer"
+	public static let tokenUrl = "https://www.googleapis.com/oauth2/v4/token"
 	internal init() {
 		super.init(id: GoogleOAuthResource.id, authUrl: "https://accounts.google.com/o/oauth2/v2/auth?response_type=code",
 		           clientId: "904693090582-807d6m390ms26lis6opjfbrjnr0qns7k.apps.googleusercontent.com", tokenId: nil)
@@ -33,22 +36,33 @@ public class GoogleOAuthResource : OAuthResourceBase {
 			let code = substring.substringWithRange(substring.startIndex..<end)
 			
 			// perform second request in order to finally receive access token
-			let request = HttpUtilities().createUrlRequest(NSURL(baseUrl: "https://www.googleapis.com/oauth2/v4/token", parameters: ["code": code,
+			let request = HttpUtilities().createUrlRequest(NSURL(baseUrl: GoogleOAuthResource.tokenUrl, parameters: ["code": code,
 				"client_id": clientId!, "redirect_uri": "\(id):/cmp.ru", "grant_type": "authorization_code"])!)
 			request.setHttpMethod("POST")
 			do {
 				let client = HttpClient()
 				let array = try client.loadJsonData(request).toBlocking().toArray()
 				if let result = array.first {
-					//if let result = result {
-						return result["access_token"].string
-					//}
+					return result["access_token"].string
 				}
 			} catch {
 				return nil
 			}
 		}
 		return nil
+	}
+	
+	override public func refreshToken(httpClient: HttpClientProtocol) -> Observable<JSON> {
+		guard let clientId = clientId, refreshTokenId = refreshTokenId,
+			url = NSURL(baseUrl: GoogleOAuthResource.tokenUrl,
+			            parameters: ["client_id": clientId, "refresh_token": refreshTokenId, "grant_type": "refresh_token"]) else { return Observable.empty() }
+		let request = httpClient.httpUtilities.createUrlRequest(url, headers: nil)
+		request.setHttpMethod("POST")
+		return httpClient.loadJsonData(request).doOnNext { json in
+			if let token = json["access_token"].string {
+				self.tokenId = token
+			}
+		}
 	}
 }
 

@@ -41,8 +41,8 @@ class CloudResourcesStructureController: UIViewController {
 				self.tableView.reloadData()
 			}.addDisposableTo(bag!)
 		} else if navigationController?.viewControllers.first == self {
-			//YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource(), httpRequest: HttpClient(),
-			GoogleDriveCloudJsonResource.loadRootResources(OAuthResourceManager.getGoogleResource(), httpRequest: HttpClient(),
+			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource(), httpRequest: HttpClient(),
+			//GoogleDriveCloudJsonResource.loadRootResources(OAuthResourceManager.getGoogleResource(), httpRequest: HttpClient(),
 				cacheProvider: CloudResourceNsUserDefaultsCacheProvider(loadCachedData: true))?
 				.observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }
 				.bindNext { [unowned self] childs in

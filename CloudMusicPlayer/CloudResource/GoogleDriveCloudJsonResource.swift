@@ -23,6 +23,8 @@ public class GoogleDriveCloudJsonResource : CloudResource {
 	internal static func getRootFolderId(oauthResource: OAuthResource, httpClient: HttpClientProtocol) -> String? {
 		if GoogleDriveCloudJsonResource._rootFolderId != nil { return GoogleDriveCloudJsonResource._rootFolderId }
 		
+		let _ = try? (oauthResource as! OAuthResourceBase).refreshToken(httpClient).toBlocking().first()
+		
 		guard let url = NSURL(baseUrl: resourcesApiUrl + "/root", parameters: nil), token = oauthResource.tokenId else { return nil }
 		let req = httpClient.httpUtilities.createUrlRequest(url, headers: ["Authorization": "Bearer \(token)"])
 		let array = try? httpClient.loadJsonData(req).toBlocking().toArray()
@@ -176,7 +178,6 @@ public class GoogleDriveCloudJsonResource : CloudResource {
 	public static func loadRootResources(oauthResource: OAuthResource, httpRequest: HttpClientProtocol = HttpClient(),
 	                                     cacheProvider: CloudResourceCacheProviderType? = nil,
 	                                     loadMode: CloudResourceLoadMode = .CacheAndRemote) -> Observable<[CloudResource]>? {
-		
 		guard let request = createRequestForLoadRootResources(oauthResource) else { return nil }
 		
 		return loadResources(request, oauthResource: oauthResource, httpClient: httpRequest, forResource: nil, cacheProvider: cacheProvider, loadMode: loadMode)
