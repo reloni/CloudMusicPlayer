@@ -42,20 +42,16 @@ public class FakeCloudResource : CloudResource {
 		return requestParameters
 	}
 	
-	public func loadChilds(completion: ([CloudResource]?) -> ()) {
-		
+	public func loadChildResources() -> Observable<JSON> {
+		fatalError("loadChildResources not implemented")
 	}
 	
-	public func loadChildResources() -> Observable<[CloudResource]> {
-		return Observable.just([CloudResource]())
+	public func loadChildResourcesRecursive() -> Observable<CloudResource> {
+		fatalError("loadChildResourcesRecursive not implemented")
 	}
 	
-	public func loadChildResources(loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]> {
-		return Observable.just([CloudResource]())
-	}
-	
-	public func loadChildResourcesRecursive() -> Observable<[CloudResource]> {
-		return Observable.just([CloudResource]())
+	public func deserializeResponse(json: JSON) -> Observable<CloudResource> {
+		fatalError("deserializeResponse not implemented")
 	}
 	
 	public init(oaRes: OAuthResource = OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil),

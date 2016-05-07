@@ -33,19 +33,22 @@ extension CloudResourceClient : CloudResourceClientType {
 				}
 			}
 			
-			let disposable = resource.loadChildResources().doOnError { error in
-				// catch errors
-				observer.onError(error)
-				}.flatMapLatest { json -> Observable<CloudResource> in
-					if let cacheProvider = self?.cacheProvider, rawData = try? json.rawData() {
-						cacheProvider.cacheChilds(resource, childsData: rawData)
-					}
-					return resource.deserializeResponse(json)
-				}.doOnCompleted { observer.onCompleted() }.toArray().bindNext { observer.onNext($0) }
+			var remoteDisposable: Disposable?
+			if loadMode == .CacheAndRemote || loadMode == .RemoteOnly {
+				remoteDisposable = resource.loadChildResources().doOnError { error in
+					// catch errors
+					observer.onError(error)
+					}.flatMapLatest { json -> Observable<CloudResource> in
+						if let cacheProvider = self?.cacheProvider, rawData = try? json.rawData() {
+							cacheProvider.cacheChilds(resource, childsData: rawData)
+						}
+						return resource.deserializeResponse(json)
+					}.toArray().doOnCompleted { observer.onCompleted() }.bindNext { observer.onNext($0) }
+			} else { observer.onCompleted() }
 			
 			return AnonymousDisposable {
 				cacheDisposable?.dispose()
-				disposable.dispose()
+				remoteDisposable?.dispose()
 			}
 		}
 	}

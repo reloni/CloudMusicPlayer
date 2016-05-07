@@ -36,6 +36,7 @@
 		6E3A3F6C1C9981C9001975C8 /* YandexAudioDownloadResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */; };
 		6E3A3F6E1C99823B001975C8 /* YandexAudioItem.json in Resources */ = {isa = PBXBuildFile; fileRef = 6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */; };
 		6E3D8A5F1CB6807400B604F0 /* StreamResourceIdentifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3D8A5E1CB6807400B604F0 /* StreamResourceIdentifierTests.swift */; };
+		6E42729D1CDE0B78003378BC /* CloudResourceClientYandexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E42729C1CDE0B78003378BC /* CloudResourceClientYandexTests.swift */; };
 		6E4319761CBFAF2E007CC9AB /* Float.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4319751CBFAF2E007CC9AB /* Float.swift */; };
 		6E4319781CBFBD6C007CC9AB /* RxPlayerQueueItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4319771CBFBD6C007CC9AB /* RxPlayerQueueItem.swift */; };
 		6E43197B1CBFC0A8007CC9AB /* MetadataTest.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6E43197A1CBFC0A8007CC9AB /* MetadataTest.mp3 */; };
@@ -154,6 +155,7 @@
 		6E3A3F6B1C9981C9001975C8 /* YandexAudioDownloadResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioDownloadResponse.json; sourceTree = "<group>"; };
 		6E3A3F6D1C99823B001975C8 /* YandexAudioItem.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = YandexAudioItem.json; sourceTree = "<group>"; };
 		6E3D8A5E1CB6807400B604F0 /* StreamResourceIdentifierTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamResourceIdentifierTests.swift; sourceTree = "<group>"; };
+		6E42729C1CDE0B78003378BC /* CloudResourceClientYandexTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourceClientYandexTests.swift; sourceTree = "<group>"; };
 		6E4319751CBFAF2E007CC9AB /* Float.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Float.swift; sourceTree = "<group>"; };
 		6E4319771CBFBD6C007CC9AB /* RxPlayerQueueItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxPlayerQueueItem.swift; sourceTree = "<group>"; };
 		6E43197A1CBFC0A8007CC9AB /* MetadataTest.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = MetadataTest.mp3; sourceTree = "<group>"; };
@@ -296,6 +298,7 @@
 			isa = PBXGroup;
 			children = (
 				6E13C7BB1C957FC80060DF24 /* YandexCloudResourceTests.swift */,
+				6E42729C1CDE0B78003378BC /* CloudResourceClientYandexTests.swift */,
 				6E80F8B81C903CA200102A9C /* OAuthResourceTests.swift */,
 				6EA16FF31CC787D300D4D257 /* UserDefaultsCacheProviderTests.swift */,
 			);
@@ -819,6 +822,7 @@
 				6EE857BA1C988BD3002809B5 /* HttpUtilitiesTests.swift in Sources */,
 				6E97C15C1CBF73DE00D7B5B4 /* RxPlayerMetadataLoadTests.swift in Sources */,
 				6E12E0711CB3D68300091B9A /* LocalNsUserDefaultsStorage.swift in Sources */,
+				6E42729D1CDE0B78003378BC /* CloudResourceClientYandexTests.swift in Sources */,
 				6EE0CCCA1C96CBEE002F4D9D /* HttpClientBasicTests.swift in Sources */,
 				6E80F8B91C903CA200102A9C /* OAuthResourceTests.swift in Sources */,
 				6E3D8A5F1CB6807400B604F0 /* StreamResourceIdentifierTests.swift in Sources */,
