@@ -26,10 +26,11 @@ extension CloudResourceClient : CloudResourceClientType {
 	public func loadChildResources(resource: CloudResource, loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]> {
 		return Observable.create { [weak self] observer in
 			// check cached data
-			var cacheDisposable: Disposable?
+			//var cacheDisposable: Disposable?
 			if loadMode == .CacheAndRemote || loadMode == .CacheOnly {
 				if let cachedData = self?.cacheProvider?.getCachedChilds(resource) {
-					cacheDisposable = resource.deserializeResponse(JSON(data: cachedData)).toArray().bindNext { observer.onNext($0) }
+					//cacheDisposable = resource.deserializeResponse(JSON(data: cachedData).toObservable()).toArray().bindNext { observer.onNext($0) }
+					observer.onNext(cachedData)
 				}
 			}
 			
@@ -39,15 +40,18 @@ extension CloudResourceClient : CloudResourceClientType {
 					// catch errors
 					observer.onError(error)
 					}.flatMapLatest { json -> Observable<CloudResource> in
-						if let cacheProvider = self?.cacheProvider, rawData = try? json.rawData() {
-							cacheProvider.cacheChilds(resource, childsData: rawData)
-						}
-						return resource.deserializeResponse(json)
-					}.toArray().doOnCompleted { observer.onCompleted() }.bindNext { observer.onNext($0) }
+//						if let cacheProvider = self?.cacheProvider, rawData = try? json.rawData() {
+//							//cacheProvider.cacheChilds(resource, childsData: rawData)
+//						}
+						return resource.deserializeResponse(json).toObservable()
+					}.toArray().doOnCompleted { observer.onCompleted() }.bindNext {
+						self?.cacheProvider?.cacheChilds(resource, childs: $0)
+						observer.onNext($0)
+				}
 			} else { observer.onCompleted() }
 			
 			return AnonymousDisposable {
-				cacheDisposable?.dispose()
+				//cacheDisposable?.dispose()
 				remoteDisposable?.dispose()
 			}
 		}

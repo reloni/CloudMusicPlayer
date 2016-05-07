@@ -19,6 +19,7 @@
 		6E12B9121C6F6CB200E93FFB /* YandexOAuthResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E12B9111C6F6CB200E93FFB /* YandexOAuthResource.swift */; };
 		6E12E06F1CB3C56C00091B9A /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E12E06E1CB3C56C00091B9A /* LocalStorage.swift */; };
 		6E12E0711CB3D68300091B9A /* LocalNsUserDefaultsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E12E0701CB3D68300091B9A /* LocalNsUserDefaultsStorage.swift */; };
+		6E1350D51CDE766D008B1267 /* SwiftyJson.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1350D41CDE766D008B1267 /* SwiftyJson.swift */; };
 		6E13C7BC1C957FC80060DF24 /* YandexCloudResourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E13C7BB1C957FC80060DF24 /* YandexCloudResourceTests.swift */; };
 		6E182ED41C81D66300730C59 /* CloudFolderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182ED31C81D66300730C59 /* CloudFolderCell.swift */; };
 		6E182ED61C81E14700730C59 /* CloudTrackCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182ED51C81E14700730C59 /* CloudTrackCell.swift */; };
@@ -138,6 +139,7 @@
 		6E12B9111C6F6CB200E93FFB /* YandexOAuthResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexOAuthResource.swift; sourceTree = "<group>"; };
 		6E12E06E1CB3C56C00091B9A /* LocalStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStorage.swift; sourceTree = "<group>"; };
 		6E12E0701CB3D68300091B9A /* LocalNsUserDefaultsStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalNsUserDefaultsStorage.swift; sourceTree = "<group>"; };
+		6E1350D41CDE766D008B1267 /* SwiftyJson.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyJson.swift; sourceTree = "<group>"; };
 		6E13C7BB1C957FC80060DF24 /* YandexCloudResourceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexCloudResourceTests.swift; sourceTree = "<group>"; };
 		6E182ED31C81D66300730C59 /* CloudFolderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudFolderCell.swift; sourceTree = "<group>"; };
 		6E182ED51C81E14700730C59 /* CloudTrackCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudTrackCell.swift; sourceTree = "<group>"; };
@@ -354,6 +356,7 @@
 				6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */,
 				6EDB49821CBE419900F82E02 /* NSURL.swift */,
 				6E4319751CBFAF2E007CC9AB /* Float.swift */,
+				6E1350D41CDE766D008B1267 /* SwiftyJson.swift */,
 			);
 			name = Extensions;
 			path = CloudMusicPlayer/Extensions;
@@ -749,6 +752,7 @@
 				6E08530C1CB7BA030004E193 /* RxPlayer.swift in Sources */,
 				6EBCBA4A1CD51759007AE9DA /* SJSON.swift in Sources */,
 				6E106F191C916A740056205F /* main.swift in Sources */,
+				6E1350D51CDE766D008B1267 /* SwiftyJson.swift in Sources */,
 				6E0A02921C8A0CB500AD9B38 /* StreamDataTask.swift in Sources */,
 				6E12B9121C6F6CB200E93FFB /* YandexOAuthResource.swift in Sources */,
 				6E182EDA1C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift in Sources */,

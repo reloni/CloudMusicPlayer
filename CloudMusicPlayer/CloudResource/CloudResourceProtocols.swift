@@ -54,7 +54,9 @@ public protocol CloudResource {
 	func getRequestParameters() -> [String: String]?
 	func loadChildResources() -> Observable<JSON>
 	func loadChildResourcesRecursive() -> Observable<CloudResource>
-	func deserializeResponse(json: JSON) -> Observable<CloudResource>
+	//func deserializeResponse(json: JSON) -> Observable<CloudResource>
+	func deserializeResponse(json: JSON) -> [CloudResource]
+	func wrapRawData(json: JSON) -> CloudResource
 }
 
 public protocol CloudAudioResource : CloudResource {

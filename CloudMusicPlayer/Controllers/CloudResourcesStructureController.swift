@@ -13,7 +13,7 @@ import RxCocoa
 import RxSwift
 import AVFoundation
 
-let cloudResourceClient = CloudResourceClient(cacheProvider: CloudResourceNsUserDefaultsCacheProvider(loadCachedData: true))
+let cloudResourceClient = CloudResourceClient(cacheProvider: RealmCloudResourceCacheProvider())
 
 class CloudResourcesStructureController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
