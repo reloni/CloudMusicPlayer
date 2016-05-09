@@ -319,9 +319,9 @@ RLM_ASSUME_NONNULL_BEGIN
 
      Person *person = [[Person allObjectsInRealm:realm] firstObject];
      NSLog(@"person.dogs.count: %zu", person.dogs.count); // => 0
-     self.token = [person.dogs RLMAddNotificationBlock(RLMArray<Dog *> *dogs,
-                                                       RLMCollectionChange *changes,
-                                                       NSError *error) {
+     self.token = [person.dogs addNotificationBlock(RLMArray<Dog *> *dogs,
+                                                    RLMCollectionChange *changes,
+                                                    NSError *error) {
          // Only fired once for the example
          NSLog(@"dogs.count: %zu", dogs.count) // => 1
      }];
@@ -345,7 +345,7 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMArray RLM_GENERIC_RETURN *__nullable array,
                                                          RLMCollectionChange *__nullable changes,
-                                                         NSError *__nullable))block RLM_WARN_UNUSED_RESULT;
+                                                         NSError *__nullable error))block RLM_WARN_UNUSED_RESULT;
 
 #pragma mark - Unavailable Methods
 
