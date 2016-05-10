@@ -49,7 +49,7 @@ public class RealmMediaItemMetadata : Object, MediaItemMetadataType {
 	}
 }
 
-public class RealmPlaylist : Object {
+public class RealmPlayList : Object {
 	public internal(set) dynamic var uid: String
 	public let itemsInternal = List<RealmMediaItemMetadata>()
 	
@@ -74,11 +74,11 @@ public class RealmPlaylist : Object {
 	}
 	
 	override public static func primaryKey() -> String? {
-		return "resourceUid"
+		return "uid"
 	}
 }
 
-extension RealmPlaylist : PlaylistType {
+extension RealmPlayList : PlaylistType {
 	public var items: [MediaItemMetadataType] {
 		return itemsInternal.map {
 			MediaItemMetadata(resourceUid: $0.resourceUid, artist: $0.artist, title: $0.title,
