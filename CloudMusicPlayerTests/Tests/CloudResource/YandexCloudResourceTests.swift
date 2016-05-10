@@ -81,7 +81,7 @@ class YandexCloudResourceTests: XCTestCase {
 	
 	func testDeserializeJsonResponseFolder() {
 		let root = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first as? YandexDiskCloudJsonResource
-		let first = try! root?.deserializeResponse(JSON.getJsonFromFile("YandexRoot")!).toBlocking().toArray().first
+		let first = root?.deserializeResponse(JSON.getJsonFromFile("YandexRoot")!).first
 		//let first = YandexDiskCloudJsonResource.deserializeResponseData(JSON.getJsonFromFile("YandexRoot"), res: oauthResource)?.first
 		XCTAssertNotNil(first)
 		XCTAssertEqual(first?.name, "Documents")
@@ -97,10 +97,10 @@ class YandexCloudResourceTests: XCTestCase {
 	}
 	
 	func testNotDeserializeIncorrectJson() {
-		let root = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first as? YandexDiskCloudJsonResource
+		let root = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first as! YandexDiskCloudJsonResource
 		let json: JSON =  ["Test": "Value"]
 		//let response = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource)
-		let response = try! root?.deserializeResponse(json).toBlocking().toArray().first
+		let response = root.deserializeResponse(json).first
 		XCTAssertNil(response)
 	}
 }

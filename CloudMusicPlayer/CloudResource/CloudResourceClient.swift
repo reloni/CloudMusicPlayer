@@ -28,7 +28,7 @@ extension CloudResourceClient : CloudResourceClientType {
 			// check cached data
 			//var cacheDisposable: Disposable?
 			if loadMode == .CacheAndRemote || loadMode == .CacheOnly {
-				if let cachedData = self?.cacheProvider?.getCachedChilds(resource) {
+				if let cachedData = self?.cacheProvider?.getCachedChilds(resource) where cachedData.count > 0 {
 					//cacheDisposable = resource.deserializeResponse(JSON(data: cachedData).toObservable()).toArray().bindNext { observer.onNext($0) }
 					observer.onNext(cachedData)
 				}

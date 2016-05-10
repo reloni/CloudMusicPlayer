@@ -115,9 +115,9 @@ extension YandexDiskCloudJsonResource : CloudResource {
 	
 	public func wrapRawData(json: JSON) -> CloudResource {
 		if json["media_type"].stringValue == "audio" {
-			return YandexDiskCloudAudioJsonResource(raw: json, httpClient: httpClient, oauth: oAuthResource, parent: parent)
+			return YandexDiskCloudAudioJsonResource(raw: json, httpClient: httpClient, oauth: oAuthResource, parent: self)
 		} else {
-			return YandexDiskCloudJsonResource(raw: json, httpClient: httpClient, oauth: oAuthResource, parent: parent)
+			return YandexDiskCloudJsonResource(raw: json, httpClient: httpClient, oauth: oAuthResource, parent: self)
 		}
 	}
 }
