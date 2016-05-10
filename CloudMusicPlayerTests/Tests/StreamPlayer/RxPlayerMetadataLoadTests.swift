@@ -10,6 +10,7 @@ import XCTest
 @testable import CloudMusicPlayer
 import AVFoundation
 import RxSwift
+import RealmSwift
 
 class RxPlayerQueueItemTests: XCTestCase {
 	let bag = DisposeBag()
@@ -17,6 +18,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 	override func setUp() {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
+		Realm.Configuration.defaultConfiguration.inMemoryIdentifier = self.name
 	}
 	
 	override func tearDown() {
@@ -51,8 +53,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: FakeHttpUtilities())
 		
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
-		                      mediaLibrary: NonRetentiveMediaLibrary())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -83,8 +84,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		httpUtilities.fakeSession = session
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
-		                      mediaLibrary: NonRetentiveMediaLibrary())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -122,8 +122,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		httpUtilities.fakeSession = session
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
-		                      mediaLibrary: NonRetentiveMediaLibrary())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -168,8 +167,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		let storage = LocalNsUserDefaultsStorage()
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: HttpUtilities())
 
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
-		                      mediaLibrary: NonRetentiveMediaLibrary())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("wrong://testitem.com")
 		

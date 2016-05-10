@@ -45,21 +45,3 @@ public struct MediaItemMetadata : MediaItemMetadataType {
 public class NonRetentiveMediaLibrary {
 	internal var library = [String: MediaItemMetadataType]()
 }
-
-extension NonRetentiveMediaLibrary : MediaLibraryType {
-	public func getMetadata(resource: StreamResourceIdentifier) -> MediaItemMetadataType? {
-		return library[resource.streamResourceUid]
-	}
-	
-	public func saveMetadata(resource: StreamResourceIdentifier, metadata: MediaItemMetadataType) {
-		library[resource.streamResourceUid] = metadata
-	}
-	
-	public func metadataExists(resource: StreamResourceIdentifier) -> Bool {
-		return library[resource.streamResourceUid] != nil
-	}
-	
-	public func clearLibrary() {
-		library.removeAll()
-	}
-}
