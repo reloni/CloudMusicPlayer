@@ -49,12 +49,66 @@ public class RealmMediaItemMetadata : Object, MediaItemMetadataType {
 	}
 }
 
+public class RealmPlaylist : Object {
+	public internal(set) dynamic var uid: String
+	public let itemsInternal = List<RealmMediaItemMetadata>()
+	
+	required public init(uid: String) {
+		self.uid = uid
+		super.init()
+	}
+	
+	public required init(realm: RLMRealm, schema: RLMObjectSchema) {
+		uid = NSUUID().UUIDString
+		super.init(realm: realm, schema: schema)
+	}
+	
+	public required init(value: AnyObject, schema: RLMSchema) {
+		uid = NSUUID().UUIDString
+		super.init(value: value, schema: schema)
+	}
+	
+	public required init() {
+		uid = NSUUID().UUIDString
+		super.init()
+	}
+	
+	override public static func primaryKey() -> String? {
+		return "resourceUid"
+	}
+}
+
+extension RealmPlaylist : PlaylistType {
+	public var items: [MediaItemMetadataType] {
+		return itemsInternal.map {
+			MediaItemMetadata(resourceUid: $0.resourceUid, artist: $0.artist, title: $0.title,
+				album: $0.album, artwork: $0.artwork, duration: $0.duration)
+		}
+	}
+	
+	public func addItems(items: [MediaItemMetadataType]) {
+		
+	}
+	
+	public func removeItem(item: MediaItemMetadataType) {
+		
+	}
+	
+	public func containsInPlaylist(item: MediaItemMetadataType) -> Bool {
+		return false
+	}
+	
+	public func clear() {
+		itemsInternal.removeAll()
+	}
+}
+
 extension RealmMediaLibrary : MediaLibraryType {
 	public func clearLibrary() {
 		autoreleasepool {
 			let realm = try? Realm()
 			if let realm = realm {
-				let _ = try? realm.write { realm.deleteAll() }
+				let _ = try? realm.write { realm.objects(RealmMediaItemMetadata).forEach { realm.delete($0) } }
 			}
 		}
 	}
