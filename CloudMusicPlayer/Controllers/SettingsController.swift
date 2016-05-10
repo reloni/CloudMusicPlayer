@@ -13,8 +13,10 @@ import UIKit
 
 class SettingsController: UIViewController {
 	@IBOutlet weak var logInButton: UIButton!
+	@IBOutlet weak var googleLogInButton: UIButton!
 	
 	@IBOutlet weak var logOutButton: UIButton!
+	@IBOutlet weak var googleLogOutButton: UIButton!
 	
 	@IBOutlet weak var permanentStorageLabel: UILabel!
 	@IBOutlet weak var tempStorageLabel: UILabel!
@@ -27,6 +29,7 @@ class SettingsController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		
 		// Do any additional setup after loading the view, typically from a nib.
 		logInButton.rx_tap.bindNext { [unowned self] in
 			if let url = self.model.yandexOauth.getAuthUrl?() {
@@ -34,13 +37,27 @@ class SettingsController: UIViewController {
 			}
 		}.addDisposableTo(bag)
 		
+		googleLogInButton.rx_tap.bindNext { [unowned self] in
+			if let url = self.model.googleOauth.getAuthUrl?() {
+				UIApplication.sharedApplication().openURL(url)
+			}
+			}.addDisposableTo(bag)
+		
 		logOutButton.rx_tap.bindNext { [unowned self] in
 			self.model.yandexOauth.tokenId = nil
 			self.model.yandexOauth.saveResource()
 		}.addDisposableTo(bag)
 		
-		model.isSetUp.asDriver().asDriver(onErrorJustReturn: false).map { !$0 }.drive(logInButton.rx_enabled).addDisposableTo(bag)
-		model.isSetUp.asDriver().asDriver(onErrorJustReturn: false).drive(logOutButton.rx_enabled).addDisposableTo(bag)
+		googleLogOutButton.rx_tap.bindNext { [unowned self] in
+			self.model.googleOauth.tokenId = nil
+			self.model.googleOauth.saveResource()
+			}.addDisposableTo(bag)
+		
+		model.isYandexSetUp.asDriver().asDriver(onErrorJustReturn: false).map { !$0 }.drive(logInButton.rx_enabled).addDisposableTo(bag)
+		model.isYandexSetUp.asDriver().asDriver(onErrorJustReturn: false).drive(logOutButton.rx_enabled).addDisposableTo(bag)
+		
+		model.isGoogleSetUp.asDriver().asDriver(onErrorJustReturn: false).map { !$0 }.drive(googleLogInButton.rx_enabled).addDisposableTo(bag)
+		model.isGoogleSetUp.asDriver().asDriver(onErrorJustReturn: false).drive(googleLogOutButton.rx_enabled).addDisposableTo(bag)
 		
 		clearStorageButton.rx_tap.flatMapLatest { _ -> Observable<StorageSize> in
 			rxPlayer.downloadManager.fileStorage.clearStorage()
@@ -51,6 +68,8 @@ class SettingsController: UIViewController {
 				self.tempStorageLabel.text = "\(Float64(size.tempStorage) / (1024 * 1024)) Mb"
 				self.temporaryFolderLabel.text = "\(Float64(size.temporary) / (1024 * 1024)) Mb"
 			}.addDisposableTo(bag)
+		
+		
 	}
 	
 	override func didReceiveMemoryWarning() {

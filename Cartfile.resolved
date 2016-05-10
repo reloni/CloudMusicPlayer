@@ -1,3 +1,3 @@
 github "ReactiveX/RxSwift" "2.4"
 github "SwiftyJSON/SwiftyJSON" "2.3.3"
-github "realm/realm-cocoa" "v0.99.1"
+github "realm/realm-cocoa" "v0.101.0"

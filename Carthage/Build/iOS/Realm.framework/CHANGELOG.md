@@ -1,3 +1,54 @@
+0.101.0 Release notes (2016-05-04)
+=============================================================
+
+### API breaking changes
+
+* Files written by this version of Realm cannot be read by older versions of
+  Realm. Existing files will automatically be upgraded when they are opened.
+
+### Enhancements
+
+* Greatly improve performance of collection change calculation for complex
+  object graphs, especially for ones with cycles.
+* NSDate properties now support nanoseconds precision.
+* Opening a single Realm file on multiple threads now shares a single memory
+  mapping of the file for all threads, significantly reducing the memory
+  required to work with large files.
+* Crashing while in the middle of a write transaction no longer blocks other
+  processes from performing write transactions on the same file.
+* Improve the performance of refreshing a Realm (including via autorefresh)
+  when there are live Results/RLMResults objects for that Realm.
+
+### Bugfixes
+
+* Fix an assertion failure of "!more_before || index >= std::prev(it)->second)"
+  in `IndexSet::do_add()`.
+* Fix a crash when an `RLMArray` or `List` object is destroyed from the wrong
+  thread.
+
+0.100.0 Release notes (2016-04-29)
+=============================================================
+
+### API breaking changes
+
+* `-[RLMObject linkingObjectsOfClass:forProperty]` and `Object.linkingObjects(_:forProperty:)`
+  are deprecated in favor of properties of type `RLMLinkingObjects` / `LinkingObjects`.
+
+### Enhancements
+
+* The automatically-maintained inverse direction of relationships can now be exposed as
+  properties of type `RLMLinkingObjects` / `LinkingObjects`. These properties automatically
+  update to reflect the objects that link to the target object, can be used in queries, and
+  can be filtered like other Realm collection types.
+* Queries that compare objects for equality now support multi-level key paths.
+
+### Bugfixes
+
+* Fix an assertion failure when a second write transaction is committed after a
+  write transaction deleted the object containing an RLMArray/List which had an
+  active notification block.
+* Queries that compare `RLMArray` / `List` properties using != now give the correct results.
+
 0.99.1 Release notes (2016-04-26)
 =============================================================
 

@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import RxSwift
+import SwiftyJSON
 
 @objc public protocol OAuthResource {
 	var id: String { get }
@@ -23,12 +25,14 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 	public var clientId: String?
 	// dynamic requered to enable KVO observing
 	public dynamic var tokenId: String?
+	public var refreshTokenId: String?
 	
-	public init(id: String, authUrl: String, clientId: String?, tokenId: String?) {
+	public init(id: String, authUrl: String, clientId: String?, tokenId: String?, refreshTokenId: String? = nil) {
 		self.id = id
 		self.authBaseUrl = authUrl
 		self.clientId = clientId
 		self.tokenId = tokenId
+		self.refreshTokenId = refreshTokenId
 	}
 	
 	@objc required public init?(coder aDecoder: NSCoder) {
@@ -36,6 +40,7 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 		self.authBaseUrl = aDecoder.decodeObjectForKey("authUrl") as! String
 		self.clientId = aDecoder.decodeObjectForKey("clientId") as? String
 		self.tokenId = Keychain.stringForAccount("\(self.id)_tokenId")
+		self.refreshTokenId = Keychain.stringForAccount("\(self.id)_refreshTokenId")
 	}
 	
 	@objc public func encodeWithCoder(aCoder: NSCoder) {
@@ -43,7 +48,10 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 		aCoder.encodeObject(self.authBaseUrl, forKey: "authUrl")
 		aCoder.encodeObject(self.clientId, forKey: "clientId")
 		Keychain.setString(self.tokenId, forAccount: "\(self.id)_tokenId", synchronizable: true, background: false)
+		Keychain.setString(self.refreshTokenId, forAccount: "\(self.id)_refreshTokenId", synchronizable: true, background: false)
 	}
+	
+	public func refreshToken(httpClient: HttpClientProtocol) -> Observable<JSON> { return Observable.empty() }
 }
 
 public class OAuthResourceManager {

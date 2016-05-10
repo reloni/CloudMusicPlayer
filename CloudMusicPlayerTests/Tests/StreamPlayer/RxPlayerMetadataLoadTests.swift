@@ -10,13 +10,15 @@ import XCTest
 @testable import CloudMusicPlayer
 import AVFoundation
 import RxSwift
+import RealmSwift
 
-class RxPlayerQueueItemTests: XCTestCase {
+class RxPlayerMetadataLoadTests: XCTestCase {
 	let bag = DisposeBag()
 	
 	override func setUp() {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
+		Realm.Configuration.defaultConfiguration.inMemoryIdentifier = self.name
 	}
 	
 	override func tearDown() {
@@ -25,7 +27,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 	}
 	
 	func testLoadMetadataFromFile() {
-		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerQueueItemTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
+		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerMetadataLoadTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
 		let player = RxPlayer()
 		let item = player.addLast("http://testitem.com")
 		let metadata = player.loadFileMetadata(item.streamIdentifier, file: metadataFile, utilities: StreamPlayerUtilities())
@@ -44,15 +46,14 @@ class RxPlayerQueueItemTests: XCTestCase {
 	
 	func testLoadMetadataFromCachedFile() {
 		let storage = LocalNsUserDefaultsStorage()
-		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerQueueItemTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
+		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerMetadataLoadTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
 		let copiedFile = storage.tempStorageDirectory.URLByAppendingPathComponent("FileWithMetadata.mp3")
 		let _ = try? NSFileManager.defaultManager().copyItemAtURL(metadataFile, toURL: copiedFile)
 		storage.tempStorageDictionary["https://testitem.com"] = copiedFile.lastPathComponent
 		
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: FakeHttpUtilities())
 		
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
-		                      mediaLibrary: NonRetentiveMediaLibrary())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -83,8 +84,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		httpUtilities.fakeSession = session
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
-		                      mediaLibrary: NonRetentiveMediaLibrary())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -122,8 +122,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		httpUtilities.fakeSession = session
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
-		                      mediaLibrary: NonRetentiveMediaLibrary())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -140,7 +139,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 						response: response, completion: { _ in }))
 					
 					guard let data = NSData(contentsOfURL:
-						NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerQueueItemTests.self).pathForResource("MetadataTest", ofType: "mp3")!)) else {
+						NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerMetadataLoadTests.self).pathForResource("MetadataTest", ofType: "mp3")!)) else {
 							return
 					}
 					
@@ -168,8 +167,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 		let storage = LocalNsUserDefaultsStorage()
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: HttpUtilities())
 
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities(),
-		                      mediaLibrary: NonRetentiveMediaLibrary())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("wrong://testitem.com")
 		

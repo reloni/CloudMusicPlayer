@@ -8,6 +8,7 @@
 
 import Foundation
 import RxSwift
+import SwiftyJSON
 @testable import CloudMusicPlayer
 
 public class FakeCloudResource : CloudResource {
@@ -21,11 +22,14 @@ public class FakeCloudResource : CloudResource {
 	public var uid: String {
 		return path
 	}
-	public var type = ""
+	public var type: CloudResourceType = .Folder
 	public var mediaType: String? = nil
 	public var mimeType: String? = nil
 	public var rootUrl = ""
 	public var resourcesUrl = ""
+	public var raw: JSON {
+		fatalError()
+	}
 	
 	public var requestHeaders: [String: String]? = nil
 	public var requestParameters: [String: String]? = nil
@@ -38,20 +42,20 @@ public class FakeCloudResource : CloudResource {
 		return requestParameters
 	}
 	
-	public func loadChilds(completion: ([CloudResource]?) -> ()) {
-		
+	public func deserializeResponse(json: JSON) -> [CloudResource] {
+		fatalError("deserializeResponse not implemented")
 	}
 	
-	public func loadChildResources() -> Observable<[CloudResource]> {
-		return Observable.just([CloudResource]())
+	public func wrapRawData(json: JSON) -> CloudResource {
+		fatalError("wrapRawData not implemented")
 	}
 	
-	public func loadChildResources(loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]> {
-		return Observable.just([CloudResource]())
+	public func loadChildResources() -> Observable<JSON> {
+		fatalError("loadChildResources not implemented")
 	}
 	
-	public func loadChildResourcesRecursive() -> Observable<[CloudResource]> {
-		return Observable.just([CloudResource]())
+	public func loadChildResourcesRecursive() -> Observable<CloudResource> {
+		fatalError("loadChildResourcesRecursive not implemented")
 	}
 	
 	public init(oaRes: OAuthResource = OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil),

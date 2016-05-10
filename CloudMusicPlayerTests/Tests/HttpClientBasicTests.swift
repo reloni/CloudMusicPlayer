@@ -111,7 +111,7 @@ class HttpClientBasicTests: XCTestCase {
 		let expectation = expectationWithDescription("Should return json data")
 		
 		httpClient.loadJsonData(request).bindNext { json in
-			if json?["Test"] == "Value" {
+			if json["Test"] == "Value" {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)
@@ -130,10 +130,8 @@ class HttpClientBasicTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should not return json data")
 		
-		httpClient.loadJsonData(request).bindNext { json in
-			if json == nil {
-				expectation.fulfill()
-			}
+		httpClient.loadJsonData(request).doOnCompleted { expectation.fulfill() }.bindNext { json in
+			XCTFail("Should not return data")
 		}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
@@ -183,65 +181,5 @@ class HttpClientBasicTests: XCTestCase {
 		loadRequest.dispose()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
-	}
-	
-	func testCreateRequestForCloudResource() {
-		let request = httpClient as! HttpClient
-		let resource = FakeCloudResource(
-			oaRes: OAuthResourceBase(id: "fake", authUrl: "oauth", clientId: nil, tokenId: nil), httpClient: httpClient, httpUtilities: utilities)
-		resource.resourcesUrl = "https://test.com/restapi/1"
-		resource.requestParameters = ["Param1": "Value with space", "Param2": "Value with / special chars"]
-		resource.requestHeaders = ["Header1": "Value1", "Header2": "Value2"]
-		// invoke with fakehttputilities
-		let createdRequest = request.createRequestForCloudResource(resource) as? FakeRequest
-		XCTAssertNotNil(createdRequest, "Should create request")
-		XCTAssertEqual(2, createdRequest?.headers.count, "Should add 2 headers to request")
-		XCTAssertEqual("Value1", createdRequest?.headers["Header1"], "Check value of header1")
-		XCTAssertEqual("Value2", createdRequest?.headers["Header2"], "Check value of header2")
-	}
-	
-	func testNotCreateRequestForCloudResourceWithIncorrectUrl() {
-		let resource = FakeCloudResource(
-			oaRes: OAuthResourceBase(id: "fake", authUrl: "oauth", clientId: nil, tokenId: nil), httpClient: httpClient, httpUtilities: utilities)
-		resource.resourcesUrl = "incorrect base url"
-		// invoke with real httputilities
-		let request = HttpClient(urlSession: session, httpUtilities: HttpUtilities())
-		let createdRequest = request.createRequestForCloudResource(resource)
-		XCTAssertNil(createdRequest)
-	}
-	
-	func testReturnJsonForCloudResource() {
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				let json: JSON =  ["Test": "Value"]
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(try? json.rawData(), nil, nil)
-				}
-			}
-			}.addDisposableTo(bag)
-		
-		let expectation = expectationWithDescription("Should return correct json data")
-		let fakeRes = FakeCloudResource(
-			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpClient: httpClient, httpUtilities: utilities)
-		fakeRes.resourcesUrl = "https://test.com"
-		
-		httpClient.loadDataForCloudResource(fakeRes)?.bindNext { json in
-			if json?["Test"] == "Value" {
-				expectation.fulfill()
-			}
-		}.addDisposableTo(bag)
-		
-		waitForExpectationsWithTimeout(1, handler: nil)
-	}
-	
-	func testNotReturnRequestForCloudResourceWithIncorrectUrl() {
-		// use real http utilities in this case to test that request will not created
-		let client = HttpClient(urlSession: session, httpUtilities: HttpUtilities())
-		
-		let fakeRes = FakeCloudResource(
-			oaRes: OAuthResourceBase(id: "fake", authUrl: "fake", clientId: nil, tokenId: nil), httpClient: client, httpUtilities: client.httpUtilities)
-		fakeRes.resourcesUrl = "incorrect url"
-		
-		XCTAssertNil(client.loadDataForCloudResource(fakeRes), "Should not return request due to incorrect url")
 	}
 }

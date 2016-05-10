@@ -13,6 +13,8 @@ import RxCocoa
 import RxSwift
 import AVFoundation
 
+let cloudResourceClient = CloudResourceClient(cacheProvider: RealmCloudResourceCacheProvider())
+
 class CloudResourcesStructureController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var stackView: UIStackView!
@@ -32,21 +34,21 @@ class CloudResourcesStructureController: UIViewController {
 	
 	override func viewDidAppear(animated: Bool) {
 		bag = DisposeBag()
-		
+
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
-			parent.loadChildResources().observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }
-				.bindNext { [unowned self] childs in
-				self.viewModel.resources = childs
-				self.tableView.reloadData()
-			}.addDisposableTo(bag!)
+			cloudResourceClient.loadChildResources(parent, loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
+				.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }
+				.bindNext { [weak self] resources in
+				self?.viewModel.resources = resources
+				self?.tableView.reloadData()
+				}.addDisposableTo(bag!)
 		} else if navigationController?.viewControllers.first == self {
-			YandexDiskCloudJsonResource.loadRootResources(OAuthResourceManager.getYandexResource(), httpRequest: HttpClient(),
-				cacheProvider: CloudResourceNsUserDefaultsCacheProvider(loadCachedData: true))?
-				.observeOn(MainScheduler.instance).doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }
-				.bindNext { [unowned self] childs in
-					self.viewModel.resources = childs
-					self.tableView.reloadData()
+			YandexDiskCloudJsonResource.getRootResource(oauth: OAuthResourceManager.getYandexResource()).flatMapLatest { resource in
+				return cloudResourceClient.loadChildResources(resource, loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
+				}.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }.bindNext { [weak self] resources in
+					self?.viewModel.resources = resources
+					self?.tableView.reloadData()
 			}.addDisposableTo(bag!)
 		}
 	}
@@ -81,8 +83,8 @@ class CloudResourcesStructureController: UIViewController {
 		if let identifier = track as? StreamResourceIdentifier {
 			rxPlayer.playUrl(identifier)
 		} else {
-			track.downloadUrl?.bindNext { result in
-				guard let url = result else { return }
+			track.downloadUrl.bindNext { url in
+				//guard let url = result else { return }
 				rxPlayer.playUrl(url)
 				
 				}.addDisposableTo(bag!)
@@ -92,7 +94,7 @@ class CloudResourcesStructureController: UIViewController {
 
 extension CloudResourcesStructureController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-		if viewModel.resources?[indexPath.row].type == "dir", let resource = viewModel.resources?[indexPath.row],
+		if viewModel.resources?[indexPath.row].type == .Folder, let resource = viewModel.resources?[indexPath.row],
 			controller = storyboard?.instantiateViewControllerWithIdentifier("RootViewController") as? CloudResourcesStructureController {
 		
 			controller.viewModel.parent = resource
@@ -113,11 +115,11 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		let cell = tableView.dequeueReusableCellWithIdentifier("CloudFolderCell", forIndexPath: indexPath) as! CloudFolderCell
 		cell.folderNameLabel.text = resource.name ?? "unresolved"
 		
-		if resource.type == "dir" {
+		if resource.type == .Folder {
 			// create new bag to dispose previous observers
 			cell.bag = DisposeBag()
 			cell.playButton.rx_tap.bindNext {
-				resource.loadChildResourcesRecursive().map { e in return e.filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier } }
+				resource.loadChildResourcesRecursive().filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier }.toArray()
 					.bindNext { [weak self] items in
 						rxPlayer.initWithNewItems(items)
 						dispatch_async(dispatch_get_main_queue()) {
@@ -125,7 +127,7 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 						}
 						rxPlayer.resume(true)
 						print("Player items count: \(rxPlayer.count)")
-				}.addDisposableTo(self.bag!)
+				}.addDisposableTo(cell.bag)
 			}.addDisposableTo(cell.bag)
 		} else {
 			cell.playButton.hidden = true

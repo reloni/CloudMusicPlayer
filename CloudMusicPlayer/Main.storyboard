@@ -512,7 +512,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Yandex Disk: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MJ2-Q0-13o">
-                                <rect key="frame" x="20" y="57" width="103" height="21"/>
+                                <rect key="frame" x="20" y="90" width="103" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="103" id="MZ8-4w-4JH"/>
                                     <constraint firstAttribute="height" constant="21" id="Ubw-yl-tmG"/>
@@ -522,7 +522,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="soC-Ii-Uy8">
-                                <rect key="frame" x="136" y="53" width="50" height="30"/>
+                                <rect key="frame" x="136" y="86" width="50" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="50" id="5Tj-Vb-dMj"/>
                                     <constraint firstAttribute="height" constant="30" id="7tg-L4-iXT"/>
@@ -530,7 +530,7 @@
                                 <state key="normal" title="Log in"/>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tdn-Sh-xKE">
-                                <rect key="frame" x="194" y="53" width="71" height="30"/>
+                                <rect key="frame" x="194" y="86" width="71" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="VmZ-6C-qHQ"/>
                                     <constraint firstAttribute="width" constant="71" id="bOB-bP-pBt"/>
@@ -538,37 +538,37 @@
                                 <state key="normal" title="Log out"/>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Permanent storage:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XaY-7Q-w1R">
-                                <rect key="frame" x="20" y="86" width="150.5" height="21"/>
+                                <rect key="frame" x="20" y="119" width="150.5" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Temp storage:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TXC-Xg-JXJ">
-                                <rect key="frame" x="20" y="115" width="110" height="21"/>
+                                <rect key="frame" x="20" y="148" width="110" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Temporary folder:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kbm-Ge-eCX">
-                                <rect key="frame" x="20" y="144" width="136" height="21"/>
+                                <rect key="frame" x="20" y="177" width="136" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dhv-sb-VWm">
-                                <rect key="frame" x="194" y="86" width="10.5" height="21"/>
+                                <rect key="frame" x="194" y="119" width="10.5" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Dk-bv-6Ex">
-                                <rect key="frame" x="194" y="115" width="10.5" height="21"/>
+                                <rect key="frame" x="194" y="148" width="10.5" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jja-ZG-RLY">
-                                <rect key="frame" x="194" y="144" width="10.5" height="21"/>
+                                <rect key="frame" x="194" y="177" width="10.5" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -577,17 +577,51 @@
                                 <rect key="frame" x="20" y="513" width="92" height="30"/>
                                 <state key="normal" title="Clear storage"/>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Google Drive: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZQj-dD-Eiq">
+                                <rect key="frame" x="20" y="59" width="108.5" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="Uou-AG-i1P"/>
+                                    <constraint firstAttribute="width" constant="103" id="VB9-bh-00N"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="VB9-bh-00N"/>
+                                    </mask>
+                                </variation>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wkg-Et-KRw">
+                                <rect key="frame" x="141.5" y="55" width="50" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="Ern-JC-i5Q"/>
+                                    <constraint firstAttribute="width" constant="50" id="iuX-b1-8Lh"/>
+                                </constraints>
+                                <state key="normal" title="Log in"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tyf-Oz-Gi5">
+                                <rect key="frame" x="199.5" y="55" width="71" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="blL-9M-Oe6"/>
+                                    <constraint firstAttribute="width" constant="71" id="oBV-QG-3Oo"/>
+                                </constraints>
+                                <state key="normal" title="Log out"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstAttribute="leadingMargin" secondItem="ZQj-dD-Eiq" secondAttribute="leading" id="2ic-lW-UbN"/>
                             <constraint firstItem="Jja-ZG-RLY" firstAttribute="leading" secondItem="Kbm-Ge-eCX" secondAttribute="trailing" constant="38" id="5Z5-Bg-DmA"/>
-                            <constraint firstItem="soC-Ii-Uy8" firstAttribute="top" secondItem="fF8-28-pwI" secondAttribute="bottom" constant="4" id="6Ny-LU-itA"/>
                             <constraint firstItem="MJ2-Q0-13o" firstAttribute="leading" secondItem="7rj-8k-Yu1" secondAttribute="leadingMargin" id="8Bo-sB-w2k"/>
                             <constraint firstItem="Kbm-Ge-eCX" firstAttribute="top" secondItem="TXC-Xg-JXJ" secondAttribute="bottom" constant="8" id="8no-Ix-z7X"/>
+                            <constraint firstItem="ZQj-dD-Eiq" firstAttribute="top" secondItem="fF8-28-pwI" secondAttribute="bottom" constant="10" id="A9p-nH-uS8"/>
                             <constraint firstItem="TXC-Xg-JXJ" firstAttribute="top" secondItem="XaY-7Q-w1R" secondAttribute="bottom" constant="8" id="AxA-uv-bb3"/>
                             <constraint firstItem="hvi-un-XUX" firstAttribute="top" secondItem="nul-F2-fct" secondAttribute="bottom" constant="8" id="B5q-X1-0RL"/>
                             <constraint firstItem="Dhv-sb-VWm" firstAttribute="bottom" secondItem="XaY-7Q-w1R" secondAttribute="bottom" id="EhL-0T-p2p"/>
                             <constraint firstItem="fF8-28-pwI" firstAttribute="top" secondItem="nyi-xi-alP" secondAttribute="bottom" constant="8" id="EtX-gq-tRc"/>
+                            <constraint firstItem="soC-Ii-Uy8" firstAttribute="baseline" secondItem="MJ2-Q0-13o" secondAttribute="baseline" id="FA6-18-G7O"/>
+                            <constraint firstItem="MJ2-Q0-13o" firstAttribute="top" secondItem="ZQj-dD-Eiq" secondAttribute="bottom" constant="10" id="G00-lk-wPQ"/>
                             <constraint firstAttribute="trailingMargin" secondItem="fF8-28-pwI" secondAttribute="trailing" constant="431" id="HUS-eL-jHu"/>
                             <constraint firstItem="MJ2-Q0-13o" firstAttribute="top" secondItem="fF8-28-pwI" secondAttribute="bottom" constant="8" id="IgZ-0D-GG5"/>
                             <constraint firstItem="fF8-28-pwI" firstAttribute="top" secondItem="nyi-xi-alP" secondAttribute="bottom" constant="8" id="JRb-nO-lGL"/>
@@ -601,15 +635,18 @@
                             <constraint firstItem="soC-Ii-Uy8" firstAttribute="leading" secondItem="MJ2-Q0-13o" secondAttribute="trailing" constant="13" id="XQZ-P3-Ksz"/>
                             <constraint firstItem="tdn-Sh-xKE" firstAttribute="leading" secondItem="soC-Ii-Uy8" secondAttribute="trailing" constant="8" id="XgP-xT-KXD"/>
                             <constraint firstItem="4Dk-bv-6Ex" firstAttribute="bottom" secondItem="TXC-Xg-JXJ" secondAttribute="bottom" id="Z04-ls-JPI"/>
-                            <constraint firstItem="MJ2-Q0-13o" firstAttribute="top" secondItem="fF8-28-pwI" secondAttribute="bottom" constant="8" id="Z0E-3E-5js"/>
                             <constraint firstItem="fF8-28-pwI" firstAttribute="leading" secondItem="7rj-8k-Yu1" secondAttribute="leadingMargin" id="bNP-BI-9jK"/>
+                            <constraint firstItem="wkg-Et-KRw" firstAttribute="leading" secondItem="ZQj-dD-Eiq" secondAttribute="trailing" constant="13" id="bgP-ca-zMw"/>
                             <constraint firstItem="tdn-Sh-xKE" firstAttribute="top" secondItem="fF8-28-pwI" secondAttribute="bottom" constant="4" id="d3L-pN-De3"/>
-                            <constraint firstItem="tdn-Sh-xKE" firstAttribute="top" secondItem="fF8-28-pwI" secondAttribute="bottom" constant="4" id="eXF-gk-iaM"/>
+                            <constraint firstItem="Tyf-Oz-Gi5" firstAttribute="leading" secondItem="wkg-Et-KRw" secondAttribute="trailing" constant="8" id="eok-1E-nBO"/>
                             <constraint firstItem="Jja-ZG-RLY" firstAttribute="bottom" secondItem="Kbm-Ge-eCX" secondAttribute="bottom" id="ezs-gA-XUU"/>
                             <constraint firstItem="4Dk-bv-6Ex" firstAttribute="leading" secondItem="TXC-Xg-JXJ" secondAttribute="trailing" constant="64" id="gKy-oO-9bM"/>
                             <constraint firstItem="tdn-Sh-xKE" firstAttribute="leading" secondItem="soC-Ii-Uy8" secondAttribute="trailing" constant="8" id="hwy-yK-t5Q"/>
                             <constraint firstItem="fF8-28-pwI" firstAttribute="leading" secondItem="7rj-8k-Yu1" secondAttribute="leadingMargin" id="jid-ZG-4P4"/>
+                            <constraint firstItem="tdn-Sh-xKE" firstAttribute="baseline" secondItem="soC-Ii-Uy8" secondAttribute="baseline" id="o8q-1b-RdG"/>
+                            <constraint firstItem="wkg-Et-KRw" firstAttribute="baseline" secondItem="ZQj-dD-Eiq" secondAttribute="baseline" id="pJC-2T-Gvn"/>
                             <constraint firstItem="MJ2-Q0-13o" firstAttribute="leading" secondItem="7rj-8k-Yu1" secondAttribute="leadingMargin" id="qic-bJ-IAR"/>
+                            <constraint firstItem="Tyf-Oz-Gi5" firstAttribute="baseline" secondItem="wkg-Et-KRw" secondAttribute="baseline" id="rAF-5F-GM4"/>
                             <constraint firstItem="Dhv-sb-VWm" firstAttribute="leading" secondItem="XaY-7Q-w1R" secondAttribute="trailing" constant="23.5" id="svc-Y8-kMu"/>
                             <constraint firstItem="soC-Ii-Uy8" firstAttribute="top" secondItem="fF8-28-pwI" secondAttribute="bottom" constant="4" id="uJc-9T-eSO"/>
                             <constraint firstItem="soC-Ii-Uy8" firstAttribute="top" secondItem="fF8-28-pwI" secondAttribute="bottom" constant="4" id="wAc-hJ-2Di"/>
@@ -633,6 +670,8 @@
                     <tabBarItem key="tabBarItem" title="Settings" id="hae-Id-lbw"/>
                     <connections>
                         <outlet property="clearStorageButton" destination="nul-F2-fct" id="zrN-C8-JDU"/>
+                        <outlet property="googleLogInButton" destination="wkg-Et-KRw" id="od4-r7-SEO"/>
+                        <outlet property="googleLogOutButton" destination="Tyf-Oz-Gi5" id="88v-pf-8VH"/>
                         <outlet property="logInButton" destination="soC-Ii-Uy8" id="gtB-gf-enc"/>
                         <outlet property="logOutButton" destination="tdn-Sh-xKE" id="NAQ-G8-9xw"/>
                         <outlet property="permanentStorageLabel" destination="Dhv-sb-VWm" id="BpO-ok-PCX"/>

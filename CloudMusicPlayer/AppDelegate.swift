@@ -9,7 +9,6 @@
 import UIKit
 import CoreData
 import AVFoundation
-
 import RxSwift
 
 //var streamPlayer = StreamAudioPlayer(allowSaveCachedData: true)
@@ -55,30 +54,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	
 	// вызывается при вызове приложения по URL схеме
 	// настраивается в  Info.plist в разделе URL types/URL Schemes
-	func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
-//		if let navigationController = window?.rootViewController as? UINavigationController {
-//			navigationController.popViewControllerAnimated(true)
-//		}
-		//test://com.AntonEfimenko.CloudMusicPlayer#access_token=2416c135fb554b4f814e443ef2f4e8b8&token_type=bearer&expires_in=31536000
-		
-		//let start = str.substringFromIndex((str.rangeOfString("access_token=")?.endIndex)!)
-		//start.substringToIndex((start.rangeOfString("&token_type=")?.startIndex)!)
-//		if let start = url.absoluteString.rangeOfString("access_token=")?.endIndex, end = url.absoluteString.rangeOfString("&token_type=")?.startIndex {
-//			let token = url.absoluteString.substringWithRange(Range<String.Index>(start: start, end: end))
-//			SharedSettings.Instance.addCloudResource("yandexDisk", token: token)
-//		}
-		
-		//OAuthResource.parseCallbackUrl("")
-		//OAuthResource.parseCallbackUrl(url.absoluteString)
+	func application(application: UIApplication,
+	                 openURL url: NSURL, options: [String: AnyObject]) -> Bool {
 		if let result = OAuthResourceManager().parseCallbackUrl(url.absoluteString) {
 			result.resource.tokenId = result.token
 			result.resource.saveResource()
-		}
-		// [1] Dismiss webview once url is passed to extract authorization code
-		//UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
-		
+		} 
 		return true
 	}
+//	func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
+////		if let result = OAuthResourceManager().parseCallbackUrl(url.absoluteString) {
+////			result.resource.tokenId = result.token
+////			result.resource.saveResource()
+////		}
+//		
+//		var options: [String: AnyObject] = [UIApplicationOpenURLOptionsSourceApplicationKey: sourceApplication!,
+//		                                    UIApplicationOpenURLOptionsAnnotationKey: annotation]
+//		let handled = GIDSignIn.sharedInstance().handleURL(url,
+//		                                                   sourceApplication: options[UIApplicationOpenURLOptionsSourceApplicationKey] as? String,
+//		                                                   annotation: options[UIApplicationOpenURLOptionsAnnotationKey])
+//		print(handled)
+//		// [1] Dismiss webview once url is passed to extract authorization code
+//		//UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
+//		
+//		return true
+//	}
 
 	func applicationWillResignActive(application: UIApplication) {
 		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
