@@ -12,7 +12,7 @@ import AVFoundation
 import RxSwift
 import RealmSwift
 
-class RxPlayerQueueItemTests: XCTestCase {
+class RxPlayerMetadataLoadTests: XCTestCase {
 	let bag = DisposeBag()
 	
 	override func setUp() {
@@ -27,7 +27,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 	}
 	
 	func testLoadMetadataFromFile() {
-		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerQueueItemTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
+		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerMetadataLoadTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
 		let player = RxPlayer()
 		let item = player.addLast("http://testitem.com")
 		let metadata = player.loadFileMetadata(item.streamIdentifier, file: metadataFile, utilities: StreamPlayerUtilities())
@@ -46,7 +46,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 	
 	func testLoadMetadataFromCachedFile() {
 		let storage = LocalNsUserDefaultsStorage()
-		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerQueueItemTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
+		let metadataFile = NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerMetadataLoadTests.self).pathForResource("MetadataTest", ofType: "mp3")!)
 		let copiedFile = storage.tempStorageDirectory.URLByAppendingPathComponent("FileWithMetadata.mp3")
 		let _ = try? NSFileManager.defaultManager().copyItemAtURL(metadataFile, toURL: copiedFile)
 		storage.tempStorageDictionary["https://testitem.com"] = copiedFile.lastPathComponent
@@ -139,7 +139,7 @@ class RxPlayerQueueItemTests: XCTestCase {
 						response: response, completion: { _ in }))
 					
 					guard let data = NSData(contentsOfURL:
-						NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerQueueItemTests.self).pathForResource("MetadataTest", ofType: "mp3")!)) else {
+						NSURL(fileURLWithPath: NSBundle(forClass: RxPlayerMetadataLoadTests.self).pathForResource("MetadataTest", ofType: "mp3")!)) else {
 							return
 					}
 					
