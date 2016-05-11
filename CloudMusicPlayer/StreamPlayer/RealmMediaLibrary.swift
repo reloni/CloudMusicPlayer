@@ -142,7 +142,7 @@ extension UnsafeRealmMediaLibrary : UnsafeMediaLibraryType {
 	public func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws {
 		let realm = try getRealm()
 		
-		guard let realmPlayList = realm.objects(RealmPlayList).filter("resourceUid = %@", playList.uid).first else { return }
+		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return }
 		
 		try items.forEach { metadataItem in
 			let realmMetadataItem = try createOrUpdateMetadataObject(realm, metadata: metadataItem)

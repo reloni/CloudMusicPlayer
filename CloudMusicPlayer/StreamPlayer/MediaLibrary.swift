@@ -75,10 +75,23 @@ public struct MediaItemMetadata : MediaItemMetadataType {
 	public internal(set) var album: String?
 	public internal(set) var artwork: NSData?
 	public internal(set) var duration: Float?
+	public init(resourceUid: String, artist: String?, title: String?, album: String?, artwork: NSData?, duration: Float?) {
+		self.resourceUid = resourceUid
+		self.artist = artist
+		self.title = title
+		self.album = album
+		self.artwork = artwork
+		self.duration = duration
+	}
 }
 
 public struct PlayList : PlayListType {
 	public var uid: String
 	public var name: String
 	public var items: [MediaItemMetadataType]
+	public init(uid: String, name: String, items: [MediaItemMetadataType]) {
+		self.uid = uid
+		self.name = name
+		self.items = items
+	}
 }
