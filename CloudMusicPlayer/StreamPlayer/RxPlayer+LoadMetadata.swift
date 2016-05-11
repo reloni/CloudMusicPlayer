@@ -81,7 +81,7 @@ extension RxPlayer {
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-			let loadDisposable = object.currentItems.filter { !mediaLibrary.metadataExists($0.streamIdentifier) }.toObservable().observeOn(serialScheduler)
+			let loadDisposable = object.currentItems.filter { !mediaLibrary.isMetadataExists($0.streamIdentifier) }.toObservable().observeOn(serialScheduler)
 				.flatMap { item -> Observable<MediaItemMetadataType?> in
 					return object.loadMetadata(item.streamIdentifier)
 				}.doOnCompleted { print("batch metadata load completed"); observer.onCompleted() }.bindNext { meta in
