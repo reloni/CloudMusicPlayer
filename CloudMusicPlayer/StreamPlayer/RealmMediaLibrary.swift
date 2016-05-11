@@ -48,6 +48,7 @@ public class RealmMediaItemMetadata : Object {
 
 public class RealmMediaLibrary {
 	internal let unsafeLibrary = UnsafeRealmMediaLibrary()
+	public init() { }
 }
 
 public class UnsafeRealmMediaLibrary {
@@ -55,8 +56,8 @@ public class UnsafeRealmMediaLibrary {
 		return try Realm()
 	}
 	
-	internal func createOrUpdateMetadataObject(realm: Realm, uid: String, metadata: MediaItemMetadataType) throws -> RealmMediaItemMetadata {
-		if let meta = realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", uid).first {
+	internal func createOrUpdateMetadataObject(realm: Realm, metadata: MediaItemMetadataType) throws -> RealmMediaItemMetadata {
+		if let meta = realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", metadata.resourceUid).first {
 			try realm.write {
 				meta.album = metadata.album
 				meta.artist = metadata.artist
@@ -66,7 +67,7 @@ public class UnsafeRealmMediaLibrary {
 			}
 			return meta
 		} else {
-			let meta = RealmMediaItemMetadata(uid: uid)
+			let meta = RealmMediaItemMetadata(uid: metadata.resourceUid)
 			meta.album = metadata.album
 			meta.artist = metadata.artist
 			meta.artwork = metadata.artwork
@@ -99,10 +100,10 @@ extension UnsafeRealmMediaLibrary : UnsafeMediaLibraryType {
 		return realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", resource.streamResourceUid).first != nil
 	}
 	
-	public func saveMetadata(resource: StreamResourceIdentifier, metadata: MediaItemMetadataType) throws {
+	public func saveMetadata(metadata: MediaItemMetadataType) throws {
 		let realm = try getRealm()
 		
-		try createOrUpdateMetadataObject(realm, uid: resource.streamResourceUid, metadata: metadata)
+		try createOrUpdateMetadataObject(realm, metadata: metadata)
 	}
 	
 	public func createPlayList(name: String) throws -> PlayListType? {
@@ -144,7 +145,7 @@ extension UnsafeRealmMediaLibrary : UnsafeMediaLibraryType {
 		guard let realmPlayList = realm.objects(RealmPlayList).filter("resourceUid = %@", playList.uid).first else { return }
 		
 		try items.forEach { metadataItem in
-			let realmMetadataItem = try createOrUpdateMetadataObject(realm, uid: metadataItem.resourceUid, metadata: metadataItem)
+			let realmMetadataItem = try createOrUpdateMetadataObject(realm, metadata: metadataItem)
 			try realm.write { realmPlayList.items.append(realmMetadataItem) }
 		}
 	}
@@ -210,8 +211,8 @@ extension RealmMediaLibrary : MediaLibraryType {
 		}
 	}
 	
-	public func saveMetadata(resource: StreamResourceIdentifier, metadata: MediaItemMetadataType) {
-		let _ = try? unsafeLibrary.saveMetadata(resource, metadata: metadata)
+	public func saveMetadata(metadata: MediaItemMetadataType) {
+		let _ = try? unsafeLibrary.saveMetadata(metadata)
 	}
 	
 	public func createPlayList(name: String) -> PlayListType? {

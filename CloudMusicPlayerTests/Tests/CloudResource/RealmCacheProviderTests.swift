@@ -43,6 +43,7 @@ func fillRealmCloudResourceCacheProviderWithTestData() {
 	realm.add(realmRoot)
 	let _ = try! realm.commitWrite()
 }
+
 class RealmCacheProviderTests: XCTestCase {
 	var bag: DisposeBag!
 	var request: FakeRequest!

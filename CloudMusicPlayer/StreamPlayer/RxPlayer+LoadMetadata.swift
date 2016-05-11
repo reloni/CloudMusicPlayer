@@ -36,7 +36,7 @@ extension RxPlayer {
 			if let localFile = object.downloadManager.fileStorage.getFromStorage(resource.streamResourceUid) {
 				let metadata = object.loadFileMetadata(resource, file: localFile, utilities: utilities)
 				if let metadata = metadata {
-					object.mediaLibrary.saveMetadata(resource, metadata: metadata)
+					object.mediaLibrary.saveMetadata(metadata)
 				}
 				
 				observer.onNext(metadata)
@@ -54,7 +54,7 @@ extension RxPlayer {
 						if let file = downloadManager.fileStorage.saveToTemporaryFolder(prov) {
 							let metadata = object.loadFileMetadata(resource, file: file, utilities: utilities)
 							if let metadata = metadata {
-								object.mediaLibrary.saveMetadata(resource, metadata: metadata)
+								object.mediaLibrary.saveMetadata(metadata)
 							}
 							
 							observer.onNext(metadata)

@@ -11,7 +11,7 @@ import Foundation
 public protocol MediaLibraryType {
 	// metadata
 	func getMetadata(resource: StreamResourceIdentifier) -> MediaItemMetadataType?
-	func saveMetadata(resource: StreamResourceIdentifier, metadata: MediaItemMetadataType)
+	func saveMetadata(metadata: MediaItemMetadataType)
 	func isMetadataExists(resource: StreamResourceIdentifier) -> Bool
 	
 	// play lists
@@ -35,7 +35,7 @@ public protocol MediaLibraryType {
 public protocol UnsafeMediaLibraryType {
 	// metadata
 	func getMetadata(resource: StreamResourceIdentifier) throws -> MediaItemMetadataType?
-	func saveMetadata(resource: StreamResourceIdentifier, metadata: MediaItemMetadataType) throws
+	func saveMetadata(metadata: MediaItemMetadataType) throws
 	func isMetadataExists(resource: StreamResourceIdentifier) throws -> Bool
 	
 	// play lists
