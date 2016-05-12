@@ -52,6 +52,30 @@ class RealmMediaLibraryTests: XCTestCase {
 		XCTAssertEqual(realmObject?.duration, metadata.duration)
 	}
 	
+	func testUpdateExistedMetadata() {
+		var metadata = MediaItemMetadata(resourceUid: "testuid", artist: "Test artist", title: "Test title", album: "test album",
+		                                 artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56)
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		lib.saveMetadata(metadata)
+	
+		metadata.artist = "updated artist"
+		metadata.title = "updated title"
+		metadata.album = "updated album"
+		
+		lib.saveMetadata(metadata)
+		
+		let realm = try! Realm()
+		let realmObject = realm.objects(RealmMediaItemMetadata).first
+		
+		XCTAssertNotNil(realmObject)
+		XCTAssertEqual(realmObject?.resourceUid, metadata.resourceUid)
+		XCTAssertEqual(realmObject?.album, metadata.album)
+		XCTAssertEqual(realmObject?.artist, metadata.artist)
+		XCTAssertEqual(realmObject?.artwork, metadata.artwork)
+		XCTAssertEqual(realmObject?.title, metadata.title)
+		XCTAssertEqual(realmObject?.duration, metadata.duration)
+	}
+	
 	func testReturnMetadata() {
 		let metadata = RealmMediaItemMetadata(uid: "testuid")
 		metadata.album = "test album"
@@ -177,5 +201,227 @@ class RealmMediaLibraryTests: XCTestCase {
 		
 		XCTAssertEqual(libPlayLists.count, 1)
 		XCTAssertEqual(libPlayLists.first?.items.count, 2)
+	}
+	
+	func testClearMediaLibrary() {
+		let pl1 = RealmPlayList(uid: "pluid1", name: "my play list")
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		
+		let pl2 = RealmPlayList(uid: "pluid2", name: "my play list")
+		pl2.items.append(RealmMediaItemMetadata(uid: "metauid3", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl2.items.append(RealmMediaItemMetadata(uid: "metauid4", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		
+		let realm = try! Realm()
+		try! realm.write {
+			realm.add(pl1)
+			realm.add(pl2)
+		}
+		
+		let lib = RealmMediaLibrary()
+		lib.clearLibrary()
+		
+		XCTAssertEqual(realm.objects(RealmMediaItemMetadata).count, 0)
+		XCTAssertEqual(realm.objects(RealmPlayList).count, 0)
+	}
+	
+	func testCorrectCheckExistedMetadata() {
+		let metadata = MediaItemMetadata(resourceUid: "testuid", artist: "Test artist", title: "Test title", album: "test album",
+		                                 artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56)
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		lib.saveMetadata(metadata)
+		
+		XCTAssertTrue(lib.isMetadataExists(metadata.resourceUid))
+	}
+	
+	func testCorrectCheckNotExistedMetadata() {
+		let metadata = MediaItemMetadata(resourceUid: "testuid", artist: "Test artist", title: "Test title", album: "test album",
+		                                 artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56)
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		lib.saveMetadata(metadata)
+		
+		XCTAssertFalse(lib.isMetadataExists("notexisted"))
+	}
+	
+	func testClearPlayList() {
+		let pl = RealmPlayList(uid: "testuid", name: "my play list")
+		pl.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		let realm = try! Realm()
+		try! realm.write { realm.add(pl) }
+		
+		let lib = RealmMediaLibrary()
+		let libPl = lib.getPlayListByUid("testuid")
+		
+		let clearedPl = lib.clearPlayList(libPl!)
+		
+		XCTAssertEqual(clearedPl.items.count, 0)
+		XCTAssertEqual(realm.objects(RealmPlayList).first?.items.count, 0)
+		XCTAssertEqual(realm.objects(RealmMediaItemMetadata).count, 2)
+	}
+	
+	func testNotClearNotExistedPlayList() {
+		let pl = RealmPlayList(uid: "testuid", name: "my play list")
+		pl.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		let realm = try! Realm()
+		try! realm.write { realm.add(pl) }
+		
+		let lib = RealmMediaLibrary()
+		let notExistedPl = PlayList(uid: "notexisted", name: "test", items: [MediaItemMetadataType]())
+		
+		let clearedPl = lib.clearPlayList(notExistedPl)
+		
+		XCTAssertEqual(clearedPl.uid, notExistedPl.uid)
+		XCTAssertEqual(realm.objects(RealmPlayList).first?.items.count, 2)
+		XCTAssertEqual(realm.objects(RealmMediaItemMetadata).count, 2)
+	}
+	
+	func testDeletePlayList() {
+		let pl = RealmPlayList(uid: "testuid", name: "my play list")
+		pl.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		let realm = try! Realm()
+		try! realm.write { realm.add(pl) }
+		
+		let lib = RealmMediaLibrary()
+		let libPl = lib.getPlayListByUid("testuid")
+		
+		lib.deletePlayList(libPl!)
+		
+		XCTAssertEqual(realm.objects(RealmPlayList).count, 0)
+		XCTAssertEqual(realm.objects(RealmMediaItemMetadata).count, 2)
+	}
+	
+	func testRenamePlayList() {
+		let pl = RealmPlayList(uid: "testuid", name: "my play list")
+		pl.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		let realm = try! Realm()
+		try! realm.write { realm.add(pl) }
+		
+		let lib = RealmMediaLibrary()
+		let libPl = lib.getPlayListByUid("testuid")
+		
+		let renamedPl = lib.renamePlayList(libPl!, newName: "renamed")
+		
+		XCTAssertEqual(renamedPl.name, "renamed")
+		XCTAssertEqual(renamedPl.uid, "testuid")
+		XCTAssertEqual(realm.objects(RealmPlayList).first?.name, renamedPl.name)
+	}
+	
+	func testReturnAllPlayLists() {
+		let pl1 = RealmPlayList(uid: "pluid1", name: "my play list")
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		
+		let pl2 = RealmPlayList(uid: "pluid2", name: "my play list")
+		pl2.items.append(RealmMediaItemMetadata(uid: "metauid3", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl2.items.append(RealmMediaItemMetadata(uid: "metauid4", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		
+		let pl3 = RealmPlayList(uid: "pluid3", name: "my play list")
+		
+		let realm = try! Realm()
+		try! realm.write {
+			realm.add(pl1)
+			realm.add(pl2)
+			realm.add(pl3)
+		}
+		
+		let lib = RealmMediaLibrary()
+		let allPls = lib.getAllPlayLists()
+		
+		XCTAssertEqual(allPls.count, 3)
+		XCTAssertEqual(allPls.first?.items.count, 2)
+		XCTAssertEqual(allPls.last?.items.count, 0)
+	}
+	
+	func testRemoveItemFromPlayList() {
+		let pl1 = RealmPlayList(uid: "pluid1", name: "my play list")
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+	
+		let realm = try! Realm()
+		try! realm.write { realm.add(pl1) }
+		
+		let lib = RealmMediaLibrary()
+		let libPl = lib.getAllPlayLists().first!
+		
+		let newPl = lib.removeItemFromPlayList(libPl, item: libPl.items.first!)
+		
+		XCTAssertEqual(newPl.items.count, 1)
+		XCTAssertEqual(newPl.items.first?.resourceUid, "metauid2")
+		XCTAssertEqual(realm.objects(RealmMediaItemMetadata).count, 2)
+		XCTAssertEqual(realm.objects(RealmPlayList).first?.items.count, 1)
+	}
+	
+	func testNotRemoveNotBelongingItemFromPlayList() {
+		let pl1 = RealmPlayList(uid: "pluid1", name: "my play list")
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		
+		let realm = try! Realm()
+		try! realm.write {
+			realm.add(pl1)
+			realm.add(RealmMediaItemMetadata(uid: "metauid3", title: "meta 3", album: "meta 3", artist: "meta 3", artwork: nil, duration: 0))
+		}
+		
+		let lib = RealmMediaLibrary()
+		let libPl = lib.getAllPlayLists().first!
+		
+		let newPl = lib.removeItemFromPlayList(libPl, item: lib.getMetadata("metauid3")!)
+		
+		XCTAssertEqual(newPl.items.count, 2)
+		XCTAssertEqual(realm.objects(RealmMediaItemMetadata).count, 3)
+		XCTAssertEqual(realm.objects(RealmPlayList).first?.items.count, 2)
+	}
+	
+	func testRemoveItemsFromPlayList() {
+		let pl1 = RealmPlayList(uid: "pluid1", name: "my play list")
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		
+		let realm = try! Realm()
+		try! realm.write { realm.add(pl1) }
+		
+		let lib = RealmMediaLibrary()
+		let libPl = lib.getAllPlayLists().first!
+		
+		let newPl = lib.removeItemsFromPlayList(libPl, items: libPl.items)
+		
+		XCTAssertEqual(newPl.items.count, 0)
+		XCTAssertEqual(realm.objects(RealmMediaItemMetadata).count, 2)
+		XCTAssertEqual(realm.objects(RealmPlayList).first?.items.count, 0)
+	}
+	
+	func testCorrectCheckExistedItemInPlayList() {
+		let pl1 = RealmPlayList(uid: "pluid1", name: "my play list")
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		
+		let realm = try! Realm()
+		try! realm.write { realm.add(pl1) }
+		
+		let lib = RealmMediaLibrary()
+		let libPl = lib.getAllPlayLists().first!
+		
+		XCTAssertTrue(lib.isItemContainsInPlayList(libPl, item: libPl.items.first!))
+	}
+	
+	func testCorrectCheckItemNotExistedInPlayList() {
+		let pl1 = RealmPlayList(uid: "pluid1", name: "my play list")
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid1", title: "meta 1", album: "meta 1", artist: "meta 1", artwork: nil, duration: 0))
+		pl1.items.append(RealmMediaItemMetadata(uid: "metauid2", title: "meta 2", album: "meta 2", artist: "meta 2", artwork: nil, duration: 0))
+		
+		let realm = try! Realm()
+		try! realm.write {
+			realm.add(pl1)
+			realm.add(RealmMediaItemMetadata(uid: "metauid3", title: "meta 3", album: "meta 3", artist: "meta 3", artwork: nil, duration: 0))
+		}
+		
+		let lib = RealmMediaLibrary()
+		let libPl = lib.getAllPlayLists().first!
+		
+		XCTAssertFalse(lib.isItemContainsInPlayList(libPl, item: lib.getMetadata("metauid3")!))
 	}
 }

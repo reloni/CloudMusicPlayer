@@ -84,7 +84,10 @@ public class UnsafeRealmMediaLibrary {
 extension UnsafeRealmMediaLibrary : UnsafeMediaLibraryType {
 	public func clearLibrary() throws {
 		let realm = try getRealm()
-		try realm.write { realm.objects(RealmMediaItemMetadata).forEach { realm.delete($0) } }
+		try realm.write {
+			realm.delete(realm.objects(RealmMediaItemMetadata))
+			realm.delete(realm.objects(RealmPlayList))
+		}
 	}
 	
 	public func getMetadata(resource: StreamResourceIdentifier) throws -> MediaItemMetadataType? {
@@ -113,11 +116,12 @@ extension UnsafeRealmMediaLibrary : UnsafeMediaLibraryType {
 		return playList.toStruct()
 	}
 	
-	public func clearPlayList(playList: PlayListType) throws {
+	public func clearPlayList(playList: PlayListType) throws -> PlayListType {
 		let realm = try getRealm()
 		
-		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return }
+		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return playList }
 		try realm.write { realmPlayList.items.removeAll() }
+		return PlayList(uid: playList.uid, name: playList.name, items: [MediaItemMetadataType]())
 	}
 	
 	public func deletePlayList(playList: PlayListType) throws {
@@ -127,11 +131,12 @@ extension UnsafeRealmMediaLibrary : UnsafeMediaLibraryType {
 		try realm.write { realm.delete(realmPlayList) }
 	}
 	
-	public func renamePlayList(playList: PlayListType, newName: String) throws {
+	public func renamePlayList(playList: PlayListType, newName: String) throws -> PlayListType {
 		let realm = try getRealm()
 		
-		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return }
+		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return playList }
 		try realm.write { realmPlayList.name = newName }
+		return PlayList(uid: playList.uid, name: newName, items: playList.items)
 	}
 	
 	public func getAllPlayLists() throws -> [PlayListType] {
@@ -150,14 +155,14 @@ extension UnsafeRealmMediaLibrary : UnsafeMediaLibraryType {
 		}
 	}
 	
-	public func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) throws {
-		try removeItemsFromPlayList(playList, items: [item])
+	public func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) throws -> PlayListType {
+		return try removeItemsFromPlayList(playList, items: [item])
 	}
 	
-	public func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws {
+	public func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws -> PlayListType {
 		let realm = try getRealm()
 		
-		guard let realmPlayList = realm.objects(RealmPlayList).filter("resourceUid = %@", playList.uid).first else { return }
+		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return playList }
 		
 		try realm.write {
 			items.forEach { metadataItem in
@@ -166,12 +171,14 @@ extension UnsafeRealmMediaLibrary : UnsafeMediaLibraryType {
 				}
 			}
 		}
+		
+		return realmPlayList.toStruct()
 	}
 	
 	public func isItemContainsInPlayList(playList: PlayListType, item: MediaItemMetadataType) throws -> Bool {
 		let realm = try getRealm()
 		
-		guard let realmPlayList = realm.objects(RealmPlayList).filter("resourceUid = %@", playList.uid).first else { return false }
+		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return false }
 		return realmPlayList.items.filter("resourceUid = %@", item.resourceUid).count > 0
 	}
 	
@@ -223,16 +230,24 @@ extension RealmMediaLibrary : MediaLibraryType {
 		}
 	}
 	
-	public func clearPlayList(playList: PlayListType) {
-		let _ = try? unsafeLibrary.clearPlayList(playList)
+	public func clearPlayList(playList: PlayListType) -> PlayListType {
+		do {
+			return try unsafeLibrary.clearPlayList(playList)
+		} catch {
+			return playList
+		}
 	}
 	
 	public func deletePlayList(playList: PlayListType) {
 		let _ = try? unsafeLibrary.deletePlayList(playList)
 	}
 	
-	public func renamePlayList(playList: PlayListType, newName: String) {
-		let _ = try? unsafeLibrary.renamePlayList(playList, newName: newName)
+	public func renamePlayList(playList: PlayListType, newName: String) -> PlayListType {
+		do {
+			return try unsafeLibrary.renamePlayList(playList, newName: newName)
+		} catch {
+			return playList
+		}
 	}
 	
 	public func getAllPlayLists() -> [PlayListType] {
@@ -247,16 +262,24 @@ extension RealmMediaLibrary : MediaLibraryType {
 		let _ = try? unsafeLibrary.addItemsToPlayList(playList, items: items)
 	}
 	
-	public func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) {
-		removeItemsFromPlayList(playList, items: [item])
+	public func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) -> PlayListType {
+		return removeItemsFromPlayList(playList, items: [item])
 	}
 	
-	public func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) {
-		let _ = try? unsafeLibrary.removeItemsFromPlayList(playList, items: items)
+	public func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) -> PlayListType {
+		do {
+			return try unsafeLibrary.removeItemsFromPlayList(playList, items: items)
+		} catch {
+			return playList
+		}
 	}
 	
 	public func isItemContainsInPlayList(playList: PlayListType, item: MediaItemMetadataType) -> Bool {
-		return false
+		do {
+			return try unsafeLibrary.isItemContainsInPlayList(playList, item: item)
+		} catch {
+			return false
+		}
 	}
 	
 	public func getPlayListByUid(uid: String) -> PlayListType? {

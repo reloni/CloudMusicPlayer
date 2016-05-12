@@ -16,13 +16,13 @@ public protocol MediaLibraryType {
 	
 	// play lists
 	func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType])
-	func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType)
-	func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType])
+	func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) -> PlayListType
+	func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) -> PlayListType
 	func isItemContainsInPlayList(playList: PlayListType, item: MediaItemMetadataType) -> Bool
-	func clearPlayList(playList: PlayListType)
+	func clearPlayList(playList: PlayListType) -> PlayListType
 	func deletePlayList(playList: PlayListType)
 	func createPlayList(name: String) -> PlayListType?
-	func renamePlayList(playList: PlayListType, newName: String)
+	func renamePlayList(playList: PlayListType, newName: String) -> PlayListType
 	func getAllPlayLists() -> [PlayListType]
 	func getPlayListByUid(uid: String) -> PlayListType?
 	func getPlayListsByName(name: String) -> [PlayListType]
@@ -40,13 +40,13 @@ public protocol UnsafeMediaLibraryType {
 	
 	// play lists
 	func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws
-	func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) throws
-	func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws
+	func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) throws -> PlayListType
+	func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws -> PlayListType
 	func isItemContainsInPlayList(playList: PlayListType, item: MediaItemMetadataType) throws -> Bool
-	func clearPlayList(playList: PlayListType) throws
+	func clearPlayList(playList: PlayListType) throws -> PlayListType
 	func deletePlayList(playList: PlayListType) throws
 	func createPlayList(name: String) throws -> PlayListType?
-	func renamePlayList(playList: PlayListType, newName: String) throws
+	func renamePlayList(playList: PlayListType, newName: String) throws -> PlayListType
 	func getAllPlayLists() throws -> [PlayListType]
 	func getPlayListByUid(uid: String) throws -> PlayListType?
 	func getPlayListsByName(name: String) throws -> [PlayListType]
