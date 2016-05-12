@@ -404,6 +404,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
+		let realm = try! Realm()
 		let client = CloudResourceClient(cacheProvider: cacheProvider)
 		//YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, cacheProvider: cacheProvider)?.bindNext { _ in
 		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).bindNext { _ in
@@ -416,7 +417,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		//	XCTFail("Data not cached")
 		//	return
 		//}
-		let realm = try! Realm()
+		
 		XCTAssertEqual(10, realm.objects(RealmCloudResource).count)
 		//XCTAssertEqual(JSON.getJsonFromFile("YandexRoot"), JSON(data: cachedData), "Sended json should be same as cached")
 	}

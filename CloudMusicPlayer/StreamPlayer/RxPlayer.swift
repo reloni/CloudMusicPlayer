@@ -33,6 +33,8 @@ public enum PlayerEvents : PlayerEventType {
 }
 
 public class RxPlayer {
+	public let streamResourceLoaders = [StreamResourceLoaderType]()
+	
 	internal lazy var eventsCallback: (PlayerEvents) -> () = {
 		return { [weak self] (event: PlayerEvents) in
 			self?.playerEventsSubject.onNext(event)

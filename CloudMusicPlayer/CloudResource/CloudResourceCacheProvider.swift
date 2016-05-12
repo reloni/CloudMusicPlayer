@@ -62,6 +62,7 @@ public class RealmCloudResourceCacheProvider {
 	internal func getRealm() -> Realm? {
 		return try? Realm()
 	}
+	public init() { }
 }
 
 extension RealmCloudResourceCacheProvider : CloudResourceCacheProviderType {
