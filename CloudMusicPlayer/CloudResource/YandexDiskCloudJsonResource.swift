@@ -12,13 +12,13 @@ import RxSwift
 
 public class YandexDiskCloudJsonResource {
 	public static func getRootResource(httpClient: HttpClientProtocol = HttpClient(),
-	                                   oauth: OAuthResource) -> Observable<CloudResource> {
-		return Observable.just(YandexDiskCloudJsonResource(raw: JSON(["name": "disk", "path": "/"]), httpClient: httpClient, oauth: oauth, parent: nil))
+	                                   oauth: OAuthResource) -> CloudResource {
+		return YandexDiskCloudJsonResource(raw: JSON(["name": "disk", "path": "/"]), httpClient: httpClient, oauth: oauth)
 	}
 	
 	public static let apiUrl = "https://cloud-api.yandex.net:443/v1/disk"
 	public static let resourcesApiUrl = apiUrl + "/resources"
-	public internal (set) var parent: CloudResource?
+	public static let typeIdentifier = "YandexDiskCloudResource"
 	public internal (set) var httpClient: HttpClientProtocol
 	public let oAuthResource: OAuthResource
 	public var raw: JSON
@@ -31,9 +31,9 @@ public class YandexDiskCloudJsonResource {
 		return YandexDiskCloudAudioJsonResource.resourcesApiUrl
 	}()
 	
-	init (raw: JSON, httpClient: HttpClientProtocol, oauth: OAuthResource, parent: CloudResource?) {
+	init (raw: JSON, httpClient: HttpClientProtocol, oauth: OAuthResource) {
 		self.raw = raw
-		self.parent = parent
+		//self.parent = parent
 		self.oAuthResource = oauth
 		self.httpClient = httpClient
 	}
@@ -42,23 +42,13 @@ public class YandexDiskCloudJsonResource {
 		if oAuthResource.tokenId == nil { return nil }
 		return httpClient.httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders())
 	}
-	
-//	internal static func deserializeResponse(json: JSON, httpClient: HttpClientProtocol, oAuthResource: OAuthResource, parent: CloudResource) -> [CloudResource] {
-//		guard let items = json["_embedded"]["items"].array else {
-//			return [CloudResource]()
-//		}
-//		
-//		return items.map { item -> CloudResource in
-//			if item["media_type"].stringValue == "audio" {
-//				return YandexDiskCloudAudioJsonResource(raw: item, httpClient: httpClient, oauth: oAuthResource, parent: parent)
-//			} else {
-//				return YandexDiskCloudJsonResource(raw: item, httpClient: httpClient, oauth: oAuthResource, parent: parent)
-//			}
-//		}
-//	}
 }
 
 extension YandexDiskCloudJsonResource : CloudResource {
+	public var resourceTypeIdentifier: String {
+		return YandexDiskCloudJsonResource.typeIdentifier
+	}
+	
 	public var name: String {
 		return raw["name"].stringValue
 	}
@@ -115,9 +105,9 @@ extension YandexDiskCloudJsonResource : CloudResource {
 	
 	public func wrapRawData(json: JSON) -> CloudResource {
 		if json["media_type"].stringValue == "audio" {
-			return YandexDiskCloudAudioJsonResource(raw: json, httpClient: httpClient, oauth: oAuthResource, parent: self)
+			return YandexDiskCloudAudioJsonResource(raw: json, httpClient: httpClient, oauth: oAuthResource)
 		} else {
-			return YandexDiskCloudJsonResource(raw: json, httpClient: httpClient, oauth: oAuthResource, parent: self)
+			return YandexDiskCloudJsonResource(raw: json, httpClient: httpClient, oauth: oAuthResource)
 		}
 	}
 }

@@ -34,22 +34,28 @@ class CloudResourcesStructureController: UIViewController {
 	
 	override func viewDidAppear(animated: Bool) {
 		bag = DisposeBag()
-
+		
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
 			cloudResourceClient.loadChildResources(parent, loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
 				.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }
 				.bindNext { [weak self] resources in
-				self?.viewModel.resources = resources
-				self?.tableView.reloadData()
-				}.addDisposableTo(bag!)
-		} else if navigationController?.viewControllers.first == self {
-			YandexDiskCloudJsonResource.getRootResource(oauth: OAuthResourceManager.getYandexResource()).flatMapLatest { resource in
-				return cloudResourceClient.loadChildResources(resource, loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
-				}.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }.bindNext { [weak self] resources in
 					self?.viewModel.resources = resources
 					self?.tableView.reloadData()
-			}.addDisposableTo(bag!)
+				}.addDisposableTo(bag!)
+		} else if navigationController?.viewControllers.first == self {
+			//			YandexDiskCloudJsonResource.getRootResource(oauth: OAuthResourceManager.getYandexResource()).flatMapLatest { resource in
+			//				return cloudResourceClient.loadChildResources(resource, loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
+			//				}.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }.bindNext { [weak self] resources in
+			//					self?.viewModel.resources = resources
+			//					self?.tableView.reloadData()
+			//			}.addDisposableTo(bag!)
+			cloudResourceClient.loadChildResources(YandexDiskCloudJsonResource.getRootResource(oauth: OAuthResourceManager.getYandexResource()),
+				loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
+				.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }.bindNext { [weak self] resources in
+					self?.viewModel.resources = resources
+					self?.tableView.reloadData()
+				}.addDisposableTo(bag!)
 		}
 	}
 	

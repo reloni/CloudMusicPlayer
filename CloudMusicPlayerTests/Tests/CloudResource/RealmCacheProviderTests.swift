@@ -17,11 +17,10 @@ func fillRealmCloudResourceCacheProviderWithTestData() {
 	let oauthResource = OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil)
 	let httpClient = HttpClient()
 	let rootCloudResource = YandexDiskCloudJsonResource(raw: JSON(["path": "disk:/Music", "type": "dir", "name": "Music",
-		"modified": "2016-02-27T12:54:42+00:00", "created": "2016-02-27T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource,
-		parent: try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first!)
+		"modified": "2016-02-27T12:54:42+00:00", "created": "2016-02-27T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource)
 	
 	let childResource1 = YandexDiskCloudJsonResource(raw: JSON(["path": "disk:/Music/dir1", "type": "dir", "name": "dir1",
-		"modified": "2016-02-28T12:54:42+00:00", "created": "2016-02-28T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource, parent: rootCloudResource)
+		"modified": "2016-02-28T12:54:42+00:00", "created": "2016-02-28T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource)
 	
 	let childResource2 = YandexDiskCloudJsonResource(raw: JSON(["name": "TestTrack.mp3",
 		"created": "2016-03-05T11:49:31+00:00",
@@ -31,15 +30,17 @@ func fillRealmCloudResourceCacheProviderWithTestData() {
 		"md5": "33e68f0c72fd6e403c4c73e103e7e3ab",
 		"type": "file",
 		"mime_type": "audio/mpeg",
-		"size": 8293071]), httpClient: httpClient, oauth: oauthResource, parent: rootCloudResource)
+		"size": 8293071]), httpClient: httpClient, oauth: oauthResource)
 	
 	let cacheProvider = RealmCloudResourceCacheProvider()
 	let realm = try! Realm()
 	realm.beginWrite()
-	let realmRoot = cacheProvider.createResource(realm, resource: rootCloudResource.parent!)
-	realmRoot.childs.append(cacheProvider.createResource(realm, resource: rootCloudResource))
-	realmRoot.childs.first!.childs.append(cacheProvider.createResource(realm, resource: childResource1))
-	realmRoot.childs.first!.childs.append(cacheProvider.createResource(realm, resource: childResource2))
+	
+	//YandexDiskCloudJsonResource..getRootResource(httpClient, oauth: oauthResource)
+	let realmRoot = cacheProvider.createResource(realm, resource: YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource), parentObjectUid: nil)
+	realmRoot.childs.append(cacheProvider.createResource(realm, resource: rootCloudResource, parentObjectUid: realmRoot.uid))
+	realmRoot.childs.first!.childs.append(cacheProvider.createResource(realm, resource: childResource1, parentObjectUid: rootCloudResource.uid))
+	realmRoot.childs.first!.childs.append(cacheProvider.createResource(realm, resource: childResource2, parentObjectUid: rootCloudResource.uid))
 	realm.add(realmRoot)
 	let _ = try! realm.commitWrite()
 }
@@ -65,7 +66,7 @@ class RealmCacheProviderTests: XCTestCase {
 		utilities = FakeHttpUtilities()
 		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
 		oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
-		rootResource = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first!
+		rootResource = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
 	}
 	
 	override func tearDown() {
@@ -92,6 +93,18 @@ class RealmCacheProviderTests: XCTestCase {
 		XCTAssertEqual(resourcesFromCache[1].type, CloudResourceType.File)
 	}
 	
+	func testLoadRawData() {
+		fillRealmCloudResourceCacheProviderWithTestData()
+		
+		let cacheProvider = RealmCloudResourceCacheProvider()
+		let raw = cacheProvider.getRawCachedResource("disk:/Music")
+		
+		let resource = rootResource.wrapRawData(JSON(data: raw!.rawData))
+		XCTAssertEqual(resource.uid, "disk:/Music")
+		XCTAssertEqual(resource.name, "Music")
+		XCTAssertEqual(raw?.resourceTypeIdentifier, YandexDiskCloudJsonResource.typeIdentifier)
+	}
+	
 	func testClearCachedData() {
 		fillRealmCloudResourceCacheProviderWithTestData()
 		let realm = try! Realm()
@@ -103,11 +116,10 @@ class RealmCacheProviderTests: XCTestCase {
 	
 	func testSaveData() {
 		let rootCloudResource = YandexDiskCloudJsonResource(raw: JSON(["path": "disk:/Music", "type": "dir", "name": "Music",
-			"modified": "2016-02-27T12:54:42+00:00", "created": "2016-02-27T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource,
-			 parent: try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first!)
+			"modified": "2016-02-27T12:54:42+00:00", "created": "2016-02-27T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource)
 		
 		let childResource1 = YandexDiskCloudJsonResource(raw: JSON(["path": "disk:/Music/dir1", "type": "dir", "name": "dir1",
-			"modified": "2016-02-28T12:54:42+00:00", "created": "2016-02-28T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource, parent: rootCloudResource)
+			"modified": "2016-02-28T12:54:42+00:00", "created": "2016-02-28T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource)
 		
 		let childResource2 = YandexDiskCloudJsonResource(raw: JSON(["name": "TestTrack.mp3",
 			"created": "2016-03-05T11:49:31+00:00",
@@ -117,7 +129,7 @@ class RealmCacheProviderTests: XCTestCase {
 			"md5": "33e68f0c72fd6e403c4c73e103e7e3ab",
 			"type": "file",
 			"mime_type": "audio/mpeg",
-			"size": 8293071]), httpClient: httpClient, oauth: oauthResource, parent: rootCloudResource)
+			"size": 8293071]), httpClient: httpClient, oauth: oauthResource)
 		
 		let cacheProvider = RealmCloudResourceCacheProvider()
 		cacheProvider.cacheChilds(rootCloudResource, childs: [childResource1, childResource2])
@@ -137,8 +149,7 @@ class RealmCacheProviderTests: XCTestCase {
 		fillRealmCloudResourceCacheProviderWithTestData()
 		
 		let rootCloudResource = YandexDiskCloudJsonResource(raw: JSON(["path": "disk:/Music", "type": "dir", "name": "Music",
-			"modified": "2016-02-27T12:54:42+00:00", "created": "2016-02-27T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource,
-			                                                                                   parent: try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first!)
+			"modified": "2016-02-27T12:54:42+00:00", "created": "2016-02-27T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource)
 		let childResource = YandexDiskCloudJsonResource(raw: JSON(["name": "TestTrack.mp3",
 			"created": "2016-03-05T11:49:31+00:00",
 			"modified": "2016-03-05T11:49:31+00:00",
@@ -147,7 +158,7 @@ class RealmCacheProviderTests: XCTestCase {
 			"md5": "33e68f0c72fd6e403c4c73e103e7e3ab",
 			"type": "file",
 			"mime_type": "audio/mpeg",
-			"size": 8293071]), httpClient: httpClient, oauth: oauthResource, parent: rootCloudResource)
+			"size": 8293071]), httpClient: httpClient, oauth: oauthResource)
 		
 		let cacheProvider = RealmCloudResourceCacheProvider()
 		cacheProvider.cacheChilds(rootCloudResource, childs: [childResource])
