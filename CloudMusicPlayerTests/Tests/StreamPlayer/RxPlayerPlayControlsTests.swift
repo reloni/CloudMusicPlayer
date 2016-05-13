@@ -465,41 +465,61 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, "http://first.com")
 	}
 	
-//	func testStartPlayingItemsFromMediaLibraryPlayList() {
-//		let oauth = OAuthResourceBase(id: "'", authUrl: "", clientId: nil, tokenId: nil)
-//		
-//		let realm = try! Realm()
-//		try! realm.write {
-//			realm.add(RealmCloudResource(uid: "disk://Music/Track1.mp3", rawData: JSON(["path": "disk://Music/Track1.mp3", "media_type": "audio"]).rawDataSafe()!,
-//				resourceTypeIdentifier: YandexDiskCloudJsonResource.typeIdentifier))
-//			realm.add(RealmCloudResource(uid: "disk://Music/Track2.mp3", rawData: JSON(["path": "disk://Music/Track2.mp3", "media_type": "audio"]).rawDataSafe()!,
-//				resourceTypeIdentifier: YandexDiskCloudJsonResource.typeIdentifier))
-//			realm.add(RealmCloudResource(uid: "disk://Music/Track3.mp3", rawData: JSON(["path": "disk://Music/Track3.mp3", "media_type": "audio"]).rawDataSafe()!,
-//				resourceTypeIdentifier: YandexDiskCloudJsonResource.typeIdentifier))
-//		}
-//		
-//		let lib = RealmMediaLibrary() as MediaLibraryType
-//		lib.saveMetadata(MediaItemMetadata(resourceUid: "disk://Music/Track1.mp3", artist: "Test artist 1", title: "Test title", album: "test album",
-//			artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56))
-//		lib.saveMetadata(MediaItemMetadata(resourceUid: "disk://Music/Track2.mp3", artist: "Test artist 2 ", title: "Test title", album: "test album",
-//			artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56))
-//		lib.saveMetadata(MediaItemMetadata(resourceUid: "disk://Music/Track3.mp3", artist: "Test artist 3", title: "Test title", album: "test album",
-//			artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56))
-//		var playList = lib.createPlayList("test pl")
-//		playList = lib.addItemsToPlayList(playList!, items:
-//			[lib.getMetadata("disk://Music/Track1.mp3")!, lib.getMetadata("disk://Music/Track2.mp3")!, lib.getMetadata("disk://Music/Track3.mp3")!])
-//		
-//		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-//		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: lib)
-//		let cloudResourceLoader = CloudResourceLoader(cacheProvider: RealmCloudResourceCacheProvider(),
-//		                                              rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier: YandexDiskCloudJsonResource.getRootResource(oauth: oauth)])
-//		player.streamResourceLoaders.append(cloudResourceLoader)
-//		
-//		player.playPlayList(playList!)
-//		
-//		NSThread.sleepForTimeInterval(1)
-//		XCTAssertEqual(player.currentItems.count, 3, "Check queue has three items")
-//		XCTAssertTrue(player.playing)
-//		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, "meta1")
-//	}
+	func testStartPlayingItemsFromMediaLibraryPlayList() {
+		// setup fake http
+		let streamObserver = NSURLSessionDataEventsObserver()
+		let httpUtilities = FakeHttpUtilities()
+		httpUtilities.streamObserver = streamObserver
+		let session = FakeSession(fakeTask: FakeDataTask(completion: nil))
+		httpUtilities.fakeSession = session
+		let httpClient = HttpClient(urlSession: session, httpUtilities: httpUtilities)
+		
+		session.task?.taskProgress.bindNext { e in
+			if case FakeDataTaskMethods.resume(let tsk) = e {
+				// send random url
+				let json: JSON =  ["href": "http://url.com"]
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(try? json.rawData(), nil, nil)
+				}
+			}
+		}.addDisposableTo(bag)
+		
+		
+		// setup cloud resource db
+		let realm = try! Realm()
+		try! realm.write {
+			realm.add(RealmCloudResource(uid: "disk://Music/Track1.mp3", rawData: JSON(["path": "disk://Music/Track1.mp3", "media_type": "audio"]).rawDataSafe()!,
+				resourceTypeIdentifier: YandexDiskCloudJsonResource.typeIdentifier))
+			realm.add(RealmCloudResource(uid: "disk://Music/Track2.mp3", rawData: JSON(["path": "disk://Music/Track2.mp3", "media_type": "audio"]).rawDataSafe()!,
+				resourceTypeIdentifier: YandexDiskCloudJsonResource.typeIdentifier))
+			realm.add(RealmCloudResource(uid: "disk://Music/Track3.mp3", rawData: JSON(["path": "disk://Music/Track3.mp3", "media_type": "audio"]).rawDataSafe()!,
+				resourceTypeIdentifier: YandexDiskCloudJsonResource.typeIdentifier))
+		}
+		
+		
+		// setup media library db
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		lib.saveMetadata(MediaItemMetadata(resourceUid: "disk://Music/Track1.mp3", artist: "Test artist 1", title: "Test title", album: "test album",
+			artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56))
+		lib.saveMetadata(MediaItemMetadata(resourceUid: "disk://Music/Track2.mp3", artist: "Test artist 2 ", title: "Test title", album: "test album",
+			artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56))
+		lib.saveMetadata(MediaItemMetadata(resourceUid: "disk://Music/Track3.mp3", artist: "Test artist 3", title: "Test title", album: "test album",
+			artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56))
+		var playList = lib.createPlayList("test pl")
+		playList = lib.addItemsToPlayList(playList!, items:
+			[lib.getMetadata("disk://Music/Track1.mp3")!, lib.getMetadata("disk://Music/Track2.mp3")!, lib.getMetadata("disk://Music/Track3.mp3")!])
+		
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: lib)
+		let oauth = OAuthResourceBase(id: "'", authUrl: "", clientId: nil, tokenId: nil)
+		let cloudResourceLoader = CloudResourceLoader(cacheProvider: RealmCloudResourceCacheProvider(),
+		    rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier: YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauth)])
+		player.streamResourceLoaders.append(cloudResourceLoader)
+		
+		player.playPlayList(playList!)
+		
+		XCTAssertEqual(player.currentItems.count, 3, "Check queue has three items")
+		XCTAssertTrue(player.playing)
+		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, "disk://Music/Track1.mp3")
+	}
 }
