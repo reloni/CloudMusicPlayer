@@ -348,11 +348,119 @@ class RxPlayerPlayControlsTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
+		let finishQueueExpectation = expectationWithDescription("Should rise FinishQueueEvent")
+		player.playerEvents.bindNext { e in
+			if case PlayerEvents.FinishPlayingQueue = e {
+				finishQueueExpectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
 		// send notification about finishing current item playing
 		//fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
 		(player.internalPlayer as! FakeInternalPlayer).finishPlayingCurrentItem()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		XCTAssertNil(player.current, "Current item should be nil")
+	}
+	
+	func testRepeatQueue() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		//let fakeInternalPlayer = FakeInternalPlayer()
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
+		let player = RxPlayer(repeatQueue: true, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
+		player.current = player.last
+		
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
+		
+		let expectation = expectationWithDescription("Should switch to next item")
+		var skipped = false
+		player.currentItem.bindNext { item in
+			if !skipped { skipped = true }
+			else {
+				//XCTAssertNil(item, "Current item should be nil")
+				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, "https://test.com/track1.mp3", "Current item should be first item in queue")
+				expectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		let repeatQueueExpectation = expectationWithDescription("Should rise RepeatQueue event")
+		player.playerEvents.bindNext { e in
+			if case PlayerEvents.StartRepeatQueue = e {
+				repeatQueueExpectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		// send notification about finishing current item playing
+		//fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
+		(player.internalPlayer as! FakeInternalPlayer).finishPlayingCurrentItem()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, player.first?.streamIdentifier.streamResourceUid, "Current item should be first")
+	}
+	
+	func testSendErrorMessageIfTryingToPlayUnsupportedUrl() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
+		
+		let errorExpectation = expectationWithDescription("Should rise error")
+		let correctCurrentItemExpectation = expectationWithDescription("Should switch to next item after error")
+		player.playerEvents.bindNext { e in
+			if case .Error(let error) = e where error.code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
+				errorExpectation.fulfill()
+			} else if case PlayerEvents.CurrentItemChanged(let newItem) = e {
+				if newItem?.streamIdentifier.streamResourceUid == "https://test.com/track2.mp3" {
+					correctCurrentItemExpectation.fulfill()
+				}
+			}
+		}.addDisposableTo(bag)
+		
+		player.initWithNewItems(["unsupported://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
+		player.resume(true)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, "https://test.com/track2.mp3", "Test correct current item")
+	}
+	
+	func testSkipAllItemsIfAllUnsupported() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
+		
+		let correctCurrentItemExpectation = expectationWithDescription("Should switch to nil after errors")
+		player.playerEvents.bindNext { e in
+			if case PlayerEvents.CurrentItemChanged(let newItem) = e {
+				print(newItem?.streamIdentifier.streamResourceUid)
+				if newItem == nil {
+					correctCurrentItemExpectation.fulfill()
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		player.initWithNewItems(["unsupported://test.com/track1.mp3", "unsupported://test.com/track2.mp3", "fake://test.com/track3.mp3"])
+		player.resume(true)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertNil(player.current, "Should skip all items")
+	}
+	
+	func testStartPlayingPlayListOfurls() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
+		
+		// create list of fake metadata items not existed in media library. Uid is url, so player should try to load data using this url
+		let metadataItems: [MediaItemMetadataType] =
+			[MediaItemMetadata(resourceUid: "http://first.com", artist: nil, title: nil, album: nil, artwork: nil, duration: nil),
+			MediaItemMetadata(resourceUid: "http://second.com", artist: nil, title: nil, album: nil, artwork: nil, duration: nil),
+			MediaItemMetadata(resourceUid: "http://third.com", artist: nil, title: nil, album: nil, artwork: nil, duration: nil)]
+		
+		let playList = PlayList(uid: "testpl", name: "play list", items: metadataItems)
+		player.playerEvents.subscribe().addDisposableTo(bag)
+		player.playPlayList(playList)
+		
+		XCTAssertEqual(player.currentItems.count, 3)
+		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, "http://first.com")
 	}
 }

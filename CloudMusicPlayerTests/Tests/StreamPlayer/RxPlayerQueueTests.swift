@@ -19,7 +19,7 @@ class RxPlayerQueueTests: XCTestCase {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
 		//player = RxPlayer()
-		audioItems = ["fake one", "fake two", "fake three", "fake four"]
+		audioItems = ["http://item1.com", "http://item2.com", "http://item3.com", "http://item4.com"]
 	}
 	
 	override func tearDown() {
@@ -503,7 +503,7 @@ class RxPlayerQueueTests: XCTestCase {
 	
 	func testNotRemoveItemThatNotExistsInQueue() {
 		let queue = RxPlayer(items: audioItems)
-		let notExisted = RxPlayerQueueItem(player: queue, streamIdentifier: "fake five")
+		let notExisted = RxPlayerQueueItem(player: queue, streamIdentifier: "http://item5.com")
 		
 		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.RemoveItem = result {
@@ -606,10 +606,11 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		XCTAssertFalse(queue.playing, "Check player is not playing")
 		
-		let expectation = expectationWithDescription("Should rise event")
+		let expectation = expectationWithDescription("Should rise CurrentItemChanged event")
 		
 		queue.playerEvents.bindNext { result in
 			if case PlayerEvents.CurrentItemChanged(let item) = result {
+				print(item?.streamIdentifier.streamResourceUid)
 				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, queue.first?.streamIdentifier.streamResourceUid, "Check new item is first item in queue")
 				expectation.fulfill()
 			}
@@ -618,7 +619,7 @@ class RxPlayerQueueTests: XCTestCase {
 		queue.toNext(true)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
-		
+
 		XCTAssertTrue(queue.playing)
 	}
 	

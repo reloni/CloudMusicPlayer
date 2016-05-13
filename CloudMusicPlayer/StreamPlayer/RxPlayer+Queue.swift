@@ -72,8 +72,17 @@ extension RxPlayer {
 		if current == nil {
 			current = first
 		} else {
+			if current?.child == nil {
+				if repeatQueue {
+					playerEventsSubject.onNext(PlayerEvents.StartRepeatQueue)
+				} else {
+					playerEventsSubject.onNext(PlayerEvents.FinishPlayingQueue)
+				}
+			}
+			
 			current = repeatQueue ? current?.child ?? first : current?.child
 		}
+		
 		return current
 	}
 	
