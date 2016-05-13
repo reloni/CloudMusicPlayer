@@ -144,15 +144,16 @@ extension UnsafeRealmMediaLibrary : UnsafeMediaLibraryType {
 		return realm.objects(RealmPlayList).map { $0.toStruct() }
 	}
 	
-	public func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws {
+	public func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws -> PlayListType {
 		let realm = try getRealm()
 		
-		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return }
+		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return playList }
 		
 		try items.forEach { metadataItem in
 			let realmMetadataItem = try createOrUpdateMetadataObject(realm, metadata: metadataItem)
 			try realm.write { realmPlayList.items.append(realmMetadataItem) }
 		}
+		return realmPlayList.toStruct()
 	}
 	
 	public func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) throws -> PlayListType {
@@ -258,8 +259,12 @@ extension RealmMediaLibrary : MediaLibraryType {
 		}
 	}
 	
-	public func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) {
-		let _ = try? unsafeLibrary.addItemsToPlayList(playList, items: items)
+	public func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) -> PlayListType {
+		do {
+			return try unsafeLibrary.addItemsToPlayList(playList, items: items)
+		} catch {
+			return playList
+		}
 	}
 	
 	public func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) -> PlayListType {

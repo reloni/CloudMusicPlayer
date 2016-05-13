@@ -24,7 +24,10 @@ public class CloudResourceLoader {
 
 extension CloudResourceLoader : StreamResourceLoaderType {
 	public func loadStreamResourceByUid(uid: String) -> StreamResourceIdentifier? {
-		guard let rawData = cacheProvider.getRawCachedResource(uid), resource = rootCloudResources[rawData.resourceTypeIdentifier] else { return nil }
+		guard let rawData = cacheProvider.getRawCachedResource(uid) else { return nil }//, resource = rootCloudResources[rawData.resourceTypeIdentifier] else { return nil }
+		
+		guard let resource = rootCloudResources[rawData.resourceTypeIdentifier] else { return nil }
+		
 		return resource.wrapRawData(JSON(data: rawData.rawData)) as? StreamResourceIdentifier
 	}
 }

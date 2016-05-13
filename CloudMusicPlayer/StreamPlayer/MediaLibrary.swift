@@ -15,7 +15,7 @@ public protocol MediaLibraryType {
 	func isMetadataExists(resource: StreamResourceIdentifier) -> Bool
 	
 	// play lists
-	func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType])
+	func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) -> PlayListType
 	func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) -> PlayListType
 	func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) -> PlayListType
 	func isItemContainsInPlayList(playList: PlayListType, item: MediaItemMetadataType) -> Bool
@@ -39,7 +39,7 @@ public protocol UnsafeMediaLibraryType {
 	func isMetadataExists(resource: StreamResourceIdentifier) throws -> Bool
 	
 	// play lists
-	func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws
+	func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws -> PlayListType
 	func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) throws -> PlayListType
 	func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws -> PlayListType
 	func isItemContainsInPlayList(playList: PlayListType, item: MediaItemMetadataType) throws -> Bool
