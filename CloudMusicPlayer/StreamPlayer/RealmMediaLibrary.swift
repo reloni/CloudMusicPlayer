@@ -30,15 +30,26 @@ public class RealmMediaLibrary {
 		return realm
 	}
 	
-	internal func getOrCreateArtist(name: String, updateIfExisted: Bool) throws -> RealmArtist {
+	internal lazy var unknownArtist: RealmArtist = { [unowned self] in
+		guard let artist = self.getRealm().objects(RealmArtist).filter("uid = %@", "unknown_artist").first else {
+			return RealmArtist(uid: "unknown_artist", name: "Unknown artist")
+		}
+		return artist
+	}()
+	
+	internal lazy var unknownAlbum: RealmAlbum = { [unowned self] in
+		guard let album = self.getRealm().objects(RealmAlbum).filter("uid = %@", "unknown_album").first else {
+			return RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: self.unknownArtist)
+		}
+		return album
+	}()
+	
+	internal func getOrCreateArtist(name: String) throws -> RealmArtist {
 		let realm = getRealm()
 		if let artist = realm.objects(RealmArtist).filter("name = %@", name).first {
-			if updateIfExisted {
-				try realm.write { artist.name = name }
-			}
 			return artist
 		} else {
-			let artist = RealmArtist(name: name)
+			let artist = RealmArtist(uid: NSUUID().UUIDString, name: name)
 			try realm.write { realm.add(artist) }
 			return artist
 		}
@@ -48,11 +59,11 @@ public class RealmMediaLibrary {
 		let realm = getRealm()
 		if let album = realm.objects(RealmAlbum).filter("name = %@", name).first {
 			if updateIfExisted {
-				try realm.write { album.name = name; album.artwork = artwork }
+				try realm.write { album.artwork = artwork }
 			}
 			return album
 		} else {
-			let album = try RealmAlbum(name: name, artist: getOrCreateArtist(artistName, updateIfExisted: updateIfExisted))
+			let album = try RealmAlbum(uid: NSUUID().UUIDString, name: name, artist: getOrCreateArtist(artistName))
 			try realm.write { realm.add(album) }
 			return album
 		}
@@ -233,6 +244,7 @@ extension RealmMediaLibrary : MediaLibraryType {
 }
 
 public class RealmArtist: Object, ArtistType {
+	public internal(set) dynamic var uid: String
 	public internal(set) dynamic var name: String
 	internal let albumsInternal = List<RealmAlbum>()
 	
@@ -240,28 +252,37 @@ public class RealmArtist: Object, ArtistType {
 		return MediaList(realmList: albumsInternal)
 	}
 	
-	required public init(name: String) {
+	required public init(uid: String, name: String) {
+		self.uid = uid
 		self.name = name
 		super.init()
 	}
 	
 	public required init(realm: RLMRealm, schema: RLMObjectSchema) {
+		uid = NSUUID().UUIDString
 		name = ""
 		super.init(realm: realm, schema: schema)
 	}
 	
 	public required init(value: AnyObject, schema: RLMSchema) {
+		uid = NSUUID().UUIDString
 		name = ""
 		super.init(value: value, schema: schema)
 	}
 	
 	public required init() {
+		uid = NSUUID().UUIDString
 		name = ""
 		super.init()
+	}
+	
+	override public static func primaryKey() -> String? {
+		return "uid"
 	}
 }
 
 public class RealmAlbum: Object, AlbumType {
+	public internal(set) dynamic var uid: String
 	public internal(set) dynamic var name: String
 	public internal(set) dynamic var artwork: NSData?
 	internal dynamic var artistInternal: RealmArtist
@@ -275,28 +296,36 @@ public class RealmAlbum: Object, AlbumType {
 		return MediaList(realmList: tracksInternal)
 	}
 	
-	required public init(name: String, artist: RealmArtist) {
+	required public init(uid: String, name: String, artist: RealmArtist) {
+		self.uid = uid
 		self.name = name
 		self.artistInternal = artist
 		super.init()
 	}
 	
 	public required init(realm: RLMRealm, schema: RLMObjectSchema) {
+		uid = NSUUID().UUIDString
 		name = ""
-		artistInternal = RealmArtist(name: "Unknown artist")
+		artistInternal = RealmArtist(uid: "unknown_artist", name: "Unknown artist")
 		super.init(realm: realm, schema: schema)
 	}
 	
 	public required init(value: AnyObject, schema: RLMSchema) {
+		uid = NSUUID().UUIDString
 		name = ""
-		artistInternal = RealmArtist(name: "Unknown artist")
+		artistInternal = RealmArtist(uid: "unknown_artist", name: "Unknown artist")
 		super.init(value: value, schema: schema)
 	}
 	
 	public required init() {
+		uid = NSUUID().UUIDString
 		name = ""
-		artistInternal = RealmArtist(name: "Unknown artist")
+		artistInternal = RealmArtist(uid: "unknown_artist", name: "Unknown artist")
 		super.init()
+	}
+	
+	override public static func primaryKey() -> String? {
+		return "uid"
 	}
 }
 
@@ -326,7 +355,7 @@ public class RealmTrack: Object, TrackType {
 		uid = NSUUID().UUIDString
 		self.title = ""
 		self.duration = 0
-		albumInternal = RealmAlbum(name: "Unknown album", artist: RealmArtist(name: "Unknown artist"))
+		albumInternal = RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: RealmArtist(uid: "unknown_artist", name: "Unknown artist"))
 		super.init(realm: realm, schema: schema)
 	}
 	
@@ -334,7 +363,7 @@ public class RealmTrack: Object, TrackType {
 		uid = NSUUID().UUIDString
 		self.title = ""
 		self.duration = 0
-		albumInternal = RealmAlbum(name: "Unknown album", artist: RealmArtist(name: "Unknown artist"))
+		albumInternal = RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: RealmArtist(uid: "unknown_artist", name: "Unknown artist"))
 		super.init(value: value, schema: schema)
 	}
 	
@@ -342,7 +371,7 @@ public class RealmTrack: Object, TrackType {
 		uid = NSUUID().UUIDString
 		self.title = ""
 		self.duration = 0
-		albumInternal = RealmAlbum(name: "Unknown album", artist: RealmArtist(name: "Unknown artist"))
+		albumInternal = RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: RealmArtist(uid: "unknown_artist", name: "Unknown artist"))
 		super.init()
 	}
 	
