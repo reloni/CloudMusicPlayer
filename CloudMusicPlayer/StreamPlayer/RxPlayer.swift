@@ -146,7 +146,7 @@ public class RxPlayer {
 	}
 	
 	internal init(repeatQueue: Bool, downloadManager: DownloadManagerType,
-	              streamPlayerUtilities: StreamPlayerUtilitiesProtocol, mediaLibrary: MediaLibraryType = RealmMediaLibrary()) {
+	              streamPlayerUtilities: StreamPlayerUtilitiesProtocol, mediaLibrary: MediaLibraryType = try! RealmMediaLibrary()) {
 		self.repeatQueue = repeatQueue
 		self.downloadManager = downloadManager
 		self.streamPlayerUtilities = streamPlayerUtilities
@@ -156,12 +156,12 @@ public class RxPlayer {
 	public convenience init(repeatQueue: Bool = false, saveData: Bool = false) {
 		self.init(repeatQueue: repeatQueue,
 		          downloadManager: DownloadManager(saveData: saveData, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: saveData),
-								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: RealmMediaLibrary())
+								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: try! RealmMediaLibrary())
 	}
 	
 	internal convenience init(repeatQueue: Bool = false, downloadManager: DownloadManagerType) {
 		self.init(repeatQueue: repeatQueue, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(),
-		          mediaLibrary: RealmMediaLibrary())
+		          mediaLibrary: try! RealmMediaLibrary())
 	}
 	
 	deinit {

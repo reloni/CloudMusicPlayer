@@ -27,7 +27,7 @@ extension RxPlayer {
 	}
 	
 	public func playPlayList(playList: PlayListType, shuffle: Bool = false) {
-		let queueItems = playList.items.map { loadStreamItemByUid($0.resourceUid) }
+		let queueItems = playList.items.map { loadStreamItemByUid($0.uid) }
 		initWithNewItems(queueItems, shuffle: shuffle)
 		playing = true
 		current = first
