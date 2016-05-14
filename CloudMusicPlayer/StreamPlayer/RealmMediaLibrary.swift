@@ -39,104 +39,85 @@ public class RealmMediaLibrary {
 	
 	internal lazy var unknownAlbum: RealmAlbum = { [unowned self] in
 		guard let album = self.getRealm().objects(RealmAlbum).filter("uid = %@", "unknown_album").first else {
-			return RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: self.unknownArtist)
+			let album = RealmAlbum(uid: "unknown_album", name: "Unknown album")
+			album.artistInternal = self.unknownArtist
+			return album
 		}
 		return album
 	}()
 	
-	internal func getOrCreateArtist(name: String) throws -> RealmArtist {
-		let realm = getRealm()
+	internal func getOrCreateArtist(realm: Realm, name: String) throws -> RealmArtist {
 		if let artist = realm.objects(RealmArtist).filter("name = %@", name).first {
 			return artist
 		} else {
 			let artist = RealmArtist(uid: NSUUID().UUIDString, name: name)
-			try realm.write { realm.add(artist) }
+			realm.add(artist)
 			return artist
 		}
 	}
 	
-	internal func getOrCreateAlbum(name: String, artwork: NSData?, artistName: String, updateIfExisted: Bool) throws -> RealmAlbum {
-		let realm = getRealm()
+	internal func getOrCreateAlbum(realm: Realm, name: String, artwork: NSData?, artistName: String, updateIfExisted: Bool) throws -> RealmAlbum {
 		if let album = realm.objects(RealmAlbum).filter("name = %@", name).first {
 			if updateIfExisted {
-				try realm.write { album.artwork = artwork }
+				album.artwork = artwork
 			}
 			return album
 		} else {
-			let album = try RealmAlbum(uid: NSUUID().UUIDString, name: name, artist: getOrCreateArtist(artistName))
-			try realm.write { realm.add(album) }
+			let album = RealmAlbum(uid: NSUUID().UUIDString, name: name)
+			album.artwork = artwork
+			album.artistInternal = try getOrCreateArtist(realm, name: artistName)
+			album.artistInternal?.albumsInternal.append(album)
+			realm.add(album)
 			return album
 		}
 	}
 	
-	internal func getOrCreateTrack(metadata: MediaItemMetadataType, updateIfExisted: Bool) throws -> RealmTrack {
-		let album = try getOrCreateAlbum(metadata.album ?? "Unknown album",
-		                                 artwork: metadata.artwork,
-		                                 artistName: metadata.artist ?? "Unknown artist",
-		                                 updateIfExisted: updateIfExisted)
-		let realm = getRealm()
+	internal func getOrCreateTrack(realm: Realm, metadata: MediaItemMetadataType, updateIfExisted: Bool) throws -> RealmTrack {		
 		if let track = realm.objects(RealmTrack).filter("uid = %@", metadata.resourceUid).first {
 			if updateIfExisted {
-				try realm.write {
-					if let title = metadata.title { track.title = title }
-					if let duration = metadata.duration { track.duration = duration }
-					track.albumInternal = album
-				}
+				if let title = metadata.title { track.title = title }
+				if let duration = metadata.duration { track.duration = duration }
+				if let albumName = metadata.album { (track.album as! RealmAlbum).name = albumName }
+				if let artistName = metadata.artist { (track.album.artist as! RealmArtist).name = artistName }
 			}
+			//album.tracksInternal.append(track)
 			return track
 		} else {
-			let track = RealmTrack(uid: metadata.resourceUid, title: metadata.title ?? "Unknown track", duration: metadata.duration ?? 0, album: album)
-			try realm.write { realm.add(track) }
+			let track = RealmTrack(uid: metadata.resourceUid, title: metadata.title ?? "Unknown title", duration: metadata.duration ?? 0)
+			let album = try getOrCreateAlbum(realm, name: metadata.album ?? "Unknown album", artwork: metadata.artwork,
+			                                 artistName: metadata.artist ?? "Unknown artist", updateIfExisted: updateIfExisted)
+
+			track.albumInternal = album
+			album.tracksInternal.append(track); realm.add(track)
 			return track
 		}
 	}
-	
-//	internal func createOrUpdateMetadataObject(realm: Realm, metadata: MediaItemMetadataType) throws -> RealmMediaItemMetadata {
-//		if let meta = realm.objects(RealmMediaItemMetadata).filter("resourceUid = %@", metadata.resourceUid).first {
-//			try realm.write {
-//				meta.album = metadata.album
-//				meta.artist = metadata.artist
-//				meta.artwork = metadata.artwork
-//				meta.internalDuration = RealmOptional<Float>(metadata.duration)
-//				meta.title = metadata.title
-//			}
-//			return meta
-//		} else {
-//			let meta = RealmMediaItemMetadata(uid: metadata.resourceUid)
-//			meta.album = metadata.album
-//			meta.artist = metadata.artist
-//			meta.artwork = metadata.artwork
-//			meta.internalDuration = RealmOptional<Float>(metadata.duration)
-//			meta.title = metadata.title
-//			try realm.write {
-//				realm.add(meta)
-//			}
-//			return meta
-//		}
-//	}
 }
 
 extension RealmMediaLibrary : MediaLibraryType {
-	public var artists: MediaResults<ArtistType, RealmArtist> {
-		return MediaResults(realmResults: getRealm().objects(RealmArtist))
+	public var artists: MediaCollection<ArtistType, RealmArtist> {
+		return MediaCollection<ArtistType, RealmArtist>(realmCollection: AnyRealmCollection(getRealm().objects(RealmArtist)))
+		//return MediaCollection(realmCollectopn: getRealm().objects(RealmArtist))
 	}
 	
-	public var albums: MediaResults<AlbumType, RealmAlbum> {
-		return MediaResults(realmResults: getRealm().objects(RealmAlbum))
+	public var albums: MediaCollection<AlbumType, RealmAlbum> {
+		return MediaCollection<AlbumType, RealmAlbum>(realmCollection: AnyRealmCollection(getRealm().objects(RealmAlbum)))
+		//return MediaCollection(realmCollectopn: getRealm().objects(RealmAlbum))
 	}
 	
-	public var tracks: MediaResults<TrackType, RealmTrack> {
-		return MediaResults(realmResults: getRealm().objects(RealmTrack))
+	public var tracks: MediaCollection<TrackType, RealmTrack> {
+		return MediaCollection<TrackType, RealmTrack>(realmCollection: AnyRealmCollection(getRealm().objects(RealmTrack)))
+		//return MediaCollection(realmCollectopn: getRealm().objects(RealmTrack))
 	}
 	
-	public var playLists: MediaResults<PlayListType, RealmPlayList> {
-		return MediaResults(realmResults: getRealm().objects(RealmPlayList))
+	public var playLists: MediaCollection<PlayListType, RealmPlayList> {
+		return MediaCollection<PlayListType, RealmPlayList>(realmCollection: AnyRealmCollection(getRealm().objects(RealmPlayList)))
+		//return MediaCollection(realmCollectopn: getRealm().objects(RealmPlayList))
 	}
 	
 	public func clearLibrary() throws {
 		let realm = getRealm()
 		try realm.write {
-			//realm.delete(realm.objects(RealmMediaItemMetadata))
 			realm.delete(realm.objects(RealmTrack))
 			realm.delete(realm.objects(RealmAlbum))
 			realm.delete(realm.objects(RealmArtist))
@@ -162,12 +143,21 @@ extension RealmMediaLibrary : MediaLibraryType {
 		                         duration: track.duration)
 	}
 	
-	public func saveMetadata(metadata: MediaItemMetadataType, updateRelatedObjects: Bool) throws {
-		try getOrCreateTrack(metadata, updateIfExisted: updateRelatedObjects)
+	public func saveMetadata(metadata: MediaItemMetadataType, updateRelatedObjects: Bool) throws -> TrackType? {
+		//return try getOrCreateTrack(metadata, updateIfExisted: updateRelatedObjects)
+		let realm = getRealm()
+		realm.beginWrite()
+		let track = try getOrCreateTrack(realm, metadata: metadata, updateIfExisted: updateRelatedObjects)
+		try realm.commitWrite()
+		return track
 	}
 	
-	public func saveMetadataSafe(metadata: MediaItemMetadataType, updateRelatedObjects: Bool) {
-		let _ = try? saveMetadata(metadata, updateRelatedObjects: updateRelatedObjects)
+	public func saveMetadataSafe(metadata: MediaItemMetadataType, updateRelatedObjects: Bool) -> TrackType? {
+		do {
+			return try saveMetadata(metadata, updateRelatedObjects: updateRelatedObjects)
+		} catch {
+			return nil
+		}
 	}
 	
 	public func createPlayList(name: String) throws -> PlayListType? {
@@ -182,7 +172,6 @@ extension RealmMediaLibrary : MediaLibraryType {
 		
 		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return playList }
 		try realm.write { realmPlayList.itemsInternal.removeAll() }
-		//return PlayList(uid: playList.uid, name: playList.name, items: [MediaItemMetadataType]())
 		return realmPlayList
 	}
 	
@@ -246,10 +235,13 @@ extension RealmMediaLibrary : MediaLibraryType {
 public class RealmArtist: Object, ArtistType {
 	public internal(set) dynamic var uid: String
 	public internal(set) dynamic var name: String
-	internal let albumsInternal = List<RealmAlbum>()
+	public let albumsInternal = List<RealmAlbum>()
 	
-	public var albums: MediaList<AlbumType, RealmAlbum> {
-		return MediaList(realmList: albumsInternal)
+	public var albums: MediaCollection<AlbumType, RealmAlbum> {
+		//return MediaCollection<AlbumType, RealmAlbum>(realmCollection: AnyRealmCollection(LinkingObjects(fromType: RealmAlbum.self, property: "artists")))
+		return MediaCollection<AlbumType, RealmAlbum>(realmCollection: AnyRealmCollection(albumsInternal))
+		//return MediaCollection(realmList: albumsInternal)
+		//let a = LinkingObjects(fromType: RealmAlbum.self, property: "artist")
 	}
 	
 	required public init(uid: String, name: String) {
@@ -285,42 +277,44 @@ public class RealmAlbum: Object, AlbumType {
 	public internal(set) dynamic var uid: String
 	public internal(set) dynamic var name: String
 	public internal(set) dynamic var artwork: NSData?
-	internal dynamic var artistInternal: RealmArtist
+	internal dynamic var artistInternal: RealmArtist?
 	internal let tracksInternal = List<RealmTrack>()
 	
 	public var artist: ArtistType {
-		return artistInternal
+		return artistInternal!
 	}
 	
-	public var tracks: MediaList<TrackType, RealmTrack> {
-		return MediaList(realmList: tracksInternal)
+	public var tracks: MediaCollection<TrackType, RealmTrack> {
+		//return MediaCollection<TrackType, RealmTrack>(realmCollection: AnyRealmCollection(LinkingObjects(fromType: RealmTrack.self, property: "albumInternal")))
+		return MediaCollection<TrackType, RealmTrack>(realmCollection: AnyRealmCollection(tracksInternal))
+		//return MediaList(realmList: tracksInternal)
 	}
 	
-	required public init(uid: String, name: String, artist: RealmArtist) {
+	required public init(uid: String, name: String) {
 		self.uid = uid
 		self.name = name
-		self.artistInternal = artist
+		//self.artistInternal = artist
 		super.init()
 	}
 	
 	public required init(realm: RLMRealm, schema: RLMObjectSchema) {
 		uid = NSUUID().UUIDString
 		name = ""
-		artistInternal = RealmArtist(uid: "unknown_artist", name: "Unknown artist")
+		//artistInternal = RealmArtist(uid: "unknown_artist", name: "Unknown artist")
 		super.init(realm: realm, schema: schema)
 	}
 	
 	public required init(value: AnyObject, schema: RLMSchema) {
 		uid = NSUUID().UUIDString
 		name = ""
-		artistInternal = RealmArtist(uid: "unknown_artist", name: "Unknown artist")
+		//artistInternal = RealmArtist(uid: "unknown_artist", name: "Unknown artist")
 		super.init(value: value, schema: schema)
 	}
 	
 	public required init() {
 		uid = NSUUID().UUIDString
 		name = ""
-		artistInternal = RealmArtist(uid: "unknown_artist", name: "Unknown artist")
+		//artistInternal = RealmArtist(uid: "unknown_artist", name: "Unknown artist")
 		super.init()
 	}
 	
@@ -333,21 +327,21 @@ public class RealmTrack: Object, TrackType {
 	public internal(set) dynamic var uid: String
 	public internal(set) dynamic var title: String
 	public internal(set) dynamic var duration: Float
-	public internal(set) dynamic var albumInternal: RealmAlbum
+	public internal(set) dynamic var albumInternal: RealmAlbum?
 
 	public var artist: ArtistType {
-		return albumInternal.artist
+		return albumInternal!.artist
 	}
 	
 	public var album: AlbumType {
-		return albumInternal
+		return albumInternal!
 	}
 	
-	public init(uid: String, title: String, duration: Float, album: RealmAlbum) {
+	public init(uid: String, title: String, duration: Float) {
 		self.uid = uid
 		self.title = title
 		self.duration = duration
-		self.albumInternal = album
+		//self.albumInternal = album
 		super.init()
 	}
 	
@@ -355,7 +349,7 @@ public class RealmTrack: Object, TrackType {
 		uid = NSUUID().UUIDString
 		self.title = ""
 		self.duration = 0
-		albumInternal = RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: RealmArtist(uid: "unknown_artist", name: "Unknown artist"))
+		//albumInternal = RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: RealmArtist(uid: "unknown_artist", name: "Unknown artist"))
 		super.init(realm: realm, schema: schema)
 	}
 	
@@ -363,7 +357,7 @@ public class RealmTrack: Object, TrackType {
 		uid = NSUUID().UUIDString
 		self.title = ""
 		self.duration = 0
-		albumInternal = RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: RealmArtist(uid: "unknown_artist", name: "Unknown artist"))
+		//albumInternal = RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: RealmArtist(uid: "unknown_artist", name: "Unknown artist"))
 		super.init(value: value, schema: schema)
 	}
 	
@@ -371,7 +365,7 @@ public class RealmTrack: Object, TrackType {
 		uid = NSUUID().UUIDString
 		self.title = ""
 		self.duration = 0
-		albumInternal = RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: RealmArtist(uid: "unknown_artist", name: "Unknown artist"))
+		//albumInternal = RealmAlbum(uid: "unknown_album", name: "Unknown album", artist: RealmArtist(uid: "unknown_artist", name: "Unknown artist"))
 		super.init()
 	}
 	
@@ -385,8 +379,9 @@ public class RealmPlayList : Object, PlayListType {
 	public dynamic var name: String
 	internal let itemsInternal = List<RealmTrack>()
 	
-	public var items: MediaList<TrackType, RealmTrack> {
-		return MediaList(realmList: itemsInternal)
+	public var items: MediaCollection<TrackType, RealmTrack> {
+		return MediaCollection<TrackType, RealmTrack>(realmCollection: AnyRealmCollection(itemsInternal))
+		//return MediaList(realmList: itemsInternal)
 	}
 	
 	public init(uid: String, name: String) {
@@ -418,60 +413,60 @@ public class RealmPlayList : Object, PlayListType {
 	}
 }
 
-public class MediaList<ExposedType, InternalType: Object> : SequenceType {
-	public typealias Generator = MediaListGenerator<ExposedType, InternalType>
-	internal let realmList: List<InternalType>
-	public init(realmList: List<InternalType>) {
-		self.realmList = realmList
+public class MediaCollection<ExposedType, InternalType: Object> : SequenceType {
+	public typealias Generator = MediaCollectionGenerator<ExposedType, InternalType>
+	internal let realmCollection: AnyRealmCollection<InternalType>
+	public init(realmCollection: AnyRealmCollection<InternalType>) {
+		self.realmCollection = realmCollection
 	}
-	public var first: ExposedType? { return realmList.first as? ExposedType }
-	public var last: ExposedType? { return realmList.last as? ExposedType }
-	public var count: Int { return realmList.count }
-	public subscript (index: Int) -> ExposedType? { return realmList[index] as? ExposedType }
+	public var first: ExposedType? { return realmCollection.first as? ExposedType }
+	public var last: ExposedType? { return realmCollection.last as? ExposedType }
+	public var count: Int { return realmCollection.count }
+	public subscript (index: Int) -> ExposedType? { return realmCollection[index] as? ExposedType }
 	
-	public func generate() -> MediaList.Generator {
-		return MediaListGenerator(list: self)
+	public func generate() -> MediaCollection.Generator {
+		return MediaCollectionGenerator(collection: self)
 	}
 }
 
-public class MediaResults<ExposedType, InternalType: Object> : SequenceType {
-	public typealias Generator = MediaResultsGenerator<ExposedType, InternalType>
-	internal let realmResults: Results<InternalType>
-	public init(realmResults: Results<InternalType>) {
-		self.realmResults = realmResults
-	}
-	public var first: ExposedType? { return realmResults.first as? ExposedType }
-	public var last: ExposedType? { return realmResults.last as? ExposedType }
-	public var count: Int { return realmResults.count }
-	public subscript (index: Int) -> ExposedType? { return realmResults[index] as? ExposedType }
-	
-	public func generate() -> MediaResults.Generator {
-		return MediaResultsGenerator(results: self)
-	}
-}
+//public class MediaResults<ExposedType, InternalType: Object> : SequenceType {
+//	public typealias Generator = MediaResultsGenerator<ExposedType, InternalType>
+//	internal let realmResults: Results<InternalType>
+//	public init(realmResults: Results<InternalType>) {
+//		self.realmResults = realmResults
+//	}
+//	public var first: ExposedType? { return realmResults.first as? ExposedType }
+//	public var last: ExposedType? { return realmResults.last as? ExposedType }
+//	public var count: Int { return realmResults.count }
+//	public subscript (index: Int) -> ExposedType? { return realmResults[index] as? ExposedType }
+//	
+//	public func generate() -> MediaResults.Generator {
+//		return MediaResultsGenerator(results: self)
+//	}
+//}
 
-public class MediaListGenerator<T, K: Object> : GeneratorType {
+public class MediaCollectionGenerator<T, K: Object> : GeneratorType {
 	public typealias Element = T
-	internal let list: MediaList<T, K>
+	internal let collection: MediaCollection<T, K>
 	internal var currentIndex = 0
-	public init(list: MediaList<T, K>) {
-		self.list = list
+	public init(collection: MediaCollection<T, K>) {
+		self.collection = collection
 	}
-	public func next() -> MediaListGenerator.Element? {
+	public func next() -> MediaCollectionGenerator.Element? {
 		currentIndex += 1
-		return list[currentIndex - 1]
+		return collection[currentIndex - 1]
 	}
 }
 
-public class MediaResultsGenerator<T, K: Object> : GeneratorType {
-	public typealias Element = T
-	internal let results: MediaResults<T, K>
-	internal var currentIndex = 0
-	public init(results: MediaResults<T, K>) {
-		self.results = results
-	}
-	public func next() -> MediaResultsGenerator.Element? {
-		currentIndex += 1
-		return results[currentIndex - 1]
-	}
-}
+//public class MediaResultsGenerator<T, K: Object> : GeneratorType {
+//	public typealias Element = T
+//	internal let results: MediaResults<T, K>
+//	internal var currentIndex = 0
+//	public init(results: MediaResults<T, K>) {
+//		self.results = results
+//	}
+//	public func next() -> MediaResultsGenerator.Element? {
+//		currentIndex += 1
+//		return results[currentIndex - 1]
+//	}
+//}

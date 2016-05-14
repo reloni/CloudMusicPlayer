@@ -10,14 +10,14 @@ import Foundation
 
 public protocol MediaLibraryType {
 	// metadata
-	var artists: MediaResults<ArtistType, RealmArtist> { get }
-	var albums: MediaResults<AlbumType, RealmAlbum> { get }
-	var tracks: MediaResults<TrackType, RealmTrack> { get }
-	var playLists: MediaResults<PlayListType, RealmPlayList> { get }
+	var artists: MediaCollection<ArtistType, RealmArtist> { get }
+	var albums: MediaCollection<AlbumType, RealmAlbum> { get }
+	var tracks: MediaCollection<TrackType, RealmTrack> { get }
+	var playLists: MediaCollection<PlayListType, RealmPlayList> { get }
 	func getTrackByUid(resource: StreamResourceIdentifier) -> TrackType?
 	func getMetadataObjectByUid(resource: StreamResourceIdentifier) -> MediaItemMetadata?
-	func saveMetadata(metadata: MediaItemMetadataType, updateRelatedObjects: Bool) throws
-	func saveMetadataSafe(metadata: MediaItemMetadataType, updateRelatedObjects: Bool)
+	func saveMetadata(metadata: MediaItemMetadataType, updateRelatedObjects: Bool) throws -> TrackType?
+	func saveMetadataSafe(metadata: MediaItemMetadataType, updateRelatedObjects: Bool) -> TrackType?
 	func isTrackExists(resource: StreamResourceIdentifier) -> Bool
 	
 	// play lists
@@ -60,12 +60,12 @@ public protocol MediaLibraryType {
 
 public protocol ArtistType {
 	var name: String { get }
-	var albums: MediaList<AlbumType, RealmAlbum> { get }
+	var albums: MediaCollection<AlbumType, RealmAlbum> { get }
 }
 
 public protocol AlbumType {
 	var artist: ArtistType { get }
-	var tracks: MediaList<TrackType, RealmTrack> { get }
+	var tracks: MediaCollection<TrackType, RealmTrack> { get }
 	var name: String { get }
 	var artwork: NSData? { get }
 }
@@ -90,7 +90,7 @@ public protocol MediaItemMetadataType {
 public protocol PlayListType {
 	var uid: String { get }
 	var name: String { get set }
-	var items: MediaList<TrackType, RealmTrack> { get }
+	var items: MediaCollection<TrackType, RealmTrack> { get }
 }
 
 public protocol AlbumCollectionType {
