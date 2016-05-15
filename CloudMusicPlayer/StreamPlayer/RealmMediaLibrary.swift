@@ -64,8 +64,8 @@ public class RealmMediaLibrary {
 			if updateIfExisted {
 				if let title = metadata.title { track.title = title }
 				if let duration = metadata.duration { track.duration = duration }
-				if let albumName = metadata.album { (track.album as! RealmAlbum).name = albumName }
-				if let artistName = metadata.artist { (track.album.artist as! RealmArtist).name = artistName }
+				if let albumName = metadata.album { track.albumInternal?.name = albumName }
+				if let artistName = metadata.artist { track.albumInternal?.artistInternal?.name = artistName }
 			}
 			return track
 		} else {
