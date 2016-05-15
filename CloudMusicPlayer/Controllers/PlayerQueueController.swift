@@ -124,7 +124,7 @@ extension PlayerQueueController : UITableViewDelegate {
 		cell.selectionStyle = .None
 		
 		if let item = rxPlayer.getItemAtPosition(indexPath.row) {
-			if let meta = rxPlayer.mediaLibrary.getMetadataObjectByUid(item.streamIdentifier) {
+			if let meta = try! rxPlayer.mediaLibrary.getMetadataObjectByUid(item.streamIdentifier) {
 				setCellMetadata(cell, meta: meta)
 			} else {
 				cell.albumArtImage.image = nil

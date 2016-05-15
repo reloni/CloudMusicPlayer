@@ -10,53 +10,31 @@ import Foundation
 
 public protocol MediaLibraryType {
 	// metadata
-	var artists: MediaCollection<ArtistType, RealmArtist> { get }
-	var albums: MediaCollection<AlbumType, RealmAlbum> { get }
-	var tracks: MediaCollection<TrackType, RealmTrack> { get }
-	var playLists: MediaCollection<PlayListType, RealmPlayList> { get }
-	func getTrackByUid(resource: StreamResourceIdentifier) -> TrackType?
-	func getMetadataObjectByUid(resource: StreamResourceIdentifier) -> MediaItemMetadata?
-	func saveMetadata(metadata: MediaItemMetadataType, updateRelatedObjects: Bool) throws -> TrackType?
-	func saveMetadataSafe(metadata: MediaItemMetadataType, updateRelatedObjects: Bool) -> TrackType?
-	func isTrackExists(resource: StreamResourceIdentifier) -> Bool
+	func getArtists() throws -> MediaCollection<ArtistType, RealmArtist>
+	func getAlbums() throws -> MediaCollection<AlbumType, RealmAlbum>
+	func getTracks() throws -> MediaCollection<TrackType, RealmTrack>
+	func getPlayLists() throws -> MediaCollection<PlayListType, RealmPlayList>
+	func getTrackByUid(resource: StreamResourceIdentifier) throws -> TrackType?
+	func getMetadataObjectByUid(resource: StreamResourceIdentifier) throws -> MediaItemMetadata?
+	func saveMetadata(metadata: MediaItemMetadataType, updateExistedObjects: Bool) throws -> TrackType?
+	func saveMetadataSafe(metadata: MediaItemMetadataType, updateExistedObjects: Bool) -> TrackType?
+	func isTrackExists(resource: StreamResourceIdentifier) throws -> Bool
 	
 	// play lists
 	func addTracksToPlayList(playList: PlayListType, tracks: [TrackType]) throws -> PlayListType
 	func removeTrackFromPlayList(playList: PlayListType, track: TrackType) throws -> PlayListType
 	func removeTracksFromPlayList(playList: PlayListType, tracks: [TrackType]) throws -> PlayListType
-	func isTrackContainsInPlayList(playList: PlayListType, track: TrackType) -> Bool
-	func clearPlayList(playList: PlayListType) throws -> PlayListType
+	func isTrackContainsInPlayList(playList: PlayListType, track: TrackType) throws -> Bool
+	func clearPlayList(playList: PlayListType) throws
 	func deletePlayList(playList: PlayListType) throws
-	func createPlayList(name: String) throws -> PlayListType?
-	//func renamePlayList(playList: PlayListType, newName: String) throws -> PlayListType
+	func createPlayList(name: String) throws -> PlayListType
+	func renamePlayList(playList: PlayListType, newName: String) throws
 	//func getAllPlayLists() -> [PlayListType]
-	func getPlayListByUid(uid: String) -> PlayListType?
-	func getPlayListsByName(name: String) -> [PlayListType]
+	func getPlayListByUid(uid: String) throws -> PlayListType?
+	func getPlayListsByName(name: String) throws -> [PlayListType]
 	
 	func clearLibrary() throws
 }
-
-//public protocol UnsafeMediaLibraryType {
-//	// metadata
-//	func getMetadata(resource: StreamResourceIdentifier) throws -> MediaItemMetadataType?
-//	func saveMetadata(metadata: MediaItemMetadataType) throws
-//	func isMetadataExists(resource: StreamResourceIdentifier) throws -> Bool
-//	
-//	// play lists
-//	func addItemsToPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws -> PlayListType
-//	func removeItemFromPlayList(playList: PlayListType, item: MediaItemMetadataType) throws -> PlayListType
-//	func removeItemsFromPlayList(playList: PlayListType, items: [MediaItemMetadataType]) throws -> PlayListType
-//	func isItemContainsInPlayList(playList: PlayListType, item: MediaItemMetadataType) throws -> Bool
-//	func clearPlayList(playList: PlayListType) throws -> PlayListType
-//	func deletePlayList(playList: PlayListType) throws
-//	func createPlayList(name: String) throws -> PlayListType?
-//	func renamePlayList(playList: PlayListType, newName: String) throws -> PlayListType
-//	func getAllPlayLists() throws -> [PlayListType]
-//	func getPlayListByUid(uid: String) throws -> PlayListType?
-//	func getPlayListsByName(name: String) throws -> [PlayListType]
-//	
-//	func clearLibrary() throws
-//}
 
 public protocol ArtistType {
 	var name: String { get }
@@ -116,14 +94,3 @@ public struct MediaItemMetadata : MediaItemMetadataType {
 		self.duration = duration
 	}
 }
-
-//public struct PlayList : PlayListType {
-//	public var uid: String
-//	public var name: String
-//	public var items: [MediaItemMetadataType]
-//	public init(uid: String, name: String, items: [MediaItemMetadataType]) {
-//		self.uid = uid
-//		self.name = name
-//		self.items = items
-//	}
-//}

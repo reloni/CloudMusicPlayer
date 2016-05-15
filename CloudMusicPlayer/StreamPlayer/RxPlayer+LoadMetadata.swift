@@ -27,7 +27,7 @@ extension RxPlayer {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
 			
-			if let metadata = object.mediaLibrary.getMetadataObjectByUid(resource) {
+			if let metadata = try! object.mediaLibrary.getMetadataObjectByUid(resource) {
 				observer.onNext(metadata)
 				observer.onCompleted()
 				return NopDisposable.instance
@@ -36,7 +36,7 @@ extension RxPlayer {
 			if let localFile = object.downloadManager.fileStorage.getFromStorage(resource.streamResourceUid) {
 				let metadata = object.loadFileMetadata(resource, file: localFile, utilities: utilities)
 				if let metadata = metadata {
-					object.mediaLibrary.saveMetadataSafe(metadata, updateRelatedObjects: true)
+					object.mediaLibrary.saveMetadataSafe(metadata, updateExistedObjects: true)
 				}
 				
 				observer.onNext(metadata)
@@ -54,7 +54,7 @@ extension RxPlayer {
 						if let file = downloadManager.fileStorage.saveToTemporaryFolder(prov) {
 							let metadata = object.loadFileMetadata(resource, file: file, utilities: utilities)
 							if let metadata = metadata {
-								object.mediaLibrary.saveMetadataSafe(metadata, updateRelatedObjects: true)
+								object.mediaLibrary.saveMetadataSafe(metadata, updateExistedObjects: true)
 							}
 							
 							observer.onNext(metadata)
@@ -81,7 +81,7 @@ extension RxPlayer {
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-			let loadDisposable = object.currentItems.filter { !mediaLibrary.isTrackExists($0.streamIdentifier) }.toObservable().observeOn(serialScheduler)
+			let loadDisposable = object.currentItems.filter { try! !mediaLibrary.isTrackExists($0.streamIdentifier) }.toObservable().observeOn(serialScheduler)
 				.flatMap { item -> Observable<MediaItemMetadataType?> in
 					return object.loadMetadata(item.streamIdentifier)
 				}.doOnCompleted { print("batch metadata load completed"); observer.onCompleted() }.bindNext { meta in
