@@ -597,6 +597,7 @@
 				6EEB98981C4EBE1700DD5B95 /* Frameworks */,
 				6EEB98991C4EBE1700DD5B95 /* Resources */,
 				6E8AFD7F1C78DB3D00091B53 /* ShellScript */,
+				6E254DD21CE8935B0064A544 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -731,6 +732,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		6E254DD21CE8935B0064A544 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh ${SRCROOT}/TODOScript.sh";
+		};
 		6E8AFD7F1C78DB3D00091B53 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

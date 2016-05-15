@@ -447,6 +447,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		XCTAssertNil(player.current, "Should skip all items")
 	}
 	
+	//TODO: fix this tests
 //	func testStartPlayingPlayListOfUrls() {
 //		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 //		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
