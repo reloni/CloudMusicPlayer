@@ -11,6 +11,20 @@ import CoreData
 import AVFoundation
 import RxSwift
 
+extension YandexOAuth {
+	public init() {
+		self.init(clientId: "6556b9ed6fb146ea824d2e1f0d98f09b", urlScheme: "oauthyandex")
+	}
+}
+
+extension GoogleOAuth {
+	public init() {
+		self.init(clientId: "904693090582-807d6m390ms26lis6opjfbrjnr0qns7k.apps.googleusercontent.com",
+		          urlScheme: "com.antonefimenko.cloudmusicplayer",
+		          redirectUri: "com.antonefimenko.cloudmusicplayer:/redirect.com", scopes: ["https://www.googleapis.com/auth/drive.readonly"])
+	}
+}
+
 //var streamPlayer = StreamAudioPlayer(allowSaveCachedData: true)
 var rxPlayer = RxPlayer(repeatQueue: false, downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
 													httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: RealmMediaLibrary())
@@ -56,10 +70,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	// настраивается в  Info.plist в разделе URL types/URL Schemes
 	func application(application: UIApplication,
 	                 openURL url: NSURL, options: [String: AnyObject]) -> Bool {
-		if let result = OAuthResourceManager().parseCallbackUrl(url.absoluteString) {
-			result.resource.tokenId = result.token
-			result.resource.saveResource()
-		} 
+		//if let result = OAuthResourceManager().parseCallbackUrl(url.absoluteString) {
+		//	result.resource.tokenId = result.token
+		//	result.resource.saveResource()
+		//}
+		OAuthAuthenticator.sharedInstance.processCallbackUrl(url.absoluteString).doOnCompleted {
+			print("oauth authorization completed")
+			}.doOnNext { oauth in
+				print("type: \(oauth.oauthTypeId) new token: \(oauth.accessToken) refresh token: \(oauth.refreshToken)")
+		}.subscribe().addDisposableTo(bag)
+	
 		return true
 	}
 //	func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {

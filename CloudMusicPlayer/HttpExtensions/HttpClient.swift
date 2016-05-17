@@ -47,7 +47,7 @@ public class HttpClient {
 extension HttpClient : HttpClientProtocol {
 	public func loadJsonData(request: NSMutableURLRequestProtocol)
 		-> Observable<JSON> {
-			return Observable.create { [unowned self] observer in
+			return Observable.create { observer in
 				let task = self.loadData(request).doOnError { observer.onError($0) }.bindNext { result in
 					if case .SuccessData(let data) = result {
 						observer.onNext(JSON(data: data))

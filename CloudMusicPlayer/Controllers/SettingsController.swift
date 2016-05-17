@@ -31,33 +31,43 @@ class SettingsController: UIViewController {
 		super.viewDidLoad()
 		
 		// Do any additional setup after loading the view, typically from a nib.
-		logInButton.rx_tap.bindNext { [unowned self] in
-			if let url = self.model.yandexOauth.getAuthUrl?() {
+		logInButton.rx_tap.bindNext {
+			//if let url = self.model.yandexOauth.getAuthUrl?() {
+			//	UIApplication.sharedApplication().openURL(url)
+			//}
+			if let url = YandexOAuth().authUrl {
+				OAuthAuthenticator.sharedInstance.addConnection(YandexOAuth())
 				UIApplication.sharedApplication().openURL(url)
 			}
 		}.addDisposableTo(bag)
 		
-		googleLogInButton.rx_tap.bindNext { [unowned self] in
-			if let url = self.model.googleOauth.getAuthUrl?() {
+		googleLogInButton.rx_tap.bindNext {
+			//if let url = self.model.googleOauth.getAuthUrl?() {
+			//	UIApplication.sharedApplication().openURL(url)
+			//}
+			if let url = GoogleOAuth().authUrl {
+				OAuthAuthenticator.sharedInstance.addConnection(GoogleOAuth())
 				UIApplication.sharedApplication().openURL(url)
 			}
-			}.addDisposableTo(bag)
-		
-		logOutButton.rx_tap.bindNext { [unowned self] in
-			self.model.yandexOauth.tokenId = nil
-			self.model.yandexOauth.saveResource()
 		}.addDisposableTo(bag)
 		
-		googleLogOutButton.rx_tap.bindNext { [unowned self] in
-			self.model.googleOauth.tokenId = nil
-			self.model.googleOauth.saveResource()
+		logOutButton.rx_tap.bindNext {
+			YandexOAuth().clearTokens()
+			//self.model.yandexOauth.tokenId = nil
+			//self.model.yandexOauth.saveResource()
+		}.addDisposableTo(bag)
+		
+		googleLogOutButton.rx_tap.bindNext {
+			GoogleOAuth().clearTokens()
+			//self.model.googleOauth.tokenId = nil
+			//self.model.googleOauth.saveResource()
 			}.addDisposableTo(bag)
 		
-		model.isYandexSetUp.asDriver().asDriver(onErrorJustReturn: false).map { !$0 }.drive(logInButton.rx_enabled).addDisposableTo(bag)
-		model.isYandexSetUp.asDriver().asDriver(onErrorJustReturn: false).drive(logOutButton.rx_enabled).addDisposableTo(bag)
+		model.isYandexSetUp.asDriver(onErrorJustReturn: false).map { !$0 }.drive(logInButton.rx_enabled).addDisposableTo(bag)
+		model.isYandexSetUp.asDriver(onErrorJustReturn: false).drive(logOutButton.rx_enabled).addDisposableTo(bag)
 		
-		model.isGoogleSetUp.asDriver().asDriver(onErrorJustReturn: false).map { !$0 }.drive(googleLogInButton.rx_enabled).addDisposableTo(bag)
-		model.isGoogleSetUp.asDriver().asDriver(onErrorJustReturn: false).drive(googleLogOutButton.rx_enabled).addDisposableTo(bag)
+		model.isGoogleSetUp.asDriver(onErrorJustReturn: false).map { !$0 }.drive(googleLogInButton.rx_enabled).addDisposableTo(bag)
+		model.isGoogleSetUp.asDriver(onErrorJustReturn: false).drive(googleLogOutButton.rx_enabled).addDisposableTo(bag)
 		
 		clearStorageButton.rx_tap.flatMapLatest { _ -> Observable<StorageSize> in
 			rxPlayer.downloadManager.fileStorage.clearStorage()
