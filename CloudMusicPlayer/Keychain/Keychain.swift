@@ -88,12 +88,25 @@ struct SecItemWrapper {
 	}
 }
 
-struct Keychain {
-	static func deleteAccount(account: String) {
+public protocol KeychainType {
+	func deleteAccount(account: String)
+	func dataForAccount(account: String) -> NSData?
+	func stringForAccount(account: String) -> String?
+	func setData(data: NSData, forAccount account: String, synchronizable: Bool, background: Bool)
+	func setString(string: String?, forAccount account: String, synchronizable: Bool, background: Bool)
+}
+
+public struct Keychain : KeychainType {
+	public let service: String
+	public init(service: String) {
+		self.service = service
+	}
+	
+	public func deleteAccount(account: String) {
 		do {
 			try SecItemWrapper.delete([
 				kSecClass as String: kSecClassGenericPassword,
-				kSecAttrService as String: Constants.service,
+				kSecAttrService as String: service,
 				kSecAttrAccount as String: account,
 				kSecAttrSynchronizable as String: kSecAttrSynchronizableAny,
 				])
@@ -104,11 +117,11 @@ struct Keychain {
 		}
 	}
 	
-	static func dataForAccount(account: String) -> NSData? {
+	public func dataForAccount(account: String) -> NSData? {
 		do {
 			let query = [
 				kSecClass as String: kSecClassGenericPassword,
-				kSecAttrService as String: Constants.service,
+				kSecAttrService as String: service,
 				kSecAttrAccount as String: account,
 				kSecAttrSynchronizable as String: kSecAttrSynchronizableAny,
 				kSecReturnData as String: kCFBooleanTrue as CFTypeRef,
@@ -124,7 +137,7 @@ struct Keychain {
 		}
 	}
 	
-	static func stringForAccount(account: String) -> String? {
+	public func stringForAccount(account: String) -> String? {
 		if let data = dataForAccount(account) {
 			return NSString(data: data,
 				encoding: NSUTF8StringEncoding) as? String
@@ -133,7 +146,7 @@ struct Keychain {
 		}
 	}
 	
-	static func setData(data: NSData,
+	public func setData(data: NSData,
 		forAccount account: String,
 		synchronizable: Bool,
 		background: Bool) {
@@ -146,7 +159,7 @@ struct Keychain {
 				// Add it.
 				try SecItemWrapper.add([
 					kSecClass as String: kSecClassGenericPassword,
-					kSecAttrService as String: Constants.service,
+					kSecAttrService as String: service,
 					kSecAttrAccount as String: account,
 					kSecAttrSynchronizable as String: synchronizable ?
 						kCFBooleanTrue : kCFBooleanFalse,
@@ -160,7 +173,7 @@ struct Keychain {
 			}
 	}
 	
-	static func setString(string: String?,
+	public func setString(string: String?,
 		forAccount account: String,
 		synchronizable: Bool,
 		background: Bool) {
@@ -175,7 +188,7 @@ struct Keychain {
 			}
 	}
 	
-	struct Constants {
-		static let service = "CloudMusicPlayer"
-	}
+	//struct Constants {
+	//	static let service = "CloudMusicPlayer"
+	//}
 }

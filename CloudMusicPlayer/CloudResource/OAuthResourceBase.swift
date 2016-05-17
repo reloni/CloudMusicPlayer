@@ -39,16 +39,16 @@ public class OAuthResourceBase : NSObject, NSCoding, OAuthResource {
 		self.id = aDecoder.decodeObjectForKey("id") as! String
 		self.authBaseUrl = aDecoder.decodeObjectForKey("authUrl") as! String
 		self.clientId = aDecoder.decodeObjectForKey("clientId") as? String
-		self.tokenId = Keychain.stringForAccount("\(self.id)_tokenId")
-		self.refreshTokenId = Keychain.stringForAccount("\(self.id)_refreshTokenId")
+		self.tokenId = Keychain().stringForAccount("\(self.id)_tokenId")
+		self.refreshTokenId = Keychain().stringForAccount("\(self.id)_refreshTokenId")
 	}
 	
 	@objc public func encodeWithCoder(aCoder: NSCoder) {
 		aCoder.encodeObject(self.id, forKey: "id")
 		aCoder.encodeObject(self.authBaseUrl, forKey: "authUrl")
 		aCoder.encodeObject(self.clientId, forKey: "clientId")
-		Keychain.setString(self.tokenId, forAccount: "\(self.id)_tokenId", synchronizable: true, background: false)
-		Keychain.setString(self.refreshTokenId, forAccount: "\(self.id)_refreshTokenId", synchronizable: true, background: false)
+		Keychain().setString(self.tokenId, forAccount: "\(self.id)_tokenId", synchronizable: true, background: false)
+		Keychain().setString(self.refreshTokenId, forAccount: "\(self.id)_refreshTokenId", synchronizable: true, background: false)
 	}
 	
 	public func refreshToken(httpClient: HttpClientProtocol) -> Observable<JSON> { return Observable.empty() }

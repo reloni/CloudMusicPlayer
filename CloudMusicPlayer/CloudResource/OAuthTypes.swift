@@ -49,11 +49,11 @@ extension YandexOAuth : OAuthType {
 	}
 	
 	public var accessToken: String? {
-		return Keychain.stringForAccount(tokenKeychainId)
+		return Keychain().stringForAccount(tokenKeychainId)
 	}
 	
 	public var refreshToken: String? {
-		return Keychain.stringForAccount(refreshTokenKeychainId)
+		return Keychain().stringForAccount(refreshTokenKeychainId)
 	}
 	
 	public func canParseCallbackUrl(url: String) -> Bool {
@@ -69,7 +69,7 @@ extension YandexOAuth : OAuthType {
 				let substring = url.substringFromIndex(start)
 				let end = substring.rangeOfString("&")?.startIndex ?? substring.endIndex
 				
-				Keychain.setString(substring.substringWithRange(substring.startIndex..<end), forAccount: self.tokenKeychainId, synchronizable: true, background: false)
+				Keychain().setString(substring.substringWithRange(substring.startIndex..<end), forAccount: self.tokenKeychainId, synchronizable: true, background: false)
 				observer.onNext(self)
 			}
 			
@@ -84,8 +84,8 @@ extension YandexOAuth : OAuthType {
 	}
 	
 	public func clearTokens() {
-		Keychain.setString(nil, forAccount: tokenKeychainId, synchronizable: true, background: false)
-		Keychain.setString(nil, forAccount: refreshTokenKeychainId, synchronizable: true, background: false)
+		Keychain().setString(nil, forAccount: tokenKeychainId, synchronizable: true, background: false)
+		Keychain().setString(nil, forAccount: refreshTokenKeychainId, synchronizable: true, background: false)
 		OAuthAuthenticator.sharedInstance.newAuthenticationSubject.onNext(self)
 	}
 }
@@ -99,6 +99,7 @@ public struct GoogleOAuth {
 	public let redirectUri: String
 	public let scopes: [String]
 	public let tokenUrl: String
+	public let keychain: KeychainType
 	
 	internal var tokenKeychainId: String {
 		return "\(YandexOAuth.id)_accessToken"
@@ -109,7 +110,7 @@ public struct GoogleOAuth {
 	}
 	
 	public init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, redirectUri: String,
-	            scopes: [String], tokenUrl: String, clientId: String) {
+	            scopes: [String], tokenUrl: String, clientId: String, keychain: KeychainType) {
 		self.baseAuthUrl = baseAuthUrl
 		self.urlParameters = urlParameters
 		self.urlScheme = urlScheme
@@ -117,11 +118,13 @@ public struct GoogleOAuth {
 		self.scopes = scopes
 		self.clientId = clientId
 		self.tokenUrl = tokenUrl
+		self.keychain = keychain
 	}
 	
 	public init(clientId: String, urlScheme: String, redirectUri: String, scopes: [String]) {
 		self.init(baseAuthUrl: "https://accounts.google.com/o/oauth2/v2/auth", urlParameters: ["response_type": "code"],
-		          urlScheme: urlScheme, redirectUri: redirectUri, scopes: scopes, tokenUrl: "https://www.googleapis.com/oauth2/v4/token", clientId:  clientId)
+		          urlScheme: urlScheme, redirectUri: redirectUri, scopes: scopes, tokenUrl: "https://www.googleapis.com/oauth2/v4/token",
+		          clientId:  clientId, keychain: Keychain())
 	}
 }
 
@@ -139,11 +142,11 @@ extension GoogleOAuth : OAuthType {
 	}
 	
 	public var accessToken: String? {
-		return Keychain.stringForAccount(tokenKeychainId)
+		return keychain.stringForAccount(tokenKeychainId)
 	}
 	
 	public var refreshToken: String? {
-		return Keychain.stringForAccount(refreshTokenKeychainId)
+		return keychain.stringForAccount(refreshTokenKeychainId)
 	}
 	
 	public func canParseCallbackUrl(url: String) -> Bool {
@@ -159,23 +162,21 @@ extension GoogleOAuth : OAuthType {
 			let end = substring.rangeOfString("&")?.startIndex ?? substring.endIndex
 			let code = substring.substringWithRange(substring.startIndex..<end)
 			
-			let object = self
-			
 			// perform second request in order to finally receive access token
-			if let tokenUrl = NSURL(baseUrl: object.tokenUrl,
-			                        parameters: ["code": code, "client_id": object.clientId, "redirect_uri": object.redirectUri, "grant_type": "authorization_code"]) {
+			if let tokenUrl = NSURL(baseUrl: self.tokenUrl,
+			                        parameters: ["code": code, "client_id": self.clientId, "redirect_uri": self.redirectUri, "grant_type": "authorization_code"]) {
 				let request = HttpUtilities().createUrlRequest(tokenUrl)
 				request.setHttpMethod("POST")
 				let httpClient = HttpClient()
 				return httpClient.loadJsonData(request).flatMapLatest { response -> Observable<OAuthType> in
 					print(response)
 					if let accessToken = response["access_token"].string {
-						Keychain.setString(accessToken, forAccount: object.tokenKeychainId, synchronizable: true, background: false)
+						self.keychain.setString(accessToken, forAccount: self.tokenKeychainId, synchronizable: true, background: false)
 					}
 					if let refreshToken = response["refresh_token"].string {
-						Keychain.setString(refreshToken, forAccount: object.refreshTokenKeychainId, synchronizable: true, background: false)
+						self.keychain.setString(refreshToken, forAccount: self.refreshTokenKeychainId, synchronizable: true, background: false)
 					}
-					return Observable.just(object)
+					return Observable.just(self)
 				}
 			}
 		}
@@ -189,8 +190,8 @@ extension GoogleOAuth : OAuthType {
 	}
 	
 	public func clearTokens() {
-		Keychain.setString(nil, forAccount: tokenKeychainId, synchronizable: true, background: false)
-		Keychain.setString(nil, forAccount: refreshTokenKeychainId, synchronizable: true, background: false)
+		keychain.setString(nil, forAccount: tokenKeychainId, synchronizable: true, background: false)
+		keychain.setString(nil, forAccount: refreshTokenKeychainId, synchronizable: true, background: false)
 		OAuthAuthenticator.sharedInstance.newAuthenticationSubject.onNext(self)
 	}
 }
