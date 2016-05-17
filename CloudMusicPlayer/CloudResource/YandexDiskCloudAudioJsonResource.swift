@@ -23,13 +23,14 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 		let request = httpClient.httpUtilities.createUrlRequest(url, headers: getRequestHeaders())
 		
 		return Observable.create { [unowned self] observer in
-			let task = self.httpClient.loadJsonData(request).bindNext { json in
+			let task = self.httpClient.loadJsonData(request).doOnError { _ in observer.onCompleted() }
+				.doOnCompleted { _ in observer.onCompleted() }.bindNext { json in
 				if let href = json["href"].string {
 					observer.onNext(href)
 				} //else {
 					//observer.onNext(nil)
 				//}
-				observer.onCompleted()
+				//observer.onCompleted()
 			}
 			
 			return AnonymousDisposable {

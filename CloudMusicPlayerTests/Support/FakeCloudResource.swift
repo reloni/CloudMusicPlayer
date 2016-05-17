@@ -12,6 +12,7 @@ import SwiftyJSON
 @testable import CloudMusicPlayer
 
 public class FakeCloudResource : CloudResource {
+	public var resourceTypeIdentifier: String = "FakeCloudResource"
 	public var oAuthResource: OAuthResource
 	public var parent: CloudResource? = nil
 	public var childs: [CloudResource]? = nil

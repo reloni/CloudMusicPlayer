@@ -119,7 +119,7 @@ public class DownloadManager {
 			}
 		}
 		
-		guard resourceType == .HttpResource || resourceType == .HttpsResource else { print("not http or https!!"); return nil }
+		guard resourceType == .HttpResource || resourceType == .HttpsResource else { return nil }
 		
 		guard let url = identifier.streamResourceUrl,
 			urlRequest = httpUtilities.createUrlRequest(url, parameters: nil, headers: (identifier as? StreamHttpResourceIdentifier)?.streamHttpHeaders) else {
@@ -183,6 +183,7 @@ extension DownloadManager : DownloadManagerType {
 					let	code = DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue
 					let error = NSError(domain: DownloadManager.errorDomain, code: code, userInfo: [NSLocalizedDescriptionKey: message,
 						"Url": identifier.streamResourceUrl ?? "", "Uid": identifier.streamResourceUid])
+					print("not url: \(identifier.streamResourceUid)")
 					observer.onError(error); result = NopDisposable.instance; return;
 				}
 				

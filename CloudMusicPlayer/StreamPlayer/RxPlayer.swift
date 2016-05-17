@@ -30,9 +30,14 @@ public enum PlayerEvents : PlayerEventType {
 	case Pausing(RxPlayerQueueItem)
 	case Paused
 	case FinishPlayingCurrentItem
+	case FinishPlayingQueue
+	case StartRepeatQueue
+	case Error(NSError)
 }
 
 public class RxPlayer {
+	public var streamResourceLoaders = [StreamResourceLoaderType]()
+	
 	internal lazy var eventsCallback: (PlayerEvents) -> () = {
 		return { [weak self] (event: PlayerEvents) in
 			self?.playerEventsSubject.onNext(event)
@@ -99,7 +104,17 @@ public class RxPlayer {
 	internal func startStreamTask() {
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 			self.currentStreamTask?.dispose()
-			self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier).subscribe()
+			self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier)
+				.doOnError { [weak self] in
+					let error = $0 as NSError
+					self?.playerEventsSubject.onNext(.Error(error))
+					
+					// if this is unsupported url or not existed file, move to next item
+					if error.code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
+						self?.toNext(true)
+					}
+					
+				}.subscribe()
 		}
 	}
 	internal var _current: RxPlayerQueueItem?

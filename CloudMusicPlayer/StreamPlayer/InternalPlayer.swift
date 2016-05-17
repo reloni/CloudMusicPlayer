@@ -79,7 +79,7 @@ extension InternalPlayer : InternalPlayerType {
 		return task
 	}
 	
-	public func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol) {
+	internal func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol) {
 		stop()
 		
 		self.asset = asset

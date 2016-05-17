@@ -54,17 +54,15 @@ class YandexCloudResourceTests: XCTestCase {
 	}
 	
 	func testReturnRootResource() {
-		let root = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first
-		XCTAssertNotNil(root)
-		XCTAssertEqual(root?.name, "disk")
-		XCTAssertEqual(root?.uid, "/")
-		XCTAssertNil(root?.parent)
+		let root = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
+		XCTAssertEqual(root.name, "disk")
+		XCTAssertEqual(root.uid, "/")
 		XCTAssertTrue((root as! YandexDiskCloudJsonResource).oAuthResource === oauthResource)
 	}
 	
 	func testCreateRequest() {
 		//let req = YandexDiskCloudJsonResource.createRequestForLoadRootResources(oauthResource, httpUtilities: utilities) as? FakeRequest
-		let root = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first as? YandexDiskCloudJsonResource
+		let root = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource) as? YandexDiskCloudJsonResource
 		let req = root?.createRequest() as? FakeRequest
 		XCTAssertNotNil(req, "Should create request")
 		XCTAssertEqual(NSURL(baseUrl: YandexDiskCloudJsonResource.resourcesApiUrl, parameters: ["path": "/"]), req?.URL, "Should create correct url")
@@ -73,14 +71,14 @@ class YandexCloudResourceTests: XCTestCase {
 	
 	func testNotCreateRequest() {
 		let oauthResWithoutTokenId = OAuthResourceBase(id: "fake", authUrl: "https://fake.com", clientId: nil, tokenId: nil)
-		let root = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResWithoutTokenId).toBlocking().toArray().first as? YandexDiskCloudJsonResource
+		let root = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResWithoutTokenId) as? YandexDiskCloudJsonResource
 		//let req = YandexDiskCloudJsonResource.createRequestForLoadRootResources(oauthResWithoutTokenId, httpUtilities: utilities) as? FakeRequest
 		let req = root?.createRequest()
 		XCTAssertNil(req, "Should not create request")
 	}
 	
 	func testDeserializeJsonResponseFolder() {
-		let root = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first as? YandexDiskCloudJsonResource
+		let root = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource) as? YandexDiskCloudJsonResource
 		let first = root?.deserializeResponse(JSON.getJsonFromFile("YandexRoot")!).first
 		//let first = YandexDiskCloudJsonResource.deserializeResponseData(JSON.getJsonFromFile("YandexRoot"), res: oauthResource)?.first
 		XCTAssertNotNil(first)
@@ -88,7 +86,6 @@ class YandexCloudResourceTests: XCTestCase {
 		XCTAssertEqual(first?.uid, "disk:/Documents")
 		XCTAssertEqual(first?.type, .Folder)
 		XCTAssertTrue(first is YandexDiskCloudJsonResource)
-		XCTAssertTrue((first?.parent as? YandexDiskCloudJsonResource) === root)
 		//XCTAssertNil(first?.mediaType)
 		XCTAssertNil(first?.mimeType)
 		XCTAssertEqual(oauthResource.id, first?.oAuthResource.id)
@@ -97,7 +94,7 @@ class YandexCloudResourceTests: XCTestCase {
 	}
 	
 	func testNotDeserializeIncorrectJson() {
-		let root = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first as! YandexDiskCloudJsonResource
+		let root = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource) as! YandexDiskCloudJsonResource
 		let json: JSON =  ["Test": "Value"]
 		//let response = YandexDiskCloudJsonResource.deserializeResponseData(json, res: oauthResource)
 		let response = root.deserializeResponse(json).first

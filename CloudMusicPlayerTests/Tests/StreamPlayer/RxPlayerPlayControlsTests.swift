@@ -10,6 +10,7 @@ import XCTest
 import RxSwift
 @testable import CloudMusicPlayer
 import RealmSwift
+import SwiftyJSON
 
 class RxPlayerPlayControlsTests: XCTestCase {
 	let bag = DisposeBag()
@@ -348,11 +349,158 @@ class RxPlayerPlayControlsTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
+		let finishQueueExpectation = expectationWithDescription("Should rise FinishQueueEvent")
+		player.playerEvents.bindNext { e in
+			if case PlayerEvents.FinishPlayingQueue = e {
+				finishQueueExpectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
 		// send notification about finishing current item playing
 		//fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
 		(player.internalPlayer as! FakeInternalPlayer).finishPlayingCurrentItem()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		XCTAssertNil(player.current, "Current item should be nil")
+	}
+	
+	func testRepeatQueue() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		//let fakeInternalPlayer = FakeInternalPlayer()
+		//let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
+		let player = RxPlayer(repeatQueue: true, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
+		player.current = player.last
+		
+		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
+		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
+		
+		let expectation = expectationWithDescription("Should switch to next item")
+		var skipped = false
+		player.currentItem.bindNext { item in
+			if !skipped { skipped = true }
+			else {
+				//XCTAssertNil(item, "Current item should be nil")
+				XCTAssertEqual(item?.streamIdentifier.streamResourceUid, "https://test.com/track1.mp3", "Current item should be first item in queue")
+				expectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		let repeatQueueExpectation = expectationWithDescription("Should rise RepeatQueue event")
+		player.playerEvents.bindNext { e in
+			if case PlayerEvents.StartRepeatQueue = e {
+				repeatQueueExpectation.fulfill()
+			}
+			}.addDisposableTo(bag)
+		
+		// send notification about finishing current item playing
+		//fakeInternalPlayer.publishSubject.onNext(.FinishPlayingCurrentItem(player))
+		(player.internalPlayer as! FakeInternalPlayer).finishPlayingCurrentItem()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, player.first?.streamIdentifier.streamResourceUid, "Current item should be first")
+	}
+	
+	func testSendErrorMessageIfTryingToPlayUnsupportedUrl() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
+		
+		let errorExpectation = expectationWithDescription("Should rise error")
+		let correctCurrentItemExpectation = expectationWithDescription("Should switch to next item after error")
+		player.playerEvents.bindNext { e in
+			if case .Error(let error) = e where error.code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
+				errorExpectation.fulfill()
+			} else if case PlayerEvents.CurrentItemChanged(let newItem) = e {
+				if newItem?.streamIdentifier.streamResourceUid == "https://test.com/track2.mp3" {
+					correctCurrentItemExpectation.fulfill()
+				}
+			}
+		}.addDisposableTo(bag)
+		
+		player.initWithNewItems(["unsupported://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
+		player.resume(true)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, "https://test.com/track2.mp3", "Test correct current item")
+	}
+	
+	func testSkipAllItemsIfAllUnsupported() {
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
+		
+		let correctCurrentItemExpectation = expectationWithDescription("Should switch to nil after errors")
+		player.playerEvents.bindNext { e in
+			if case PlayerEvents.CurrentItemChanged(let newItem) = e {
+				print(newItem?.streamIdentifier.streamResourceUid)
+				if newItem == nil {
+					correctCurrentItemExpectation.fulfill()
+				}
+			}
+			}.addDisposableTo(bag)
+		
+		player.initWithNewItems(["unsupported://test.com/track1.mp3", "unsupported://test.com/track2.mp3", "fake://test.com/track3.mp3"])
+		player.resume(true)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertNil(player.current, "Should skip all items")
+	}
+
+	func testStartPlayingItemsFromMediaLibraryPlayList() {
+		// setup fake http
+		let streamObserver = NSURLSessionDataEventsObserver()
+		let httpUtilities = FakeHttpUtilities()
+		httpUtilities.streamObserver = streamObserver
+		let session = FakeSession(fakeTask: FakeDataTask(completion: nil))
+		httpUtilities.fakeSession = session
+		let httpClient = HttpClient(urlSession: session, httpUtilities: httpUtilities)
+		
+		session.task?.taskProgress.bindNext { e in
+			if case FakeDataTaskMethods.resume(let tsk) = e {
+				// send random url
+				let json: JSON =  ["href": "http://url.com"]
+				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+					tsk.completion?(try? json.rawData(), nil, nil)
+				}
+			}
+		}.addDisposableTo(bag)
+		
+		
+		// setup cloud resource db
+		let realm = try! Realm()
+		try! realm.write {
+			realm.add(RealmCloudResource(uid: "disk://Music/Track1.mp3", rawData: JSON(["path": "disk://Music/Track1.mp3", "media_type": "audio"]).rawDataSafe()!,
+				resourceTypeIdentifier: YandexDiskCloudJsonResource.typeIdentifier))
+			realm.add(RealmCloudResource(uid: "disk://Music/Track2.mp3", rawData: JSON(["path": "disk://Music/Track2.mp3", "media_type": "audio"]).rawDataSafe()!,
+				resourceTypeIdentifier: YandexDiskCloudJsonResource.typeIdentifier))
+			realm.add(RealmCloudResource(uid: "disk://Music/Track3.mp3", rawData: JSON(["path": "disk://Music/Track3.mp3", "media_type": "audio"]).rawDataSafe()!,
+				resourceTypeIdentifier: YandexDiskCloudJsonResource.typeIdentifier))
+		}
+		
+		
+		// setup media library db
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		try!lib.saveMetadata(MediaItemMetadata(resourceUid: "disk://Music/Track1.mp3", artist: "Test artist 1", title: "Test title", album: "test album",
+			artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56), updateExistedObjects: true)
+		try!lib.saveMetadata(MediaItemMetadata(resourceUid: "disk://Music/Track2.mp3", artist: "Test artist 2 ", title: "Test title", album: "test album",
+			artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56), updateExistedObjects: true)
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "disk://Music/Track3.mp3", artist: "Test artist 3", title: "Test title", album: "test album",
+			artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56), updateExistedObjects: true)
+		var playList = try! lib.createPlayList("test pl")
+		playList = try! lib.addTracksToPlayList(playList, tracks: try! lib.getTracks().map { $0 })
+		
+		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
+		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: lib)
+		let oauth = OAuthResourceBase(id: "'", authUrl: "", clientId: nil, tokenId: nil)
+		let cloudResourceLoader = CloudResourceLoader(cacheProvider: RealmCloudResourceCacheProvider(),
+		    rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier: YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauth)])
+		player.streamResourceLoaders.append(cloudResourceLoader)
+		
+		player.playPlayList(playList)
+		
+		XCTAssertEqual(player.currentItems.count, 3, "Check queue has three items")
+		XCTAssertTrue(player.playing)
+		XCTAssertEqual(player.current?.streamIdentifier.streamResourceUid, "disk://Music/Track1.mp3")
 	}
 }

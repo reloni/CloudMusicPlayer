@@ -36,4 +36,5 @@ public class AudioItemMetadata {
 		return self.metadata["duration"] as? Float
 	}()
 }
-extension AudioItemMetadata: MediaItemMetadataType { }
+extension AudioItemMetadata: MediaItemMetadataType {
+}

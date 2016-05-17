@@ -35,7 +35,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		utilities = FakeHttpUtilities()
 		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
 		oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
-		rootResource = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().toArray().first!
+		rootResource = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
 	}
 	
 	override func tearDown() {
@@ -125,7 +125,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 			waitForExpectationsWithTimeout(1, handler: nil)
 			return
 		}
-		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource, parent: nil)
+		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource)
 		//let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient)
 		
 		session.task?.taskProgress.bindNext { progress in
@@ -157,14 +157,14 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(first?.uid, "disk:/Music/David Arkenstone")
 		XCTAssertEqual(first?.type, .Folder)
 		XCTAssertTrue(first is YandexDiskCloudJsonResource)
-		XCTAssertEqual(item.uid, first?.parent?.uid)
+		//XCTAssertEqual(item.uid, first?.parent?.uid)
 		
 		let audioItem = loadedChilds?.last as? CloudAudioResource
 		XCTAssertEqual(audioItem?.name, "TestTrack.mp3")
 		XCTAssertEqual(audioItem?.uid, "disk:/Music/TestTrack.mp3")
 		XCTAssertEqual(audioItem?.type, .File)
 		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
-		XCTAssertEqual(item.uid, audioItem?.parent?.uid)
+		//XCTAssertEqual(item.uid, audioItem?.parent?.uid)
 	}
 	
 	func testReceiveErrorWhileLoadingChilds() {
@@ -174,7 +174,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 			XCTFail("Fail to load json from file")
 			return
 		}
-		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource, parent: nil)
+		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource)
 		//let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient)
 		
 		session.task?.taskProgress.bindNext { progress in
@@ -203,7 +203,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 				waitForExpectationsWithTimeout(1, handler: nil)
 				return
 		}
-		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, httpClient: httpClient, oauth: oauthResource, parent: nil)
+		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, httpClient: httpClient, oauth: oauthResource)
 		//let item = YandexDiskCloudAudioJsonResource(raw: audioItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient)
 		
 		session.task?.taskProgress.bindNext { progress in
@@ -233,7 +233,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 				return
 		}
 		
-		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, httpClient: httpClient, oauth: oauthResource, parent: nil)
+		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, httpClient: httpClient, oauth: oauthResource)
 		//let item = YandexDiskCloudAudioJsonResource(raw: audioItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient)
 		
 		session.task?.taskProgress.bindNext { progress in
@@ -268,8 +268,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		//let fakeUserDefaults = FakeNSUserDefaults(localCache: [CloudResourceNsUserDefaultsCacheProvider.userDefaultsId: [rootItem["path"].stringValue: cachedJson!]])
 		//let cacheProvider = CloudResourceNsUserDefaultsCacheProvider(loadData: true, userDefaults: fakeUserDefaults)
-		let yandexRoot = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().first()
-		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource, parent: yandexRoot)
+		//let yandexRoot = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().first()
+		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource)
 		let cacheProvider = RealmCloudResourceCacheProvider()
 		cacheProvider.cacheChilds(item, childs: item.deserializeResponse(cachedJson!))
 		//let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient, cacheProvider: cacheProvider)
@@ -317,7 +317,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(first?.uid, "disk:/Music/Apocalyptica")
 		XCTAssertEqual(first?.type, .Folder)
 		XCTAssertTrue(first is YandexDiskCloudJsonResource)
-		XCTAssertEqual(item.uid, first?.parent?.uid)
+		//XCTAssertEqual(item.uid, first?.parent?.uid)
 		//XCTAssertTrue((first as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 		
 		var audioItem = cachedChilds?.last as? CloudAudioResource
@@ -325,7 +325,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(audioItem?.uid, "disk:/Music/CachedTrack.mp3")
 		XCTAssertEqual(audioItem?.type, .File)
 		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
-		XCTAssertEqual(item.uid, audioItem?.parent?.uid)
+		//XCTAssertEqual(item.uid, audioItem?.parent?.uid)
 		//XCTAssertTrue((audioItem as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 		
 		// check loaded items
@@ -337,7 +337,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(first?.uid, "disk:/Music/David Arkenstone")
 		XCTAssertEqual(first?.type, .Folder)
 		XCTAssertTrue(first is YandexDiskCloudJsonResource)
-		XCTAssertEqual(item.uid, first?.parent?.uid)
+		//XCTAssertEqual(item.uid, first?.parent?.uid)
 		//XCTAssertTrue((first as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 		
 		audioItem = loadedChilds?.last as? CloudAudioResource
@@ -345,7 +345,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(audioItem?.uid, "disk:/Music/TestTrack.mp3")
 		XCTAssertEqual(audioItem?.type, .File)
 		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
-		XCTAssertEqual(item.uid, audioItem?.parent?.uid)
+		//XCTAssertEqual(item.uid, audioItem?.parent?.uid)
 		//XCTAssertTrue((audioItem as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 	}
 	
@@ -416,6 +416,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		//	XCTFail("Data not cached")
 		//	return
 		//}
+		
 		let realm = try! Realm()
 		XCTAssertEqual(10, realm.objects(RealmCloudResource).count)
 		//XCTAssertEqual(JSON.getJsonFromFile("YandexRoot"), JSON(data: cachedData), "Sended json should be same as cached")
@@ -426,7 +427,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		let cachedRootExpectation = expectationWithDescription("Ahould return cached root items")
 		
 		let cachedJson = JSON.getJsonFromFile("YandexRoot")!
-		let yandexRoot = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().first()!
+		let yandexRoot = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
 		let cacheProvider = RealmCloudResourceCacheProvider()
 		cacheProvider.cacheChilds(yandexRoot, childs: yandexRoot.deserializeResponse(cachedJson))
 		
@@ -499,8 +500,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(first?.uid, "disk:/Music/Apocalyptica")
 		XCTAssertEqual(first?.type, .Folder)
 		XCTAssertTrue(first is YandexDiskCloudJsonResource)
-		XCTAssertEqual(musicResource.uid, first?.parent?.uid)
-		XCTAssertTrue(first?.parent as? YandexDiskCloudJsonResource === musicResource)
+		//XCTAssertEqual(musicResource.uid, first?.parent?.uid)
+		//XCTAssertTrue(first?.parent as? YandexDiskCloudJsonResource === musicResource)
 		//XCTAssertTrue((first as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 		
 		let audioItem = response.last?.last as? CloudAudioResource
@@ -508,8 +509,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(audioItem?.uid, "disk:/Music/CachedTrack.mp3")
 		XCTAssertEqual(audioItem?.type, .File)
 		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
-		XCTAssertTrue(audioItem?.parent as? YandexDiskCloudJsonResource === musicResource)
-		XCTAssertEqual(musicResource.uid, audioItem?.parent?.uid)
+		//XCTAssertTrue(audioItem?.parent as? YandexDiskCloudJsonResource === musicResource)
+		//XCTAssertEqual(musicResource.uid, audioItem?.parent?.uid)
 		//XCTAssertTrue((audioItem as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 	}
 	
@@ -551,8 +552,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(first?.uid, "disk:/Music/David Arkenstone")
 		XCTAssertEqual(first?.type, .Folder)
 		XCTAssertTrue(first is YandexDiskCloudJsonResource)
-		XCTAssertEqual(musicResource.uid, first?.parent?.uid)
-		XCTAssertTrue(first?.parent as? YandexDiskCloudJsonResource === musicResource)
+		//XCTAssertEqual(musicResource.uid, first?.parent?.uid)
+		//XCTAssertTrue(first?.parent as? YandexDiskCloudJsonResource === musicResource)
 		//XCTAssertTrue((first as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 		
 		let audioItem = response.last?.last as? CloudAudioResource
@@ -560,8 +561,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(audioItem?.uid, "disk:/Music/TestTrack.mp3")
 		XCTAssertEqual(audioItem?.type, .File)
 		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
-		XCTAssertEqual(musicResource.uid, audioItem?.parent?.uid)
-		XCTAssertTrue(audioItem?.parent as? YandexDiskCloudJsonResource === musicResource)
+		//XCTAssertEqual(musicResource.uid, audioItem?.parent?.uid)
+		//XCTAssertTrue(audioItem?.parent as? YandexDiskCloudJsonResource === musicResource)
 		//XCTAssertTrue((audioItem as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 	}
 }
