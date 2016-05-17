@@ -22,6 +22,7 @@ public protocol OAuthType {
 }
 
 public class OAuthAuthenticator {
+	public init() { }
 	public static let sharedInstance = OAuthAuthenticator()
 	public var connections = [String: OAuthType]()
 	internal let newAuthenticationSubject = PublishSubject<OAuthType>()
