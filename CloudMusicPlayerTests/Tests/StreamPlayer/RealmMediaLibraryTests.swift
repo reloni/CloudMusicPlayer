@@ -10,17 +10,6 @@ import XCTest
 @testable import CloudMusicPlayer
 import RealmSwift
 
-//extension RealmMediaItemMetadata {
-//	public convenience init(uid: String, title: String?, album: String?, artist: String?, artwork: NSData?, duration: Float?) {
-//		self.init(uid: uid)
-//		self.title = title
-//		self.album = album
-//		self.artist = artist
-//		self.artwork = artwork
-//		self.internalDuration.value = duration
-//	}
-//}
-
 class RealmMediaLibraryTests: XCTestCase {
 	
 	override func setUp() {
@@ -63,7 +52,67 @@ class RealmMediaLibraryTests: XCTestCase {
 		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.albums.first?.name, metadata.album)
 	}
 	
-	func testUpdateExistedMetadata() {
+	func testAddMetadataItemWithnknownArtist() {
+		let metadata = MediaItemMetadata(resourceUid: "testuid", artist: nil, title: "Test title", album: "test album",
+		                                 artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56)
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		let track = try! lib.saveMetadata(metadata, updateExistedObjects: true)
+		
+		XCTAssertEqual(track?.uid, metadata.resourceUid)
+		XCTAssertEqual(track?.album.name, metadata.album)
+		XCTAssertEqual(track?.artist.name, RealmMediaLibrary.unknownArtist.name)
+		XCTAssertEqual(track?.album.artwork, metadata.artwork)
+		XCTAssertEqual(track?.title, metadata.title)
+		XCTAssertEqual(track?.duration, metadata.duration)
+		
+		let realm = try! Realm()
+		let realmArtist = realm.objects(RealmArtist).first
+		XCTAssertEqual(realmArtist?.name, RealmMediaLibrary.unknownArtist.name)
+		XCTAssertEqual(realmArtist?.albums.first?.name, metadata.album)
+		XCTAssertEqual(realmArtist?.albums.first?.tracks.first?.title, metadata.title)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.name, RealmMediaLibrary.unknownArtist.name)
+		XCTAssertEqual(realm.objects(RealmArtist).count, 1)
+		XCTAssertEqual(realm.objects(RealmAlbum).count, 1)
+		XCTAssertEqual(realm.objects(RealmTrack).count, 1)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.tracks.first?.title, metadata.title)
+		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.name, RealmMediaLibrary.unknownArtist.name)
+		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.albums.first?.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmArtist).first?.name, RealmMediaLibrary.unknownArtist.name)
+		XCTAssertEqual(realm.objects(RealmArtist).first?.albums.first?.name, metadata.album)
+	}
+	
+	func testAddMetadataItemWithnknownArtistAndAlbum() {
+		let metadata = MediaItemMetadata(resourceUid: "testuid", artist: nil, title: "Test title", album: nil,
+		                                 artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56)
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		let track = try! lib.saveMetadata(metadata, updateExistedObjects: true)
+		
+		XCTAssertEqual(track?.uid, metadata.resourceUid)
+		XCTAssertEqual(track?.album.name, RealmMediaLibrary.unknownAlbum.name)
+		XCTAssertEqual(track?.artist.name, RealmMediaLibrary.unknownArtist.name)
+		XCTAssertEqual(track?.album.artwork, RealmMediaLibrary.unknownAlbum.artwork)
+		XCTAssertEqual(track?.title, metadata.title)
+		XCTAssertEqual(track?.duration, metadata.duration)
+		
+		let realm = try! Realm()
+		let realmArtist = realm.objects(RealmArtist).first
+		XCTAssertEqual(realmArtist?.name, RealmMediaLibrary.unknownArtist.name)
+		XCTAssertEqual(realmArtist?.albums.first?.name, RealmMediaLibrary.unknownAlbum.name)
+		XCTAssertEqual(realmArtist?.albums.first?.tracks.first?.title, metadata.title)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, RealmMediaLibrary.unknownAlbum.name)
+		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.name, RealmMediaLibrary.unknownArtist.name)
+		XCTAssertEqual(realm.objects(RealmArtist).count, 1)
+		XCTAssertEqual(realm.objects(RealmAlbum).count, 1)
+		XCTAssertEqual(realm.objects(RealmTrack).count, 1)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, RealmMediaLibrary.unknownAlbum.name)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.tracks.first?.title, metadata.title)
+		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.name, RealmMediaLibrary.unknownArtist.name)
+		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.albums.first?.name, RealmMediaLibrary.unknownAlbum.name)
+	}
+	
+	func testCreateNewArtistAndAlbumForUpdatedTrack() {
 		var metadata = MediaItemMetadata(resourceUid: "testuid", artist: "Test artist", title: "Test title", album: "test album",
 		                                 artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56)
 		let lib = RealmMediaLibrary() as MediaLibraryType
@@ -72,6 +121,8 @@ class RealmMediaLibraryTests: XCTestCase {
 		metadata.artist = "updated artist"
 		metadata.title = "updated title"
 		metadata.album = "updated album"
+		metadata.artwork = "updated artwork".dataUsingEncoding(NSUTF8StringEncoding)
+		metadata.duration = 2.65
 		
 		let updatedTrack = lib.saveMetadataSafe(metadata, updateExistedObjects: true)
 		XCTAssertEqual(updatedTrack?.title, metadata.title)
@@ -79,19 +130,122 @@ class RealmMediaLibraryTests: XCTestCase {
 		XCTAssertEqual(updatedTrack?.artist.name, metadata.artist)
 		
 		let realm = try! Realm()
-		let realmArtist = realm.objects(RealmArtist).first
-		XCTAssertEqual(realmArtist?.name, metadata.artist)
-		XCTAssertEqual(realmArtist?.albums.first?.name, metadata.album)
-		XCTAssertEqual(realmArtist?.albums.first?.tracks.first?.title, metadata.title)
+		let realmTrack = realm.objects(RealmTrack).first
+		XCTAssertEqual(realmTrack?.title, metadata.title)
+		XCTAssertEqual(realmTrack?.duration, metadata.duration)
+		XCTAssertEqual(realmTrack?.album.name, metadata.album)
+		XCTAssertEqual(realmTrack?.album.artist.name, metadata.artist)
+		XCTAssertEqual(realmTrack?.album.artwork, metadata.artwork)
 		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
-		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.name, metadata.artist)
-		XCTAssertEqual(realm.objects(RealmArtist).count, 1)
-		XCTAssertEqual(realm.objects(RealmAlbum).count, 1)
+		XCTAssertEqual(realm.objects(RealmArtist).count, 2)
+		XCTAssertEqual(realm.objects(RealmAlbum).count, 2)
 		XCTAssertEqual(realm.objects(RealmTrack).count, 1)
 		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
 		XCTAssertEqual(realm.objects(RealmTrack).first?.album.tracks.first?.title, metadata.title)
-		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.name, metadata.artist)
-		XCTAssertEqual(realm.objects(RealmAlbum).first?.artist.albums.first?.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmAlbum).filter("name = %@", "test album").first?.tracks.count, 0)
+		XCTAssertEqual(realm.objects(RealmAlbum).filter("name = %@", "test album").first?.artist.name, "Test artist")
+	}
+	
+	func testCreateNewArtistAndAlbumForUpdatedTrackIfNowTrackBelongsToUnknownArtistAndAlbum() {
+		var metadata = MediaItemMetadata(resourceUid: "testuid", artist: nil, title: "Test title", album: nil,
+		                                 artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56)
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		lib.saveMetadataSafe(metadata, updateExistedObjects: true)
+		
+		metadata.artist = "updated artist"
+		metadata.title = "updated title"
+		metadata.album = "updated album"
+		metadata.artwork = "updated artwork".dataUsingEncoding(NSUTF8StringEncoding)
+		metadata.duration = 2.65
+		
+		let updatedTrack = lib.saveMetadataSafe(metadata, updateExistedObjects: true)
+		XCTAssertEqual(updatedTrack?.title, metadata.title)
+		XCTAssertEqual(updatedTrack?.album.name, metadata.album)
+		XCTAssertEqual(updatedTrack?.artist.name, metadata.artist)
+		
+		let realm = try! Realm()
+		let realmTrack = realm.objects(RealmTrack).first
+		XCTAssertEqual(realmTrack?.title, metadata.title)
+		XCTAssertEqual(realmTrack?.duration, metadata.duration)
+		XCTAssertEqual(realmTrack?.album.name, metadata.album)
+		XCTAssertEqual(realmTrack?.album.artist.name, metadata.artist)
+		XCTAssertEqual(realmTrack?.album.artwork, metadata.artwork)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmArtist).count, 2)
+		XCTAssertEqual(realm.objects(RealmAlbum).count, 2)
+		XCTAssertEqual(realm.objects(RealmTrack).count, 1)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.tracks.first?.title, metadata.title)
+		XCTAssertEqual(realm.objects(RealmArtist).filter("uid = %@", RealmMediaLibrary.unknownArtist.uid).first?.albums.first?.tracks.count, 0)
+		XCTAssertEqual(realm.objects(RealmArtist).filter("name = %@", metadata.artist!).first?.albums.first?.tracks.first?.title, metadata.title)
+	}
+	
+	func testCreateNewArtistAndAlbumForUpdatedTrackEvenIfAlbumNameUnchanged() {
+		var metadata = MediaItemMetadata(resourceUid: "testuid", artist: "Test artist", title: "Test title", album: "test album",
+		                                 artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56)
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		lib.saveMetadataSafe(metadata, updateExistedObjects: true)
+		
+		metadata.artist = "updated artist"
+		metadata.title = "updated title"
+		metadata.artwork = "updated artwork".dataUsingEncoding(NSUTF8StringEncoding)
+		metadata.duration = 2.65
+		
+		let updatedTrack = lib.saveMetadataSafe(metadata, updateExistedObjects: true)
+		XCTAssertEqual(updatedTrack?.title, metadata.title)
+		XCTAssertEqual(updatedTrack?.album.name, metadata.album)
+		XCTAssertEqual(updatedTrack?.artist.name, metadata.artist)
+		
+		let realm = try! Realm()
+		let realmTrack = realm.objects(RealmTrack).first
+		XCTAssertEqual(realmTrack?.title, metadata.title)
+		XCTAssertEqual(realmTrack?.duration, metadata.duration)
+		XCTAssertEqual(realmTrack?.album.name, metadata.album)
+		XCTAssertEqual(realmTrack?.album.artist.name, metadata.artist)
+		XCTAssertEqual(realmTrack?.album.artwork, metadata.artwork)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmArtist).count, 2)
+		XCTAssertEqual(realm.objects(RealmAlbum).count, 2)
+		XCTAssertEqual(realm.objects(RealmTrack).count, 1)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.tracks.first?.title, metadata.title)
+		XCTAssertEqual(realm.objects(RealmAlbum).filter("name = %@", "test album").first?.tracks.count, 0)
+		XCTAssertEqual(realm.objects(RealmAlbum).filter("name = %@", "test album").first?.artist.name, "Test artist")
+		XCTAssertEqual(realm.objects(RealmAlbum).filter("name = %@", "test album").last?.artist.name, metadata.artist)
+		XCTAssertEqual(realm.objects(RealmAlbum).filter("name = %@", "test album").count, 2)
+	}
+	
+	func testCreateNewAlbumForUpdatedTrack() {
+		var metadata = MediaItemMetadata(resourceUid: "testuid", artist: "Test artist", title: "Test title", album: "test album",
+		                                 artwork: "test artwork".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.56)
+		let lib = RealmMediaLibrary() as MediaLibraryType
+		lib.saveMetadataSafe(metadata, updateExistedObjects: true)
+		
+		metadata.title = "updated title"
+		metadata.album = "updated album"
+		metadata.artwork = "updated artwork".dataUsingEncoding(NSUTF8StringEncoding)
+		metadata.duration = 2.65
+		
+		let updatedTrack = lib.saveMetadataSafe(metadata, updateExistedObjects: true)
+		XCTAssertEqual(updatedTrack?.title, metadata.title)
+		XCTAssertEqual(updatedTrack?.album.name, metadata.album)
+		XCTAssertEqual(updatedTrack?.artist.name, metadata.artist)
+		
+		let realm = try! Realm()
+		let realmTrack = realm.objects(RealmTrack).first
+		XCTAssertEqual(realmTrack?.title, metadata.title)
+		XCTAssertEqual(realmTrack?.duration, metadata.duration)
+		XCTAssertEqual(realmTrack?.album.name, metadata.album)
+		XCTAssertEqual(realmTrack?.album.artist.name, metadata.artist)
+		XCTAssertEqual(realmTrack?.album.artwork, metadata.artwork)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmArtist).count, 1)
+		XCTAssertEqual(realm.objects(RealmAlbum).count, 2)
+		XCTAssertEqual(realm.objects(RealmTrack).count, 1)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.name, metadata.album)
+		XCTAssertEqual(realm.objects(RealmTrack).first?.album.tracks.first?.title, metadata.title)
+		XCTAssertEqual(realm.objects(RealmAlbum).filter("name = %@", "test album").first?.tracks.count, 0)
+		XCTAssertEqual(realm.objects(RealmAlbum).filter("name = %@", "test album").first?.artist.name, "Test artist")
 	}
 	
 	func testNotUpdateExistedObjects() {
@@ -166,7 +320,7 @@ class RealmMediaLibraryTests: XCTestCase {
 		XCTAssertEqual(realmPl?.uid, createdPl.uid)
 		XCTAssertEqual(realmPl?.items.count, createdPl.items.count)
 	}
-//
+
 	func testReturnEmptyPlayListByUid() {
 		let pl = RealmPlayList(uid: "testuid", name: "my play list")
 		let realm = try! Realm()
@@ -208,7 +362,26 @@ class RealmMediaLibraryTests: XCTestCase {
 		
 		XCTAssertEqual(realmPl?.items.count, 3)
 	}
+	
+	func testNotAddTracksToNotExistedPlayList() {
+		let lib = RealmMediaLibrary()
+		
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid1", artist: "Test artist1", title: "Test title1", album: "test album1",
+			artwork: "test artwork1".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.1), updateExistedObjects: true)
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid2", artist: "Test artist2", title: "Test title2", album: "test album2",
+			artwork: "test artwork2".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.2), updateExistedObjects: true)
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid3", artist: "Test artist3", title: "Test title3", album: "test album3",
+			artwork: "test artwork3".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.3), updateExistedObjects: true)
+		
+		let createdPl = try! lib.createPlayList("super play list")
+		try! lib.deletePlayList(createdPl)
+		
+		try! lib.addTracksToPlayList(createdPl, tracks: try! lib.getTracks().map { $0 })
 
+		let realm = try! Realm()		
+		XCTAssertEqual(realm.objects(RealmPlayList).count, 0)
+	}
+	
 	func testReturnPlayListWithItemsByUid() {
 		let lib = RealmMediaLibrary()
 		
@@ -481,5 +654,39 @@ class RealmMediaLibraryTests: XCTestCase {
 			artwork: "test artwork2".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.2), updateExistedObjects: true)
 		
 		XCTAssertFalse(try! lib.isTrackContainsInPlayList(createdPl, track: try! lib.getTrackByUid("testuid3")!))
+	}
+	
+	func testReturnAllArtists() {
+		let lib = RealmMediaLibrary()
+		
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid1", artist: "Test artist1", title: "Test title1", album: "test album1",
+			artwork: "test artwork1".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.1), updateExistedObjects: true)
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid2", artist: "Test artist2", title: "Test title2", album: "test album2",
+			artwork: "test artwork2".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.2), updateExistedObjects: true)
+		let createdPl = try! lib.createPlayList("super play list")
+		try! lib.addTracksToPlayList(createdPl, tracks: try! lib.getTracks().map { $0 })
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid3", artist: "Test artist2", title: "Test title3", album: "test album2",
+			artwork: "test artwork2".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.2), updateExistedObjects: true)
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid4", artist: nil, title: "Test title3", album: "test album2",
+			artwork: "test artwork2".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.2), updateExistedObjects: true)
+		
+		XCTAssertEqual(try! lib.getArtists().count, 3)
+	}
+	
+	func testReturnAllAlbums() {
+		let lib = RealmMediaLibrary()
+		
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid1", artist: "Test artist1", title: "Test title1", album: "test album1",
+			artwork: "test artwork1".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.1), updateExistedObjects: true)
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid2", artist: "Test artist2", title: "Test title2", album: "test album2",
+			artwork: "test artwork2".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.2), updateExistedObjects: true)
+		let createdPl = try! lib.createPlayList("super play list")
+		try! lib.addTracksToPlayList(createdPl, tracks: try! lib.getTracks().map { $0 })
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid3", artist: "Test artist2", title: "Test title3", album: "test album2",
+			artwork: "test artwork2".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.2), updateExistedObjects: true)
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid4", artist: nil, title: "Test title3", album: "test album2",
+			artwork: "test artwork2".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.2), updateExistedObjects: true)
+		
+		XCTAssertEqual(try! lib.getAlbums().count, 3)
 	}
 }

@@ -17,23 +17,32 @@ public class RealmMediaLibrary {
 		return try Realm()
 	}
 	
-//	internal lazy var unknownArtist: RealmArtist = { [unowned self] in
-//		guard let artist = try! self.getRealm().objects(RealmArtist).filter("uid = %@", "unknown_artist").first else {
-//			return RealmArtist(uid: "unknown_artist", name: "Unknown artist")
-//		}
-//		return artist
-//	}()
-//	
-//	internal lazy var unknownAlbum: RealmAlbum = { [unowned self] in
-//		guard let album = try! self.getRealm().objects(RealmAlbum).filter("uid = %@", "unknown_album").first else {
-//			let album = RealmAlbum(uid: "unknown_album", name: "Unknown album")
-//			album.artistInternal = self.unknownArtist
-//			return album
-//		}
-//		return album
-//	}()
+	internal static let unknownArtist = (uid: "unknown_artist", name: "Unknown artist")
+	internal static let unknownAlbum: (uid: String, artwork: NSData?, name: String) = (uid: "unknown_album", artwork: nil, name: "Unknown album")
 	
-	internal func getOrCreateArtist(realm: Realm, name: String) throws -> RealmArtist {
+	internal func getUnknownArtist(realm: Realm) -> RealmArtist {
+		guard let artist = realm.objects(RealmArtist).filter("uid = %@", "unknown_artist").first else {
+			let artist = RealmArtist(uid: RealmMediaLibrary.unknownArtist.uid, name: RealmMediaLibrary.unknownArtist.name)
+			realm.add(artist)
+			return artist
+		}
+		return artist
+	}
+	
+	internal func getUnknownAlbum(realm: Realm) -> RealmAlbum {
+		guard let album = realm.objects(RealmAlbum).filter("uid = %@", "unknown_album").first else {
+			let album = RealmAlbum(uid: RealmMediaLibrary.unknownAlbum.uid, name: RealmMediaLibrary.unknownAlbum.name)
+			album.artwork = RealmMediaLibrary.unknownAlbum.artwork
+			album.artistInternal = self.getUnknownArtist(realm)
+			album.artistInternal?.albumsInternal.append(album)
+			realm.add(album)
+			return album
+		}
+		return album
+	}
+	
+	internal func getOrCreateArtist(realm: Realm, name: String?) throws -> RealmArtist {
+		guard let name = name else { return getUnknownArtist(realm) }
 		if let artist = realm.objects(RealmArtist).filter("name = %@", name).first {
 			return artist
 		} else {
@@ -43,16 +52,20 @@ public class RealmMediaLibrary {
 		}
 	}
 	
-	internal func getOrCreateAlbum(realm: Realm, name: String, artwork: NSData?, artistName: String, updateIfExisted: Bool) throws -> RealmAlbum {
-		if let album = realm.objects(RealmAlbum).filter("name = %@", name).first {
-			if updateIfExisted {
+	internal func getOrCreateAlbum(realm: Realm, name: String?, artwork: NSData?, artistName: String?, updateIfExisted: Bool) throws -> RealmAlbum {
+		guard let name = name else { return getUnknownAlbum(realm) }
+		
+		// check artist and album by name (now album name is unique in artist scope)
+		let artist = try getOrCreateArtist(realm, name: artistName)
+		if let album = artist.albumsInternal.filter("name = %@", name).first {
+			if updateIfExisted && album.uid != RealmMediaLibrary.unknownAlbum.uid {
 				album.artwork = artwork
 			}
 			return album
 		} else {
 			let album = RealmAlbum(uid: NSUUID().UUIDString, name: name)
 			album.artwork = artwork
-			album.artistInternal = try getOrCreateArtist(realm, name: artistName)
+			album.artistInternal = artist
 			album.artistInternal?.albumsInternal.append(album)
 			realm.add(album)
 			return album
@@ -64,14 +77,25 @@ public class RealmMediaLibrary {
 			if updateIfExisted {
 				if let title = metadata.title { track.title = title }
 				if let duration = metadata.duration { track.duration = duration }
-				if let albumName = metadata.album { track.albumInternal?.name = albumName }
-				if let artistName = metadata.artist { track.albumInternal?.artistInternal?.name = artistName }
+				
+				// update related album only if it's not a built in unknown object
+				//if track.albumInternal?.uid != RealmMediaLibrary.unknownAlbum.uid {
+					let returnedAlbum =
+						try getOrCreateAlbum(realm, name: metadata.album, artwork: metadata.artwork, artistName: metadata.artist, updateIfExisted: updateIfExisted)
+					
+					// if returned album not equal to current album, move track to new album
+					if returnedAlbum.uid != track.albumInternal?.uid {
+						if let index = track.albumInternal?.tracksInternal.indexOf(track) { track.albumInternal?.tracksInternal.removeAtIndex(index) }
+						track.albumInternal = returnedAlbum
+						track.albumInternal?.tracksInternal.append(track)
+					}
+				//}
 			}
 			return track
 		} else {
-			let track = RealmTrack(uid: metadata.resourceUid, title: metadata.title ?? "Unknown title", duration: metadata.duration ?? 0)
-			let album = try getOrCreateAlbum(realm, name: metadata.album ?? "Unknown album", artwork: metadata.artwork,
-			                                 artistName: metadata.artist ?? "Unknown artist", updateIfExisted: updateIfExisted)
+			let track = RealmTrack(uid: metadata.resourceUid, title: metadata.title ?? "Empty title", duration: metadata.duration ?? 0)
+			let album = try getOrCreateAlbum(realm, name: metadata.album, artwork: metadata.artwork,
+			                                 artistName: metadata.artist, updateIfExisted: updateIfExisted)
 
 			track.albumInternal = album
 			album.tracksInternal.append(track); realm.add(track)
@@ -149,6 +173,8 @@ extension RealmMediaLibrary : MediaLibraryType {
 	}
 	
 	public func clearPlayList(playList: PlayListType) throws {
+		if let invalidated = (playList as? RealmPlayList)?.invalidated where invalidated { return }
+		
 		let realm = try getRealm()
 		
 		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return }
@@ -156,6 +182,8 @@ extension RealmMediaLibrary : MediaLibraryType {
 	}
 	
 	public func deletePlayList(playList: PlayListType) throws {
+		if let invalidated = (playList as? RealmPlayList)?.invalidated where invalidated { return }
+		
 		let realm = try getRealm()
 		
 		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return }
@@ -163,6 +191,8 @@ extension RealmMediaLibrary : MediaLibraryType {
 	}
 	
 	public func addTracksToPlayList(playList: PlayListType, tracks: [TrackType]) throws -> PlayListType {
+		if let invalidated = (playList as? RealmPlayList)?.invalidated where invalidated { return playList }
+		
 		let realm = try getRealm()
 		
 		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return playList }
@@ -183,15 +213,23 @@ extension RealmMediaLibrary : MediaLibraryType {
 	}
 	
 	public func removeTracksFromPlayList(playList: PlayListType, tracks: [TrackType]) throws -> PlayListType {
+		if let invalidated = (playList as? RealmPlayList)?.invalidated where invalidated { return playList }
+		
 		let realm = try getRealm()
 		
 		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return playList }
 		
 		try realm.write {
-			tracks.forEach { track in
+			//tracks.forEach { track in
+			//	if let realmMetadataItemIndex = realmPlayList.itemsInternal.indexOf("uid = %@", track.uid) {
+			//		realmPlayList.itemsInternal.removeAtIndex(realmMetadataItemIndex)
+			//	}
+			//}
+			for track in tracks {
+				if let invalidated = (track as? RealmTrack)?.invalidated where invalidated { continue }
 				if let realmMetadataItemIndex = realmPlayList.itemsInternal.indexOf("uid = %@", track.uid) {
-					realmPlayList.itemsInternal.removeAtIndex(realmMetadataItemIndex)
-				}
+						realmPlayList.itemsInternal.removeAtIndex(realmMetadataItemIndex)
+					}
 			}
 		}
 		
@@ -199,6 +237,7 @@ extension RealmMediaLibrary : MediaLibraryType {
 	}
 	
 	public func isTrackContainsInPlayList(playList: PlayListType, track: TrackType) throws -> Bool {
+		if let invalidated = (playList as? RealmPlayList)?.invalidated where invalidated { return false }
 		guard let realmPlayList = try getRealm().objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return false }
 		return realmPlayList.itemsInternal.filter("uid = %@", track.uid).count > 0
 	}
@@ -212,6 +251,7 @@ extension RealmMediaLibrary : MediaLibraryType {
 	}
 	
 	public func renamePlayList(playList: PlayListType, newName: String) throws {
+		if let invalidated = (playList as? RealmPlayList)?.invalidated where invalidated { return }
 		guard let realmPl = try getPlayListByUid(playList.uid) else { return }
 		try getRealm().write {
 			var pl = realmPl
