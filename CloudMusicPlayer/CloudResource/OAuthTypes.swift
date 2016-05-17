@@ -15,25 +15,27 @@ public struct YandexOAuth {
 	public let baseAuthUrl: String
 	public let urlScheme: String
 	public let urlParameters: [String: String]
+	public let keychain: KeychainType
 	
 	internal var tokenKeychainId: String {
 		return "\(YandexOAuth.id)_accessToken"
 	}
 	
 	internal var refreshTokenKeychainId: String {
-		return "\(YandexOAuth.id)_accessToken"
+		return "\(YandexOAuth.id)_refreshToken"
 	}
 	
-	public init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, clientId: String) {
+	public init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, clientId: String, keychain: KeychainType) {
 		self.baseAuthUrl = baseAuthUrl
 		self.urlParameters = urlParameters
 		self.urlScheme = urlScheme
 		self.clientId = clientId
+		self.keychain = keychain
 	}
 	
-	public init(clientId: String, urlScheme: String) {
+	public init(clientId: String, urlScheme: String, keychain: KeychainType) {
 		self.init(baseAuthUrl: "https://oauth.yandex.ru/authorize", urlParameters: ["response_type": "token"],
-		          urlScheme: urlScheme, clientId:  clientId)
+		          urlScheme: urlScheme, clientId:  clientId, keychain: keychain)
 	}
 }
 
@@ -49,11 +51,11 @@ extension YandexOAuth : OAuthType {
 	}
 	
 	public var accessToken: String? {
-		return Keychain().stringForAccount(tokenKeychainId)
+		return keychain.stringForAccount(tokenKeychainId)
 	}
 	
 	public var refreshToken: String? {
-		return Keychain().stringForAccount(refreshTokenKeychainId)
+		return keychain.stringForAccount(refreshTokenKeychainId)
 	}
 	
 	public func canParseCallbackUrl(url: String) -> Bool {
@@ -69,7 +71,7 @@ extension YandexOAuth : OAuthType {
 				let substring = url.substringFromIndex(start)
 				let end = substring.rangeOfString("&")?.startIndex ?? substring.endIndex
 				
-				Keychain().setString(substring.substringWithRange(substring.startIndex..<end), forAccount: self.tokenKeychainId, synchronizable: true, background: false)
+				self.keychain.setString(substring.substringWithRange(substring.startIndex..<end), forAccount: self.tokenKeychainId, synchronizable: true, background: false)
 				observer.onNext(self)
 			}
 			
@@ -84,8 +86,8 @@ extension YandexOAuth : OAuthType {
 	}
 	
 	public func clearTokens() {
-		Keychain().setString(nil, forAccount: tokenKeychainId, synchronizable: true, background: false)
-		Keychain().setString(nil, forAccount: refreshTokenKeychainId, synchronizable: true, background: false)
+		keychain.setString(nil, forAccount: tokenKeychainId, synchronizable: true, background: false)
+		keychain.setString(nil, forAccount: refreshTokenKeychainId, synchronizable: true, background: false)
 		OAuthAuthenticator.sharedInstance.newAuthenticationSubject.onNext(self)
 	}
 }
@@ -106,7 +108,7 @@ public struct GoogleOAuth {
 	}
 	
 	internal var refreshTokenKeychainId: String {
-		return "\(YandexOAuth.id)_accessToken"
+		return "\(YandexOAuth.id)_refreshToken"
 	}
 	
 	public init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, redirectUri: String,
@@ -121,10 +123,10 @@ public struct GoogleOAuth {
 		self.keychain = keychain
 	}
 	
-	public init(clientId: String, urlScheme: String, redirectUri: String, scopes: [String]) {
+	public init(clientId: String, urlScheme: String, redirectUri: String, scopes: [String], keychain: KeychainType) {
 		self.init(baseAuthUrl: "https://accounts.google.com/o/oauth2/v2/auth", urlParameters: ["response_type": "code"],
 		          urlScheme: urlScheme, redirectUri: redirectUri, scopes: scopes, tokenUrl: "https://www.googleapis.com/oauth2/v4/token",
-		          clientId:  clientId, keychain: Keychain())
+		          clientId:  clientId, keychain: keychain)
 	}
 }
 

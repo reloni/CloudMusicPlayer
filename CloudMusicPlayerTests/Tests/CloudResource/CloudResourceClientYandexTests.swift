@@ -406,7 +406,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		let client = CloudResourceClient(cacheProvider: cacheProvider)
 		//YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, cacheProvider: cacheProvider)?.bindNext { _ in
-		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).bindNext { _ in
+		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).doOnError { _ in XCTFail("Request failed") }.bindNext { _ in
 			expectation.fulfill()
 			}.addDisposableTo(bag)
 		

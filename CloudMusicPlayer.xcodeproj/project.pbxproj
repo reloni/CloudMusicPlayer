@@ -65,6 +65,7 @@
 		6E8554551CEB575100A6FC4E /* YandexOAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8554541CEB575100A6FC4E /* YandexOAuthTests.swift */; };
 		6E8554571CEB5AFB00A6FC4E /* KeychainExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8554561CEB5AFB00A6FC4E /* KeychainExtensions.swift */; };
 		6E8554591CEB5B3900A6FC4E /* OAuthExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8554581CEB5B3900A6FC4E /* OAuthExtensions.swift */; };
+		6E85545B1CEB7C0A00A6FC4E /* FakeKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E85545A1CEB7C0A00A6FC4E /* FakeKeychain.swift */; };
 		6E87A9F81CB146F500F999FB /* MemoryCacheProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E87A9F71CB146F500F999FB /* MemoryCacheProviderTests.swift */; };
 		6E89443B1CD1F77900BCE0B1 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8944391CD1F77900BCE0B1 /* Realm.framework */; };
 		6E89443C1CD1F77900BCE0B1 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E89443A1CD1F77900BCE0B1 /* RealmSwift.framework */; };
@@ -196,6 +197,7 @@
 		6E8554541CEB575100A6FC4E /* YandexOAuthTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexOAuthTests.swift; sourceTree = "<group>"; };
 		6E8554561CEB5AFB00A6FC4E /* KeychainExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainExtensions.swift; sourceTree = "<group>"; };
 		6E8554581CEB5B3900A6FC4E /* OAuthExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthExtensions.swift; sourceTree = "<group>"; };
+		6E85545A1CEB7C0A00A6FC4E /* FakeKeychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeKeychain.swift; sourceTree = "<group>"; };
 		6E87A9F71CB146F500F999FB /* MemoryCacheProviderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryCacheProviderTests.swift; sourceTree = "<group>"; };
 		6E8944391CD1F77900BCE0B1 /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Realm.framework; path = Carthage/Build/iOS/Realm.framework; sourceTree = "<group>"; };
 		6E89443A1CD1F77900BCE0B1 /* RealmSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RealmSwift.framework; path = Carthage/Build/iOS/RealmSwift.framework; sourceTree = "<group>"; };
@@ -599,6 +601,7 @@
 				6EECECD11C97F664007B37CC /* FakeCloudResource.swift */,
 				6E5159011CA3D61D001FD036 /* FakeStreamPlayer.swift */,
 				6EDB49841CBE489700F82E02 /* FakeNSUserDefaults.swift */,
+				6E85545A1CEB7C0A00A6FC4E /* FakeKeychain.swift */,
 			);
 			name = Support;
 			path = CloudMusicPlayerTests/Support;
@@ -866,6 +869,7 @@
 				6E8554551CEB575100A6FC4E /* YandexOAuthTests.swift in Sources */,
 				6E38CE151CE4C72600B103C7 /* CloudResourceLoaderTests.swift in Sources */,
 				6E3572F61CBD25E7008FAC87 /* DownloadManagerTests.swift in Sources */,
+				6E85545B1CEB7C0A00A6FC4E /* FakeKeychain.swift in Sources */,
 				6E677F441CB7DDB0004EFC42 /* RxPlayerQueueTests.swift in Sources */,
 				6E3572F21CBD067D008FAC87 /* LocalFileStreamDataTaskTests.swift in Sources */,
 				6EDB49851CBE489700F82E02 /* FakeNSUserDefaults.swift in Sources */,
