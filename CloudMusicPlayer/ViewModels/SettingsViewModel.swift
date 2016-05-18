@@ -10,29 +10,61 @@ import Foundation
 import RxSwift
 
 internal class SettingsViewModel {
-	internal let yandexOauth = OAuthResourceManager.getYandexResource()
-	internal let googleOauth = OAuthResourceManager.getGoogleResource()
-	internal let isYandexSetUp: Variable<Bool>
-	internal let isGoogleSetUp: Variable<Bool>
-	private let bag = DisposeBag()
+	//internal let yandexOauth = OAuthResourceManager.getYandexResource()
+	//internal let googleOauth = OAuthResourceManager.getGoogleResource()
+	//internal let isYandexSetUp: Variable<Bool>
+	//internal let isGoogleSetUp: Variable<Bool>
+	//private let bag = DisposeBag()
 	init() {
-		isYandexSetUp = Variable(yandexOauth.tokenId != nil)
-		isGoogleSetUp = Variable(googleOauth.tokenId != nil)
-		
-		if let yandexOauth = yandexOauth as? OAuthResourceBase {
-			yandexOauth.rx_observe(String.self, "tokenId").subscribeNext { [weak self] id in
-				if let strongSelf = self {
-					strongSelf.isYandexSetUp.value = id != nil
+//		isYandexSetUp = Variable(yandexOauth.tokenId != nil)
+//		isGoogleSetUp = Variable(googleOauth.tokenId != nil)
+//		
+//		if let yandexOauth = yandexOauth as? OAuthResourceBase {
+//			yandexOauth.rx_observe(String.self, "tokenId").subscribeNext { [weak self] id in
+//				if let strongSelf = self {
+//					strongSelf.isYandexSetUp.value = id != nil
+//				}
+//			}.addDisposableTo(bag)
+//		}
+//		
+//		if let googleOauth = googleOauth as? OAuthResourceBase {
+//			googleOauth.rx_observe(String.self, "tokenId").subscribeNext { [weak self] id in
+//				if let strongSelf = self {
+//					strongSelf.isGoogleSetUp.value = id != nil
+//				}
+//				}.addDisposableTo(bag)
+//		}
+	}
+	
+	internal var isYandexSetUp: Observable<Bool> {
+		return Observable.create { observer in
+			let oauth = YandexOAuth()
+			
+			observer.onNext(oauth.accessToken != nil)
+			
+			return OAuthAuthenticator.sharedInstance.processedAuthentications.filter {
+				if oauth.oauthTypeId == $0.oauthTypeId {
+					return true
+				} else {
+					return false
 				}
-			}.addDisposableTo(bag)
+			}.flatMap { return Observable.just($0.accessToken != nil) }.bindTo(observer)
 		}
-		
-		if let googleOauth = googleOauth as? OAuthResourceBase {
-			googleOauth.rx_observe(String.self, "tokenId").subscribeNext { [weak self] id in
-				if let strongSelf = self {
-					strongSelf.isGoogleSetUp.value = id != nil
+	}
+	
+	internal var isGoogleSetUp: Observable<Bool> {
+		return Observable.create { observer in
+			let oauth = GoogleOAuth()
+			
+			observer.onNext(oauth.accessToken != nil)
+			
+			return OAuthAuthenticator.sharedInstance.processedAuthentications.filter {
+				if oauth.oauthTypeId == $0.oauthTypeId {
+					return true
+				} else {
+					return false
 				}
-				}.addDisposableTo(bag)
+				}.flatMap { return Observable.just($0.accessToken != nil) }.bindTo(observer)
 		}
 	}
 }

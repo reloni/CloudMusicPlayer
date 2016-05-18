@@ -56,10 +56,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	// настраивается в  Info.plist в разделе URL types/URL Schemes
 	func application(application: UIApplication,
 	                 openURL url: NSURL, options: [String: AnyObject]) -> Bool {
-		if let result = OAuthResourceManager().parseCallbackUrl(url.absoluteString) {
-			result.resource.tokenId = result.token
-			result.resource.saveResource()
-		} 
+		//if let result = OAuthResourceManager().parseCallbackUrl(url.absoluteString) {
+		//	result.resource.tokenId = result.token
+		//	result.resource.saveResource()
+		//}
+		OAuthAuthenticator.sharedInstance.processCallbackUrl(url.absoluteString).doOnCompleted {
+			print("oauth authorization completed")
+			}.doOnNext { oauth in
+				print("type: \(oauth.oauthTypeId) new token: \(oauth.accessToken) refresh token: \(oauth.refreshToken)")
+		}.subscribe().addDisposableTo(bag)
+	
 		return true
 	}
 //	func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {

@@ -12,7 +12,7 @@ import RxSwift
 
 public class YandexDiskCloudJsonResource {
 	public static func getRootResource(httpClient: HttpClientProtocol = HttpClient(),
-	                                   oauth: OAuthResource) -> CloudResource {
+	                                   oauth: OAuthType) -> CloudResource {
 		return YandexDiskCloudJsonResource(raw: JSON(["name": "disk", "path": "/"]), httpClient: httpClient, oauth: oauth)
 	}
 	
@@ -20,7 +20,7 @@ public class YandexDiskCloudJsonResource {
 	public static let resourcesApiUrl = apiUrl + "/resources"
 	public static let typeIdentifier = "YandexDiskCloudResource"
 	public internal (set) var httpClient: HttpClientProtocol
-	public let oAuthResource: OAuthResource
+	public let oAuthResource: OAuthType
 	public var raw: JSON
 	
 	public var rootUrl: String = {
@@ -31,7 +31,7 @@ public class YandexDiskCloudJsonResource {
 		return YandexDiskCloudAudioJsonResource.resourcesApiUrl
 	}()
 	
-	init (raw: JSON, httpClient: HttpClientProtocol, oauth: OAuthResource) {
+	init (raw: JSON, httpClient: HttpClientProtocol, oauth: OAuthType) {
 		self.raw = raw
 		//self.parent = parent
 		self.oAuthResource = oauth
@@ -39,7 +39,7 @@ public class YandexDiskCloudJsonResource {
 	}
 	
 	internal func createRequest() -> NSMutableURLRequestProtocol? {
-		if oAuthResource.tokenId == nil { return nil }
+		if oAuthResource.accessToken == nil { return nil }
 		return httpClient.httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders())
 	}
 }
@@ -70,7 +70,7 @@ extension YandexDiskCloudJsonResource : CloudResource {
 	}
 	
 	public func getRequestHeaders() -> [String : String]? {
-		return ["Authorization": oAuthResource.tokenId ?? ""]
+		return ["Authorization": oAuthResource.accessToken ?? ""]
 	}
 	
 	public func getRequestParameters() -> [String : String]? {

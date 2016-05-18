@@ -19,7 +19,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 	var request: FakeRequest!
 	var session: FakeSession!
 	var utilities: FakeHttpUtilities!
-	var oauthResource: OAuthResourceBase!
+	var oauthResource: OAuthType!
 	var httpClient: HttpClientProtocol!
 	var rootResource: CloudResource!
 	
@@ -34,7 +34,9 @@ class CloudResourceClientYandexTests: XCTestCase {
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
 		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
-		oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
+		oauthResource = YandexOAuth(clientId: "fakeClientId", urlScheme: "fakeOauthResource", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
+		(oauthResource as! YandexOAuth).keychain.setString("", forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)
+			//OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
 		rootResource = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
 	}
 	
@@ -406,7 +408,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		let client = CloudResourceClient(cacheProvider: cacheProvider)
 		//YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, cacheProvider: cacheProvider)?.bindNext { _ in
-		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).bindNext { _ in
+		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).doOnError { _ in XCTFail("Request failed") }.bindNext { _ in
 			expectation.fulfill()
 			}.addDisposableTo(bag)
 		
