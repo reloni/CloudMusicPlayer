@@ -42,7 +42,7 @@ internal class SettingsViewModel {
 			
 			observer.onNext(oauth.accessToken != nil)
 			
-			return OAuthAuthenticator.sharedInstance.authentications.filter {
+			return OAuthAuthenticator.sharedInstance.processedAuthentications.filter {
 				if oauth.oauthTypeId == $0.oauthTypeId {
 					return true
 				} else {
@@ -58,7 +58,7 @@ internal class SettingsViewModel {
 			
 			observer.onNext(oauth.accessToken != nil)
 			
-			return OAuthAuthenticator.sharedInstance.authentications.filter {
+			return OAuthAuthenticator.sharedInstance.processedAuthentications.filter {
 				if oauth.oauthTypeId == $0.oauthTypeId {
 					return true
 				} else {

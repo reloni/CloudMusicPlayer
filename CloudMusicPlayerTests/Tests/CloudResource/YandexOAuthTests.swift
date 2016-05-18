@@ -7,15 +7,17 @@
 //
 
 import XCTest
+import RxSwift
 @testable import CloudMusicPlayer
 
 extension YandexOAuth {
-	public init(clientId: String, urlScheme: String) {
-		self.init(clientId: clientId, urlScheme: urlScheme, keychain: FakeKeychain())
+	public init(clientId: String, urlScheme: String, authenticator: OAuthAuthenticatorType = OAuthAuthenticator()) {
+		self.init(clientId: clientId, urlScheme: urlScheme, keychain: FakeKeychain(), authenticator: authenticator)
 	}
 }
 
 class YandexOAuthTests: XCTestCase {
+	let bag = DisposeBag()
 	
 	override func setUp() {
 		super.setUp()
@@ -27,11 +29,12 @@ class YandexOAuthTests: XCTestCase {
 		super.tearDown()
 	}
 	
-//	func testAuthUrl() {
-//		let oauth = YandexOAuth(baseAuthUrl: "http://base.com", urlParameters: ["param1": "value1", "param2": "value2"], urlScheme: "testchheme",
-//		                        clientId: "fake_id", keychain: FakeKeychain())
-//		XCTAssertEqual(oauth.authUrl, NSURL(baseUrl: "http://base.com", parameters: ["client_id": "fake_id", "param1": "value1", "param2": "value2"]))
-//	}
+	func testAuthUrl() {
+		let oauth = YandexOAuth(baseAuthUrl: "http://base.com", urlParameters: ["param1": "value1", "param2": "value2"], urlScheme: "testchheme",
+		                        clientId: "fake_id", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
+		XCTAssertTrue(oauth.authUrl!.isEqualsToUrl(
+			NSURL(baseUrl: "http://base.com", parameters: ["client_id": "fake_id", "param1": "value1", "param2": "value2"])!))
+	}
 	
 	func testCanParseUrl() {
 		let oauth = YandexOAuth(clientId: "test_client_id", urlScheme: "yandex_oauth_scheme")
@@ -90,5 +93,13 @@ class YandexOAuthTests: XCTestCase {
 		XCTAssertNil(authenticated)
 		XCTAssertEqual(keychain.keychain.count, 0)
 		XCTAssertNil(oauth.accessToken)
+	}
+	
+	func testClearKeychain() {
+		let keychain = FakeKeychain()
+		let oauth = YandexOAuth(clientId: "test_client_id", urlScheme: "yandex_oauth_scheme", keychain: keychain)
+		keychain.keychain[oauth.tokenKeychainId] = "old token".dataUsingEncoding(NSUTF8StringEncoding)
+		oauth.clearTokens()
+		XCTAssertEqual(keychain.keychain.count, 0)
 	}
 }

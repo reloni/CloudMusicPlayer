@@ -21,13 +21,21 @@ public protocol OAuthType {
 	func clearTokens()
 }
 
-public class OAuthAuthenticator {
+public protocol OAuthAuthenticatorType {
+	func processCallbackUrl(url: String) -> Observable<OAuthType>
+	func removeConnection(oauth: OAuthType)
+	func addConnection(oauth: OAuthType)
+	var processedAuthentications: Observable<OAuthType> { get }
+	func sendAuthenticatedObject(oauth: OAuthType)
+}
+
+public class OAuthAuthenticator : OAuthAuthenticatorType {
 	public init() { }
 	public static let sharedInstance = OAuthAuthenticator()
 	public var connections = [String: OAuthType]()
 	internal let newAuthenticationSubject = PublishSubject<OAuthType>()
 	
-	public var authentications: Observable<OAuthType> {
+	public var processedAuthentications: Observable<OAuthType> {
 		return newAuthenticationSubject
 	}
 	
@@ -46,5 +54,9 @@ public class OAuthAuthenticator {
 			}
 		}
 		return Observable.empty()
+	}
+	
+	public func sendAuthenticatedObject(oauth: OAuthType) {
+		newAuthenticationSubject.onNext(oauth)
 	}
 }
