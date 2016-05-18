@@ -23,6 +23,19 @@ class OAuthAuthenticatorTests: XCTestCase {
 		super.tearDown()
 	}
 	
+	func testAddConnection() {
+		let authenticator = OAuthAuthenticator()
+		authenticator.addConnection(YandexOAuth())
+		XCTAssertEqual(authenticator.connections.count, 1)
+	}
+	
+	func testRemoveConnection() {
+		let authenticator = OAuthAuthenticator()
+		authenticator.addConnection(YandexOAuth())
+		authenticator.removeConnection(YandexOAuth())
+		XCTAssertEqual(authenticator.connections.count, 0)
+	}
+	
 	func testAuthenticateYandex() {
 		let keychain = FakeKeychain()
 		let oauth = YandexOAuth(clientId: "test_client_id", urlScheme: "yandex_oauth_scheme", keychain: keychain)
