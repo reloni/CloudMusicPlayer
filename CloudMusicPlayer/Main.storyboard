@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Alignment constraints to the first baseline" minToolsVersion="6.0"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -188,11 +190,11 @@
             </objects>
             <point key="canvasLocation" x="543" y="1960"/>
         </scene>
-        <!--Music-->
+        <!--Network-->
         <scene sceneID="5kX-4Z-yuj">
             <objects>
                 <navigationController id="SCe-nl-9C3" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Music" id="NI4-d9-GMK"/>
+                    <tabBarItem key="tabBarItem" title="Network" id="NI4-d9-GMK"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="cVe-qT-5tK">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -681,7 +683,203 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Mp-qw-vTn" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-804" y="2667"/>
+            <point key="canvasLocation" x="-970" y="2679"/>
+        </scene>
+        <!--Library-->
+        <scene sceneID="uEY-6t-zIG">
+            <objects>
+                <viewController title="Library" id="CzV-mc-Ebl" customClass="MediaLibraryController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="dMk-mn-wg8"/>
+                        <viewControllerLayoutGuide type="bottom" id="aio-d3-H9M"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="z1W-uu-Hkc">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="Rmi-6c-aag">
+                                <rect key="frame" x="0.0" y="28" width="600" height="523"/>
+                                <subviews>
+                                    <segmentedControl opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="PdX-Ay-Wiq">
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="29"/>
+                                        <segments>
+                                            <segment title="Artists"/>
+                                            <segment title="Albums"/>
+                                            <segment title="Tracks"/>
+                                            <segment title="Play lists"/>
+                                        </segments>
+                                    </segmentedControl>
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="40" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="nUl-rw-rtw">
+                                        <rect key="frame" x="0.0" y="33" width="600" height="490"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <prototypes>
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ArtistCell" id="kWu-Io-Tqk" customClass="ArtistCell" customModule="CloudMusicPlayer" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="28" width="600" height="40"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="kWu-Io-Tqk" id="Z6h-3R-gHI">
+                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="39.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <subviews>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="1Fn-uT-3mH">
+                                                            <rect key="frame" x="5" y="0.0" width="590" height="40"/>
+                                                            <subviews>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kGu-7g-VEU">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="590" height="26"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
+                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="phm-FY-1Gv">
+                                                                    <rect key="frame" x="0.0" y="28" width="590" height="12"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
+                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                            </subviews>
+                                                        </stackView>
+                                                    </subviews>
+                                                    <constraints>
+                                                        <constraint firstAttribute="trailing" secondItem="1Fn-uT-3mH" secondAttribute="trailing" constant="5" id="ET4-jt-vwH"/>
+                                                        <constraint firstAttribute="bottom" secondItem="1Fn-uT-3mH" secondAttribute="bottom" id="Q1w-F0-Gq8"/>
+                                                        <constraint firstItem="1Fn-uT-3mH" firstAttribute="top" secondItem="Z6h-3R-gHI" secondAttribute="top" id="Xjm-tG-QOl"/>
+                                                        <constraint firstItem="1Fn-uT-3mH" firstAttribute="leading" secondItem="Z6h-3R-gHI" secondAttribute="leading" constant="5" id="dZp-By-ywB"/>
+                                                    </constraints>
+                                                </tableViewCellContentView>
+                                                <connections>
+                                                    <outlet property="albumCountLabel" destination="phm-FY-1Gv" id="XAf-ma-DNS"/>
+                                                    <outlet property="artistNameLabel" destination="kGu-7g-VEU" id="nIK-St-psR"/>
+                                                </connections>
+                                            </tableViewCell>
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="AlbumCell" id="mfp-A4-3yP" customClass="AlbumCell" customModule="CloudMusicPlayer" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="68" width="600" height="40"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="mfp-A4-3yP" id="aAN-Df-QOa">
+                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="39.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <subviews>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="vr2-8w-6OW">
+                                                            <rect key="frame" x="5" y="0.0" width="590" height="40"/>
+                                                            <subviews>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tk7-Id-Svj">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="590" height="40"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
+                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                            </subviews>
+                                                        </stackView>
+                                                    </subviews>
+                                                    <constraints>
+                                                        <constraint firstItem="vr2-8w-6OW" firstAttribute="leading" secondItem="aAN-Df-QOa" secondAttribute="leading" constant="5" id="4gE-8F-IFX"/>
+                                                        <constraint firstAttribute="bottom" secondItem="vr2-8w-6OW" secondAttribute="bottom" id="Bwj-O4-PF9"/>
+                                                        <constraint firstAttribute="trailing" secondItem="vr2-8w-6OW" secondAttribute="trailing" constant="5" id="JHZ-yA-HVG"/>
+                                                        <constraint firstItem="vr2-8w-6OW" firstAttribute="top" secondItem="aAN-Df-QOa" secondAttribute="top" id="NOq-Ya-Sow"/>
+                                                    </constraints>
+                                                </tableViewCellContentView>
+                                                <connections>
+                                                    <outlet property="albumNameLabel" destination="tk7-Id-Svj" id="POU-mt-XhR"/>
+                                                </connections>
+                                            </tableViewCell>
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="TrackCell" id="8Jv-7P-9di" customClass="TrackCell" customModule="CloudMusicPlayer" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="108" width="600" height="40"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="8Jv-7P-9di" id="bbj-kt-JO1">
+                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="39.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <subviews>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Xjz-0U-e5B">
+                                                            <rect key="frame" x="5" y="0.0" width="590" height="40"/>
+                                                            <subviews>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KuU-gQ-55h">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="590" height="40"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
+                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                            </subviews>
+                                                        </stackView>
+                                                    </subviews>
+                                                    <constraints>
+                                                        <constraint firstAttribute="trailing" secondItem="Xjz-0U-e5B" secondAttribute="trailing" constant="5" id="4hM-XS-qyL"/>
+                                                        <constraint firstItem="Xjz-0U-e5B" firstAttribute="leading" secondItem="bbj-kt-JO1" secondAttribute="leading" constant="5" id="Asj-Hf-d9n"/>
+                                                        <constraint firstItem="Xjz-0U-e5B" firstAttribute="top" secondItem="bbj-kt-JO1" secondAttribute="top" id="BAW-EJ-Mth"/>
+                                                        <constraint firstAttribute="bottom" secondItem="Xjz-0U-e5B" secondAttribute="bottom" id="bZW-Ve-9Bn"/>
+                                                    </constraints>
+                                                </tableViewCellContentView>
+                                                <connections>
+                                                    <outlet property="trackTitleLabel" destination="KuU-gQ-55h" id="pM9-63-32A"/>
+                                                </connections>
+                                            </tableViewCell>
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="PlayListCell" id="579-LN-MWD" customClass="PlayListCell" customModule="CloudMusicPlayer" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="148" width="600" height="40"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="579-LN-MWD" id="aMM-XL-ufg">
+                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="39.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <subviews>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="2MZ-L6-PUa">
+                                                            <rect key="frame" x="5" y="0.0" width="590" height="40"/>
+                                                            <subviews>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k7l-fV-saO">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="590" height="40"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
+                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                            </subviews>
+                                                        </stackView>
+                                                    </subviews>
+                                                    <constraints>
+                                                        <constraint firstAttribute="bottom" secondItem="2MZ-L6-PUa" secondAttribute="bottom" id="5vf-Zz-FP4"/>
+                                                        <constraint firstItem="2MZ-L6-PUa" firstAttribute="leading" secondItem="aMM-XL-ufg" secondAttribute="leading" constant="5" id="GQa-jB-4el"/>
+                                                        <constraint firstAttribute="trailing" secondItem="2MZ-L6-PUa" secondAttribute="trailing" constant="5" id="sN5-Be-ckk"/>
+                                                        <constraint firstItem="2MZ-L6-PUa" firstAttribute="top" secondItem="aMM-XL-ufg" secondAttribute="top" id="zhS-kb-iJJ"/>
+                                                    </constraints>
+                                                </tableViewCellContentView>
+                                                <connections>
+                                                    <outlet property="playListNameLabel" destination="k7l-fV-saO" id="M30-re-LLZ"/>
+                                                </connections>
+                                            </tableViewCell>
+                                        </prototypes>
+                                        <connections>
+                                            <outlet property="dataSource" destination="CzV-mc-Ebl" id="mnz-Wn-Zg6"/>
+                                            <outlet property="delegate" destination="CzV-mc-Ebl" id="cN0-Kk-gne"/>
+                                        </connections>
+                                    </tableView>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="Rmi-6c-aag" firstAttribute="top" secondItem="dMk-mn-wg8" secondAttribute="bottom" constant="8" id="0wJ-qE-UGG"/>
+                            <constraint firstItem="Rmi-6c-aag" firstAttribute="top" secondItem="z1W-uu-Hkc" secondAttribute="topMargin" id="99z-Ia-VDP"/>
+                            <constraint firstItem="Rmi-6c-aag" firstAttribute="top" secondItem="z1W-uu-Hkc" secondAttribute="firstBaseline" id="GOi-5U-QDc"/>
+                            <constraint firstItem="Rmi-6c-aag" firstAttribute="leading" secondItem="z1W-uu-Hkc" secondAttribute="leading" id="Gzk-Yg-kfJ"/>
+                            <constraint firstItem="aio-d3-H9M" firstAttribute="top" secondItem="Rmi-6c-aag" secondAttribute="bottom" id="ibI-Cb-Urk"/>
+                            <constraint firstItem="Rmi-6c-aag" firstAttribute="leading" secondItem="z1W-uu-Hkc" secondAttribute="leading" id="k8l-Bk-8y3"/>
+                            <constraint firstItem="aio-d3-H9M" firstAttribute="top" secondItem="Rmi-6c-aag" secondAttribute="bottom" id="uRj-sC-uuQ"/>
+                            <constraint firstAttribute="trailing" secondItem="Rmi-6c-aag" secondAttribute="trailing" id="ucw-ia-vwu"/>
+                            <constraint firstAttribute="trailing" secondItem="Rmi-6c-aag" secondAttribute="trailing" id="vs9-hj-fFW"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="99z-Ia-VDP"/>
+                                <exclude reference="GOi-5U-QDc"/>
+                                <exclude reference="k8l-Bk-8y3"/>
+                                <exclude reference="ucw-ia-vwu"/>
+                                <exclude reference="uRj-sC-uuQ"/>
+                            </mask>
+                        </variation>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Library" id="wuZ-H7-pZm"/>
+                    <connections>
+                        <outlet property="segment" destination="PdX-Ay-Wiq" id="1g0-0U-sp2"/>
+                        <outlet property="tableView" destination="nUl-rw-rtw" id="zLp-Nc-ZLL"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ww5-9G-Ahp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="90" y="2776"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="aOZ-ZI-djA">
@@ -694,6 +892,7 @@
                     </tabBar>
                     <connections>
                         <segue destination="SCe-nl-9C3" kind="relationship" relationship="viewControllers" id="Ocj-tu-BAD"/>
+                        <segue destination="CzV-mc-Ebl" kind="relationship" relationship="viewControllers" id="OGn-td-3Lj"/>
                         <segue destination="ZIg-ge-mcq" kind="relationship" relationship="viewControllers" id="h1i-kM-W2W"/>
                     </connections>
                 </tabBarController>
