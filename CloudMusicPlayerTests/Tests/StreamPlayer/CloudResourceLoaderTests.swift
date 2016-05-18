@@ -26,7 +26,7 @@ class CloudResourceLoaderTests: XCTestCase {
 	func testLoadData() {
 		fillRealmCloudResourceCacheProviderWithTestData()
 		
-		let oauthResource = OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil)
+		let oauthResource = YandexOAuth()
 		let httpClient = HttpClient()
 		let yandexRoot = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
 		let loader = CloudResourceLoader(cacheProvider: RealmCloudResourceCacheProvider(),

@@ -25,7 +25,7 @@ public enum CloudResourceType {
 public protocol CloudResource {
 	var resourceTypeIdentifier: String { get }
 	var raw: JSON { get }
-	var oAuthResource: OAuthResource { get }
+	var oAuthResource: OAuthType { get }
 	//var parent: CloudResource? { get }
 	var uid: String { get }
 	var name: String { get }

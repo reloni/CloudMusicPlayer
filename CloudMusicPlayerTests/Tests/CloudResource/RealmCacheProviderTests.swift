@@ -14,7 +14,7 @@ import SwiftyJSON
 import RxSwift
 
 func fillRealmCloudResourceCacheProviderWithTestData() {
-	let oauthResource = OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil)
+	let oauthResource = YandexOAuth()//OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil)
 	let httpClient = HttpClient()
 	let rootCloudResource = YandexDiskCloudJsonResource(raw: JSON(["path": "disk:/Music", "type": "dir", "name": "Music",
 		"modified": "2016-02-27T12:54:42+00:00", "created": "2016-02-27T12:54:42+00:00"]), httpClient: httpClient, oauth: oauthResource)
@@ -50,7 +50,7 @@ class RealmCacheProviderTests: XCTestCase {
 	var request: FakeRequest!
 	var session: FakeSession!
 	var utilities: FakeHttpUtilities!
-	var oauthResource: OAuthResourceBase!
+	var oauthResource: OAuthType!
 	var httpClient: HttpClientProtocol!
 	var rootResource: CloudResource!
 	
@@ -65,7 +65,9 @@ class RealmCacheProviderTests: XCTestCase {
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
 		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
-		oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
+		//oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
+		oauthResource = YandexOAuth(clientId: "fakeClientId", urlScheme: "fakeOauthResource", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
+		(oauthResource as! YandexOAuth).keychain.setString("", forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)
 		rootResource = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
 	}
 	

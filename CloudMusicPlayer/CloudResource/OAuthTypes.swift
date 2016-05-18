@@ -108,11 +108,11 @@ public struct GoogleOAuth {
 	public let authenticator: OAuthAuthenticatorType
 	
 	internal var tokenKeychainId: String {
-		return "\(YandexOAuth.id)_accessToken"
+		return "\(GoogleOAuth.id)_accessToken"
 	}
 	
 	internal var refreshTokenKeychainId: String {
-		return "\(YandexOAuth.id)_refreshToken"
+		return "\(GoogleOAuth.id)_refreshToken"
 	}
 	
 	public init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, redirectUri: String,

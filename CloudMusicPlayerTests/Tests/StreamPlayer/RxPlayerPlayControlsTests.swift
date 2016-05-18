@@ -492,7 +492,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
 		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: lib)
-		let oauth = OAuthResourceBase(id: "'", authUrl: "", clientId: nil, tokenId: nil)
+		let oauth = YandexOAuth()
 		let cloudResourceLoader = CloudResourceLoader(cacheProvider: RealmCloudResourceCacheProvider(),
 		    rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier: YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauth)])
 		player.streamResourceLoaders.append(cloudResourceLoader)

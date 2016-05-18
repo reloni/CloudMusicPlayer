@@ -29,7 +29,7 @@ class YandexCloudResourceTests: XCTestCase {
 	var request: FakeRequest!
 	var session: FakeSession!
 	var utilities: FakeHttpUtilities!
-	var oauthResource: OAuthResourceBase!
+	var oauthResource: OAuthType!
 	var httpClient: HttpClientProtocol!
 	
 	override func setUp() {
@@ -41,7 +41,9 @@ class YandexCloudResourceTests: XCTestCase {
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
 		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
-		oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
+		//oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
+		oauthResource = YandexOAuth(clientId: "fakeClientId", urlScheme: "fakeOauthResource", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
+		(oauthResource as! YandexOAuth).keychain.setString("", forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)
 	}
 	
 	override func tearDown() {
@@ -57,7 +59,7 @@ class YandexCloudResourceTests: XCTestCase {
 		let root = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
 		XCTAssertEqual(root.name, "disk")
 		XCTAssertEqual(root.uid, "/")
-		XCTAssertTrue((root as! YandexDiskCloudJsonResource).oAuthResource === oauthResource)
+		XCTAssertTrue((root as! YandexDiskCloudJsonResource).oAuthResource.clientId == oauthResource.clientId)
 	}
 	
 	func testCreateRequest() {
@@ -66,11 +68,12 @@ class YandexCloudResourceTests: XCTestCase {
 		let req = root?.createRequest() as? FakeRequest
 		XCTAssertNotNil(req, "Should create request")
 		XCTAssertEqual(NSURL(baseUrl: YandexDiskCloudJsonResource.resourcesApiUrl, parameters: ["path": "/"]), req?.URL, "Should create correct url")
-		XCTAssertEqual(oauthResource.tokenId, req?.headers["Authorization"], "Should set one header with correct token")
+		XCTAssertEqual(oauthResource.accessToken, req?.headers["Authorization"], "Should set one header with correct token")
 	}
 	
 	func testNotCreateRequest() {
-		let oauthResWithoutTokenId = OAuthResourceBase(id: "fake", authUrl: "https://fake.com", clientId: nil, tokenId: nil)
+		let oauthResWithoutTokenId = YandexOAuth(clientId: "test", urlScheme: "fake", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
+		//OAuthResourceBase(id: "fake", authUrl: "https://fake.com", clientId: nil, tokenId: nil)
 		let root = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResWithoutTokenId) as? YandexDiskCloudJsonResource
 		//let req = YandexDiskCloudJsonResource.createRequestForLoadRootResources(oauthResWithoutTokenId, httpUtilities: utilities) as? FakeRequest
 		let req = root?.createRequest()
@@ -88,8 +91,8 @@ class YandexCloudResourceTests: XCTestCase {
 		XCTAssertTrue(first is YandexDiskCloudJsonResource)
 		//XCTAssertNil(first?.mediaType)
 		XCTAssertNil(first?.mimeType)
-		XCTAssertEqual(oauthResource.id, first?.oAuthResource.id)
-		XCTAssertEqual((first?.getRequestHeaders())!, ["Authorization": oauthResource.tokenId!])
+		//XCTAssertEqual(oauthResource.id, first?.oAuthResource.id)
+		XCTAssertEqual((first?.getRequestHeaders())!, ["Authorization": oauthResource.accessToken!])
 		XCTAssertEqual((first?.getRequestParameters())!, ["path": first!.uid])
 	}
 	

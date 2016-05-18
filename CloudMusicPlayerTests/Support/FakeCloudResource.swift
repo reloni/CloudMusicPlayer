@@ -13,7 +13,7 @@ import SwiftyJSON
 
 public class FakeCloudResource : CloudResource {
 	public var resourceTypeIdentifier: String = "FakeCloudResource"
-	public var oAuthResource: OAuthResource
+	public var oAuthResource: OAuthType
 	public var parent: CloudResource? = nil
 	public var childs: [CloudResource]? = nil
 	public var httpClient: HttpClientProtocol
@@ -59,7 +59,7 @@ public class FakeCloudResource : CloudResource {
 		fatalError("loadChildResourcesRecursive not implemented")
 	}
 	
-	public init(oaRes: OAuthResource = OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil),
+	public init(oaRes: OAuthType = YandexOAuth(),
 	            httpClient: HttpClientProtocol = HttpClient(), httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
 		self.oAuthResource = oaRes
 		self.httpClient = httpClient

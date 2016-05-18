@@ -50,7 +50,7 @@ class CloudResourcesStructureController: UIViewController {
 			//					self?.viewModel.resources = resources
 			//					self?.tableView.reloadData()
 			//			}.addDisposableTo(bag!)
-			cloudResourceClient.loadChildResources(YandexDiskCloudJsonResource.getRootResource(oauth: OAuthResourceManager.getYandexResource()),
+			cloudResourceClient.loadChildResources(YandexDiskCloudJsonResource.getRootResource(oauth: YandexOAuth()),
 				loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
 				.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }.bindNext { [weak self] resources in
 					self?.viewModel.resources = resources
