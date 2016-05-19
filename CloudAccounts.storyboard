@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Accounts-->
+        <scene sceneID="ccN-sb-J5J">
+            <objects>
+                <viewController storyboardIdentifier="CloudAccounts" title="Accounts" id="5FH-8T-QzU" customClass="CloudAccountsController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="JUj-6n-sE0"/>
+                        <viewControllerLayoutGuide type="bottom" id="Jir-gH-fS8"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="s3Z-Xe-Oqo">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="fIC-ZL-FsM">
+                                <rect key="frame" x="0.0" y="64" width="595" height="492"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="NewAccountCell" id="Jlr-ah-3jJ" customClass="NewAccountCell" customModule="CloudMusicPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="92" width="595" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Jlr-ah-3jJ" id="bGi-2j-hkb">
+                                            <rect key="frame" x="0.0" y="0.0" width="595" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Log in:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HU9-xI-Nb5">
+                                                    <rect key="frame" x="13" y="8" width="51" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Account_name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O75-rn-t8l">
+                                                    <rect key="frame" x="76" y="8" width="113" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="HU9-xI-Nb5" firstAttribute="leading" secondItem="bGi-2j-hkb" secondAttribute="leadingMargin" constant="5" id="YSq-Mg-KVT"/>
+                                                <constraint firstItem="O75-rn-t8l" firstAttribute="baseline" secondItem="HU9-xI-Nb5" secondAttribute="baseline" id="i3W-pi-yyP"/>
+                                                <constraint firstItem="HU9-xI-Nb5" firstAttribute="top" secondItem="bGi-2j-hkb" secondAttribute="topMargin" id="n9J-pf-XcZ"/>
+                                                <constraint firstItem="O75-rn-t8l" firstAttribute="leading" secondItem="HU9-xI-Nb5" secondAttribute="trailing" constant="12.5" id="ra5-EJ-ekO"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="accountNameLabel" destination="O75-rn-t8l" id="CRo-5H-qVU"/>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ExistedAccountCell" id="w4D-xt-zDD" customClass="ExistedAccountCell" customModule="CloudMusicPlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="136" width="595" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="w4D-xt-zDD" id="1ou-1y-NLQ">
+                                            <rect key="frame" x="0.0" y="0.0" width="562" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Account_name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nd2-cT-bRE">
+                                                    <rect key="frame" x="13" y="8" width="113" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="Nd2-cT-bRE" firstAttribute="top" secondItem="1ou-1y-NLQ" secondAttribute="topMargin" id="2nv-5P-HF8"/>
+                                                <constraint firstItem="Nd2-cT-bRE" firstAttribute="leading" secondItem="1ou-1y-NLQ" secondAttribute="leadingMargin" constant="5" id="7ae-D4-Cdh"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="accountNameLabel" destination="Nd2-cT-bRE" id="ik1-RT-FiH"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                                <sections/>
+                                <connections>
+                                    <outlet property="dataSource" destination="5FH-8T-QzU" id="Ozz-MX-LZ4"/>
+                                    <outlet property="delegate" destination="5FH-8T-QzU" id="M1J-9A-YAb"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="Jir-gH-fS8" firstAttribute="top" secondItem="fIC-ZL-FsM" secondAttribute="bottom" id="96g-kB-bsE"/>
+                            <constraint firstItem="fIC-ZL-FsM" firstAttribute="top" secondItem="JUj-6n-sE0" secondAttribute="bottom" id="JJr-nm-DfD"/>
+                            <constraint firstItem="fIC-ZL-FsM" firstAttribute="leading" secondItem="s3Z-Xe-Oqo" secondAttribute="leading" id="LsN-yC-5J2"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="fIC-ZL-FsM" secondAttribute="trailingMargin" id="OpE-gZ-Ibk"/>
+                        </constraints>
+                    </view>
+                    <toolbarItems>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="Zbi-or-nDw"/>
+                        <barButtonItem title="Cancel" id="DWu-qx-OIi"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="fo8-9N-ESQ"/>
+                    </toolbarItems>
+                    <navigationItem key="navigationItem" id="FvG-bL-QTf">
+                        <barButtonItem key="rightBarButtonItem" title="Done" id="zps-qa-DpC"/>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="cancelButton" destination="DWu-qx-OIi" id="SWK-RC-gJl"/>
+                        <outlet property="doneButton" destination="zps-qa-DpC" id="jar-ih-d4N"/>
+                        <outlet property="tableView" destination="fIC-ZL-FsM" id="3zG-L0-cxG"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Rr8-ZX-ujH" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="538" y="365"/>
+        </scene>
+        <!--Add to play list navigation controller-->
+        <scene sceneID="DVh-GF-fFw">
+            <objects>
+                <navigationController storyboardIdentifier="AddToPlayListNavController" title="Add to play list navigation controller" toolbarHidden="NO" id="9BV-o0-hC8" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="mbk-b1-X3P">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="tYn-f9-yZ2">
+                        <rect key="frame" x="0.0" y="556" width="600" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
+                    <connections>
+                        <segue destination="5FH-8T-QzU" kind="relationship" relationship="rootViewController" id="Xkm-Ze-orq"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="PDR-PQ-jh6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-322" y="365"/>
+        </scene>
+    </scenes>
+</document>

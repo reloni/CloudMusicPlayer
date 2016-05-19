@@ -43,6 +43,10 @@ public struct YandexOAuth {
 }
 
 extension YandexOAuth : OAuthType {
+	public var resourceDescription: String {
+		return "Yandex Disk"
+	}
+	
 	public var oauthTypeId: String {
 		return "\(YandexOAuth.id)_\(clientId)"
 	}
@@ -137,6 +141,10 @@ public struct GoogleOAuth {
 }
 
 extension GoogleOAuth : OAuthType {
+	public var resourceDescription: String {
+		return "Google Drive"
+	}
+	
 	public var oauthTypeId: String {
 		return "\(GoogleOAuth.id)_\(clientId)"
 	}

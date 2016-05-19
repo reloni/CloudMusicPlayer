@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol OAuthType {
+	var resourceDescription: String { get }
 	var oauthTypeId: String { get }
 	var authUrl: NSURL? { get }
 	var clientId: String { get }
