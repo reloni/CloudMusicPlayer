@@ -17,6 +17,8 @@
 		6E088A7C1CEDD278001EED50 /* CloudAccountsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A7B1CEDD278001EED50 /* CloudAccountsController.swift */; };
 		6E088A7E1CEDD42B001EED50 /* NewAccountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A7D1CEDD42B001EED50 /* NewAccountCell.swift */; };
 		6E088A801CEDD43D001EED50 /* ExistedAccountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A7F1CEDD43D001EED50 /* ExistedAccountCell.swift */; };
+		6E088A821CEE051E001EED50 /* CloudResourceAddToPlayListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A811CEE051E001EED50 /* CloudResourceAddToPlayListController.swift */; };
+		6E088A841CEE3029001EED50 /* FolderInfoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A831CEE3029001EED50 /* FolderInfoCell.swift */; };
 		6E0A02921C8A0CB500AD9B38 /* StreamDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028E1C8A0CB500AD9B38 /* StreamDataTask.swift */; };
 		6E0A02941C8A0D0B00AD9B38 /* NSFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A02931C8A0D0B00AD9B38 /* NSFileManager.swift */; };
 		6E106F191C916A740056205F /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E106F181C916A740056205F /* main.swift */; };
@@ -152,6 +154,8 @@
 		6E088A7B1CEDD278001EED50 /* CloudAccountsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudAccountsController.swift; sourceTree = "<group>"; };
 		6E088A7D1CEDD42B001EED50 /* NewAccountCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewAccountCell.swift; sourceTree = "<group>"; };
 		6E088A7F1CEDD43D001EED50 /* ExistedAccountCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExistedAccountCell.swift; sourceTree = "<group>"; };
+		6E088A811CEE051E001EED50 /* CloudResourceAddToPlayListController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourceAddToPlayListController.swift; sourceTree = "<group>"; };
+		6E088A831CEE3029001EED50 /* FolderInfoCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FolderInfoCell.swift; sourceTree = "<group>"; };
 		6E0A028E1C8A0CB500AD9B38 /* StreamDataTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StreamDataTask.swift; path = CloudMusicPlayer/HttpExtensions/Stream/StreamDataTask.swift; sourceTree = SOURCE_ROOT; };
 		6E0A02931C8A0D0B00AD9B38 /* NSFileManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSFileManager.swift; sourceTree = "<group>"; };
 		6E106F181C916A740056205F /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -404,6 +408,7 @@
 				6EB1929C1CC3B45D00FF3024 /* PlayerQueueController.swift */,
 				6E21C96F1CEC7C3B00614B0F /* MediaLibraryController.swift */,
 				6E088A7B1CEDD278001EED50 /* CloudAccountsController.swift */,
+				6E088A811CEE051E001EED50 /* CloudResourceAddToPlayListController.swift */,
 			);
 			name = Controllers;
 			path = CloudMusicPlayer/Controllers;
@@ -430,6 +435,7 @@
 				6EEAD6FB1CEC878D00127852 /* PlayListCell.swift */,
 				6E088A7D1CEDD42B001EED50 /* NewAccountCell.swift */,
 				6E088A7F1CEDD43D001EED50 /* ExistedAccountCell.swift */,
+				6E088A831CEE3029001EED50 /* FolderInfoCell.swift */,
 			);
 			name = Controlls;
 			path = CloudMusicPlayer/Controlls;
@@ -842,6 +848,7 @@
 				6EAFAD821CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift in Sources */,
 				6EA638781C7A002200DD85A6 /* CloudResourcesViewModel.swift in Sources */,
 				6EE0CCC61C96CAA4002F4D9D /* HttpClient.swift in Sources */,
+				6E088A841CEE3029001EED50 /* FolderInfoCell.swift in Sources */,
 				6E21C9701CEC7C3B00614B0F /* MediaLibraryController.swift in Sources */,
 				6E182ED61C81E14700730C59 /* CloudTrackCell.swift in Sources */,
 				6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */,
@@ -867,6 +874,7 @@
 				6EB1929F1CC3BC8100FF3024 /* QueueTrackCell.swift in Sources */,
 				6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */,
 				6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */,
+				6E088A821CEE051E001EED50 /* CloudResourceAddToPlayListController.swift in Sources */,
 				6EEB989F1C4EBE1700DD5B95 /* AppDelegate.swift in Sources */,
 				6E6DDE491C8DC455001AE510 /* CMTime.swift in Sources */,
 				6EDB49831CBE419900F82E02 /* NSURL.swift in Sources */,

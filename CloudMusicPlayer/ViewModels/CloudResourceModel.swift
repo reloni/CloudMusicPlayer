@@ -12,6 +12,7 @@ import RxSwift
 class CloudResourceModel {
 	let resource: CloudResource
 	let cloudResourceClient: CloudResourceClientType
+	var cachedContent = [CloudResource]()
 	
 	init(resource: CloudResource, cloudResourceClient: CloudResourceClientType) {
 		self.resource = resource
@@ -24,5 +25,6 @@ class CloudResourceModel {
 	
 	var content: Observable<[CloudResource]> {
 		return cloudResourceClient.loadChildResources(resource, loadMode: CloudResourceLoadMode.CacheAndRemote)
+			.doOnNext { [weak self] in self?.cachedContent = $0 }
 	}
 }

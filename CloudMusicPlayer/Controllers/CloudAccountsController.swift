@@ -110,6 +110,11 @@ extension CloudAccountsController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 		if indexPath.section == 0 {
 			authenticate(model.notLoggedAccounts[indexPath.row].oauth)
+		} else if indexPath.section == 1,
+			let controller = storyboard?.instantiateViewControllerWithIdentifier("AddToPlayListView") as? CloudResourceAddToPlayListController {
+			controller.model = CloudResourceModel(resource: model.loggedAccounts[indexPath.row].root,
+			                                      cloudResourceClient: CloudResourceClient(cacheProvider: RealmCloudResourceCacheProvider()))
+			navigationController?.pushViewController(controller, animated: true)
 		}
 	}
 }
