@@ -9,7 +9,7 @@
         <!--Accounts-->
         <scene sceneID="ccN-sb-J5J">
             <objects>
-                <viewController storyboardIdentifier="CloudAccounts" title="Accounts" id="5FH-8T-QzU" customClass="CloudAccountsController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="CloudAccounts" title="Accounts" automaticallyAdjustsScrollViewInsets="NO" id="5FH-8T-QzU" customClass="CloudAccountsController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="JUj-6n-sE0"/>
                         <viewControllerLayoutGuide type="bottom" id="Jir-gH-fS8"/>
@@ -21,9 +21,10 @@
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="fIC-ZL-FsM">
                                 <rect key="frame" x="0.0" y="64" width="595" height="492"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="NewAccountCell" id="Jlr-ah-3jJ" customClass="NewAccountCell" customModule="CloudMusicPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="92" width="595" height="44"/>
+                                        <rect key="frame" x="0.0" y="28" width="595" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Jlr-ah-3jJ" id="bGi-2j-hkb">
                                             <rect key="frame" x="0.0" y="0.0" width="595" height="43.5"/>
@@ -49,12 +50,14 @@
                                                 <constraint firstItem="O75-rn-t8l" firstAttribute="leading" secondItem="HU9-xI-Nb5" secondAttribute="trailing" constant="12.5" id="ra5-EJ-ekO"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <edgeInsets key="layoutMargins" top="8" left="0.0" bottom="8" right="8"/>
+                                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         <connections>
                                             <outlet property="accountNameLabel" destination="O75-rn-t8l" id="CRo-5H-qVU"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ExistedAccountCell" id="w4D-xt-zDD" customClass="ExistedAccountCell" customModule="CloudMusicPlayer" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="136" width="595" height="44"/>
+                                        <rect key="frame" x="0.0" y="72" width="595" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="w4D-xt-zDD" id="1ou-1y-NLQ">
                                             <rect key="frame" x="0.0" y="0.0" width="562" height="43.5"/>
@@ -72,6 +75,8 @@
                                                 <constraint firstItem="Nd2-cT-bRE" firstAttribute="leading" secondItem="1ou-1y-NLQ" secondAttribute="leadingMargin" constant="5" id="7ae-D4-Cdh"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <edgeInsets key="layoutMargins" top="8" left="0.0" bottom="8" right="8"/>
+                                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         <connections>
                                             <outlet property="accountNameLabel" destination="Nd2-cT-bRE" id="ik1-RT-FiH"/>
                                         </connections>
@@ -122,17 +127,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" misplaced="YES" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="pse-dO-Qwf">
-                                <rect key="frame" x="0.0" y="94" width="600" height="492"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="pse-dO-Qwf">
+                                <rect key="frame" x="0.0" y="64" width="600" height="492"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="WLq-RJ-eiB">
-                                        <rect key="frame" x="0.0" y="0.0" width="600" height="31"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="WLq-RJ-eiB">
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="47"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Axc-V0-Jkl">
-                                                <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                                <rect key="frame" x="15" y="8" width="51" height="31"/>
                                             </switch>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" text="Switch" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HUR-vj-ztK">
-                                                <rect key="frame" x="54" y="0.0" width="546" height="31"/>
+                                                <rect key="frame" x="79" y="8" width="513" height="31"/>
                                                 <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -141,6 +146,7 @@
                                         <constraints>
                                             <constraint firstItem="Axc-V0-Jkl" firstAttribute="leading" secondItem="WLq-RJ-eiB" secondAttribute="leading" constant="10" id="DFP-PH-MTa"/>
                                         </constraints>
+                                        <edgeInsets key="layoutMargins" top="8" left="15" bottom="8" right="8"/>
                                         <variation key="default">
                                             <mask key="constraints">
                                                 <exclude reference="DFP-PH-MTa"/>
@@ -148,8 +154,9 @@
                                         </variation>
                                     </stackView>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="HOa-iw-EDF">
-                                        <rect key="frame" x="0.0" y="36" width="600" height="456"/>
+                                        <rect key="frame" x="0.0" y="52" width="600" height="440"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="FolderInfoCell" id="BPb-UO-nzV" customClass="FolderInfoCell" customModule="CloudMusicPlayer" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="28" width="600" height="44"/>
@@ -159,24 +166,27 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="QUU-L0-16W">
-                                                            <rect key="frame" x="13" y="8" width="541" height="28"/>
+                                                            <rect key="frame" x="8" y="8" width="546" height="28"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Folder_name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JHL-on-Wbs">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="541" height="28"/>
+                                                                    <rect key="frame" x="10" y="8" width="528" height="12"/>
                                                                     <fontDescription key="fontDescription" type="system" weight="thin" pointSize="15"/>
                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                             </subviews>
+                                                            <edgeInsets key="layoutMargins" top="8" left="10" bottom="8" right="8"/>
                                                         </stackView>
                                                     </subviews>
                                                     <constraints>
                                                         <constraint firstItem="QUU-L0-16W" firstAttribute="top" secondItem="19s-lV-27Q" secondAttribute="topMargin" id="3u8-Lr-bAj"/>
                                                         <constraint firstAttribute="trailingMargin" secondItem="QUU-L0-16W" secondAttribute="trailing" constant="5" id="AFF-jA-sdj"/>
-                                                        <constraint firstItem="QUU-L0-16W" firstAttribute="leading" secondItem="19s-lV-27Q" secondAttribute="leadingMargin" constant="5" id="J4R-vb-OZg"/>
+                                                        <constraint firstItem="QUU-L0-16W" firstAttribute="leading" secondItem="19s-lV-27Q" secondAttribute="leadingMargin" id="J4R-vb-OZg"/>
                                                         <constraint firstAttribute="bottomMargin" secondItem="QUU-L0-16W" secondAttribute="bottom" id="ZSi-Ca-4Js"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
+                                                <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
+                                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 <connections>
                                                     <outlet property="folderNameLabel" destination="JHL-on-Wbs" id="A3z-7U-ggH"/>
                                                 </connections>
@@ -188,6 +198,7 @@
                                         </connections>
                                     </tableView>
                                 </subviews>
+                                <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                             </stackView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>

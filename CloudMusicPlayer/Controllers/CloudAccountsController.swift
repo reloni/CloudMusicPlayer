@@ -22,8 +22,8 @@ class CloudAccountsController: UIViewController {
 		
 		// Do any additional setup after loading the view.
 		
-		automaticallyAdjustsScrollViewInsets = false
-		tableView.separatorInset.left = 0
+		//automaticallyAdjustsScrollViewInsets = false
+		//tableView.separatorInset.left = 0
 		
 		cancelButton.rx_tap.bindNext { [weak self] in self?.dismissViewControllerAnimated(true, completion: nil) }.addDisposableTo(bag)
 		doneButton.rx_tap.bindNext { [weak self] in self?.dismissViewControllerAnimated(true, completion: nil) }.addDisposableTo(bag)

@@ -21,7 +21,7 @@ class CloudResourceAddToPlayListController: UIViewController {
 		super.viewDidLoad()
 		
 		// Do any additional setup after loading the view.
-		tableView.separatorInset.left = 0
+		//tableView.separatorInset.left = 0
 		navigationItem.title = model.displayName
 		
 		model.content.observeOn(MainScheduler.instance).bindNext { [weak self] _ in

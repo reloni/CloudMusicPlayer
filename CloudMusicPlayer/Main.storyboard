@@ -705,7 +705,7 @@
         <!--Library-->
         <scene sceneID="uEY-6t-zIG">
             <objects>
-                <viewController title="Library" id="CzV-mc-Ebl" customClass="MediaLibraryController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Library" automaticallyAdjustsScrollViewInsets="NO" id="CzV-mc-Ebl" customClass="MediaLibraryController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="dMk-mn-wg8"/>
                         <viewControllerLayoutGuide type="bottom" id="aio-d3-H9M"/>
@@ -729,6 +729,7 @@
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="40" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="nUl-rw-rtw">
                                         <rect key="frame" x="0.0" y="33" width="600" height="446"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ArtistCell" id="kWu-Io-Tqk" customClass="ArtistCell" customModule="CloudMusicPlayer" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="28" width="600" height="40"/>
@@ -762,6 +763,8 @@
                                                         <constraint firstItem="1Fn-uT-3mH" firstAttribute="leading" secondItem="Z6h-3R-gHI" secondAttribute="leading" constant="5" id="dZp-By-ywB"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
+                                                <edgeInsets key="layoutMargins" top="8" left="0.0" bottom="8" right="8"/>
+                                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 <connections>
                                                     <outlet property="albumCountLabel" destination="phm-FY-1Gv" id="XAf-ma-DNS"/>
                                                     <outlet property="artistNameLabel" destination="kGu-7g-VEU" id="nIK-St-psR"/>
@@ -793,6 +796,8 @@
                                                         <constraint firstItem="vr2-8w-6OW" firstAttribute="top" secondItem="aAN-Df-QOa" secondAttribute="top" id="NOq-Ya-Sow"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
+                                                <edgeInsets key="layoutMargins" top="8" left="0.0" bottom="8" right="8"/>
+                                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 <connections>
                                                     <outlet property="albumNameLabel" destination="tk7-Id-Svj" id="POU-mt-XhR"/>
                                                 </connections>
@@ -823,6 +828,8 @@
                                                         <constraint firstAttribute="bottom" secondItem="Xjz-0U-e5B" secondAttribute="bottom" id="bZW-Ve-9Bn"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
+                                                <edgeInsets key="layoutMargins" top="8" left="0.0" bottom="8" right="8"/>
+                                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 <connections>
                                                     <outlet property="trackTitleLabel" destination="KuU-gQ-55h" id="pM9-63-32A"/>
                                                 </connections>
@@ -853,6 +860,8 @@
                                                         <constraint firstItem="2MZ-L6-PUa" firstAttribute="top" secondItem="aMM-XL-ufg" secondAttribute="top" id="zhS-kb-iJJ"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
+                                                <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
+                                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 <connections>
                                                     <outlet property="playListNameLabel" destination="k7l-fV-saO" id="M30-re-LLZ"/>
                                                 </connections>
