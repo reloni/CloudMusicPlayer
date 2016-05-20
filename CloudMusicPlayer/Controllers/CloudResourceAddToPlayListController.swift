@@ -23,6 +23,11 @@ class CloudResourceAddToPlayListController: UIViewController {
 		// Do any additional setup after loading the view.
 		//tableView.separatorInset.left = 0
 		navigationItem.title = model.displayName
+		tableView.setEditing(true, animated: false)
+		
+		let tableCellTap = UITapGestureRecognizer(target: self, action: #selector(self.tableCellTap))
+		tableCellTap.cancelsTouchesInView = false
+		tableView.addGestureRecognizer(tableCellTap)
 		
 		model.content.observeOn(MainScheduler.instance).bindNext { [weak self] _ in
 			self?.tableView.reloadData()
@@ -34,7 +39,32 @@ class CloudResourceAddToPlayListController: UIViewController {
 		// Dispose of any resources that can be recreated.
 	}
 	
+	override func viewWillAppear(animated: Bool) {
+		super.viewWillAppear(animated)
+		
+		tableView.reloadData()
+	}
 	
+	func tableCellTap(recognizer: UIGestureRecognizer) {
+		let location = recognizer.locationInView(tableView)
+		if let indexPath = tableView.indexPathForRowAtPoint(location) {
+			guard let cell = tableView.cellForRowAtIndexPath(indexPath) as? FolderInfoCell else { return }
+			if cell.folderNameLabel.pointInside(recognizer.locationInView(cell.folderNameLabel), withEvent: nil) {
+				showChilds(indexPath)
+				cell.setSelected(false, animated: false)
+			}
+		}
+	}
+	
+	func showChilds(indexPath: NSIndexPath) {
+		let resource = model.cachedContent[indexPath.row]
+		if resource.type == .Folder,
+			let controller = storyboard?.instantiateViewControllerWithIdentifier("AddToPlayListView") as? CloudResourceAddToPlayListController {
+			controller.model = CloudResourceModel(resource: resource, cloudResourceClient: model.cloudResourceClient)
+			navigationController?.pushViewController(controller, animated: true)
+			tableView.deselectRowAtIndexPath(indexPath, animated: false)
+		}
+	}
 	/*
 	// MARK: - Navigation
 	
@@ -48,14 +78,15 @@ class CloudResourceAddToPlayListController: UIViewController {
 }
 
 extension CloudResourceAddToPlayListController : UITableViewDelegate {
-	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-		let resource = model.cachedContent[indexPath.row]
-		if resource.type == .Folder,
-			let controller = storyboard?.instantiateViewControllerWithIdentifier("AddToPlayListView") as? CloudResourceAddToPlayListController {
-			controller.model = CloudResourceModel(resource: resource, cloudResourceClient: model.cloudResourceClient)
-			navigationController?.pushViewController(controller, animated: true)
-		}
-	}
+	//func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+		//guard !tableView.editing else { return }
+		//let resource = model.cachedContent[indexPath.row]
+		//if resource.type == .Folder,
+		//	let controller = storyboard?.instantiateViewControllerWithIdentifier("AddToPlayListView") as? CloudResourceAddToPlayListController {
+		//	controller.model = CloudResourceModel(resource: resource, cloudResourceClient: model.cloudResourceClient)
+		//	navigationController?.pushViewController(controller, animated: true)
+		//}
+	//}
 	
 	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return model.cachedContent.count
