@@ -16,6 +16,8 @@ class CloudResourceAddToPlayListController: UIViewController {
 	@IBOutlet weak var selectAllSwitch: UISwitch!
 	@IBOutlet weak var selectAllLabel: UILabel!
 	@IBOutlet weak var tableView: UITableView!
+	@IBOutlet weak var cancelButton: UIBarButtonItem!
+	@IBOutlet weak var doneButton: UIBarButtonItem!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -32,6 +34,16 @@ class CloudResourceAddToPlayListController: UIViewController {
 		model.content.observeOn(MainScheduler.instance).bindNext { [weak self] _ in
 			self?.tableView.reloadData()
 			}.addDisposableTo(bag)
+		
+		cancelButton.rx_tap.bindNext { [weak self] in
+			self?.dismissViewControllerAnimated(true, completion: nil)
+		}.addDisposableTo(bag)
+		
+		doneButton.rx_tap.bindNext { [weak self] in
+			self?.tableView.indexPathsForSelectedRows?.forEach {
+				print("selected row: \($0.row)")
+			}
+		}.addDisposableTo(bag)
 	}
 	
 	override func didReceiveMemoryWarning() {

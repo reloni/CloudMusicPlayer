@@ -15,7 +15,7 @@ class CloudAccountsController: UIViewController {
 	
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var cancelButton: UIBarButtonItem!
-	@IBOutlet weak var doneButton: UIBarButtonItem!
+	//@IBOutlet weak var doneButton: UIBarButtonItem!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -26,7 +26,7 @@ class CloudAccountsController: UIViewController {
 		//tableView.separatorInset.left = 0
 		
 		cancelButton.rx_tap.bindNext { [weak self] in self?.dismissViewControllerAnimated(true, completion: nil) }.addDisposableTo(bag)
-		doneButton.rx_tap.bindNext { [weak self] in self?.dismissViewControllerAnimated(true, completion: nil) }.addDisposableTo(bag)
+		//doneButton.rx_tap.bindNext { [weak self] in self?.dismissViewControllerAnimated(true, completion: nil) }.addDisposableTo(bag)
 		
 		OAuthAuthenticator.sharedInstance.processedAuthentications.bindNext { [weak self] _ in
 			self?.tableView.reloadData()

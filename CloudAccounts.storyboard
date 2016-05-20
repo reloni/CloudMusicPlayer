@@ -102,12 +102,9 @@
                         <barButtonItem title="Cancel" id="DWu-qx-OIi"/>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="fo8-9N-ESQ"/>
                     </toolbarItems>
-                    <navigationItem key="navigationItem" id="FvG-bL-QTf">
-                        <barButtonItem key="rightBarButtonItem" title="Done" id="zps-qa-DpC"/>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" id="FvG-bL-QTf"/>
                     <connections>
                         <outlet property="cancelButton" destination="DWu-qx-OIi" id="SWK-RC-gJl"/>
-                        <outlet property="doneButton" destination="zps-qa-DpC" id="jar-ih-d4N"/>
                         <outlet property="tableView" destination="fIC-ZL-FsM" id="3zG-L0-cxG"/>
                     </connections>
                 </viewController>
@@ -218,6 +215,8 @@
                         <barButtonItem key="rightBarButtonItem" title="Done" id="IOA-dl-MVE"/>
                     </navigationItem>
                     <connections>
+                        <outlet property="cancelButton" destination="Hb9-g8-qBY" id="4aP-FB-Xsg"/>
+                        <outlet property="doneButton" destination="IOA-dl-MVE" id="fbZ-Pq-qDP"/>
                         <outlet property="selectAllLabel" destination="HUR-vj-ztK" id="HNQ-5M-qVN"/>
                         <outlet property="selectAllSwitch" destination="Axc-V0-Jkl" id="OIq-30-Zhx"/>
                         <outlet property="tableView" destination="HOa-iw-EDF" id="oPX-MG-QHn"/>
