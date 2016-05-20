@@ -71,19 +71,18 @@ extension RxPlayer {
 		}
 	}
 	
-	public func loadMetadataForItemsInQueue() -> Observable<MediaItemMetadataType?> {
+	public func loadMetadataForItemsInQueue() -> Observable<MediaItemMetadataType> {
 		return loadMetadataForItemsInQueue(downloadManager, utilities: streamPlayerUtilities, mediaLibrary: mediaLibrary)
 	}
 	
-	internal func loadMetadataForItemsInQueue(downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol,
-	                                          mediaLibrary: MediaLibraryType) -> Observable<MediaItemMetadataType?> {
+	public func loadMetadataAndAddToMediaLibrary(items: [StreamResourceIdentifier]) -> Observable<MediaItemMetadataType> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-			let loadDisposable = object.currentItems.filter { try! !mediaLibrary.isTrackExists($0.streamIdentifier) }.toObservable().observeOn(serialScheduler)
+			let loadDisposable = items.toObservable().observeOn(serialScheduler)
 				.flatMap { item -> Observable<MediaItemMetadataType?> in
-					return object.loadMetadata(item.streamIdentifier)
+					return object.loadMetadata(item)
 				}.doOnCompleted { print("batch metadata load completed"); observer.onCompleted() }.bindNext { meta in
 					if let meta = meta {
 						observer.onNext(meta)
@@ -92,9 +91,14 @@ extension RxPlayer {
 			
 			return AnonymousDisposable {
 				print("dispose batch metadata load")
-				observer.onCompleted()
+				//observer.onCompleted()
 				loadDisposable.dispose()
 			}
 		}
+	}
+	
+	internal func loadMetadataForItemsInQueue(downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol,
+	                                          mediaLibrary: MediaLibraryType) -> Observable<MediaItemMetadataType> {
+		return loadMetadataAndAddToMediaLibrary(currentItems.map { $0.streamIdentifier })
 	}
 }

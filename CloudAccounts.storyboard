@@ -115,7 +115,7 @@
         <!--Add to play list-->
         <scene sceneID="6gH-Hs-qFD">
             <objects>
-                <viewController storyboardIdentifier="AddToPlayListView" title="Add to play list" automaticallyAdjustsScrollViewInsets="NO" id="hlC-rc-Izq" customClass="CloudResourceAddToPlayListController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AddToMediaLibraryController" title="Add to play list" automaticallyAdjustsScrollViewInsets="NO" id="hlC-rc-Izq" customClass="AddToMediaLibraryController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Zaf-Do-A7O"/>
                         <viewControllerLayoutGuide type="bottom" id="wJn-kk-tf2"/>
@@ -229,7 +229,7 @@
         <!--Add to play list navigation controller-->
         <scene sceneID="DVh-GF-fFw">
             <objects>
-                <navigationController storyboardIdentifier="AddToPlayListNavController" title="Add to play list navigation controller" toolbarHidden="NO" id="9BV-o0-hC8" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="AddToMediaLibraryNavigationController" title="Add to play list navigation controller" toolbarHidden="NO" id="9BV-o0-hC8" customClass="AddToMediaLibraryNavigationController" customModule="CloudMusicPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <toolbarItems/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="mbk-b1-X3P">

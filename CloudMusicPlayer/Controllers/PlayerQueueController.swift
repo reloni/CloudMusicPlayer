@@ -76,7 +76,7 @@ class PlayerQueueController: UIViewController {
 			
 			rxPlayer.loadMetadataForItemsInQueue().bindNext { [weak self] meta in
 				self?.queueTableView.indexPathsForVisibleRows?.forEach { indexPath in
-					if rxPlayer.getItemAtPosition(indexPath.row)?.streamIdentifier.streamResourceUid == meta?.resourceUid {
+					if rxPlayer.getItemAtPosition(indexPath.row)?.streamIdentifier.streamResourceUid == meta.resourceUid {
 						dispatch_async(dispatch_get_main_queue()) {
 							if let cell = self?.queueTableView.cellForRowAtIndexPath(indexPath) as? QueueTrackCell {
 								self?.setCellMetadata(cell, meta: meta)

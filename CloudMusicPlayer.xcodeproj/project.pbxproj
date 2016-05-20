@@ -17,7 +17,7 @@
 		6E088A7C1CEDD278001EED50 /* CloudAccountsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A7B1CEDD278001EED50 /* CloudAccountsController.swift */; };
 		6E088A7E1CEDD42B001EED50 /* NewAccountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A7D1CEDD42B001EED50 /* NewAccountCell.swift */; };
 		6E088A801CEDD43D001EED50 /* ExistedAccountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A7F1CEDD43D001EED50 /* ExistedAccountCell.swift */; };
-		6E088A821CEE051E001EED50 /* CloudResourceAddToPlayListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A811CEE051E001EED50 /* CloudResourceAddToPlayListController.swift */; };
+		6E088A821CEE051E001EED50 /* AddToMediaLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A811CEE051E001EED50 /* AddToMediaLibraryController.swift */; };
 		6E088A841CEE3029001EED50 /* FolderInfoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E088A831CEE3029001EED50 /* FolderInfoCell.swift */; };
 		6E0A02921C8A0CB500AD9B38 /* StreamDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A028E1C8A0CB500AD9B38 /* StreamDataTask.swift */; };
 		6E0A02941C8A0D0B00AD9B38 /* NSFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A02931C8A0D0B00AD9B38 /* NSFileManager.swift */; };
@@ -33,6 +33,8 @@
 		6E182EDA1C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */; };
 		6E1F020E1C57F14800490013 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F020D1C57F14800490013 /* Keychain.swift */; };
 		6E1F5BF71CC638ED0035DA4A /* NSFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F5BF61CC638ED0035DA4A /* NSFileManagerTests.swift */; };
+		6E1FDD8C1CEF78B600AB0B08 /* MediaLibraryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1FDD8B1CEF78B600AB0B08 /* MediaLibraryModel.swift */; };
+		6E1FDD8E1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1FDD8D1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift */; };
 		6E21C9701CEC7C3B00614B0F /* MediaLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E21C96F1CEC7C3B00614B0F /* MediaLibraryController.swift */; };
 		6E21C9721CEC86F500614B0F /* AlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E21C9711CEC86F500614B0F /* AlbumCell.swift */; };
 		6E21C9761CEC871B00614B0F /* TrackCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E21C9751CEC871B00614B0F /* TrackCell.swift */; };
@@ -154,7 +156,7 @@
 		6E088A7B1CEDD278001EED50 /* CloudAccountsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudAccountsController.swift; sourceTree = "<group>"; };
 		6E088A7D1CEDD42B001EED50 /* NewAccountCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewAccountCell.swift; sourceTree = "<group>"; };
 		6E088A7F1CEDD43D001EED50 /* ExistedAccountCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExistedAccountCell.swift; sourceTree = "<group>"; };
-		6E088A811CEE051E001EED50 /* CloudResourceAddToPlayListController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourceAddToPlayListController.swift; sourceTree = "<group>"; };
+		6E088A811CEE051E001EED50 /* AddToMediaLibraryController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToMediaLibraryController.swift; sourceTree = "<group>"; };
 		6E088A831CEE3029001EED50 /* FolderInfoCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FolderInfoCell.swift; sourceTree = "<group>"; };
 		6E0A028E1C8A0CB500AD9B38 /* StreamDataTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StreamDataTask.swift; path = CloudMusicPlayer/HttpExtensions/Stream/StreamDataTask.swift; sourceTree = SOURCE_ROOT; };
 		6E0A02931C8A0D0B00AD9B38 /* NSFileManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSFileManager.swift; sourceTree = "<group>"; };
@@ -170,6 +172,8 @@
 		6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexDiskCloudAudioJsonResource.swift; sourceTree = "<group>"; };
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
 		6E1F5BF61CC638ED0035DA4A /* NSFileManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSFileManagerTests.swift; sourceTree = "<group>"; };
+		6E1FDD8B1CEF78B600AB0B08 /* MediaLibraryModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaLibraryModel.swift; sourceTree = "<group>"; };
+		6E1FDD8D1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToMediaLibraryNavigationController.swift; sourceTree = "<group>"; };
 		6E21C96F1CEC7C3B00614B0F /* MediaLibraryController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaLibraryController.swift; sourceTree = "<group>"; };
 		6E21C9711CEC86F500614B0F /* AlbumCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlbumCell.swift; sourceTree = "<group>"; };
 		6E21C9751CEC871B00614B0F /* TrackCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackCell.swift; sourceTree = "<group>"; };
@@ -408,7 +412,8 @@
 				6EB1929C1CC3B45D00FF3024 /* PlayerQueueController.swift */,
 				6E21C96F1CEC7C3B00614B0F /* MediaLibraryController.swift */,
 				6E088A7B1CEDD278001EED50 /* CloudAccountsController.swift */,
-				6E088A811CEE051E001EED50 /* CloudResourceAddToPlayListController.swift */,
+				6E088A811CEE051E001EED50 /* AddToMediaLibraryController.swift */,
+				6E1FDD8D1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift */,
 			);
 			name = Controllers;
 			path = CloudMusicPlayer/Controllers;
@@ -489,6 +494,7 @@
 				6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */,
 				6E088A751CEDB183001EED50 /* CloudAccountsModel.swift */,
 				6E088A771CEDB5E6001EED50 /* CloudResourceModel.swift */,
+				6E1FDD8B1CEF78B600AB0B08 /* MediaLibraryModel.swift */,
 			);
 			name = ViewModels;
 			path = CloudMusicPlayer/ViewModels;
@@ -819,6 +825,7 @@
 				6E1350D51CDE766D008B1267 /* SwiftyJson.swift in Sources */,
 				6E0A02921C8A0CB500AD9B38 /* StreamDataTask.swift in Sources */,
 				6E182EDA1C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift in Sources */,
+				6E1FDD8C1CEF78B600AB0B08 /* MediaLibraryModel.swift in Sources */,
 				6E0A02941C8A0D0B00AD9B38 /* NSFileManager.swift in Sources */,
 				6EC4A4231C8D81750030476D /* Dictionary.swift in Sources */,
 				6E8490C41CA9733B00366361 /* Collection.swift in Sources */,
@@ -874,11 +881,12 @@
 				6EB1929F1CC3BC8100FF3024 /* QueueTrackCell.swift in Sources */,
 				6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */,
 				6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */,
-				6E088A821CEE051E001EED50 /* CloudResourceAddToPlayListController.swift in Sources */,
+				6E088A821CEE051E001EED50 /* AddToMediaLibraryController.swift in Sources */,
 				6EEB989F1C4EBE1700DD5B95 /* AppDelegate.swift in Sources */,
 				6E6DDE491C8DC455001AE510 /* CMTime.swift in Sources */,
 				6EDB49831CBE419900F82E02 /* NSURL.swift in Sources */,
 				6E31A89A1C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift in Sources */,
+				6E1FDD8E1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift in Sources */,
 				6E1F020E1C57F14800490013 /* Keychain.swift in Sources */,
 				6EA16FEE1CC7668A00D4D257 /* CloudResourceCacheProvider.swift in Sources */,
 				6E658BD81CB81FAF0011354C /* RxPlayer+PlayControl.swift in Sources */,

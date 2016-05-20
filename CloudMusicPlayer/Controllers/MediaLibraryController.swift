@@ -10,16 +10,32 @@ import UIKit
 import RxSwift
 
 class MediaLibraryController: UIViewController {
+	let model = MediaLibraryModel(player: rxPlayer)
+	
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var segment: UISegmentedControl!
+	@IBOutlet weak var addItemsBarButton: UIBarButtonItem!
 	
 	let bag = DisposeBag()
 	
 	override func viewDidLoad() {
-		automaticallyAdjustsScrollViewInsets = false
 		segment.rx_value.bindNext { [weak self] _ in
 			self?.tableView.reloadData()
 		}.addDisposableTo(bag)
+		
+		addItemsBarButton.rx_tap.bindNext { [weak self] in
+			guard let object = self else { return }
+			if case 0...2 = object.segment.selectedSegmentIndex {
+				let destinationController = ViewControllers.addToMediaLibraryNavigationController.getController() as! AddToMediaLibraryNavigationController
+				destinationController.destinationMediaLibrary = object.model
+				object.presentViewController(destinationController, animated: true, completion: nil)
+			}
+		}.addDisposableTo(bag)
+	}
+	
+	override func viewWillAppear(animated: Bool) {
+		print("media lib will appear")
+		tableView.reloadData()
 	}
 	
 	func getItemsForSegment() -> Int {

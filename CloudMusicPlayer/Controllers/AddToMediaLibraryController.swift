@@ -9,7 +9,7 @@
 import UIKit
 import RxSwift
 
-class CloudResourceAddToPlayListController: UIViewController {
+class AddToMediaLibraryController: UIViewController {
 	var model: CloudResourceModel!
 	let bag = DisposeBag()
 	
@@ -40,9 +40,18 @@ class CloudResourceAddToPlayListController: UIViewController {
 		}.addDisposableTo(bag)
 		
 		doneButton.rx_tap.bindNext { [weak self] in
-			self?.tableView.indexPathsForSelectedRows?.forEach {
-				print("selected row: \($0.row)")
+			guard let object = self else { return }
+			//(self?.parentViewController as? AddToMediaLibraryNavigationController)?.destinationMediaLibrary.
+			//print("is parent controller media lib: \(self?.parentViewController?.title)")
+			//self?.tableView.indexPathsForSelectedRows?.forEach {
+			//	print("selected row: \($0.row)")
+			//}
+			if let selectedRows = object.tableView.indexPathsForSelectedRows,
+				mediaLibraryModel = (object.parentViewController as? AddToMediaLibraryNavigationController)?.destinationMediaLibrary {
+				//mediaLibraryModel.addNewLibraryItems()
+				//(selectedRows.map { object.model.cachedContent[$0.row] })
 			}
+			
 		}.addDisposableTo(bag)
 	}
 	
@@ -71,7 +80,8 @@ class CloudResourceAddToPlayListController: UIViewController {
 	func showChilds(indexPath: NSIndexPath) {
 		let resource = model.cachedContent[indexPath.row]
 		if resource.type == .Folder,
-			let controller = storyboard?.instantiateViewControllerWithIdentifier("AddToPlayListView") as? CloudResourceAddToPlayListController {
+			let controller = ViewControllers.addToMediaLibraryController.getController() as? AddToMediaLibraryController {
+		//storyboard?.instantiateViewControllerWithIdentifier("AddToPlayListView") as? CloudResourceAddToPlayListController {
 			controller.model = CloudResourceModel(resource: resource, cloudResourceClient: model.cloudResourceClient)
 			navigationController?.pushViewController(controller, animated: true)
 			tableView.deselectRowAtIndexPath(indexPath, animated: false)
@@ -89,7 +99,7 @@ class CloudResourceAddToPlayListController: UIViewController {
 	
 }
 
-extension CloudResourceAddToPlayListController : UITableViewDelegate {
+extension AddToMediaLibraryController : UITableViewDelegate {
 	//func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 		//guard !tableView.editing else { return }
 		//let resource = model.cachedContent[indexPath.row]

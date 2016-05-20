@@ -899,13 +899,10 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Library" id="wuZ-H7-pZm"/>
                     <navigationItem key="navigationItem" id="CLI-mn-Yqw">
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="31d-sQ-Fam">
-                            <connections>
-                                <segue destination="ie2-Ci-X4o" kind="presentation" modalTransitionStyle="coverVertical" id="z7g-8G-gOZ"/>
-                            </connections>
-                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="31d-sQ-Fam"/>
                     </navigationItem>
                     <connections>
+                        <outlet property="addItemsBarButton" destination="31d-sQ-Fam" id="oaW-FC-slA"/>
                         <outlet property="segment" destination="PdX-Ay-Wiq" id="1g0-0U-sp2"/>
                         <outlet property="tableView" destination="nUl-rw-rtw" id="zLp-Nc-ZLL"/>
                     </connections>
@@ -914,18 +911,10 @@
             </objects>
             <point key="canvasLocation" x="314" y="2679"/>
         </scene>
-        <!--AddToPlayListNavController-->
-        <scene sceneID="vh7-4g-UF3">
-            <objects>
-                <viewControllerPlaceholder storyboardName="CloudAccounts" referencedIdentifier="AddToPlayListNavController" id="ie2-Ci-X4o" sceneMemberID="viewController"/>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="3xO-cb-nYY" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="329" y="3119"/>
-        </scene>
-        <!--Tab Bar Controller-->
+        <!--Root tab bar-->
         <scene sceneID="aOZ-ZI-djA">
             <objects>
-                <tabBarController storyboardIdentifier="RootTabBarController" id="tww-fJ-h7i" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="RootTabBarController" title="Root tab bar" id="tww-fJ-h7i" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" id="zCn-C8-gyT">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
