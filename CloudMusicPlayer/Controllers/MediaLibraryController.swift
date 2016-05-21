@@ -15,10 +15,12 @@ class MediaLibraryController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var segment: UISegmentedControl!
 	@IBOutlet weak var addItemsBarButton: UIBarButtonItem!
+	@IBOutlet weak var processingMetadataItemsCountLabel: UILabel!
+	@IBOutlet weak var processingMetadataItemsView: UIView!
 	
 	let bag = DisposeBag()
 	
-	override func viewDidLoad() {
+	override func viewDidLoad() {		
 		segment.rx_value.bindNext { [weak self] _ in
 			self?.tableView.reloadData()
 		}.addDisposableTo(bag)
@@ -29,13 +31,53 @@ class MediaLibraryController: UIViewController {
 				let destinationController = ViewControllers.addToMediaLibraryNavigationController.getController() as! AddToMediaLibraryNavigationController
 				destinationController.destinationMediaLibrary = object.model
 				object.presentViewController(destinationController, animated: true, completion: nil)
+			} else if object.segment.selectedSegmentIndex == 3 {
+				object.showNewAlbumNameAlert()
 			}
+		}.addDisposableTo(bag)
+		
+		model.loadProgress.observeOn(MainScheduler.instance).bindNext { [weak self] progress in
+			self?.showProcessingMetadataItems(progress)
+			print("Remaining items: \(progress)")
 		}.addDisposableTo(bag)
 	}
 	
 	override func viewWillAppear(animated: Bool) {
-		print("media lib will appear")
 		tableView.reloadData()
+	}
+	
+	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+		if segue.identifier == "ShowPlayListInfo" && segment.selectedSegmentIndex == 3 {
+			guard let index = tableView.indexPathForSelectedRow, playList = (try? model.player.mediaLibrary.getPlayLists()[index.row]) ?? nil else { return }
+			guard let controller = segue.destinationViewController as? PlayListInfoController else { return }
+			controller.model = PlayListInfoModel(playList: playList)
+		}
+	}
+	
+	func showProcessingMetadataItems(count: Int) {
+		UIView.animateWithDuration(0.5, animations: { [weak self] in
+			self?.processingMetadataItemsCountLabel.text = String(count)
+			self?.processingMetadataItemsView.hidden = count <= 0
+		})
+	}
+	
+	func showNewAlbumNameAlert() {
+		let alert = UIAlertController(title: "Enter play list name", message: nil, preferredStyle: .Alert)
+		alert.addTextFieldWithConfigurationHandler {
+			$0.placeholder = "Play list name"
+		}
+		let ok = UIAlertAction(title: "OK", style: .Default) { [weak self] _ in
+			if let newPlayListName = alert.textFields?.first?.text {
+				do {
+					try self?.model.player.mediaLibrary.createPlayList(newPlayListName)
+					self?.tableView.reloadData()
+				} catch { }
+			}
+		}
+		let cancel = UIAlertAction(title: "Cancel", style: .Default, handler: nil)
+		alert.addAction(cancel)
+		alert.addAction(ok)
+		presentViewController(alert, animated: true, completion: nil)
 	}
 	
 	func getItemsForSegment() -> Int {
@@ -115,5 +157,24 @@ extension MediaLibraryController : UITableViewDelegate {
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		return getCell(indexPath)
+	}
+}
+
+extension MediaLibraryController : UITableViewDataSource {
+	func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+		if segment.selectedSegmentIndex == 3 {
+			return UITableViewCellEditingStyle.Delete
+		} else {
+			return UITableViewCellEditingStyle.None
+		}
+	}
+	
+	func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+		if editingStyle == .Delete && segment.selectedSegmentIndex == 3 {
+			if let pl = (try? model.player.mediaLibrary.getPlayLists()[indexPath.row]) ?? nil {
+				try! model.player.mediaLibrary.deletePlayList(pl)
+				tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+			}
+		}
 	}
 }

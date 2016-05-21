@@ -22,6 +22,8 @@ class CloudAccountsController: UIViewController {
 		
 		// Do any additional setup after loading the view.
 		
+		navigationItem.title = "Accounts"
+		
 		//automaticallyAdjustsScrollViewInsets = false
 		//tableView.separatorInset.left = 0
 		

@@ -11,21 +11,41 @@ import RxSwift
 
 class MediaLibraryModel {
 	let player: RxPlayer
-	var newLibraryItems = [StreamResourceIdentifier]()
+	let newResourceSubject = PublishSubject<CloudResource>()
+	var pendingItemsCount = 0
+	let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	
 	init(player: RxPlayer) {
 		self.player = player
 	}
 	
-	func addToMediaLibrary(resource: CloudResource) {
-		
+	func addToMediaLibrary(resources: [CloudResource]) {
+		resources.forEach { pendingItemsCount += 1; newResourceSubject.onNext($0) }
 	}
-	
-	func addNewLibraryItems(items: [StreamResourceIdentifier]) {
-		newLibraryItems.appendContentsOf(items)
-	}
-	
-	func loadNewItemsToLibrary() {
+
+	var loadProgress: Observable<Int> {
+		return Observable.create { [weak self] observer in
+			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+			
+			var itemsToProcess = 0
+			//var processedItems = 0
+			let disposable = object.newResourceSubject.observeOn(object.scheduler).flatMap { resource -> Observable<CloudResource> in
+				if resource is CloudAudioResource {
+					return Observable.just(resource)
+				} else {
+					return resource.loadChildResourcesRecursive()
+				}
+				}.filter { $0 is CloudAudioResource }.map { item -> StreamResourceIdentifier in itemsToProcess += 1; return item as! StreamResourceIdentifier }
+				.observeOn(object.scheduler).flatMap { return rxPlayer.loadMetadata($0) }
+				.doOnNext { _ in
+					itemsToProcess -= 1
+					//observer.onNext((remainingItems: itemsToProcess, currentItemProgress: 0))
+					observer.onNext(itemsToProcess)
+				}.subscribe()
 		
+			return AnonymousDisposable {
+				disposable.dispose()
+			}
+		}
 	}
 }

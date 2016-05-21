@@ -41,17 +41,11 @@ class AddToMediaLibraryController: UIViewController {
 		
 		doneButton.rx_tap.bindNext { [weak self] in
 			guard let object = self else { return }
-			//(self?.parentViewController as? AddToMediaLibraryNavigationController)?.destinationMediaLibrary.
-			//print("is parent controller media lib: \(self?.parentViewController?.title)")
-			//self?.tableView.indexPathsForSelectedRows?.forEach {
-			//	print("selected row: \($0.row)")
-			//}
 			if let selectedRows = object.tableView.indexPathsForSelectedRows,
 				mediaLibraryModel = (object.parentViewController as? AddToMediaLibraryNavigationController)?.destinationMediaLibrary {
-				//mediaLibraryModel.addNewLibraryItems()
-				//(selectedRows.map { object.model.cachedContent[$0.row] })
+				mediaLibraryModel.addToMediaLibrary(selectedRows.map { object.model.cachedContent[$0.row] })
 			}
-			
+			object.dismissViewControllerAnimated(true, completion: nil)
 		}.addDisposableTo(bag)
 	}
 	
