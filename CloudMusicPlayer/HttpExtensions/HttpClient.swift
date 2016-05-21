@@ -50,7 +50,7 @@ extension HttpClient : HttpClientProtocol {
 		-> Observable<JSON> {
 			return Observable.create { [weak self] observer in
 				guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
-				let task = object.loadData(request).observeOn(object.scheduler).doOnError { observer.onError($0) }.bindNext { result in
+				let task = object.loadData(request).doOnError { observer.onError($0) }.bindNext { result in
 					if case .SuccessData(let data) = result {
 						observer.onNext(JSON(data: data))
 					} //else if case .Success = result {
@@ -93,7 +93,7 @@ extension HttpClient : HttpClientProtocol {
 				return AnonymousDisposable {
 					task.cancel()
 				}
-			}.shareReplay(0)
+			}.observeOn(scheduler).shareReplay(0)
 	}
 	
 //	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON> {
