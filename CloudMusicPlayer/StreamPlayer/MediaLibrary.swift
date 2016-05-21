@@ -8,6 +8,10 @@
 
 import Foundation
 
+public enum MediaLibraryErroros : ErrorType {
+	case emptyPlayListName
+}
+
 public protocol MediaLibraryType {
 	// metadata
 	func getArtists() throws -> MediaCollection<ArtistType, RealmArtist>

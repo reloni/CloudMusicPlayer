@@ -689,4 +689,16 @@ class RealmMediaLibraryTests: XCTestCase {
 		
 		XCTAssertEqual(try! lib.getAlbums().count, 3)
 	}
+	
+	func testNotCreatePlayListWithEmptyName() {
+		let lib = RealmMediaLibrary()
+		do {
+			try lib.createPlayList("")
+		} catch MediaLibraryErroros.emptyPlayListName {
+		} catch {
+			XCTFail("Should throw correct exception")
+		}
+		let realm = try! Realm()
+		XCTAssertEqual(0, realm.objects(RealmPlayList).count)
+	}
 }

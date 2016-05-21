@@ -166,6 +166,9 @@ extension RealmMediaLibrary : MediaLibraryType {
 	}
 	
 	public func createPlayList(name: String) throws -> PlayListType {
+		if name.isEmpty {
+			throw MediaLibraryErroros.emptyPlayListName
+		}
 		let realm = try getRealm()
 		let playList = RealmPlayList(uid: NSUUID().UUIDString, name: name)
 		try realm.write { realm.add(playList) }
