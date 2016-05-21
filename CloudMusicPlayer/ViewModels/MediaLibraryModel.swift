@@ -36,12 +36,13 @@ class MediaLibraryModel {
 					return resource.loadChildResourcesRecursive()
 				}
 				}.filter { $0 is CloudAudioResource }.map { item -> StreamResourceIdentifier in itemsToProcess += 1; return item as! StreamResourceIdentifier }
-				.observeOn(object.scheduler).flatMap { return rxPlayer.loadMetadata($0) }
+				//.observeOn(object.scheduler)
+				.flatMap { return rxPlayer.loadMetadata($0) }.catchError { _ in print("catch in library model"); return Observable.empty() }
 				.doOnNext { _ in
 					itemsToProcess -= 1
 					//observer.onNext((remainingItems: itemsToProcess, currentItemProgress: 0))
 					observer.onNext(itemsToProcess)
-				}.subscribe()
+				}.doOnCompleted { print("completed?") }.subscribe()
 		
 			return AnonymousDisposable {
 				disposable.dispose()

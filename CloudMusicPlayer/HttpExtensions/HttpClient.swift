@@ -27,6 +27,7 @@ public protocol HttpClientProtocol {
 public class HttpClient {
 	public let urlSession: NSURLSessionProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
+	internal let scheduler = ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	
 	public init(urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
 	            httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
@@ -47,8 +48,9 @@ public class HttpClient {
 extension HttpClient : HttpClientProtocol {
 	public func loadJsonData(request: NSMutableURLRequestProtocol)
 		-> Observable<JSON> {
-			return Observable.create { observer in
-				let task = self.loadData(request).doOnError { observer.onError($0) }.bindNext { result in
+			return Observable.create { [weak self] observer in
+				guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+				let task = object.loadData(request).observeOn(object.scheduler).doOnError { observer.onError($0) }.bindNext { result in
 					if case .SuccessData(let data) = result {
 						observer.onNext(JSON(data: data))
 					} //else if case .Success = result {
@@ -60,14 +62,17 @@ extension HttpClient : HttpClientProtocol {
 				return AnonymousDisposable {
 					task.dispose()
 				}
-			}.shareReplay(1)
+			}.shareReplay(0)
 	}
 	
 	public func loadData(request: NSMutableURLRequestProtocol)
 		-> Observable<HttpRequestResult> {
-			return Observable.create { [unowned self] observer in
+			//print("loadData: \(request.URL)")
+			return Observable.create { [weak self] observer in
+				guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 				
-				let task = self.urlSession.dataTaskWithRequest(request) { data, response, error in
+				let task = object.urlSession.dataTaskWithRequest(request) { data, response, error in
+					//print("response for: \(request.URL), response: \((response as? NSHTTPURLResponse)?.statusCode)")
 					if let error = error {
 						observer.onError(error)
 						return
@@ -88,7 +93,7 @@ extension HttpClient : HttpClientProtocol {
 				return AnonymousDisposable {
 					task.cancel()
 				}
-			}.shareReplay(1)
+			}.shareReplay(0)
 	}
 	
 //	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON> {
@@ -98,8 +103,10 @@ extension HttpClient : HttpClientProtocol {
 	
 	public func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?)
 		-> Observable<StreamTaskEvents> {
-		return Observable.create { [unowned self] observer in
-			let task = self.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: self.urlSession.configuration,
+		return Observable.create { [weak self] observer in
+			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+			
+			let task = object.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: object.urlSession.configuration,
 				cacheProvider: cacheProvider)
 				
 			let disposable = task.taskProgress.doOnError { observer.onError($0) }.bindNext { result in
@@ -116,6 +123,6 @@ extension HttpClient : HttpClientProtocol {
 				task.cancel()
 				disposable.dispose()
 			}
-		}.shareReplay(1)
+		}.shareReplay(0)
 	}
 }

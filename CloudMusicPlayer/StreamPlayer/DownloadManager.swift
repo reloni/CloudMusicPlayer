@@ -89,6 +89,8 @@ public class DownloadManager {
 	}
 	
 	internal func createDownloadTaskUnsafe(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> StreamDataTaskProtocol? {
+		//return nil
+		//print("check running")
 		if let runningTask = pendingTasks[identifier.streamResourceUid] {
 			runningTask.taskDependenciesCount += 1
 			if runningTask.priority.rawValue < priority.rawValue {
@@ -97,6 +99,7 @@ public class DownloadManager {
 			return runningTask.task
 		}
 
+		//print("check in storage")
 		if let file = fileStorage.getFromStorage(identifier.streamResourceUid), path = file.path {
 			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
@@ -107,8 +110,12 @@ public class DownloadManager {
 			return task
 		}
 		
+		//print("get resource type")
 		let resourceType = identifier.streamResourceType
-		if let path = identifier.streamResourceUrl where identifier.streamResourceType == .LocalResource {
+		//print("returned type: \(resourceType)")
+		let resourceUrl = identifier.streamResourceUrl
+		//print("check type")
+		if let path = resourceUrl where resourceType == .LocalResource {
 			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
 			if let task = task {
@@ -121,11 +128,12 @@ public class DownloadManager {
 		
 		guard resourceType == .HttpResource || resourceType == .HttpsResource else { return nil }
 		
-		guard let url = identifier.streamResourceUrl,
+		guard let url = resourceUrl,
 			urlRequest = httpUtilities.createUrlRequest(url, parameters: nil, headers: (identifier as? StreamHttpResourceIdentifier)?.streamHttpHeaders) else {
 				return nil
 		}
 		
+		//print("create stream task")
 		let task = httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
 		                                              sessionConfiguration: NSURLSession.defaultConfig,
 		                                              cacheProvider: fileStorage.createCacheProvider(identifier.streamResourceUid,
@@ -177,7 +185,9 @@ extension DownloadManager : DownloadManagerType {
 			
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 
+			print("new download: \(identifier.streamResourceUid)")
 			dispatch_sync(object.queue) {
+				print("start sync")
 				guard let task = object.createDownloadTaskUnsafe(identifier, priority: priority) else {
 					let	message = "Unable to download data"
 					let	code = DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue
@@ -187,6 +197,7 @@ extension DownloadManager : DownloadManagerType {
 					observer.onError(error); result = NopDisposable.instance; return;
 				}
 				
+				print("create disposable")
 				let disposable = task.taskProgress.observeOn(object.serialScheduler).doOnError {
 					self?.removePendingTaskUnsafe(identifier.streamResourceUid, force: true); observer.onError($0)
 					}.doOnCompleted { observer.onCompleted() }.bindNext { result in
@@ -208,7 +219,9 @@ extension DownloadManager : DownloadManagerType {
 					disposable.dispose()
 					self?.removePendingTaskUnsafe(identifier.streamResourceUid)
 				}
+
 			}
+			print("Exit sync: \(identifier.streamResourceUid)")
 			
 			return result!
 		}
