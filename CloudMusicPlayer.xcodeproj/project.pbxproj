@@ -58,6 +58,7 @@
 		6E5159021CA3D61D001FD036 /* FakeStreamPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5159011CA3D61D001FD036 /* FakeStreamPlayer.swift */; };
 		6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254491C676BE900CA5463 /* NSUserDefaults.swift */; };
 		6E54CBCC1CF19D8E00033075 /* CustomErrorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E54CBCB1CF19D8E00033075 /* CustomErrorType.swift */; };
+		6E54CBCE1CF1A10F00033075 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E54CBCD1CF1A10F00033075 /* Result.swift */; };
 		6E5B8A2F1CE35A3200785D76 /* RealmMediaLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5B8A2E1CE35A3200785D76 /* RealmMediaLibraryTests.swift */; };
 		6E6311161CA3D844006C0072 /* AssetResourceLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6311151CA3D844006C0072 /* AssetResourceLoaderTests.swift */; };
 		6E658BD81CB81FAF0011354C /* RxPlayer+PlayControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E658BD71CB81FAF0011354C /* RxPlayer+PlayControl.swift */; };
@@ -200,6 +201,7 @@
 		6E5159011CA3D61D001FD036 /* FakeStreamPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeStreamPlayer.swift; sourceTree = "<group>"; };
 		6E5254491C676BE900CA5463 /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
 		6E54CBCB1CF19D8E00033075 /* CustomErrorType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomErrorType.swift; sourceTree = "<group>"; };
+		6E54CBCD1CF1A10F00033075 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		6E5B8A2E1CE35A3200785D76 /* RealmMediaLibraryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmMediaLibraryTests.swift; sourceTree = "<group>"; };
 		6E6311151CA3D844006C0072 /* AssetResourceLoaderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetResourceLoaderTests.swift; sourceTree = "<group>"; };
 		6E658BD71CB81FAF0011354C /* RxPlayer+PlayControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RxPlayer+PlayControl.swift"; sourceTree = "<group>"; };
@@ -497,6 +499,7 @@
 			isa = PBXGroup;
 			children = (
 				6E54CBCB1CF19D8E00033075 /* CustomErrorType.swift */,
+				6E54CBCD1CF1A10F00033075 /* Result.swift */,
 			);
 			name = Core;
 			path = CloudMusicPlayer/Core;
@@ -846,6 +849,7 @@
 				6E54CBCC1CF19D8E00033075 /* CustomErrorType.swift in Sources */,
 				6E1FDD8C1CEF78B600AB0B08 /* MediaLibraryModel.swift in Sources */,
 				6E0A02941C8A0D0B00AD9B38 /* NSFileManager.swift in Sources */,
+				6E54CBCE1CF1A10F00033075 /* Result.swift in Sources */,
 				6EC4A4231C8D81750030476D /* Dictionary.swift in Sources */,
 				6E8490C41CA9733B00366361 /* Collection.swift in Sources */,
 				6E182ED41C81D66300730C59 /* CloudFolderCell.swift in Sources */,

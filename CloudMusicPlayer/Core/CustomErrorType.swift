@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol CustomErrorType : ErrorType {
+public protocol CustomErrorType : ErrorType {
 	func userInfo() -> Dictionary<String,String>
 	func errorDomain() -> String
 	func errorCode() -> Int
@@ -17,11 +17,11 @@ protocol CustomErrorType : ErrorType {
 }
 
 extension CustomErrorType {
-	func error() -> NSError {
+	public func error() -> NSError {
 		return NSError(domain: self.errorDomain(), code: self.errorCode(), userInfo: self.userInfo())
 	}
 	
-	func userInfo() -> Dictionary<String, String> {
+	public func userInfo() -> Dictionary<String, String> {
 		return [NSLocalizedDescriptionKey: errorDescription()]
 	}
 }

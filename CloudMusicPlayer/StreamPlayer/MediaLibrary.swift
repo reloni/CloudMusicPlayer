@@ -11,17 +11,17 @@ import Foundation
 public enum MediaLibraryErroros : CustomErrorType {
 	case emptyPlayListName
 	
-	func errorDomain() -> String {
+	public func errorDomain() -> String {
 		return "MediaLibraryDomain"
 	}
 	
-	func errorCode() -> Int {
+	public func errorCode() -> Int {
 		switch self {
 		case .emptyPlayListName: return 1
 		}
 	}
 	
-	func errorDescription() -> String {
+	public func errorDescription() -> String {
 		return "Play list name cannot be empty"
 	}
 }
