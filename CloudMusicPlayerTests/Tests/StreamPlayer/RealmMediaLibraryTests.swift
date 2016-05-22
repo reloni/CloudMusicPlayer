@@ -694,9 +694,13 @@ class RealmMediaLibraryTests: XCTestCase {
 		let lib = RealmMediaLibrary()
 		do {
 			try lib.createPlayList("")
-		} catch MediaLibraryErroros.emptyPlayListName {
-		} catch {
-			XCTFail("Should throw correct exception")
+		}
+		catch {
+			guard let error = error as? CustomErrorType else {
+				XCTFail("Should throw correct exception")
+				return
+			}
+			XCTAssertEqual(error.errorCode(), MediaLibraryErroros.emptyPlayListName.errorCode())
 		}
 		let realm = try! Realm()
 		XCTAssertEqual(0, realm.objects(RealmPlayList).count)

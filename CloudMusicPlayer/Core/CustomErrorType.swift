@@ -1,0 +1,27 @@
+//
+//  CustomErrorType.swift
+//  CloudMusicPlayer
+//
+//  Created by Anton Efimenko on 22.05.16.
+//  Copyright © 2016 Anton Efimenko. All rights reserved.
+//
+
+import Foundation
+
+protocol CustomErrorType : ErrorType {
+	func userInfo() -> Dictionary<String,String>
+	func errorDomain() -> String
+	func errorCode() -> Int
+	func errorDescription() -> String
+	func error() -> NSError
+}
+
+extension CustomErrorType {
+	func error() -> NSError {
+		return NSError(domain: self.errorDomain(), code: self.errorCode(), userInfo: self.userInfo())
+	}
+	
+	func userInfo() -> Dictionary<String, String> {
+		return [NSLocalizedDescriptionKey: errorDescription()]
+	}
+}
