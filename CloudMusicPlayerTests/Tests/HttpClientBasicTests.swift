@@ -50,7 +50,7 @@ class HttpClientBasicTests: XCTestCase {
 		let expectation = expectationWithDescription("Should return string as NSData")
 		
 		httpClient.loadData(request).bindNext { result in
-			if case .SuccessData(let data) = result where String(data: data, encoding: NSUTF8StringEncoding) == "Test data" {
+			if case .successData(let data) = result where String(data: data, encoding: NSUTF8StringEncoding) == "Test data" {
 				expectation.fulfill()
 			}
 			}.addDisposableTo(bag)
@@ -70,7 +70,7 @@ class HttpClientBasicTests: XCTestCase {
 		let expectation = expectationWithDescription("Should return nil (as simple Success)")
 		
 		httpClient.loadData(request).bindNext { result in
-			if case .Success = result {
+			if case .success = result {
 				expectation.fulfill()
 			}
 			}.addDisposableTo(bag)
@@ -89,11 +89,12 @@ class HttpClientBasicTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return NSError")
 		
-		httpClient.loadData(request).doOnError { error in
+		httpClient.loadData(request).bindNext { result in
+			guard case HttpRequestResult.error(let error) = result else { return }
 			if (error as NSError).code == 1 {
 				expectation.fulfill()
 			}
-			}.subscribe().addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
@@ -110,8 +111,9 @@ class HttpClientBasicTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return json data")
 		
-		httpClient.loadJsonData(request).bindNext { json in
-			if json["Test"] == "Value" {
+		httpClient.loadJsonData(request).bindNext { result in
+			guard case Result.success(let box) = result else { return }
+			if box.value["Test"] == "Value" {
 				expectation.fulfill()
 			}
 		}.addDisposableTo(bag)

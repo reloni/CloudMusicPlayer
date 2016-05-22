@@ -104,10 +104,24 @@ extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
 	}
 	
 	public var streamResourceUrl: String? {		
-		do {
-			let array = try downloadUrl.toBlocking().toArray()
-			return array.first ?? nil
-		} catch { return nil }
+		//do {
+		//	let array = try downloadUrl.toBlocking().toArray()
+		//	return array.first ?? nil
+		//} catch { return nil }
+		let dispatchGroup = dispatch_group_create()
+		var url: String? = nil
+		// use dispatch group to perfort sync operation
+		let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
+		dispatch_group_enter(dispatchGroup)
+		let disposable = downloadUrl.observeOn(scheduler).bindNext { result in
+			url = result
+			dispatch_group_leave(dispatchGroup)
+		}
+		
+		// wait until async is completed
+		dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, Int64(2 * NSEC_PER_SEC)))
+		disposable.dispose()
+		return url
 	}
 	
 	public var streamResourceContentType: ContentType? {

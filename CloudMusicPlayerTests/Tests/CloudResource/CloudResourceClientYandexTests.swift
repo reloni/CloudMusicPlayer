@@ -65,7 +65,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		//YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient)?.bindNext { result in
 		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).bindNext { result in
-			if result.count == 9 {
+			guard case Result.success(let box) = result else { return }
+			if box.value.count == 9 {
 				expectation.fulfill()
 			}
 			}.addDisposableTo(bag)
@@ -86,11 +87,12 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		let client = CloudResourceClient()
 		//YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient)?.doOnError { error in
-		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).doOnError { error in
+		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).bindNext { result in
+			guard case Result.error(let error) = result else { return }
 			if (error as NSError).code == 1 {
 				expectation.fulfill()
 			}
-			}.subscribe().addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
@@ -144,8 +146,9 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		let cliet = CloudResourceClient()
 		//item.loadChildResources().bindNext { childs in
-		cliet.loadChildResources(item, loadMode: .CacheAndRemote).bindNext { childs in
-			loadedChilds = childs
+		cliet.loadChildResources(item, loadMode: .CacheAndRemote).bindNext { result in
+			guard case Result.success(let box) = result else { return }
+			loadedChilds = box.value
 			expectation.fulfill()
 			}.addDisposableTo(bag)
 		
@@ -189,10 +192,11 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		let client = CloudResourceClient()
 		//item.loadChildResources().doOnError { error in
-		client.loadChildResources(item, loadMode: .CacheAndRemote).doOnError { error in
+		client.loadChildResources(item, loadMode: .CacheAndRemote).bindNext { result in
+			guard case Result.error(let error) = result else { return }
 			XCTAssertEqual((error as NSError).code, 1)
 			expectation.fulfill()
-			}.subscribe().addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
@@ -294,15 +298,16 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		let client = CloudResourceClient(cacheProvider: cacheProvider)
 		//item.loadChildResources().bindNext { childs in
-		client.loadChildResources(item, loadMode: .CacheAndRemote).bindNext { childs in
+		client.loadChildResources(item, loadMode: .CacheAndRemote).bindNext { result in
+			guard case Result.success(let box) = result else { return }
 			if responseCount == 0 {
 				// first responce should be with locally cached data
-				cachedChilds = childs
+				cachedChilds = box.value
 				responseCount += 1
 				cachedChildsExpectation.fulfill()
 			} else if responseCount == 1 {
 				// second responce should be with actual data
-				loadedChilds = childs
+				loadedChilds = box.value
 				responseCount += 1
 				actualChildsexpectation.fulfill()
 			} else { responseCount += 1 }
@@ -497,7 +502,9 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(1, response.count, "Check responded once")
 		
 		// check return correct cached data
-		let first = response.first?.first
+		//let first = response.first?.first
+		guard case Result.success(let box) = response.first! else { XCTFail("Incorrect response returned"); return }
+		let first = box.value.first
 		XCTAssertEqual(first?.name, "Apocalyptica")
 		XCTAssertEqual(first?.uid, "disk:/Music/Apocalyptica")
 		XCTAssertEqual(first?.type, .Folder)
@@ -506,7 +513,9 @@ class CloudResourceClientYandexTests: XCTestCase {
 		//XCTAssertTrue(first?.parent as? YandexDiskCloudJsonResource === musicResource)
 		//XCTAssertTrue((first as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 		
-		let audioItem = response.last?.last as? CloudAudioResource
+		guard case Result.success(let box2) = response.last! else { XCTFail("Incorrect response returned"); return }
+		//let audioItem = response.last?.last as? CloudAudioResource
+		let audioItem = box2.value.last
 		XCTAssertEqual(audioItem?.name, "CachedTrack.mp3")
 		XCTAssertEqual(audioItem?.uid, "disk:/Music/CachedTrack.mp3")
 		XCTAssertEqual(audioItem?.type, .File)
@@ -549,7 +558,9 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertEqual(1, response.count, "Check responded once")
 		
 		// check return correct cached data
-		let first = response.first?.first
+		//let first = response.first?.first
+		guard case Result.success(let box) = response.first! else { XCTFail("Incorrect response returned"); return }
+		let first = box.value.first
 		XCTAssertEqual(first?.name, "David Arkenstone")
 		XCTAssertEqual(first?.uid, "disk:/Music/David Arkenstone")
 		XCTAssertEqual(first?.type, .Folder)
@@ -558,7 +569,9 @@ class CloudResourceClientYandexTests: XCTestCase {
 		//XCTAssertTrue(first?.parent as? YandexDiskCloudJsonResource === musicResource)
 		//XCTAssertTrue((first as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 		
-		let audioItem = response.last?.last as? CloudAudioResource
+		//let audioItem = response.last?.last as? CloudAudioResource
+		guard case Result.success(let box2) = response.last! else { XCTFail("Incorrect response returned"); return }
+		let audioItem = box2.value.last
 		XCTAssertEqual(audioItem?.name, "TestTrack.mp3")
 		XCTAssertEqual(audioItem?.uid, "disk:/Music/TestTrack.mp3")
 		XCTAssertEqual(audioItem?.type, .File)

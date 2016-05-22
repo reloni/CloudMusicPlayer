@@ -59,7 +59,9 @@ class RxPlayerMetadataLoadTests: XCTestCase {
 		
 		let metadataLoadExpectation = expectationWithDescription("Should load metadta from local file")
 		
-		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).bindNext { metadata in
+		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).bindNext { result in
+			guard case Result.success(let box) = result else { return }
+			let metadata = box.value
 			XCTAssertEqual(metadata?.album, "Of Her")
 			XCTAssertEqual(metadata?.artist, "Yusuke Tsutsumi")
 			XCTAssertEqual(metadata?.duration?.asTimeString, "04: 27")
@@ -103,11 +105,14 @@ class RxPlayerMetadataLoadTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).doOnError { error in
+		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).bindNext { result in
+			guard case Result.error(let error) = result else { return }
+			//guard case Result.error(let errorType) = result else { return }
+			//let error = errorType as NSError
 			if (error as NSError).code == 17 {
 				metadataLoadExpectation.fulfill()
 			}
-			}.subscribe().addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
@@ -150,7 +155,9 @@ class RxPlayerMetadataLoadTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).bindNext { metadata in
+		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).bindNext { result in
+			guard case Result.success(let box) = result else { return }
+			let metadata = box.value
 			XCTAssertEqual(metadata?.album, "Of Her")
 			XCTAssertEqual(metadata?.artist, "Yusuke Tsutsumi")
 			XCTAssertEqual(metadata?.duration?.asTimeString, "04: 27")
@@ -173,11 +180,11 @@ class RxPlayerMetadataLoadTests: XCTestCase {
 		
 		let metadataLoadExpectation = expectationWithDescription("Should not load metadata for incorrect scheme")
 		
-		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).doOnError { error in
-			if (error as NSError).code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
-				metadataLoadExpectation.fulfill()
-			}
-		}.subscribe().addDisposableTo(bag)
+		player.loadMetadata(item.streamIdentifier, downloadManager: downloadManager, utilities: StreamPlayerUtilities()).bindNext { result in
+			guard case Result.error(let error) = result else { return }
+			XCTAssertEqual((error as? CustomErrorType)?.errorCode(), DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: "", uid: "").errorCode())
+			metadataLoadExpectation.fulfill()
+		}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}

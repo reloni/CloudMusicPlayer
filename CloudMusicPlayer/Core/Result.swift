@@ -8,15 +8,18 @@
 
 import Foundation
 
+public protocol ResultType { }
+extension Result : ResultType { }
+
 public enum Result<T> {
 	case success(Box<T>)
-	case error(CustomErrorType)
+	case error(ErrorType)
 }
 
 public class Box<T> {
-	let value: T
+	public let value: T
 	
-	init(value: T) {
+	public init(value: T) {
 		self.value = value
 	}
 }

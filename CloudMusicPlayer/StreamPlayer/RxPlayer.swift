@@ -104,16 +104,20 @@ public class RxPlayer {
 	internal func startStreamTask() {
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 			self.currentStreamTask?.dispose()
-			self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier)
-				.doOnError { [weak self] in
-					let error = $0 as NSError
-					self?.playerEventsSubject.onNext(.Error(error))
-					
-					// if this is unsupported url or not existed file, move to next item
-					if error.code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
+			self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier).doOnNext { [weak self] event in
+					//print("internal player event: \(event)")
+				if case Result.error(let error) = event {
+					if let customError = error as? CustomErrorType {
+						self?.playerEventsSubject.onNext(PlayerEvents.Error(customError.error()))
 						self?.toNext(true)
+					} else {
+						self?.playerEventsSubject.onNext(PlayerEvents.Error(error as NSError))
 					}
-					
+				}
+				}
+				.catchError { error in
+					print("catched error while playing: \((error as NSError).localizedDescription)")
+					return Observable.empty()
 				}.subscribe()
 		}
 	}

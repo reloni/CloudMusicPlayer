@@ -10,13 +10,33 @@ import Foundation
 import RxSwift
 
 public protocol DownloadManagerType {
-	func createDownloadObservable(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> Observable<StreamTaskEvents>
+	func createDownloadObservable(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> Observable<StreamTaskResult>
 	var saveData: Bool { get }
 	var fileStorage: LocalStorageType { get }
 }
 
-public enum DownloadManagerError : Int {
-	case UnsupportedUrlSchemeOrFileNotExists = 1
+public enum DownloadManagerErrors : CustomErrorType {
+	case unsupportedUrlSchemeOrFileNotExists(url: String?, uid: String)
+	
+	public func errorDomain() -> String {
+		return "DownloadManagerDomain"
+	}
+	
+	public func errorCode() -> Int {
+		switch self {
+		case .unsupportedUrlSchemeOrFileNotExists: return 1
+		}
+	}
+	
+	public func errorDescription() -> String {
+		return "Unable to download data"
+	}
+	
+	public func userInfo() -> Dictionary<String, String> {
+		switch self {
+		case .unsupportedUrlSchemeOrFileNotExists(let url, let uid): return [NSLocalizedDescriptionKey: errorDescription(), "url": url ?? "", "uid": uid]
+		}
+	}
 }
 
 public enum PendingTaskPriority: Int {
@@ -36,8 +56,6 @@ public class PendingTask {
 }
 
 public class DownloadManager {
-	private static let errorDomain = "DownloadManager"
-	
 	internal let serialScheduler: SerialDispatchQueueScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	internal var pendingTasks = [String: PendingTask]()
 	internal let simultaneousTasksCount: UInt
@@ -89,8 +107,6 @@ public class DownloadManager {
 	}
 	
 	internal func createDownloadTaskUnsafe(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> StreamDataTaskProtocol? {
-		//return nil
-		//print("check running")
 		if let runningTask = pendingTasks[identifier.streamResourceUid] {
 			runningTask.taskDependenciesCount += 1
 			if runningTask.priority.rawValue < priority.rawValue {
@@ -99,7 +115,6 @@ public class DownloadManager {
 			return runningTask.task
 		}
 
-		//print("check in storage")
 		if let file = fileStorage.getFromStorage(identifier.streamResourceUid), path = file.path {
 			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
@@ -110,11 +125,8 @@ public class DownloadManager {
 			return task
 		}
 		
-		//print("get resource type")
 		let resourceType = identifier.streamResourceType
-		//print("returned type: \(resourceType)")
 		let resourceUrl = identifier.streamResourceUrl
-		//print("check type")
 		if let path = resourceUrl where resourceType == .LocalResource {
 			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path, provider: fileStorage.createCacheProvider(identifier.streamResourceUid,
 				targetMimeType: identifier.streamResourceContentType?.definition.MIME))
@@ -133,7 +145,6 @@ public class DownloadManager {
 				return nil
 		}
 		
-		//print("create stream task")
 		let task = httpUtilities.createStreamDataTask(identifier.streamResourceUid, request: urlRequest,
 		                                              sessionConfiguration: NSURLSession.defaultConfig,
 		                                              cacheProvider: fileStorage.createCacheProvider(identifier.streamResourceUid,
@@ -179,34 +190,33 @@ public class DownloadManager {
 }
 
 extension DownloadManager : DownloadManagerType {
-	public func createDownloadObservable(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> Observable<StreamTaskEvents> {
-		return Observable<StreamTaskEvents>.create { [weak self] observer in
+	public func createDownloadObservable(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> Observable<StreamTaskResult> {
+		return Observable<StreamTaskResult>.create { [weak self] observer in
 			var result: Disposable?
 			
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 
-			print("new download: \(identifier.streamResourceUid)")
 			dispatch_sync(object.queue) {
-				print("start sync")
 				guard let task = object.createDownloadTaskUnsafe(identifier, priority: priority) else {
-					let	message = "Unable to download data"
-					let	code = DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue
-					let error = NSError(domain: DownloadManager.errorDomain, code: code, userInfo: [NSLocalizedDescriptionKey: message,
-						"Url": identifier.streamResourceUrl ?? "", "Uid": identifier.streamResourceUid])
 					print("not url: \(identifier.streamResourceUid)")
-					observer.onError(error); result = NopDisposable.instance; return;
+					observer.onNext(DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: identifier.streamResourceUrl ?? "", uid: identifier.streamResourceUid).asResult())
+					result = NopDisposable.instance; return;
 				}
 				
-				print("create disposable")
-				let disposable = task.taskProgress.observeOn(object.serialScheduler).doOnError {
-					self?.removePendingTaskUnsafe(identifier.streamResourceUid, force: true); observer.onError($0)
+				let disposable = task.taskProgress.observeOn(object.serialScheduler).catchError { error in
+					self?.removePendingTaskUnsafe(identifier.streamResourceUid, force: true); observer.onNext(Result.error(error)); 
+					return Observable.empty()
 					}.doOnCompleted { observer.onCompleted() }.bindNext { result in
-						if case .Success(let provider) = result {
-							object.saveData(provider)
-							object.removePendingTaskUnsafe(identifier.streamResourceUid, force: true)
-							observer.onNext(result)
-							//observer.onCompleted()
-						} else {
+						if case Result.success(let event) = result {
+							if case .Success(let provider) = event.value {
+								object.saveData(provider)
+								object.removePendingTaskUnsafe(identifier.streamResourceUid, force: true)
+								observer.onNext(result)
+							} else {
+								observer.onNext(result)
+							}
+						} else if case Result.error = result {
+							self?.removePendingTaskUnsafe(identifier.streamResourceUid, force: true)
 							observer.onNext(result)
 						}
 				}
@@ -221,7 +231,6 @@ extension DownloadManager : DownloadManagerType {
 				}
 
 			}
-			print("Exit sync: \(identifier.streamResourceUid)")
 			
 			return result!
 		}

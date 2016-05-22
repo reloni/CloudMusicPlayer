@@ -11,7 +11,7 @@ import RxSwift
 import AVFoundation
 
 public typealias AssetLoadResult =
-	(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])
+	Result<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
 
 public protocol InternalPlayerType {
 	func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult>

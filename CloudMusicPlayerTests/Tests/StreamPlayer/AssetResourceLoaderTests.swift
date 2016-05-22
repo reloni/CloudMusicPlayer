@@ -79,8 +79,9 @@ class AssetResourceLoaderTests: XCTestCase {
 			}.addDisposableTo(bag)
 		
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			XCTAssertTrue(e.receivedResponse as? FakeResponse === fakeResponse, "Should cache correct response")
-			XCTAssertEqual("public.mp3", e.utiType, "Should get mime from response and convert to correct uti")
+			guard case Result.success(let box) = e else { return }
+			XCTAssertTrue(box.value.receivedResponse as? FakeResponse === fakeResponse, "Should cache correct response")
+			XCTAssertEqual("public.mp3", box.value.utiType, "Should get mime from response and convert to correct uti")
 			assetLoadCompletion.fulfill()
 			}.addDisposableTo(bag)
 		cacheTask.resume()
@@ -116,8 +117,9 @@ class AssetResourceLoaderTests: XCTestCase {
 			}.addDisposableTo(bag)
 		
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: ContentType.aac).bindNext { e in
-			XCTAssertTrue(e.receivedResponse as? FakeResponse === fakeResponse, "Should cache correct response")
-			XCTAssertEqual("public.aac-audio", e.utiType, "Should return correct overriden uti type")
+			guard case Result.success(let box) = e else { return }
+			XCTAssertTrue(box.value.receivedResponse as? FakeResponse === fakeResponse, "Should cache correct response")
+			XCTAssertEqual("public.aac-audio", box.value.utiType, "Should return correct overriden uti type")
 			assetLoadCompletion.fulfill()
 		}.addDisposableTo(bag)
 		cacheTask.resume()
@@ -132,7 +134,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		let expectation = expectationWithDescription("Should receive result from asset loader")
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			expectation.fulfill()
 			}.addDisposableTo(bag)
 		
@@ -153,7 +156,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			assetLoadingCompletion.fulfill()
 			}.addDisposableTo(bag)
 		
@@ -179,7 +183,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			assetLoadingCompletion.fulfill()
 			}.addDisposableTo(bag)
 		
@@ -237,7 +242,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			assetLoadingCompletion.fulfill()
 			}.addDisposableTo(bag)
 		
@@ -307,7 +313,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			assetLoadingCompletion.fulfill()
 			}.addDisposableTo(bag)
 		

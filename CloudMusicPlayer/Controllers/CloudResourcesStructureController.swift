@@ -38,17 +38,24 @@ class CloudResourcesStructureController: UIViewController {
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
 			cloudResourceClient.loadChildResources(parent, loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
-				.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }
-				.bindNext { [weak self] resources in
-					self?.viewModel.resources = resources
-					self?.tableView.reloadData()
+				.bindNext { [weak self] result in
+					if case Result.success(let box) = result {
+						self?.viewModel.resources = box.value
+						self?.tableView.reloadData()
+					} else if case Result.error(let error) = result {
+						self?.showErrorLabel(error as NSError)
+					}
 				}.addDisposableTo(bag!)
 		} else if navigationController?.viewControllers.first == self {
 			cloudResourceClient.loadChildResources(YandexDiskCloudJsonResource.getRootResource(oauth: YandexOAuth()),
 				loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
-				.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }.bindNext { [weak self] resources in
-					self?.viewModel.resources = resources
-					self?.tableView.reloadData()
+				.bindNext { [weak self] result in
+					if case Result.success(let box) = result {
+						self?.viewModel.resources = box.value
+						self?.tableView.reloadData()
+					}else if case Result.error(let error) = result {
+						self?.showErrorLabel(error as NSError)
+					}
 				}.addDisposableTo(bag!)
 		}
 	}
@@ -84,9 +91,7 @@ class CloudResourcesStructureController: UIViewController {
 			rxPlayer.playUrl(identifier)
 		} else {
 			track.downloadUrl.bindNext { url in
-				//guard let url = result else { return }
 				rxPlayer.playUrl(url)
-				
 				}.addDisposableTo(bag!)
 		}
 	}

@@ -53,10 +53,12 @@ class PlayerQueueController: UIViewController {
 //		}.addDisposableTo(bag)
 		
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-			rxPlayer.currentItem.flatMapLatest { e -> Observable<MediaItemMetadataType?> in
-				guard let e = e else { return Observable.just(nil) }
+			rxPlayer.currentItem.flatMapLatest { e -> Observable<Result<MediaItemMetadataType?>> in
+				guard let e = e else { return Observable.empty() }
 				return rxPlayer.loadMetadata(e.streamIdentifier)
 				//return e?.loadMetadata() ?? Observable.just(nil)
+				}.map { result -> MediaItemMetadataType? in
+					if case Result.success(let box) = result { return box.value } else { return nil }
 				}.map { e -> String in
 					return e?.duration?.asTimeString ?? "0: 00"
 				}.observeOn(MainScheduler.instance).bindTo(self.fullTimeLabel.rx_text).addDisposableTo(self.bag)
@@ -74,12 +76,13 @@ class PlayerQueueController: UIViewController {
 				}
 			}.addDisposableTo(self.bag)
 			
-			rxPlayer.loadMetadataForItemsInQueue().bindNext { [weak self] meta in
+			rxPlayer.loadMetadataForItemsInQueue().bindNext { [weak self] result in
+				guard case Result.success(let box) = result else { return }
 				self?.queueTableView.indexPathsForVisibleRows?.forEach { indexPath in
-					if rxPlayer.getItemAtPosition(indexPath.row)?.streamIdentifier.streamResourceUid == meta.resourceUid {
+					if rxPlayer.getItemAtPosition(indexPath.row)?.streamIdentifier.streamResourceUid == box.value.resourceUid {
 						dispatch_async(dispatch_get_main_queue()) {
 							if let cell = self?.queueTableView.cellForRowAtIndexPath(indexPath) as? QueueTrackCell {
-								self?.setCellMetadata(cell, meta: meta)
+								self?.setCellMetadata(cell, meta: box.value)
 							}
 						}
 					}

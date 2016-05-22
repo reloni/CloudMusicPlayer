@@ -51,7 +51,7 @@ public class FakeCloudResource : CloudResource {
 		fatalError("wrapRawData not implemented")
 	}
 	
-	public func loadChildResources() -> Observable<JSON> {
+	public func loadChildResources() -> Observable<Result<JSON>> {
 		fatalError("loadChildResources not implemented")
 	}
 	
