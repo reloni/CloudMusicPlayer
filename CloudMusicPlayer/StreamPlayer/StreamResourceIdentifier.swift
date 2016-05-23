@@ -18,9 +18,9 @@ public enum StreamResourceType {
 
 public protocol StreamResourceIdentifier {
 	var streamResourceUid: String { get }
-	var streamResourceUrl: String? { get }
+	var streamResourceUrl: Observable<String> { get }
 	var streamResourceContentType: ContentType? { get }
-	var streamResourceType: StreamResourceType? { get }
+	var streamResourceType: Observable<StreamResourceType> { get }
 }
 
 public protocol StreamHttpResourceIdentifier {
@@ -28,17 +28,28 @@ public protocol StreamHttpResourceIdentifier {
 }
 
 extension StreamResourceIdentifier {
-	public var streamResourceType: StreamResourceType? {
-		guard let url = streamResourceUrl else { return nil }
-		if url.hasPrefix("https") {
-			return .HttpsResource
-		} else if url.hasPrefix("http") {
-			return .HttpResource
-		} else if NSFileManager.fileExistsAtPath(url) {
-			return .LocalResource
-		} else {
-			return nil
+	public var streamResourceType: Observable<StreamResourceType> {
+		return streamResourceUrl.flatMapLatest { url -> Observable<StreamResourceType> in
+			if url.hasPrefix("https") {
+				return Observable.just(.HttpsResource)
+			} else if url.hasPrefix("http") {
+				return Observable.just(.HttpResource)
+			} else if NSFileManager.fileExistsAtPath(url) {
+				return Observable.just(.LocalResource)
+			} else {
+				return Observable.empty()
+			}
 		}
+//		guard let url = streamResourceUrl else { return nil }
+//		if url.hasPrefix("https") {
+//			return .HttpsResource
+//		} else if url.hasPrefix("http") {
+//			return .HttpResource
+//		} else if NSFileManager.fileExistsAtPath(url) {
+//			return .LocalResource
+//		} else {
+//			return nil
+//		}
 	}
 //		guard let scheme = NSURLComponents(string: url)?.scheme else {
 //			if NSFileManager.fileExistsAtPath(url, isDirectory: false) {
@@ -65,8 +76,8 @@ extension String : StreamResourceIdentifier {
 	public var streamResourceUid: String {
 		return self
 	}
-	public var streamResourceUrl: String? {
-		return self
+	public var streamResourceUrl: Observable<String> {
+		return Observable.just(self)
 	}
 	public var streamResourceContentType: ContentType? {
 		return nil
@@ -78,8 +89,8 @@ extension _SwiftNativeNSString : StreamResourceIdentifier {
 	public var streamResourceUid: String {
 		return String(self)
 	}
-	public var streamResourceUrl: String? {
-		return String(self)
+	public var streamResourceUrl: Observable<String> {
+		return Observable.just(String(self))
 	}
 	public var streamResourceContentType: ContentType? {
 		return nil
@@ -90,8 +101,8 @@ extension NSString : StreamResourceIdentifier {
 	public var streamResourceUid: String {
 		return String(self)
 	}
-	public var streamResourceUrl: String? {
-		return String(self)
+	public var streamResourceUrl: Observable<String> {
+		return Observable.just(String(self))
 	}
 	public var streamResourceContentType: ContentType? {
 		return nil
@@ -103,25 +114,8 @@ extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
 		return uid
 	}
 	
-	public var streamResourceUrl: String? {		
-		//do {
-		//	let array = try downloadUrl.toBlocking().toArray()
-		//	return array.first ?? nil
-		//} catch { return nil }
-		let dispatchGroup = dispatch_group_create()
-		var url: String? = nil
-		// use dispatch group to perfort sync operation
-		let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
-		dispatch_group_enter(dispatchGroup)
-		let disposable = downloadUrl.observeOn(scheduler).bindNext { result in
-			url = result
-			dispatch_group_leave(dispatchGroup)
-		}
-		
-		// wait until async is completed
-		dispatch_group_wait(dispatchGroup, dispatch_time(DISPATCH_TIME_NOW, Int64(2 * NSEC_PER_SEC)))
-		disposable.dispose()
-		return url
+	public var streamResourceUrl: Observable<String> {
+		return downloadUrl
 	}
 	
 	public var streamResourceContentType: ContentType? {

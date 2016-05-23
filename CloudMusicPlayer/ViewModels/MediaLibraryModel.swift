@@ -35,8 +35,9 @@ class MediaLibraryModel {
 				} else {
 					return resource.loadChildResourcesRecursive()
 				}
-				}.filter { $0 is CloudAudioResource }.map { item -> StreamResourceIdentifier in itemsToProcess += 1; return item as! StreamResourceIdentifier }
-				.flatMap { return rxPlayer.loadMetadata($0) }.catchError { _ in print("catch in library model"); return Observable.empty() }
+				}.filter { $0 is CloudAudioResource }.observeOn(object.scheduler)
+				.map { item -> StreamResourceIdentifier in itemsToProcess += 1; return item as! StreamResourceIdentifier }
+				.flatMap { return rxPlayer.loadMetadata($0) }.observeOn(object.scheduler).catchError { _ in print("catch in library model"); return Observable.empty() }
 				.doOnNext { _ in
 					itemsToProcess -= 1
 					observer.onNext(itemsToProcess)
