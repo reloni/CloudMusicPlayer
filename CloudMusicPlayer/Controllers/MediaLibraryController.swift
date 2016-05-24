@@ -103,10 +103,20 @@ class MediaLibraryController: UIViewController {
 		}
 	}
 	
+	
 	func getArtistCell(indexPath: NSIndexPath) -> UITableViewCell {
+		let objects = (try? model.player.mediaLibrary.getArtists()) ?? nil
+		if let objects = objects where indexPath.row == objects.count {
+			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+			cell.itemsCount = UInt(objects.count)
+			cell.titleText = "Artists"
+			cell.refreshTitle()
+			return cell
+		}
+		
 		let cell = tableView.dequeueReusableCellWithIdentifier("ArtistCell", forIndexPath: indexPath) as! ArtistCell
 		
-		if let artist = (try? rxPlayer.mediaLibrary.getArtists()[indexPath.row]) ?? nil {
+		if let artist = objects?[indexPath.row] {
 			cell.artistNameLabel.text = artist.name
 			cell.albumCountLabel.text = "Albums: \(artist.albums.count)"
 		} else {
@@ -117,9 +127,18 @@ class MediaLibraryController: UIViewController {
 	}
 	
 	func getAlbumCell(indexPath: NSIndexPath) -> UITableViewCell {
+		let objects = (try? model.player.mediaLibrary.getAlbums()) ?? nil
+		if let objects = objects where indexPath.row == objects.count {
+			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+			cell.itemsCount = UInt(objects.count)
+			cell.titleText = "Albums"
+			cell.refreshTitle()
+			return cell
+		}
+		
 		let cell = tableView.dequeueReusableCellWithIdentifier("AlbumCell", forIndexPath: indexPath) as! AlbumCell
 		
-		if let album = (try? rxPlayer.mediaLibrary.getAlbums()[indexPath.row]) ?? nil {
+		if let album = objects?[indexPath.row] ?? nil {
 			cell.albumNameLabel.text = album.name
 		} else {
 			cell.albumNameLabel.text = "Unknown"
@@ -129,9 +148,18 @@ class MediaLibraryController: UIViewController {
 	}
 	
 	func getTrackCell(indexPath: NSIndexPath) -> UITableViewCell {
+		let objects = (try? model.player.mediaLibrary.getTracks()) ?? nil
+		if let objects = objects where indexPath.row == objects.count {
+			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+			cell.itemsCount = UInt(objects.count)
+			cell.titleText = "Tracks"
+			cell.refreshTitle()
+			return cell
+		}
+		
 		let cell = tableView.dequeueReusableCellWithIdentifier("TrackCell", forIndexPath: indexPath) as! TrackCell
 		
-		if let track = (try? rxPlayer.mediaLibrary.getTracks()[indexPath.row]) ?? nil {
+		if let track = objects?[indexPath.row] ?? nil {
 			cell.trackTitleLabel.text = track.title
 		} else {
 			cell.trackTitleLabel.text = "Unknown"
@@ -141,9 +169,18 @@ class MediaLibraryController: UIViewController {
 	}
 	
 	func getPlayListCell(indexPath: NSIndexPath) -> UITableViewCell {
+		let objects = (try? model.player.mediaLibrary.getPlayLists()) ?? nil
+		if let objects = objects where indexPath.row == objects.count {
+			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+			cell.itemsCount = UInt(objects.count)
+			cell.titleText = "Play lists"
+			cell.refreshTitle()
+			return cell
+		}
+		
 		let cell = tableView.dequeueReusableCellWithIdentifier("PlayListCell", forIndexPath: indexPath) as! PlayListCell
 		
-		if let pl = (try? rxPlayer.mediaLibrary.getPlayLists()[indexPath.row]) ?? nil {
+		if let pl = objects?[indexPath.row] ?? nil {
 			cell.playListNameLabel.text = pl.name
 		} else {
 			cell.playListNameLabel.text = "Unknown"
@@ -155,7 +192,7 @@ class MediaLibraryController: UIViewController {
 
 extension MediaLibraryController : UITableViewDelegate {
 	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return getItemsForSegment()
+		return getItemsForSegment() + 1
 	}
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
