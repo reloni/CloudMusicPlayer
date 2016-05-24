@@ -14,7 +14,7 @@ public class LocalFileStreamDataTask {
 	public var resumed: Bool = false
 	public internal(set) var cacheProvider: CacheProvider?
 	public let filePath: NSURL
-	internal let subject = PublishSubject<StreamTaskEvents>()
+	internal let subject = PublishSubject<StreamTaskResult>()
 	
 	public init?(uid: String, filePath: String, provider: CacheProvider? = nil) {
 		if !NSFileManager.fileExistsAtPath(filePath, isDirectory: false) { return nil }
@@ -31,14 +31,14 @@ public class LocalFileStreamDataTask {
 }
 
 extension LocalFileStreamDataTask : StreamDataTaskProtocol {
-	public var taskProgress: Observable<StreamTaskEvents> {
+	public var taskProgress: Observable<StreamTaskResult> {
 		return subject.shareReplay(1)
 	}
 	
 	public func resume() {
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 			guard let data = NSData(contentsOfFile: self.filePath.path!) else {
-				self.subject.onNext(StreamTaskEvents.Success(cache: nil))
+				self.subject.onNext(StreamTaskEvents.Success(cache: nil).asResult())
 				self.subject.onCompleted()
 				return
 			}
@@ -47,18 +47,18 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 			let response = LocalFileResponse(expectedContentLength: Int64(data.length),
 			                                 mimeType: ContentTypeDefinition.getMimeTypeFromFileExtension(self.filePath.pathExtension!))
 			
-			self.subject.onNext(StreamTaskEvents.ReceiveResponse(response))
+			self.subject.onNext(StreamTaskEvents.ReceiveResponse(response).asResult())
 			
 			self.cacheProvider?.appendData(data)
 			self.cacheProvider?.setContentMimeType(response.getMimeType())
 			
 			// simulate delay to be sure that player started loading
 			for _ in 0...5 {
-				self.subject.onNext(StreamTaskEvents.CacheData(self.cacheProvider!))
+				self.subject.onNext(StreamTaskEvents.CacheData(self.cacheProvider!).asResult())
 				NSThread.sleepForTimeInterval(0.01)
 			}
 			
-			self.subject.onNext(StreamTaskEvents.Success(cache: nil))
+			self.subject.onNext(StreamTaskEvents.Success(cache: nil).asResult())
 			
 			self.resumed = false
 			self.subject.onCompleted()

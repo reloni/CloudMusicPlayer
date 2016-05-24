@@ -24,4 +24,8 @@ extension CustomErrorType {
 	public func userInfo() -> Dictionary<String, String> {
 		return [NSLocalizedDescriptionKey: errorDescription()]
 	}
+	
+	public func asResult<T>() -> Result<T> {
+		return Result<T>.error(self)
+	}
 }

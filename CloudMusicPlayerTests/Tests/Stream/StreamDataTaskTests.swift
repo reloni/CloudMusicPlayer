@@ -78,11 +78,12 @@ class StreamDataTaskTests: XCTestCase {
 		var receiveCounter = 0
 		let dataReceived = NSMutableData()
 		httpClient.loadStreamData(request, cacheProvider: nil).bindNext { result in
-			if case .ReceiveData(let dataChunk) = result {
+			guard case Result.success(let box) = result else { return }
+			if case .ReceiveData(let dataChunk) = box.value {
 				XCTAssertEqual(String(data: dataChunk, encoding: NSUTF8StringEncoding), testData[receiveCounter], "Check correct chunk of data received")
 				dataReceived.appendData(dataChunk)
 				receiveCounter += 1
-			} else if case .Success(let cacheProvider) = result {
+			} else if case .Success(let cacheProvider) = box.value {
 				//XCTAssertEqual(dataReceived, dataSended, "Should receive correct amount of data")
 				XCTAssertNil(cacheProvider, "Cache provider should be nil")
 				XCTAssertTrue(dataReceived.isEqualToData(dataSended), "Received data should be equal to sended data")
@@ -106,11 +107,12 @@ class StreamDataTaskTests: XCTestCase {
 		}.addDisposableTo(bag)
 
 		let expectation = expectationWithDescription("Should return NSError")
-		httpClient.loadStreamData(request, cacheProvider: nil).doOnError { error in
+		httpClient.loadStreamData(request, cacheProvider: nil).bindNext { result in
+			guard case Result.error(let error) = result else { return }
 			if (error as NSError).code == 1 {
 				expectation.fulfill()
 			}
-		}.subscribe().addDisposableTo(bag)
+		}.addDisposableTo(bag)
 
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
@@ -135,7 +137,8 @@ class StreamDataTaskTests: XCTestCase {
 		
 		let expectation = expectationWithDescription("Should return correct response")
 		httpClient.loadStreamData(request, cacheProvider: nil).bindNext { result in
-			if case .ReceiveResponse(let response) = result {
+			guard case Result.success(let box) = result else { return }
+			if case .ReceiveResponse(let response) = box.value {
 				XCTAssertEqual(response.expectedContentLength, fakeResponse.expectedContentLength)
 				expectation.fulfill()
 			}

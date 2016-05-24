@@ -20,6 +20,8 @@ public protocol StreamTaskProtocol {
 
 public protocol StreamTaskEventsProtocol { }
 
+public typealias StreamTaskResult = Result<StreamTaskEvents>
+
 public enum StreamTaskEvents : StreamTaskEventsProtocol {
 	/// Send this event if CacheProvider specified
 	case CacheData(CacheProvider)
@@ -30,8 +32,14 @@ public enum StreamTaskEvents : StreamTaskEventsProtocol {
 	case Success(cache: CacheProvider?)
 }
 
+extension StreamTaskEvents {
+	public func asResult() -> StreamTaskResult {
+		return Result.success(Box(value: self))
+	}
+}
+
 public protocol StreamDataTaskProtocol : StreamTaskProtocol {
-	var taskProgress: Observable<StreamTaskEvents> { get }
+	var taskProgress: Observable<StreamTaskResult> { get }
 	var cacheProvider: CacheProvider? { get }
 }
 
@@ -45,6 +53,7 @@ public class StreamDataTask {
 	public let sessionConfiguration: NSURLSessionConfiguration
 	public internal(set) var cacheProvider: CacheProvider?
 	internal var response: NSHTTPURLResponseProtocol?
+	internal let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 		
 	internal lazy var dataTask: NSURLSessionDataTaskProtocol = { [unowned self] in
 		return self.session.dataTaskWithRequest(self.request)
@@ -67,39 +76,38 @@ public class StreamDataTask {
 		uid = taskUid
 	}
 	
-	public lazy var taskProgress: Observable<StreamTaskEvents> = {
+	public lazy var taskProgress: Observable<StreamTaskResult> = {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
-			let disposable = object.observer.sessionEvents.shareReplay(1).filter { e in
+			let disposable = object.observer.sessionEvents.observeOn(object.scheduler).filter { e in
 				if case .didReceiveResponse(_, _, let response, let completionHandler) = e {
 					completionHandler(.Allow)
 					return response as? NSHTTPURLResponseProtocol != nil
 				} else { return true }
-				}.shareReplay(1).bindNext { e in
+				}.bindNext { e in
 					switch e {
 					case .didReceiveResponse(_, _, let response, _):
 						object.response = response as? NSHTTPURLResponseProtocol
 						object.cacheProvider?.expectedDataLength = object.response!.expectedContentLength
 						object.cacheProvider?.setContentMimeType(object.response!.getMimeType())
-						observer.onNext(StreamTaskEvents.ReceiveResponse(object.response!))
+						observer.onNext(StreamTaskEvents.ReceiveResponse(object.response!).asResult())
 					case .didReceiveData(_, _, let data):
 						if let cacheProvider = object.cacheProvider {
 							cacheProvider.appendData(data)
-							observer.onNext(StreamTaskEvents.CacheData(cacheProvider))
+							observer.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
 						} else {
-							observer.onNext(StreamTaskEvents.ReceiveData(data))
+							observer.onNext(StreamTaskEvents.ReceiveData(data).asResult())
 						}
 					case .didCompleteWithError(let session, _, let error):
 						session.invalidateAndCancel()
 						
 						if let error = error {
-							//observer.onNext(StreamTaskEvents.Error(error))
-							observer.onError(error)
-							observer.onCompleted()
+							observer.onNext(Result.error(error))
+						} else {
+							observer.onNext(StreamTaskEvents.Success(cache: object.cacheProvider).asResult())
 						}
-						
-						observer.onNext(StreamTaskEvents.Success(cache: object.cacheProvider))
+
 						observer.onCompleted()
 					}
 			}
@@ -107,13 +115,14 @@ public class StreamDataTask {
 			return AnonymousDisposable {
 				disposable.dispose()
 			}
-		}.shareReplay(1)
+		}.shareReplay(0)
 	}()
 }
 
 extension StreamDataTask : StreamDataTaskProtocol {
 	public func resume() {
 		dispatch_sync(queue) {
+			print("resume task: \(self.uid)")
 			if !self.resumed { self.resumed = true; self.dataTask.resume() }
 		}
 	}

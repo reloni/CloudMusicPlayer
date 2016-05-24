@@ -38,11 +38,11 @@ class MediaLibraryController: UIViewController {
 		
 		model.loadProgress.observeOn(MainScheduler.instance).bindNext { [weak self] progress in
 			self?.showProcessingMetadataItems(progress)
-			print("Remaining items: \(progress)")
 		}.addDisposableTo(bag)
 	}
 	
 	override func viewWillAppear(animated: Bool) {
+		processingMetadataItemsView.hidden = true
 		tableView.reloadData()
 	}
 	
@@ -58,6 +58,9 @@ class MediaLibraryController: UIViewController {
 		UIView.animateWithDuration(0.5, animations: { [weak self] in
 			self?.processingMetadataItemsCountLabel.text = String(count)
 			self?.processingMetadataItemsView.hidden = count <= 0
+			if count == 0 {
+				print("all items processed")
+			}
 		})
 	}
 	

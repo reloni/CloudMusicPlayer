@@ -19,16 +19,17 @@ extension RxPlayer {
 		return AudioItemMetadata(resourceUid: resource.streamResourceUid, metadata: metadataArray)
 	}
 	
-	public func loadMetadata(resource: StreamResourceIdentifier) -> Observable<MediaItemMetadataType?> {
+	public func loadMetadata(resource: StreamResourceIdentifier) -> Observable<Result<MediaItemMetadataType?>> {
 		return loadMetadata(resource, downloadManager: downloadManager, utilities: streamPlayerUtilities)
 	}
 	
-	internal func loadMetadata(resource: StreamResourceIdentifier, downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol) -> Observable<MediaItemMetadataType?> {
+	internal func loadMetadata(resource: StreamResourceIdentifier, downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol)
+		-> Observable<Result<MediaItemMetadataType?>> {
 		return Observable.create { [weak self] observer in
-			guard let object = self else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
+			guard let object = self else { observer.onNext(Result.success(Box(value: nil))); observer.onCompleted(); return NopDisposable.instance }
 			
 			if let metadata = try! object.mediaLibrary.getMetadataObjectByUid(resource) {
-				observer.onNext(metadata)
+				observer.onNext(Result.success(Box(value: metadata)))
 				observer.onCompleted()
 				return NopDisposable.instance
 			}
@@ -39,7 +40,7 @@ extension RxPlayer {
 					object.mediaLibrary.saveMetadataSafe(metadata, updateExistedObjects: true)
 				}
 				
-				observer.onNext(metadata)
+				observer.onNext(Result.success(Box(value: metadata)))
 				observer.onCompleted()
 				return NopDisposable.instance
 			}
@@ -47,21 +48,30 @@ extension RxPlayer {
 			let downloadObservable = downloadManager.createDownloadObservable(resource, priority: .Low)
 			
 			var receivedDataLen = 0
-			let disposable = downloadObservable.doOnError { observer.onError($0) }.bindNext { e in
-				if case StreamTaskEvents.CacheData(let prov) = e {
-					receivedDataLen = prov.getData().length
-					if receivedDataLen >= 1024 * 256 {
-						if let file = downloadManager.fileStorage.saveToTemporaryFolder(prov) {
-							let metadata = object.loadFileMetadata(resource, file: file, utilities: utilities)
-							if let metadata = metadata {
-								object.mediaLibrary.saveMetadataSafe(metadata, updateExistedObjects: true)
+			let disposable = downloadObservable.catchError { error in
+					observer.onNext(Result.error(error))
+					observer.onCompleted()
+					return Observable.empty()
+				}.bindNext { e in
+				if case Result.success(let box) = e {
+					if case StreamTaskEvents.CacheData(let prov) = box.value {
+						receivedDataLen = prov.getData().length
+						if receivedDataLen >= 1024 * 256 {
+							if let file = downloadManager.fileStorage.saveToTemporaryFolder(prov) {
+								let metadata = object.loadFileMetadata(resource, file: file, utilities: utilities)
+								if let metadata = metadata {
+									object.mediaLibrary.saveMetadataSafe(metadata, updateExistedObjects: true)
+								}
+								
+								observer.onNext(Result.success(Box(value: metadata)))
+								file.deleteFile()
 							}
-							
-							observer.onNext(metadata)
-							file.deleteFile()
+							observer.onCompleted()
 						}
-						observer.onCompleted()
 					}
+				} else if case Result.error(let error) = e {
+					observer.onNext(Result.error(error))
+					observer.onCompleted()
 				}
 			}
 			
@@ -71,21 +81,23 @@ extension RxPlayer {
 		}
 	}
 	
-	public func loadMetadataForItemsInQueue() -> Observable<MediaItemMetadataType> {
+	public func loadMetadataForItemsInQueue() -> Observable<Result<MediaItemMetadataType>> {
 		return loadMetadataForItemsInQueue(downloadManager, utilities: streamPlayerUtilities, mediaLibrary: mediaLibrary)
 	}
 	
-	public func loadMetadataAndAddToMediaLibrary(items: [StreamResourceIdentifier]) -> Observable<MediaItemMetadataType> {
+	public func loadMetadataAndAddToMediaLibrary(items: [StreamResourceIdentifier]) -> Observable<Result<MediaItemMetadataType>> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 			let loadDisposable = items.toObservable().observeOn(serialScheduler)
-				.flatMap { item -> Observable<MediaItemMetadataType?> in
+				.flatMap { item -> Observable<Result<MediaItemMetadataType?>> in
 					return object.loadMetadata(item)
-				}.doOnCompleted { print("batch metadata load completed"); observer.onCompleted() }.bindNext { meta in
-					if let meta = meta {
-						observer.onNext(meta)
+				}.doOnCompleted { print("batch metadata load completed"); observer.onCompleted() }.bindNext { result in
+					if case Result.success(let box) = result, let meta = box.value {
+						observer.onNext(Result.success(Box(value: meta)))
+					} else if case Result.error(let error) = result {
+						observer.onNext(Result.error(error))
 					}
 			}
 			
@@ -98,7 +110,7 @@ extension RxPlayer {
 	}
 	
 	internal func loadMetadataForItemsInQueue(downloadManager: DownloadManagerType, utilities: StreamPlayerUtilitiesProtocol,
-	                                          mediaLibrary: MediaLibraryType) -> Observable<MediaItemMetadataType> {
+	                                          mediaLibrary: MediaLibraryType) -> Observable<Result<MediaItemMetadataType>> {
 		return loadMetadataAndAddToMediaLibrary(currentItems.map { $0.streamIdentifier })
 	}
 }

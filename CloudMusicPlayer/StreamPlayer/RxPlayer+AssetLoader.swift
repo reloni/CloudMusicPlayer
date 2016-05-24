@@ -73,10 +73,11 @@ public enum ContentType: String {
 	}
 }
 
-extension Observable where Element : StreamTaskEventsProtocol {
+
+extension Observable where Element : ResultType {
 	internal func loadWithAsset(assetEvents assetLoaderEvents: Observable<AssetLoadingEvents>,
 	                                        targetAudioFormat: ContentType? = nil)
-		-> Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> {
+		-> Observable<AssetLoadResult> {//Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> {
 			
 			// local variables
 			var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
@@ -141,7 +142,7 @@ extension Observable where Element : StreamTaskEventsProtocol {
 			let scheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility,
 			                                             internalSerialQueueName: "com.cloudmusicplayer.assetloader.serialscheduler.\(NSUUID().UUIDString)")
 			
-			return Observable<Void>.create { observer in
+			return Observable<Result<Void>>.create { observer in
 				print("create asset loader")
 				let assetEvents = assetLoaderEvents.observeOn(scheduler).bindNext { e in
 					switch e {
@@ -154,14 +155,23 @@ extension Observable where Element : StreamTaskEventsProtocol {
 					}
 				}
 				
-				let streamEvents = self.observeOn(scheduler).doOnError { observer.onError($0) }.bindNext { e in
-					switch e as! StreamTaskEvents {
-					case .Success(let cacheProvider):
-						if let cacheProvider = cacheProvider { processRequests(cacheProvider) }
-						observer.onNext(); observer.onCompleted()
-					case .ReceiveResponse(let receivedResponse): response = receivedResponse
-					case .CacheData(let cacheProvider): processRequests(cacheProvider)
-					default: break
+				let streamEvents = self.observeOn(scheduler).catchError { error in
+					print("catch error in asset loader: \((error as NSError).localizedDescription)")
+					return Observable.empty()
+					}.bindNext { e in
+					if case Result.success(let box) = e as! Result<StreamTaskEvents> {
+						switch box.value {
+						case .Success(let cacheProvider):
+							if let cacheProvider = cacheProvider { processRequests(cacheProvider) }
+							observer.onNext(Result.success(Box(value: Void())))
+							observer.onCompleted()
+						case .ReceiveResponse(let receivedResponse): response = receivedResponse
+						case .CacheData(let cacheProvider): processRequests(cacheProvider)
+						default: break
+						}
+					} else if case Result.error(let error) = e as! Result<StreamTaskEvents> {
+						observer.onNext(Result.error(error))
+						observer.onCompleted()
 					}
 				}
 				
@@ -170,10 +180,16 @@ extension Observable where Element : StreamTaskEventsProtocol {
 					streamEvents.dispose()
 				}
 				
-				}.flatMapLatest { _ -> Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> in
-					print("return final data")
-					return Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
-						.just((receivedResponse: response, utiType: getUtiType(), resultRequestCollection: resourceLoadingRequests))
+				}.flatMapLatest { result -> Observable<AssetLoadResult> in
+					if case Result.success = result {
+						print("return final data")
+						return Observable<AssetLoadResult>.just(Result.success(Box(value: (receivedResponse: response, utiType: getUtiType(), resultRequestCollection: resourceLoadingRequests))))
+					} else if case Result.error(let error) = result {
+						print("return error from asset loader")
+						return Observable<AssetLoadResult>.just(Result.error(error))
+					} else {
+						return Observable<AssetLoadResult>.empty()
+					}
 				}.shareReplay(0)
 	}
 }

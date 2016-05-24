@@ -408,7 +408,8 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let errorExpectation = expectationWithDescription("Should rise error")
 		let correctCurrentItemExpectation = expectationWithDescription("Should switch to next item after error")
 		player.playerEvents.bindNext { e in
-			if case .Error(let error) = e where error.code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
+			
+			if case .Error(let error) = e where error.code == DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: "", uid: "").errorCode() {
 				errorExpectation.fulfill()
 			} else if case PlayerEvents.CurrentItemChanged(let newItem) = e {
 				if newItem?.streamIdentifier.streamResourceUid == "https://test.com/track2.mp3" {

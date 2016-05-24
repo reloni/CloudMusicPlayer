@@ -12,7 +12,7 @@ import SwiftyJSON
 
 public protocol CloudResourceClientType {
 	var cacheProvider: CloudResourceCacheProviderType? { get }
-	func loadChildResources(resource: CloudResource, loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]>
+	func loadChildResources(resource: CloudResource, loadMode: CloudResourceLoadMode) -> Observable<Result<[CloudResource]>>
 }
 
 public class CloudResourceClient {
@@ -23,35 +23,35 @@ public class CloudResourceClient {
 }
 
 extension CloudResourceClient : CloudResourceClientType {
-	public func loadChildResources(resource: CloudResource, loadMode: CloudResourceLoadMode) -> Observable<[CloudResource]> {
+	public func loadChildResources(resource: CloudResource, loadMode: CloudResourceLoadMode) -> Observable<Result<[CloudResource]>> {
 		return Observable.create { [weak self] observer in
 			// check cached data
-			//var cacheDisposable: Disposable?
 			if loadMode == .CacheAndRemote || loadMode == .CacheOnly {
 				if let cachedData = self?.cacheProvider?.getCachedChilds(resource) where cachedData.count > 0 {
-					//cacheDisposable = resource.deserializeResponse(JSON(data: cachedData).toObservable()).toArray().bindNext { observer.onNext($0) }
-					observer.onNext(cachedData)
+					observer.onNext(Result.success(Box(value: cachedData)))
 				}
 			}
 			
 			var remoteDisposable: Disposable?
 			if loadMode == .CacheAndRemote || loadMode == .RemoteOnly {
-				remoteDisposable = resource.loadChildResources().doOnError { error in
-					// catch errors
-					observer.onError(error)
-					}.flatMapLatest { json -> Observable<CloudResource> in
-//						if let cacheProvider = self?.cacheProvider, rawData = try? json.rawData() {
-//							//cacheProvider.cacheChilds(resource, childsData: rawData)
-//						}
-						return resource.deserializeResponse(json).toObservable()
+				remoteDisposable = resource.loadChildResources().catchError { error in
+					observer.onNext(Result.error(error))
+					return Observable.empty()
+					}.flatMapLatest { result -> Observable<CloudResource> in
+						if case Result.success(let box) = result {
+							return resource.deserializeResponse(box.value).toObservable()
+						} else if case Result.error(let error) = result {
+							observer.onNext(Result.error(error))
+							return Observable.error(error)
+						}
+						return Observable.empty()
 					}.toArray().doOnCompleted { observer.onCompleted() }.bindNext {
 						self?.cacheProvider?.cacheChilds(resource, childs: $0)
-						observer.onNext($0)
+						observer.onNext(Result.success(Box(value: $0)))
 				}
 			} else { observer.onCompleted() }
 			
 			return AnonymousDisposable {
-				//cacheDisposable?.dispose()
 				remoteDisposable?.dispose()
 			}
 		}
