@@ -119,6 +119,17 @@ class MediaLibraryController: UIViewController {
 		if let artist = objects?[indexPath.row] {
 			cell.artistNameLabel.text = artist.name
 			cell.albumCountLabel.text = "Albums: \(artist.albums.count)"
+			cell.showMenuButton.rx_tap.bindNext { [unowned self] in
+				let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+				let addToPlayList = UIAlertAction(title: "Add to playlist", style: .Default) { [weak self] _ in
+					print("add \(artist.name) to playlist")
+				}
+				let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+				alert.addAction(addToPlayList)
+				alert.addAction(cancel)
+				self.presentViewController(alert, animated: true, completion: nil)
+				
+				}.addDisposableTo(cell.bag)
 		} else {
 			cell.artistNameLabel.text = "Unknown"
 		}
@@ -203,10 +214,12 @@ extension MediaLibraryController : UITableViewDelegate {
 extension MediaLibraryController : UITableViewDataSource {
 	func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
 		if segment.selectedSegmentIndex == 3 {
-			return UITableViewCellEditingStyle.Delete
-		} else {
-			return UITableViewCellEditingStyle.None
+			if indexPath.row != (try? model.player.mediaLibrary.getPlayLists())?.count {
+				return UITableViewCellEditingStyle.Delete
+			}
 		}
+		
+		return UITableViewCellEditingStyle.None
 	}
 	
 	func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {

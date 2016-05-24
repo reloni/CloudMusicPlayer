@@ -759,6 +759,7 @@
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="40" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="nUl-rw-rtw">
                                         <rect key="frame" x="0.0" y="33" width="600" height="446"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                         <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ArtistCell" id="kWu-Io-Tqk" customClass="ArtistCell" customModule="CloudMusicPlayer" customModuleProvider="target">
@@ -768,36 +769,48 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="600" height="39.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
-                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="1Fn-uT-3mH">
-                                                            <rect key="frame" x="5" y="0.0" width="590" height="40"/>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="GE9-nz-azB">
+                                                            <rect key="frame" x="8" y="0.0" width="584" height="39.5"/>
                                                             <subviews>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kGu-7g-VEU">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="590" height="26"/>
-                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
-                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                </label>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="phm-FY-1Gv">
-                                                                    <rect key="frame" x="0.0" y="28" width="590" height="12"/>
-                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
-                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                </label>
+                                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="1Fn-uT-3mH">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="551" height="39.5"/>
+                                                                    <subviews>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kGu-7g-VEU">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="551" height="25.5"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
+                                                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="phm-FY-1Gv">
+                                                                            <rect key="frame" x="0.0" y="27.5" width="551" height="12"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
+                                                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                    </subviews>
+                                                                    <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
+                                                                </stackView>
+                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ghr-j2-4df">
+                                                                    <rect key="frame" x="561" y="0.0" width="23" height="39.5"/>
+                                                                    <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="10" maxY="5"/>
+                                                                    <state key="normal" title="..."/>
+                                                                </button>
                                                             </subviews>
                                                         </stackView>
                                                     </subviews>
                                                     <constraints>
-                                                        <constraint firstAttribute="trailing" secondItem="1Fn-uT-3mH" secondAttribute="trailing" constant="5" id="ET4-jt-vwH"/>
-                                                        <constraint firstAttribute="bottom" secondItem="1Fn-uT-3mH" secondAttribute="bottom" id="Q1w-F0-Gq8"/>
-                                                        <constraint firstItem="1Fn-uT-3mH" firstAttribute="top" secondItem="Z6h-3R-gHI" secondAttribute="top" id="Xjm-tG-QOl"/>
-                                                        <constraint firstItem="1Fn-uT-3mH" firstAttribute="leading" secondItem="Z6h-3R-gHI" secondAttribute="leading" constant="5" id="dZp-By-ywB"/>
+                                                        <constraint firstItem="GE9-nz-azB" firstAttribute="leading" secondItem="Z6h-3R-gHI" secondAttribute="leadingMargin" id="MXl-Yj-6uv"/>
+                                                        <constraint firstItem="GE9-nz-azB" firstAttribute="top" secondItem="Z6h-3R-gHI" secondAttribute="top" id="O8L-V3-Hic"/>
+                                                        <constraint firstAttribute="trailingMargin" secondItem="GE9-nz-azB" secondAttribute="trailing" id="peZ-SY-Hsr"/>
+                                                        <constraint firstAttribute="bottom" secondItem="GE9-nz-azB" secondAttribute="bottom" id="tXj-HZ-6qA"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
-                                                <edgeInsets key="layoutMargins" top="8" left="0.0" bottom="8" right="8"/>
+                                                <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 <connections>
                                                     <outlet property="albumCountLabel" destination="phm-FY-1Gv" id="XAf-ma-DNS"/>
                                                     <outlet property="artistNameLabel" destination="kGu-7g-VEU" id="nIK-St-psR"/>
+                                                    <outlet property="showMenuButton" destination="ghr-j2-4df" id="QGj-C2-TwB"/>
                                                 </connections>
                                             </tableViewCell>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="AlbumCell" id="mfp-A4-3yP" customClass="AlbumCell" customModule="CloudMusicPlayer" customModuleProvider="target">

@@ -122,7 +122,6 @@ public class StreamDataTask {
 extension StreamDataTask : StreamDataTaskProtocol {
 	public func resume() {
 		dispatch_sync(queue) {
-			print("resume task: \(self.uid)")
 			if !self.resumed { self.resumed = true; self.dataTask.resume() }
 		}
 	}
