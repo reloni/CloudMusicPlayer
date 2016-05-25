@@ -10,7 +10,7 @@ import UIKit
 import RxSwift
 
 class MediaLibraryController: UIViewController {
-	let model = MediaLibraryModel(player: rxPlayer)
+	//let model = MediaLibraryModel(player: rxPlayer)
 	
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var segment: UISegmentedControl!
@@ -28,17 +28,17 @@ class MediaLibraryController: UIViewController {
 		addItemsBarButton.rx_tap.bindNext { [weak self] in
 			guard let object = self else { return }
 			if case 0...2 = object.segment.selectedSegmentIndex {
-				let destinationController = ViewControllers.addToMediaLibraryNavigationController.getController() as! AddToMediaLibraryNavigationController
-				destinationController.destinationMediaLibrary = object.model
+				let destinationController = ViewControllers.addToMediaLibraryNavigationController.getController() //as! AddToMediaLibraryNavigationController
+				//destinationController.destinationMediaLibrary = object.model
 				object.presentViewController(destinationController, animated: true, completion: nil)
 			} else if object.segment.selectedSegmentIndex == 3 {
 				object.showNewAlbumNameAlert()
 			}
 		}.addDisposableTo(bag)
 		
-		model.loadProgress.observeOn(MainScheduler.instance).bindNext { [weak self] progress in
-			self?.showProcessingMetadataItems(progress)
-		}.addDisposableTo(bag)
+		//model.loadProgress.observeOn(MainScheduler.instance).bindNext { [weak self] progress in
+		//	self?.showProcessingMetadataItems(progress)
+		//}.addDisposableTo(bag)
 	}
 	
 	override func viewWillAppear(animated: Bool) {
@@ -48,7 +48,7 @@ class MediaLibraryController: UIViewController {
 	
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
 		if segue.identifier == "ShowPlayListInfo" && segment.selectedSegmentIndex == 3 {
-			guard let index = tableView.indexPathForSelectedRow, playList = (try? model.player.mediaLibrary.getPlayLists()[index.row]) ?? nil else { return }
+			guard let index = tableView.indexPathForSelectedRow, playList = MainModel.sharedInstance.playLists?[index.row] else { return }
 			guard let controller = segue.destinationViewController as? PlayListInfoController else { return }
 			controller.model = PlayListInfoModel(playList: playList)
 		}
@@ -72,7 +72,7 @@ class MediaLibraryController: UIViewController {
 		let ok = UIAlertAction(title: "OK", style: .Default) { [weak self] _ in
 			if let newPlayListName = alert.textFields?.first?.text {
 				do {
-					try self?.model.player.mediaLibrary.createPlayList(newPlayListName)
+					try MainModel.sharedInstance.player.mediaLibrary.createPlayList(newPlayListName)
 					self?.tableView.reloadData()
 				} catch { }
 			}
@@ -85,10 +85,10 @@ class MediaLibraryController: UIViewController {
 	
 	func getItemsForSegment() -> Int {
 		switch (segment.selectedSegmentIndex) {
-		case 0: return (try? rxPlayer.mediaLibrary.getArtists().count) ?? 0
-		case 1: return (try? rxPlayer.mediaLibrary.getAlbums().count) ?? 0
-		case 2: return (try? rxPlayer.mediaLibrary.getTracks().count) ?? 0
-		case 3: return (try? rxPlayer.mediaLibrary.getPlayLists().count) ?? 0
+		case 0: return MainModel.sharedInstance.artists?.count ?? 0
+		case 1: return MainModel.sharedInstance.albums?.count ?? 0
+		case 2: return MainModel.sharedInstance.tracks?.count ?? 0
+		case 3: return MainModel.sharedInstance.playLists?.count ?? 0
 		default: fatalError("Unknown segment index")
 		}
 	}
@@ -105,7 +105,7 @@ class MediaLibraryController: UIViewController {
 	
 	
 	func getArtistCell(indexPath: NSIndexPath) -> UITableViewCell {
-		let objects = (try? model.player.mediaLibrary.getArtists()) ?? nil
+		let objects = MainModel.sharedInstance.artists
 		if let objects = objects where indexPath.row == objects.count {
 			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
@@ -138,7 +138,7 @@ class MediaLibraryController: UIViewController {
 	}
 	
 	func getAlbumCell(indexPath: NSIndexPath) -> UITableViewCell {
-		let objects = (try? model.player.mediaLibrary.getAlbums()) ?? nil
+		let objects = MainModel.sharedInstance.albums
 		if let objects = objects where indexPath.row == objects.count {
 			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
@@ -159,7 +159,7 @@ class MediaLibraryController: UIViewController {
 	}
 	
 	func getTrackCell(indexPath: NSIndexPath) -> UITableViewCell {
-		let objects = (try? model.player.mediaLibrary.getTracks()) ?? nil
+		let objects = MainModel.sharedInstance.tracks
 		if let objects = objects where indexPath.row == objects.count {
 			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
@@ -180,7 +180,7 @@ class MediaLibraryController: UIViewController {
 	}
 	
 	func getPlayListCell(indexPath: NSIndexPath) -> UITableViewCell {
-		let objects = (try? model.player.mediaLibrary.getPlayLists()) ?? nil
+		let objects = MainModel.sharedInstance.playLists
 		if let objects = objects where indexPath.row == objects.count {
 			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
@@ -214,7 +214,7 @@ extension MediaLibraryController : UITableViewDelegate {
 extension MediaLibraryController : UITableViewDataSource {
 	func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
 		if segment.selectedSegmentIndex == 3 {
-			if indexPath.row != (try? model.player.mediaLibrary.getPlayLists())?.count {
+			if indexPath.row != MainModel.sharedInstance.playLists?.count {
 				return UITableViewCellEditingStyle.Delete
 			}
 		}
@@ -224,8 +224,8 @@ extension MediaLibraryController : UITableViewDataSource {
 	
 	func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
 		if editingStyle == .Delete && segment.selectedSegmentIndex == 3 {
-			if let pl = (try? model.player.mediaLibrary.getPlayLists()[indexPath.row]) ?? nil {
-				try! model.player.mediaLibrary.deletePlayList(pl)
+			if let pl = MainModel.sharedInstance.playLists?[indexPath.row] {
+				try! MainModel.sharedInstance.player.mediaLibrary.deletePlayList(pl)
 				tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
 			}
 		}

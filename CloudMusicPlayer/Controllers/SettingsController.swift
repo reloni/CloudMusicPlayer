@@ -70,9 +70,9 @@ class SettingsController: UIViewController {
 		model.isGoogleSetUp.asDriver(onErrorJustReturn: false).drive(googleLogOutButton.rx_enabled).addDisposableTo(bag)
 		
 		clearStorageButton.rx_tap.flatMapLatest { _ -> Observable<StorageSize> in
-			rxPlayer.downloadManager.fileStorage.clearStorage()
-			try! rxPlayer.mediaLibrary.clearLibrary()
-			return rxPlayer.downloadManager.fileStorage.calculateSize()
+			MainModel.sharedInstance.player.downloadManager.fileStorage.clearStorage()
+			try! MainModel.sharedInstance.player.mediaLibrary.clearLibrary()
+			return MainModel.sharedInstance.player.downloadManager.fileStorage.calculateSize()
 			}.observeOn(MainScheduler.instance).bindNext { [unowned self] size in
 				self.permanentStorageLabel.text = "\(Float64(size.permanentStorage) / (1024 * 1024)) Mb"
 				self.tempStorageLabel.text = "\(Float64(size.tempStorage) / (1024 * 1024)) Mb"
@@ -88,7 +88,7 @@ class SettingsController: UIViewController {
 	}
 	
 	override func viewWillAppear(animated: Bool) {
-		rxPlayer.downloadManager.fileStorage.calculateSize().observeOn(MainScheduler.instance).bindNext { [unowned self] size in
+		MainModel.sharedInstance.player.downloadManager.fileStorage.calculateSize().observeOn(MainScheduler.instance).bindNext { [unowned self] size in
 			self.permanentStorageLabel.text = "\(Float64(size.permanentStorage) / (1024 * 1024)) Mb"
 			self.tempStorageLabel.text = "\(Float64(size.tempStorage) / (1024 * 1024)) Mb"
 			self.temporaryFolderLabel.text = "\(Float64(size.temporary) / (1024 * 1024)) Mb"

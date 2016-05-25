@@ -9,5 +9,5 @@
 import UIKit
 
 class AddToMediaLibraryNavigationController: UINavigationController {
-	var destinationMediaLibrary: MediaLibraryModel!
+	//var destinationMediaLibrary: MediaLibraryModel!
 }

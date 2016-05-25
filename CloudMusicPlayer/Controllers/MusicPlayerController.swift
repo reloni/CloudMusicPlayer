@@ -139,7 +139,7 @@ class MusicPlayerController: UIViewController {
 //					self?.fullTimeLabel.text = meta.duration?.asTimeString
 //			}.addDisposableTo(self.bag)
 			
-			rxPlayer.currentItemTime.observeOn(MainScheduler.instance).bindNext { [weak self] time in
+			MainModel.sharedInstance.player.currentItemTime.observeOn(MainScheduler.instance).bindNext { [weak self] time in
 				guard let time = time else { self?.currentTimeLabel.text = "0: 00"; return }
 				
 				self?.currentTimeLabel.text = time.currentTime?.asString
@@ -151,7 +151,7 @@ class MusicPlayerController: UIViewController {
 			}.addDisposableTo(self.bag)
 			
 			self.forwardButton.rx_tap.bindNext {
-				rxPlayer.toNext()
+				MainModel.sharedInstance.player.toNext()
 			}.addDisposableTo(self.bag)
 		}
 	}

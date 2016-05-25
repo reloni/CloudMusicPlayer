@@ -88,10 +88,10 @@ class CloudResourcesStructureController: UIViewController {
 	
 	func play(track: CloudAudioResource) {
 		if let identifier = track as? StreamResourceIdentifier {
-			rxPlayer.playUrl(identifier)
+			MainModel.sharedInstance.player.playUrl(identifier)
 		} else {
 			track.downloadUrl.bindNext { url in
-				rxPlayer.playUrl(url)
+				MainModel.sharedInstance.player.playUrl(url)
 				}.addDisposableTo(bag!)
 		}
 	}
@@ -126,12 +126,12 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 			cell.playButton.rx_tap.bindNext {
 				resource.loadChildResourcesRecursive().filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier }.toArray()
 					.bindNext { [weak self] items in
-						rxPlayer.initWithNewItems(items)
+						MainModel.sharedInstance.player.initWithNewItems(items)
 						dispatch_async(dispatch_get_main_queue()) {
 							self?.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
 						}
-						rxPlayer.resume(true)
-						print("Player items count: \(rxPlayer.count)")
+						MainModel.sharedInstance.player.resume(true)
+						print("Player items count: \(MainModel.sharedInstance.playLists?.count)")
 				}.addDisposableTo(cell.bag)
 			}.addDisposableTo(cell.bag)
 		} else {

@@ -22,21 +22,21 @@ class PlayerQueueController: UIViewController {
 	
 	override func viewDidLoad() {
 		automaticallyAdjustsScrollViewInsets = false
-		playPauseButton.setTitle(rxPlayer.playing == true ? "Pause" : "Play", forState: .Normal)
+		playPauseButton.setTitle(MainModel.sharedInstance.player.playing == true ? "Pause" : "Play", forState: .Normal)
 		
 		forwardButton.rx_tap.bindNext {
-			rxPlayer.toNext(true)
+			MainModel.sharedInstance.player.toNext(true)
 			}.addDisposableTo(bag)
 		
 		backButton.rx_tap.bindNext {
-			rxPlayer.toPrevious(true)
+			MainModel.sharedInstance.player.toPrevious(true)
 			}.addDisposableTo(bag)
 		
 		playPauseButton.rx_tap.bindNext {
-			if rxPlayer.playing {
-				rxPlayer.pause()
+			if MainModel.sharedInstance.player.playing {
+				MainModel.sharedInstance.player.pause()
 			} else {
-				rxPlayer.resume(true)
+				MainModel.sharedInstance.player.resume(true)
 			}
 		}.addDisposableTo(bag)
 		
@@ -53,9 +53,9 @@ class PlayerQueueController: UIViewController {
 //		}.addDisposableTo(bag)
 		
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-			rxPlayer.currentItem.flatMapLatest { e -> Observable<Result<MediaItemMetadataType?>> in
+			MainModel.sharedInstance.player.currentItem.flatMapLatest { e -> Observable<Result<MediaItemMetadataType?>> in
 				guard let e = e else { return Observable.empty() }
-				return rxPlayer.loadMetadata(e.streamIdentifier)
+				return MainModel.sharedInstance.player.loadMetadata(e.streamIdentifier)
 				//return e?.loadMetadata() ?? Observable.just(nil)
 				}.map { result -> MediaItemMetadataType? in
 					if case Result.success(let box) = result { return box.value } else { return nil }
@@ -63,7 +63,7 @@ class PlayerQueueController: UIViewController {
 					return e?.duration?.asTimeString ?? "0: 00"
 				}.observeOn(MainScheduler.instance).bindTo(self.fullTimeLabel.rx_text).addDisposableTo(self.bag)
 			
-			rxPlayer.currentItemTime.bindNext { [weak self] time in
+			MainModel.sharedInstance.player.currentItemTime.bindNext { [weak self] time in
 				guard let time = time else { self?.currentTimeLabel.text = "0: 00"; return }
 				
 				dispatch_async(dispatch_get_main_queue()) { [weak self] in
@@ -76,10 +76,10 @@ class PlayerQueueController: UIViewController {
 				}
 			}.addDisposableTo(self.bag)
 			
-			rxPlayer.loadMetadataForItemsInQueue().bindNext { [weak self] result in
+			MainModel.sharedInstance.player.loadMetadataForItemsInQueue().bindNext { [weak self] result in
 				guard case Result.success(let box) = result else { return }
 				self?.queueTableView.indexPathsForVisibleRows?.forEach { indexPath in
-					if rxPlayer.getItemAtPosition(indexPath.row)?.streamIdentifier.streamResourceUid == box.value.resourceUid {
+					if MainModel.sharedInstance.player.getItemAtPosition(indexPath.row)?.streamIdentifier.streamResourceUid == box.value.resourceUid {
 						dispatch_async(dispatch_get_main_queue()) {
 							if let cell = self?.queueTableView.cellForRowAtIndexPath(indexPath) as? QueueTrackCell {
 								self?.setCellMetadata(cell, meta: box.value)
@@ -111,14 +111,14 @@ class PlayerQueueController: UIViewController {
 
 extension PlayerQueueController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-		if let item = rxPlayer.getItemAtPosition(indexPath.row) {
-			rxPlayer.playUrl(item.streamIdentifier, clearQueue: false)
+		if let item = MainModel.sharedInstance.player.getItemAtPosition(indexPath.row) {
+			MainModel.sharedInstance.player.playUrl(item.streamIdentifier, clearQueue: false)
 		}
 
 	}
 	
 	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return rxPlayer.count
+		return MainModel.sharedInstance.player.count
 	}
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -126,8 +126,8 @@ extension PlayerQueueController : UITableViewDelegate {
 	
 		cell.selectionStyle = .None
 		
-		if let item = rxPlayer.getItemAtPosition(indexPath.row) {
-			if let meta = try! rxPlayer.mediaLibrary.getMetadataObjectByUid(item.streamIdentifier) {
+		if let item = MainModel.sharedInstance.player.getItemAtPosition(indexPath.row) {
+			if let meta = try! MainModel.sharedInstance.player.mediaLibrary.getMetadataObjectByUid(item.streamIdentifier) {
 				setCellMetadata(cell, meta: meta)
 			} else {
 				cell.albumArtImage.image = nil
@@ -137,7 +137,7 @@ extension PlayerQueueController : UITableViewDelegate {
 			}
 			
 			cell.bag = DisposeBag()
-			rxPlayer.currentItem.bindNext { [unowned cell] newCurrent in
+			MainModel.sharedInstance.player.currentItem.bindNext { [unowned cell] newCurrent in
 				dispatch_async(dispatch_get_main_queue()) {
 					if item.streamIdentifier.streamResourceUid == newCurrent?.streamIdentifier.streamResourceUid {
 						cell.backgroundColor = UIColor(red: 204/255, green: 255/255, blue: 253/255, alpha: 1)
