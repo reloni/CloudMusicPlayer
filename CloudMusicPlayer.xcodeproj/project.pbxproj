@@ -33,7 +33,6 @@
 		6E182EDA1C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */; };
 		6E1F020E1C57F14800490013 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F020D1C57F14800490013 /* Keychain.swift */; };
 		6E1F5BF71CC638ED0035DA4A /* NSFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F5BF61CC638ED0035DA4A /* NSFileManagerTests.swift */; };
-		6E1FDD8E1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1FDD8D1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift */; };
 		6E21C9701CEC7C3B00614B0F /* MediaLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E21C96F1CEC7C3B00614B0F /* MediaLibraryController.swift */; };
 		6E21C9721CEC86F500614B0F /* AlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E21C9711CEC86F500614B0F /* AlbumCell.swift */; };
 		6E21C9761CEC871B00614B0F /* TrackCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E21C9751CEC871B00614B0F /* TrackCell.swift */; };
@@ -178,7 +177,6 @@
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
 		6E1F5BF61CC638ED0035DA4A /* NSFileManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSFileManagerTests.swift; sourceTree = "<group>"; };
 		6E1FDD8B1CEF78B600AB0B08 /* MediaLibraryModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaLibraryModel.swift; sourceTree = "<group>"; };
-		6E1FDD8D1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToMediaLibraryNavigationController.swift; sourceTree = "<group>"; };
 		6E21C96F1CEC7C3B00614B0F /* MediaLibraryController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaLibraryController.swift; sourceTree = "<group>"; };
 		6E21C9711CEC86F500614B0F /* AlbumCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlbumCell.swift; sourceTree = "<group>"; };
 		6E21C9751CEC871B00614B0F /* TrackCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackCell.swift; sourceTree = "<group>"; };
@@ -424,7 +422,6 @@
 				6E21C96F1CEC7C3B00614B0F /* MediaLibraryController.swift */,
 				6E088A7B1CEDD278001EED50 /* CloudAccountsController.swift */,
 				6E088A811CEE051E001EED50 /* AddToMediaLibraryController.swift */,
-				6E1FDD8D1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift */,
 				6EAFBDA71CF0BF6B00066E19 /* PlayListInfoController.swift */,
 			);
 			name = Controllers;
@@ -917,7 +914,6 @@
 				6E6DDE491C8DC455001AE510 /* CMTime.swift in Sources */,
 				6EDB49831CBE419900F82E02 /* NSURL.swift in Sources */,
 				6E31A89A1C9C5AF70017802A /* NSURLSessionDataEventsObserver.swift in Sources */,
-				6E1FDD8E1CEF7EDF00AB0B08 /* AddToMediaLibraryNavigationController.swift in Sources */,
 				6E1F020E1C57F14800490013 /* Keychain.swift in Sources */,
 				6EA16FEE1CC7668A00D4D257 /* CloudResourceCacheProvider.swift in Sources */,
 				6E658BD81CB81FAF0011354C /* RxPlayer+PlayControl.swift in Sources */,

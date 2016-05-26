@@ -17,33 +17,53 @@ class MediaLibraryController: UIViewController {
 	@IBOutlet weak var addItemsBarButton: UIBarButtonItem!
 	@IBOutlet weak var processingMetadataItemsCountLabel: UILabel!
 	@IBOutlet weak var processingMetadataItemsView: UIView!
+	@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+	@IBOutlet weak var cancelMetadataLoadButton: UIButton!
 	
-	let bag = DisposeBag()
+	var bag = DisposeBag()
 	
-	override func viewDidLoad() {		
+	override func viewDidLoad() {
+		//processingMetadataItemsView.hidden = true
+	}
+	
+	override func viewWillAppear(animated: Bool) {
 		segment.rx_value.bindNext { [weak self] _ in
 			self?.tableView.reloadData()
-		}.addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
 		addItemsBarButton.rx_tap.bindNext { [weak self] in
 			guard let object = self else { return }
 			if case 0...2 = object.segment.selectedSegmentIndex {
 				let destinationController = ViewControllers.addToMediaLibraryNavigationController.getController() //as! AddToMediaLibraryNavigationController
-				//destinationController.destinationMediaLibrary = object.model
 				object.presentViewController(destinationController, animated: true, completion: nil)
 			} else if object.segment.selectedSegmentIndex == 3 {
 				object.showNewAlbumNameAlert()
 			}
-		}.addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		
-		//model.loadProgress.observeOn(MainScheduler.instance).bindNext { [weak self] progress in
-		//	self?.showProcessingMetadataItems(progress)
-		//}.addDisposableTo(bag)
+		MainModel.sharedInstance.isMetadataLoadInProgressSubject.subscribeOn(SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+			.bindNext { [weak self] progress in
+				if progress == self?.processingMetadataItemsView.hidden {
+					dispatch_async(dispatch_get_main_queue()) {
+						UIView.animateWithDuration(0.5, animations: { self?.processingMetadataItemsView.hidden = !progress })
+					}
+				}
+				if progress {
+					self?.activityIndicator.startAnimating()
+				} else {
+					self?.activityIndicator.stopAnimating()
+				}
+			}.addDisposableTo(bag)
+		
+		cancelMetadataLoadButton.rx_tap.bindNext {
+			MainModel.sharedInstance.cancelMetadataLoading()
+			}.addDisposableTo(bag)
+		
+		tableView.reloadData()
 	}
 	
-	override func viewWillAppear(animated: Bool) {
-		processingMetadataItemsView.hidden = true
-		tableView.reloadData()
+	override func viewWillDisappear(animated: Bool) {
+		bag = DisposeBag()
 	}
 	
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -52,16 +72,6 @@ class MediaLibraryController: UIViewController {
 			guard let controller = segue.destinationViewController as? PlayListInfoController else { return }
 			controller.model = PlayListInfoModel(playList: playList)
 		}
-	}
-	
-	func showProcessingMetadataItems(count: Int) {
-		UIView.animateWithDuration(0.5, animations: { [weak self] in
-			self?.processingMetadataItemsCountLabel.text = String(count)
-			self?.processingMetadataItemsView.hidden = count <= 0
-			if count == 0 {
-				print("all items processed")
-			}
-		})
 	}
 	
 	func showNewAlbumNameAlert() {

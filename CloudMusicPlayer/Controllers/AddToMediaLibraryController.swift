@@ -41,10 +41,9 @@ class AddToMediaLibraryController: UIViewController {
 		
 		doneButton.rx_tap.bindNext { [weak self] in
 			guard let object = self else { return }
-			//if let selectedRows = object.tableView.indexPathsForSelectedRows,
-			//	mediaLibraryModel = (object.parentViewController as? AddToMediaLibraryNavigationController)?.destinationMediaLibrary {
-			//	mediaLibraryModel.addToMediaLibrary(selectedRows.map { object.model.cachedContent[$0.row] })
-			//}
+			if let selectedRows = object.tableView.indexPathsForSelectedRows {
+				MainModel.sharedInstance.loadMetadataToLibrary(selectedRows.map { object.model.cachedContent[$0.row] })
+			}
 			object.dismissViewControllerAnimated(true, completion: nil)
 		}.addDisposableTo(bag)
 	}
@@ -66,7 +65,6 @@ class AddToMediaLibraryController: UIViewController {
 			guard let cell = tableView.cellForRowAtIndexPath(indexPath) as? FolderInfoCell else { return }
 			if cell.folderNameLabel.pointInside(recognizer.locationInView(cell.folderNameLabel), withEvent: nil) {
 				showChilds(indexPath)
-				cell.setSelected(false, animated: false)
 			}
 		}
 	}
@@ -75,10 +73,8 @@ class AddToMediaLibraryController: UIViewController {
 		let resource = model.cachedContent[indexPath.row]
 		if resource.type == .Folder,
 			let controller = ViewControllers.addToMediaLibraryController.getController() as? AddToMediaLibraryController {
-		//storyboard?.instantiateViewControllerWithIdentifier("AddToPlayListView") as? CloudResourceAddToPlayListController {
 			controller.model = CloudResourceModel(resource: resource, cloudResourceClient: model.cloudResourceClient)
 			navigationController?.pushViewController(controller, animated: true)
-			tableView.deselectRowAtIndexPath(indexPath, animated: false)
 		}
 	}
 	/*
@@ -94,16 +90,6 @@ class AddToMediaLibraryController: UIViewController {
 }
 
 extension AddToMediaLibraryController : UITableViewDelegate {
-	//func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-		//guard !tableView.editing else { return }
-		//let resource = model.cachedContent[indexPath.row]
-		//if resource.type == .Folder,
-		//	let controller = storyboard?.instantiateViewControllerWithIdentifier("AddToPlayListView") as? CloudResourceAddToPlayListController {
-		//	controller.model = CloudResourceModel(resource: resource, cloudResourceClient: model.cloudResourceClient)
-		//	navigationController?.pushViewController(controller, animated: true)
-		//}
-	//}
-	
 	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return model.cachedContent.count
 	}

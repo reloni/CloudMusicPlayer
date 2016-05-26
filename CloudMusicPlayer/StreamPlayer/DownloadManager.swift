@@ -244,7 +244,6 @@ extension DownloadManager : DownloadManagerType {
 				}.subscribeOn(object.serialScheduler).subscribe()
 			
 			return AnonymousDisposable {
-				print("download observable dispose")
 				self?.removePendingTask(identifier.streamResourceUid)
 				disposable.dispose()
 			}
