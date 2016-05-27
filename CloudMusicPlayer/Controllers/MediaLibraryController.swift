@@ -87,9 +87,10 @@ class MediaLibraryController: UIViewController {
 				} catch { }
 			}
 		}
-		let cancel = UIAlertAction(title: "Cancel", style: .Default, handler: nil)
+		let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
 		alert.addAction(cancel)
 		alert.addAction(ok)
+		alert.view.setNeedsLayout()
 		presentViewController(alert, animated: true, completion: nil)
 	}
 	
@@ -132,7 +133,10 @@ class MediaLibraryController: UIViewController {
 			cell.showMenuButton.rx_tap.bindNext { [unowned self] in
 				let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
 				let addToPlayList = UIAlertAction(title: "Add to playlist", style: .Default) { [weak self] _ in
-					print("add \(artist.name) to playlist")
+					if let pl = MainModel.sharedInstance.playLists?.first {
+						print("add \(artist.name) to \(pl.name)")
+						MainModel.sharedInstance.addArtistToPlayList(artist, playList: pl)
+					}
 				}
 				let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
 				alert.addAction(addToPlayList)

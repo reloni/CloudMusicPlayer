@@ -55,7 +55,18 @@ public protocol AVAssetProtocol {
 }
 extension AVAsset: AVAssetProtocol {
 	public func getMetadata() -> [String: AnyObject?] {
-		return Dictionary<String, AnyObject?>(metadata.filter { $0.commonKey != nil }.map { ($0.commonKey!, $0.value as? AnyObject)})
+		// http://stackoverflow.com/questions/10292913/avmetadataitem-getting-the-tracknumber-from-an-itunes-or-id3-metadata-on-ios
+		//return Dictionary<String, AnyObject?>(metadata.filter { $0.commonKey != nil }.map { ($0.commonKey!, $0.value as? AnyObject)})
+		let a = metadataForFormat(AVMetadataKeySpaceID3).map { item -> (String, AnyObject?)? in
+			if let key = item.commonKey {
+				return (key, item.value as? AnyObject)
+			} else if let key = item.key as? String {
+				return (key, item.value)
+			}
+			return nil
+			}.filter { $0 != nil }.map { $0! }
+		
+		return Dictionary<String, AnyObject?>(a)
 	}
 }
 

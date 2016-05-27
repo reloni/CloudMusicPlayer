@@ -772,19 +772,19 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="GE9-nz-azB">
-                                                            <rect key="frame" x="8" y="0.0" width="584" height="39.5"/>
+                                                            <rect key="frame" x="8" y="0.0" width="584" height="40"/>
                                                             <subviews>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="1Fn-uT-3mH">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="551" height="39.5"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="544" height="40"/>
                                                                     <subviews>
-                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kGu-7g-VEU">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="551" height="25.5"/>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kGu-7g-VEU">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="544" height="26"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
                                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
-                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="phm-FY-1Gv">
-                                                                            <rect key="frame" x="0.0" y="27" width="551" height="12"/>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="phm-FY-1Gv">
+                                                                            <rect key="frame" x="0.0" y="28" width="544" height="12"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
                                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                             <nil key="highlightedColor"/>
@@ -793,8 +793,9 @@
                                                                     <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                                 </stackView>
                                                                 <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ghr-j2-4df">
-                                                                    <rect key="frame" x="561" y="0.0" width="23" height="39.5"/>
-                                                                    <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="10" maxY="5"/>
+                                                                    <rect key="frame" x="554" y="0.0" width="30" height="40"/>
+                                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                                                    <size key="titleShadowOffset" width="2.2250738585072014e-308" height="0.0"/>
                                                                     <state key="normal" title="..."/>
                                                                 </button>
                                                             </subviews>
@@ -879,7 +880,7 @@
                                                     <outlet property="trackTitleLabel" destination="KuU-gQ-55h" id="pM9-63-32A"/>
                                                 </connections>
                                             </tableViewCell>
-                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="LastItemCell" id="Yz0-qN-aOt" customClass="LastItemCell" customModule="CloudMusicPlayer" customModuleProvider="target">
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="LastItemCell" id="Yz0-qN-aOt" customClass="LastItemCell" customModule="CloudMusicPlayer" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="148" width="600" height="40"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Yz0-qN-aOt" id="BCp-EY-l8P">
@@ -962,7 +963,8 @@
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Library" id="wuZ-H7-pZm"/>
-                    <navigationItem key="navigationItem" id="CLI-mn-Yqw">
+                    <navigationItem key="navigationItem" title="Library" id="CLI-mn-Yqw">
+                        <barButtonItem key="backBarButtonItem" title=" " id="hqT-fA-ePK"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="31d-sQ-Fam"/>
                     </navigationItem>
                     <connections>
