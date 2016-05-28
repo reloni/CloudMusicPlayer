@@ -192,7 +192,7 @@
         <scene sceneID="5kX-4Z-yuj">
             <objects>
                 <navigationController id="SCe-nl-9C3" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Network" id="NI4-d9-GMK"/>
+                    <tabBarItem key="tabBarItem" title="Network" image="Cloud" id="NI4-d9-GMK"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="cVe-qT-5tK">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -667,7 +667,7 @@
                             </mask>
                         </variation>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Settings" id="hae-Id-lbw"/>
+                    <tabBarItem key="tabBarItem" title="Settings" image="Settings" id="hae-Id-lbw"/>
                     <connections>
                         <outlet property="clearStorageButton" destination="nul-F2-fct" id="zrN-C8-JDU"/>
                         <outlet property="googleLogInButton" destination="wkg-Et-KRw" id="od4-r7-SEO"/>
@@ -775,16 +775,16 @@
                                                             <rect key="frame" x="8" y="0.0" width="584" height="40"/>
                                                             <subviews>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="1Fn-uT-3mH">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="544" height="40"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="541" height="40"/>
                                                                     <subviews>
-                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kGu-7g-VEU">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="544" height="26"/>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kGu-7g-VEU">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="541" height="26"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
                                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
-                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="phm-FY-1Gv">
-                                                                            <rect key="frame" x="0.0" y="28" width="544" height="12"/>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="phm-FY-1Gv">
+                                                                            <rect key="frame" x="0.0" y="28" width="541" height="12"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
                                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                             <nil key="highlightedColor"/>
@@ -792,11 +792,10 @@
                                                                     </subviews>
                                                                     <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                                 </stackView>
-                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ghr-j2-4df">
-                                                                    <rect key="frame" x="554" y="0.0" width="30" height="40"/>
-                                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ghr-j2-4df">
+                                                                    <rect key="frame" x="551" y="0.0" width="33" height="40"/>
                                                                     <size key="titleShadowOffset" width="2.2250738585072014e-308" height="0.0"/>
-                                                                    <state key="normal" title="..."/>
+                                                                    <state key="normal" image="Cell Menu"/>
                                                                 </button>
                                                             </subviews>
                                                         </stackView>
@@ -962,7 +961,7 @@
                             <constraint firstAttribute="trailing" secondItem="Rmi-6c-aag" secondAttribute="trailing" id="vs9-hj-fFW"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Library" id="wuZ-H7-pZm"/>
+                    <tabBarItem key="tabBarItem" title="Library" image="Music Library" id="wuZ-H7-pZm"/>
                     <navigationItem key="navigationItem" title="Library" id="CLI-mn-Yqw">
                         <barButtonItem key="backBarButtonItem" title=" " id="hqT-fA-ePK"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="31d-sQ-Fam"/>
@@ -1096,6 +1095,10 @@
         </scene>
     </scenes>
     <resources>
+        <image name="Cell Menu" width="33" height="33"/>
+        <image name="Cloud" width="33" height="33"/>
+        <image name="Music Library" width="33" height="33"/>
+        <image name="Settings" width="33" height="33"/>
         <image name="cover_placeholder.jpg" width="200" height="196"/>
     </resources>
 </document>
