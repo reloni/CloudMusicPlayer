@@ -9,7 +9,7 @@
 import Foundation
 import RxSwift
 
-extension RxPlayer {
+extension RxPlayer {	
 	internal func loadFileMetadata(resource: StreamResourceIdentifier, file: NSURL, utilities: StreamPlayerUtilitiesProtocol) -> AudioItemMetadata? {
 		guard file.fileExists() else { return nil }
 		

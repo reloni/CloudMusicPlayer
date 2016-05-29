@@ -10,6 +10,7 @@ import UIKit
 import CoreData
 import AVFoundation
 import RxSwift
+import MediaPlayer
 
 enum Storyboards : String {
 	case main = "Main"
@@ -56,8 +57,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			streamPlayerUtilities: StreamPlayerUtilities(),
 			mediaLibrary: RealmMediaLibrary()))
 		
+		let cloudResourceLoader = CloudResourceLoader(cacheProvider: RealmCloudResourceCacheProvider(),
+		                                              rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier:
+																										YandexDiskCloudJsonResource.getRootResource(HttpClient(), oauth: YandexOAuth())])
+		MainModel.sharedInstance.player.streamResourceLoaders.append(cloudResourceLoader)
+		
 		let _ = try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
 		
+		MainModel.sharedInstance.player.playerEvents.bindNext { event in
+			print("player event: \(event)")
+			if case PlayerEvents.CurrentItemChanged(let item) = event {
+				guard let item = item, meta = (try? item.player.mediaLibrary.getMetadataObjectByUid(item.streamIdentifier)) ?? nil else { return }
+				if let info = meta.getMetadataForNowPlayingInfoCenter() {
+					print("set info")
+					print(info)
+					MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = info
+				}
+			}
+		}.addDisposableTo(bag)
+		
+		/*
+		let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
+		
+		commandCenter.previousTrackCommand.enabled = true;
+		commandCenter.previousTrackCommand.addTarget(self, action: #selector(AppDelegate.shit))
+		
+		commandCenter.nextTrackCommand.enabled = true
+		commandCenter.nextTrackCommand.addTarget(self, action: #selector(AppDelegate.shit))
+		
+		commandCenter.playCommand.enabled = true
+		commandCenter.previousTrackCommand.addTarget(self, action: #selector(AppDelegate.shit))
+		
+		commandCenter.pauseCommand.enabled = true
+		commandCenter.pauseCommand.addTarget(self, action: #selector(AppDelegate.shit))
+		*/
 //		Observable<Int>.interval(1, scheduler: MainScheduler.instance).bindNext { _ in
 //			print("Resource count: \(RxSwift.resourceCount)")
 //		}.addDisposableTo(bag)
@@ -69,6 +102,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		window?.makeKeyAndVisible()
 		
 		return true
+	}
+	
+	func shit() {
+		print("shit invoked")
 	}
 	
 	// вызывается при вызове приложения по URL схеме

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import RxSwift
 
 class PlayListInfoController: UIViewController {
 	var model: PlayListInfoModel!
@@ -14,9 +15,22 @@ class PlayListInfoController: UIViewController {
 	@IBOutlet weak var playButton: UIButton!
 	@IBOutlet weak var addBarButton: UIBarButtonItem!
 	
+	var bag = DisposeBag()
+	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		playListNameLabel.text = model.playList.name
+	}
+	
+	override func viewWillAppear(animated: Bool) {
+		playButton.rx_tap.bindNext { [weak self] in
+			guard let object = self else { return }
+			MainModel.sharedInstance.player.playPlayList(object.model.playList)
+		}.addDisposableTo(bag)
+	}
+	
+	override func viewWillDisappear(animated: Bool) {
+		bag = DisposeBag()
 	}
 }
 

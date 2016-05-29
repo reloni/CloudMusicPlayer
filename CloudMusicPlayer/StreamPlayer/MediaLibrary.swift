@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MediaPlayer
 
 public enum MediaLibraryErroros : CustomErrorType {
 	case emptyPlayListName
@@ -110,5 +111,20 @@ public struct MediaItemMetadata : MediaItemMetadataType {
 		self.album = album
 		self.artwork = artwork
 		self.duration = duration
+	}
+}
+
+extension MediaItemMetadataType {
+	public func getMetadataForNowPlayingInfoCenter() -> [String: AnyObject]? {
+		var data = [String: AnyObject]()
+		data[MPMediaItemPropertyTitle] = title!
+		data[MPMediaItemPropertyAlbumTitle] = album!
+		data[MPMediaItemPropertyArtist] = artist!
+		data[MPMediaItemPropertyPlaybackDuration] = duration!
+		data[MPNowPlayingInfoPropertyPlaybackRate] = 1
+		if let artwork = artwork, image = UIImage(data: artwork) {
+			data[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: image)
+		}
+		return data
 	}
 }
