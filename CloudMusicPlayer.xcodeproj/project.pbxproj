@@ -114,6 +114,7 @@
 		6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */; };
 		6EC021201C8B3E0200E30BE1 /* MusicPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */; };
 		6EC4A4231C8D81750030476D /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC4A4221C8D81750030476D /* Dictionary.swift */; };
+		6EC57F3A1CFCB3D300A2F056 /* RxPlayer+Background.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC57F391CFCB3D300A2F056 /* RxPlayer+Background.swift */; };
 		6ED920601CCA4B8000900CCB /* MediaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED9205F1CCA4B8000900CCB /* MediaLibrary.swift */; };
 		6EDB49831CBE419900F82E02 /* NSURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDB49821CBE419900F82E02 /* NSURL.swift */; };
 		6EDB49851CBE489700F82E02 /* FakeNSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDB49841CBE489700F82E02 /* FakeNSUserDefaults.swift */; };
@@ -262,6 +263,7 @@
 		6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableOrderedSet.swift; sourceTree = "<group>"; };
 		6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicPlayerViewModel.swift; sourceTree = "<group>"; };
 		6EC4A4221C8D81750030476D /* Dictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
+		6EC57F391CFCB3D300A2F056 /* RxPlayer+Background.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RxPlayer+Background.swift"; sourceTree = "<group>"; };
 		6ED9205F1CCA4B8000900CCB /* MediaLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaLibrary.swift; sourceTree = "<group>"; };
 		6EDB49821CBE419900F82E02 /* NSURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURL.swift; sourceTree = "<group>"; };
 		6EDB49841CBE489700F82E02 /* FakeNSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeNSUserDefaults.swift; sourceTree = "<group>"; };
@@ -383,6 +385,7 @@
 				6E12E06E1CB3C56C00091B9A /* LocalStorage.swift */,
 				6EA3B5011CD334E1002E25BA /* InternalPlayer.swift */,
 				6E08530B1CB7BA030004E193 /* RxPlayer.swift */,
+				6EC57F391CFCB3D300A2F056 /* RxPlayer+Background.swift */,
 				6E08530D1CB7D83F0004E193 /* RxPlayer+Queue.swift */,
 				6E658BD71CB81FAF0011354C /* RxPlayer+PlayControl.swift */,
 				6EEC8F781CA0393100B30B85 /* RxPlayer+AssetLoader.swift */,
@@ -922,6 +925,7 @@
 				6EB1929F1CC3BC8100FF3024 /* QueueTrackCell.swift in Sources */,
 				6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */,
 				6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */,
+				6EC57F3A1CFCB3D300A2F056 /* RxPlayer+Background.swift in Sources */,
 				6E088A821CEE051E001EED50 /* AddToMediaLibraryController.swift in Sources */,
 				6EEB989F1C4EBE1700DD5B95 /* AppDelegate.swift in Sources */,
 				6E6DDE491C8DC455001AE510 /* CMTime.swift in Sources */,

@@ -171,7 +171,7 @@ public class DownloadManager {
 			return AnonymousDisposable {
 				disposable.dispose()
 			}
-		}.subscribeOn(serialScheduler)
+			}.subscribeOn(serialScheduler)
 	}
 	
 	internal func monitorTask(identifier: StreamResourceIdentifier,
@@ -208,45 +208,46 @@ extension DownloadManager : DownloadManagerType {
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			let disposable = object.createDownloadTask(identifier, priority: priority).single().catchError{ error in
-					print("catch error: \((error as NSError).localizedDescription)")
-					observer.onNext(DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: "", uid: identifier.streamResourceUid).asResult())
-					observer.onCompleted()
-					return Observable.empty()
+				print("catch error while creating download task: \((error as NSError).localizedDescription)")
+				print("rx error: \((error as? RxError)?.debugDescription)")
+				observer.onNext(DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: "", uid: identifier.streamResourceUid).asResult())
+				observer.onCompleted()
+				return Observable.empty()
 				}.flatMapLatest { result -> Observable<Void> in
-				guard let task = result else {
-					print("not url: \(identifier.streamResourceUid)")
-					observer.onNext(DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: "", uid: identifier.streamResourceUid).asResult())
-					observer.onCompleted()
-					return Observable.empty()
-				}
-				
-				let streamTask = task.taskProgress.observeOn(object.serialScheduler).doOnError { error in
-					object.removePendingTask(identifier.streamResourceUid, force: true); observer.onNext(Result.error(error)); observer.onCompleted()
-					}.doOnNext { result in
-						if case Result.success(let event) = result {
-							if case .Success(let provider) = event.value {
-								object.saveData(provider)
-								object.removePendingTask(identifier.streamResourceUid, force: true)
-								observer.onNext(result)
-							} else {
+					guard let task = result else {
+						print("not url: \(identifier.streamResourceUid)")
+						observer.onNext(DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: "", uid: identifier.streamResourceUid).asResult())
+						observer.onCompleted()
+						return Observable.empty()
+					}
+					
+					let streamTask = task.taskProgress.observeOn(object.serialScheduler).doOnError { error in
+						object.removePendingTask(identifier.streamResourceUid, force: true); observer.onNext(Result.error(error)); observer.onCompleted()
+						}.doOnNext { result in
+							if case Result.success(let event) = result {
+								if case .Success(let provider) = event.value {
+									object.saveData(provider)
+									object.removePendingTask(identifier.streamResourceUid, force: true)
+									observer.onNext(result)
+								} else {
+									observer.onNext(result)
+								}
+							} else if case Result.error = result {
+								self?.removePendingTask(identifier.streamResourceUid, force: true)
 								observer.onNext(result)
 							}
-						} else if case Result.error = result {
-							self?.removePendingTask(identifier.streamResourceUid, force: true)
-							observer.onNext(result)
-						}
-				}
-				
-				let monitoring = object.monitorTask(identifier, monitoringInterval: Observable<Int>.interval(object.runningTaskCheckTimeout,
-					scheduler: object.serialScheduler))
-				
-				return Observable<Void>.combineLatest(streamTask, monitoring) { _ in }
+					}
+					
+					let monitoring = object.monitorTask(identifier, monitoringInterval: Observable<Int>.interval(object.runningTaskCheckTimeout,
+						scheduler: object.serialScheduler))
+					
+					return Observable<Void>.combineLatest(streamTask, monitoring) { _ in }
 				}.subscribeOn(object.serialScheduler).subscribe()
 			
 			return AnonymousDisposable {
 				self?.removePendingTask(identifier.streamResourceUid)
 				disposable.dispose()
 			}
-		}.subscribeOn(serialScheduler)
+			}.subscribeOn(serialScheduler)
 	}
 }

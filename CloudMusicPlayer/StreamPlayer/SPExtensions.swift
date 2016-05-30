@@ -9,6 +9,13 @@
 import Foundation
 import AVFoundation
 import RxSwift
+import UIKit
+
+public protocol UIApplicationType {
+	func beginBackgroundTaskWithExpirationHandler(handler: (() -> Void)?) -> UIBackgroundTaskIdentifier
+	func endBackgroundTask(identifier: UIBackgroundTaskIdentifier)
+}
+extension UIApplication : UIApplicationType { }
 
 // AVAssetResourceLoadingRequestProtocol
 public protocol AVAssetResourceLoadingRequestProtocol : NSObjectProtocol {

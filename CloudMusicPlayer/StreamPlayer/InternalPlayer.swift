@@ -86,7 +86,14 @@ extension InternalPlayer : InternalPlayerType {
 	}
 	
 	internal func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol) {
-		stop()
+		flush()
+		
+		do {
+			try AVAudioSession.sharedInstance().setActive(true)
+			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+		} catch let error as NSError {
+			NSLog("Error setting session category %@", error.localizedDescription)
+		}
 		
 		self.asset = asset
 		self.playerItem = playerItem
@@ -102,13 +109,24 @@ extension InternalPlayer : InternalPlayerType {
 				if let object = self {
 					NSNotificationCenter.defaultCenter().addObserver(object, selector:
 						#selector(object.finishPlayingItem), name: AVPlayerItemDidPlayToEndTimeNotification, object: object.playerItem as? AVPlayerItem)
+					NSNotificationCenter.defaultCenter().addObserver(object, selector:
+						#selector(object.playbackStalled), name: AVPlayerItemPlaybackStalledNotification, object: object.playerItem as? AVPlayerItem)
+					NSNotificationCenter.defaultCenter().addObserver(object, selector:
+						#selector(object.newErrorLogEntry), name: AVPlayerItemNewErrorLogEntryNotification, object: object.playerItem as? AVPlayerItem)
+					NSNotificationCenter.defaultCenter().addObserver(object, selector:
+						#selector(object.failedToPlayToEnd), name: AVPlayerItemFailedToPlayToEndTimeNotification, object: object.playerItem as? AVPlayerItem)
 				}
 			}
 			}.addDisposableTo(bag)
+		
+		hostPlayer.beginBackgroundTask()
 	}
 	
 	func flush() {
 		NSNotificationCenter.defaultCenter().removeObserver(self, name: AVPlayerItemDidPlayToEndTimeNotification, object: playerItem as? AVPlayerItem)
+		NSNotificationCenter.defaultCenter().removeObserver(self, name: AVPlayerItemPlaybackStalledNotification, object: playerItem as? AVPlayerItem)
+		NSNotificationCenter.defaultCenter().removeObserver(self, name: AVPlayerItemNewErrorLogEntryNotification, object: playerItem as? AVPlayerItem)
+		NSNotificationCenter.defaultCenter().removeObserver(self, name: AVPlayerItemFailedToPlayToEndTimeNotification, object: playerItem as? AVPlayerItem)
 		nativePlayer?.replaceCurrentItemWithPlayerItem(nil)
 		nativePlayer = nil
 		asset = nil
@@ -120,6 +138,7 @@ extension InternalPlayer : InternalPlayerType {
 	public func stop() {
 		flush()
 		eventsCallback(.Stopped)
+		hostPlayer.endBackgroundTask()
 	}
 	
 	public func pause() {
@@ -128,18 +147,44 @@ extension InternalPlayer : InternalPlayerType {
 			nativePlayer.setPlayerRate(0.0)
 			eventsCallback(.Paused)
 		}
+		hostPlayer.endBackgroundTask()
 	}
 	
 	public func resume() {
 		if let nativePlayer = nativePlayer {
 			nativePlayer.setPlayerRate(1.0)
 			eventsCallback(.Resumed)
+			hostPlayer.beginBackgroundTask()
 		}
 	}
 	
-	@objc func finishPlayingItem() {
+	@objc func finishPlayingItem(notification: NSNotification) {
+		print("start flush")
 		flush()
+		print("finish flush")
 		eventsCallback(.FinishPlayingCurrentItem)
+		print("callback invoked")
 		hostPlayer.toNext(true)
+		print("to next invoked")
 	}
+	
+	@objc func playbackStalled(notification: NSNotification) {
+		print("playback stalled")
+		finishPlayingItem(notification)
+	}
+	
+	@objc func newErrorLogEntry(notification: NSNotification) {
+		print("new error notification")
+	}
+	
+	@objc func failedToPlayToEnd(notification: NSNotification) {
+		print("failed play to end")
+		finishPlayingItem(notification)
+	}
+	
+	
+	
+	//AVPlayerItemPlaybackStalledNotification
+	//AVPlayerItemNewErrorLogEntryNotification
+	//AVPlayerItemFailedToPlayToEndTimeNotification
 }

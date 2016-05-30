@@ -36,6 +36,8 @@ public enum PlayerEvents : PlayerEventType {
 }
 
 public class RxPlayer {
+	internal var uiApplication: UIApplicationType?
+	internal var backgroundTaskIdentifier: Int?
 	public var streamResourceLoaders = [StreamResourceLoaderType]()
 	
 	internal lazy var eventsCallback: (PlayerEvents) -> () = {

@@ -31,6 +31,7 @@ public class HttpClient {
 	
 	public init(urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
 	            httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
+		
 		self.urlSession = urlSession
 		self.httpUtilities = httpUtilities
 	}

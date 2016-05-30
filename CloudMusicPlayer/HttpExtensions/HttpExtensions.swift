@@ -91,6 +91,13 @@ extension NSURLSession {
 	public static var defaultConfig: NSURLSessionConfiguration {
 		return .defaultSessionConfiguration()
 	}
+	
+	public static var backgroundConfig: NSURLSessionConfiguration {
+		let config = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(NSUUID().UUIDString)
+		config.sessionSendsLaunchEvents = true
+		config.discretionary = true
+		return config
+	}
 }
 
 
