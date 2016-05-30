@@ -363,6 +363,27 @@ class RealmMediaLibraryTests: XCTestCase {
 		XCTAssertEqual(realmPl?.items.count, 3)
 	}
 	
+	func testNotAddExistedInPlayListItemsAgain() {
+		let lib = RealmMediaLibrary()
+		
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid1", artist: "Test artist1", title: "Test title1", album: "test album1",
+			artwork: "test artwork1".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.1), updateExistedObjects: true)
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid2", artist: "Test artist2", title: "Test title2", album: "test album2",
+			artwork: "test artwork2".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.2), updateExistedObjects: true)
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid3", artist: "Test artist3", title: "Test title3", album: "test album3",
+			artwork: "test artwork3".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.3), updateExistedObjects: true)
+		
+		let createdPl = try! lib.createPlayList("super play list")
+		
+		try! lib.addTracksToPlayList(createdPl, tracks: try! lib.getTracks().map { $0 })
+		try! lib.addTracksToPlayList(createdPl, tracks: try! lib.getTracks().map { $0 })
+		
+		let realm = try! Realm()
+		let realmPl = realm.objects(RealmPlayList).first
+		
+		XCTAssertEqual(realmPl?.items.count, 3)
+	}
+	
 	func testNotAddTracksToNotExistedPlayList() {
 		let lib = RealmMediaLibrary()
 		

@@ -50,6 +50,10 @@ class MainModel {
 		let _ = try? player.mediaLibrary.addTracksToPlayList(playList, tracks: album.tracks.map { $0 })
 	}
 	
+	func addTracksToPlayList(tracks: [TrackType], playList: PlayListType) {
+		let _ = try? player.mediaLibrary.addTracksToPlayList(playList, tracks: tracks)
+	}
+	
 	func cancelMetadataLoading() {
 		loadMetadataTasks.forEach { $0.1.dispose() }
 		loadMetadataTasks.removeAll()

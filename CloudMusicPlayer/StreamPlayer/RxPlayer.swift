@@ -89,7 +89,6 @@ public class RxPlayer {
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			let first = object.playerEventsSubject.shareReplay(0).doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
-				print("new player event: \(e)")
 				observer.onNext(e)
 			}
 			

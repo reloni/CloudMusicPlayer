@@ -10,5 +10,7 @@ import UIKit
 
 class TrackCell: UITableViewCell {
 
+	@IBOutlet weak var albumArtworkImage: UIImageView!
+	@IBOutlet weak var albumAndArtistLabel: UILabel!
 	@IBOutlet weak var trackTitleLabel: UILabel!
 }

@@ -27,11 +27,13 @@ enum ViewControllers : String {
 	case rootTabBarController = "RootTabBarController"
 	case addToMediaLibraryNavigationController = "AddToMediaLibraryNavigationController"
 	case addToMediaLibraryController = "AddToMediaLibraryController"
+	case addItemsToPlayListController = "AddItemsToPlayListView"
 	func getController() -> UIViewController {
 		switch self {
 		case .rootTabBarController: return Storyboards.main.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
 		case .addToMediaLibraryNavigationController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
 		case .addToMediaLibraryController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
+		case .addItemsToPlayListController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
 		}
 	}
 }
@@ -62,38 +64,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 																										YandexDiskCloudJsonResource.getRootResource(HttpClient(), oauth: YandexOAuth())])
 		MainModel.sharedInstance.player.streamResourceLoaders.append(cloudResourceLoader)
 		
-		let _ = try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
+		do {
+			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
+			try AVAudioSession.sharedInstance().setActive(true)
+		} catch {
+			NSLog("Error while set up audio session")
+		}
 		
 		MainModel.sharedInstance.player.playerEvents.bindNext { event in
 			print("player event: \(event)")
-			if case PlayerEvents.CurrentItemChanged(let item) = event {
-				guard let item = item, meta = (try? item.player.mediaLibrary.getMetadataObjectByUid(item.streamIdentifier)) ?? nil else { return }
-				if let info = meta.getMetadataForNowPlayingInfoCenter() {
-					print("set info")
-					print(info)
-					MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = info
+			switch event {
+			//case PlayerEvents.CurrentItemChanged: fallthrough
+			case PlayerEvents.Stopped: fallthrough
+			case PlayerEvents.Paused: fallthrough
+			case PlayerEvents.Started: fallthrough
+			case PlayerEvents.Resumed:
+				guard let info = MainModel.sharedInstance.player.getCurrentItemMetadataForNowPlayingCenter() else {
+					MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = nil
+					break
 				}
+				MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = info
+			default: break
 			}
 		}.addDisposableTo(bag)
 		
-		/*
-		let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
-		
-		commandCenter.previousTrackCommand.enabled = true;
-		commandCenter.previousTrackCommand.addTarget(self, action: #selector(AppDelegate.shit))
-		
-		commandCenter.nextTrackCommand.enabled = true
-		commandCenter.nextTrackCommand.addTarget(self, action: #selector(AppDelegate.shit))
-		
-		commandCenter.playCommand.enabled = true
-		commandCenter.previousTrackCommand.addTarget(self, action: #selector(AppDelegate.shit))
-		
-		commandCenter.pauseCommand.enabled = true
-		commandCenter.pauseCommand.addTarget(self, action: #selector(AppDelegate.shit))
-		*/
 //		Observable<Int>.interval(1, scheduler: MainScheduler.instance).bindNext { _ in
 //			print("Resource count: \(RxSwift.resourceCount)")
 //		}.addDisposableTo(bag)
+		
+		becomeFirstResponder()
+		UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
 		
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -104,8 +104,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		return true
 	}
 	
-	func shit() {
-		print("shit invoked")
+	override func canBecomeFirstResponder() -> Bool {
+		return true
+	}
+	
+	override func remoteControlReceivedWithEvent(event: UIEvent?) {
+		if event?.type == .RemoteControl {
+			switch event!.subtype {
+			case UIEventSubtype.RemoteControlPlay: MainModel.sharedInstance.player.resume(true)
+			case UIEventSubtype.RemoteControlStop: MainModel.sharedInstance.player.pause()
+			case UIEventSubtype.RemoteControlPause: MainModel.sharedInstance.player.pause()
+			case UIEventSubtype.RemoteControlTogglePlayPause: print("remote control toggle play/pause")
+			case UIEventSubtype.RemoteControlNextTrack: MainModel.sharedInstance.player.toNext(true)
+			case UIEventSubtype.RemoteControlPreviousTrack: MainModel.sharedInstance.player.toPrevious(true)
+			default: super.remoteControlReceivedWithEvent(event)
+			}
+		} else {
+			super.remoteControlReceivedWithEvent(event)
+		}
 	}
 	
 	// вызывается при вызове приложения по URL схеме

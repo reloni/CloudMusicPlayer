@@ -37,20 +37,6 @@ class PlayerController: UIViewController {
 		
 	}
 	
-	override func remoteControlReceivedWithEvent(event: UIEvent?) {
-		print("received event: \(event)")
-	}
-	
-	override func viewDidAppear(animated: Bool) {
-		print("become responder")
-		becomeFirstResponder()
-		UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
-	}
-	
-	override func canBecomeFirstResponder() -> Bool {
-		return true
-	}
-	
 	override func viewWillAppear(animated: Bool) {
 		playPauseButton.selected = MainModel.sharedInstance.player.playing
 		forwardButton.rx_tap.bindNext {

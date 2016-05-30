@@ -203,7 +203,9 @@ extension RealmMediaLibrary : MediaLibraryType {
 		try realm.write {
 			tracks.forEach { track in
 				if let realmTrack = track as? RealmTrack {
-					realmPlayList.itemsInternal.append(realmTrack)
+					if realmPlayList.itemsInternal.filter("uid = %@", realmTrack.uid).count == 0 {
+						realmPlayList.itemsInternal.append(realmTrack)
+					}
 				}
 			}
 			

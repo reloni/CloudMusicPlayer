@@ -20,6 +20,7 @@ public protocol InternalPlayerType {
 	func resume()
 	var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> { get }
 	var nativePlayer: AVPlayerProtocol? { get }
+	func getCurrentTimeAndDuration() -> (currentTime: CMTime, duration: CMTime)?
 }
 
 public class InternalPlayer {
@@ -45,13 +46,18 @@ public class InternalPlayer {
 }
 
 extension InternalPlayer : InternalPlayerType {
+	public func getCurrentTimeAndDuration() -> (currentTime: CMTime, duration: CMTime)? {
+		guard let playerItem = self.playerItem, asset = self.asset else { return nil }
+		return (currentTime: playerItem.currentTime(), duration: asset.duration)
+	}
+	
 	public var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else {
 				observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance
 			}
 			
-			return Observable<Int>.interval(1, scheduler: SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+			return Observable<Int>.interval(0.5, scheduler: SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
 				.bindNext { _ in
 					if let playerItem = object.playerItem, asset = object.asset {
 						observer.onNext((currentTime: playerItem.currentTime(), duration: asset.duration))

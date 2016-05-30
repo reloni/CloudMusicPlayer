@@ -9,6 +9,8 @@
 import UIKit
 
 class AlbumCell: UITableViewCell {
-
 	@IBOutlet weak var albumNameLabel: UILabel!
+	@IBOutlet weak var artistNameLabel: UILabel!
+	@IBOutlet weak var albumArtworkImage: UIImageView!
+	
 }

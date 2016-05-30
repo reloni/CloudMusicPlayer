@@ -8,8 +8,26 @@
 
 import Foundation
 import RxSwift
+import MediaPlayer
 
-extension RxPlayer {	
+extension RxPlayer {
+	public func getCurrentItemMetadataForNowPlayingCenter() -> [String: AnyObject]? {
+		guard let current = current else { return nil }
+		guard let meta = (try? mediaLibrary.getMetadataObjectByUid(current.streamIdentifier)) ?? nil else { return nil }
+		
+		var data = [String: AnyObject]()
+		data[MPMediaItemPropertyTitle] = meta.title
+		data[MPMediaItemPropertyAlbumTitle] = meta.album
+		data[MPMediaItemPropertyArtist] = meta.artist
+		data[MPMediaItemPropertyPlaybackDuration] = meta.duration
+		data[MPNowPlayingInfoPropertyElapsedPlaybackTime] = internalPlayer.getCurrentTimeAndDuration()?.currentTime.safeSeconds
+		data[MPNowPlayingInfoPropertyPlaybackRate] = playing ? 1 : 0
+		if let artwork = meta.artwork, image = UIImage(data: artwork) {
+			data[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: image)
+		}
+		return data
+	}
+	
 	internal func loadFileMetadata(resource: StreamResourceIdentifier, file: NSURL, utilities: StreamPlayerUtilitiesProtocol) -> AudioItemMetadata? {
 		guard file.fileExists() else { return nil }
 		

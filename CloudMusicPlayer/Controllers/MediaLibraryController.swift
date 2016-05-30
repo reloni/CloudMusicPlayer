@@ -133,10 +133,9 @@ class MediaLibraryController: UIViewController {
 			cell.showMenuButton.rx_tap.bindNext { [unowned self] in
 				let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
 				let addToPlayList = UIAlertAction(title: "Add to playlist", style: .Default) { [weak self] _ in
-					if let pl = MainModel.sharedInstance.playLists?.first {
-						print("add \(artist.name) to \(pl.name)")
-						MainModel.sharedInstance.addArtistToPlayList(artist, playList: pl)
-					}
+					let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
+					selectController.model = AddItemsToPlayListModel(mainModel: MainModel.sharedInstance, artists: [artist], albums: [], tracks: [])
+					self?.presentViewController(selectController, animated: true, completion: nil)
 				}
 				let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
 				alert.addAction(addToPlayList)
@@ -165,6 +164,10 @@ class MediaLibraryController: UIViewController {
 		
 		if let album = objects?[indexPath.row] ?? nil {
 			cell.albumNameLabel.text = album.name
+			cell.artistNameLabel.text = album.artist.name
+			if let artwork = album.artwork, image = UIImage(data: artwork) {
+				cell.albumArtworkImage.image = image
+			}
 		} else {
 			cell.albumNameLabel.text = "Unknown"
 		}
@@ -186,6 +189,10 @@ class MediaLibraryController: UIViewController {
 		
 		if let track = objects?[indexPath.row] ?? nil {
 			cell.trackTitleLabel.text = track.title
+			cell.albumAndArtistLabel.text = "\(track.album.name) - \(track.album.artist.name)"
+			if let artwork = track.album.artwork, image = UIImage(data: artwork) {
+				cell.albumArtworkImage.image = image
+			}
 		} else {
 			cell.trackTitleLabel.text = "Unknown"
 		}

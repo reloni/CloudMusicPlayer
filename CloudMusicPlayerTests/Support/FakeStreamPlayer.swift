@@ -95,6 +95,10 @@ public class FakeInternalPlayer : InternalPlayerType {
 		self.eventsCallback = callback
 		self.nativePlayer = nativePlayer
 	}
+	
+	public func getCurrentTimeAndDuration() -> (currentTime: CMTime, duration: CMTime)? {
+		fatalError("getCurrentTimeAndDuration not implemented")
+	}
 }
 
 public class FakeNativePlayer: AVPlayerProtocol {
