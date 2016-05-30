@@ -181,7 +181,6 @@
 		6E182ED91C81E81200730C59 /* YandexDiskCloudAudioJsonResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YandexDiskCloudAudioJsonResource.swift; sourceTree = "<group>"; };
 		6E1F020D1C57F14800490013 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = CloudMusicPlayer/Keychain/Keychain.swift; sourceTree = SOURCE_ROOT; };
 		6E1F5BF61CC638ED0035DA4A /* NSFileManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSFileManagerTests.swift; sourceTree = "<group>"; };
-		6E1FDD8B1CEF78B600AB0B08 /* MediaLibraryModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaLibraryModel.swift; sourceTree = "<group>"; };
 		6E21C96F1CEC7C3B00614B0F /* MediaLibraryController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaLibraryController.swift; sourceTree = "<group>"; };
 		6E21C9711CEC86F500614B0F /* AlbumCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlbumCell.swift; sourceTree = "<group>"; };
 		6E21C9751CEC871B00614B0F /* TrackCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackCell.swift; sourceTree = "<group>"; };
@@ -523,7 +522,6 @@
 				6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */,
 				6E088A751CEDB183001EED50 /* CloudAccountsModel.swift */,
 				6E088A771CEDB5E6001EED50 /* CloudResourceModel.swift */,
-				6E1FDD8B1CEF78B600AB0B08 /* MediaLibraryModel.swift */,
 				6EAFBDA91CF0BFD600066E19 /* PlayListInfoModel.swift */,
 				6E8B06231CFC3B8000889D64 /* AddTrackToPlayListModel.swift */,
 			);

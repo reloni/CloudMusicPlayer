@@ -7,10 +7,20 @@
 //
 
 import UIKit
+import RxSwift
 
 class TrackCell: UITableViewCell {
-
-	@IBOutlet weak var albumArtworkImage: UIImageView!
-	@IBOutlet weak var albumAndArtistLabel: UILabel!
+	var bag = DisposeBag()
+	
+	@IBOutlet weak var albumArtworkImage: UIImageView?
+	@IBOutlet weak var albumAndArtistLabel: UILabel?
 	@IBOutlet weak var trackTitleLabel: UILabel!
+	@IBOutlet weak var showMenuButton: UIButton!
+	
+	override func prepareForReuse() {
+		bag = DisposeBag()
+		albumAndArtistLabel?.text = ""
+		trackTitleLabel.text = ""
+		albumArtworkImage?.image = MainModel.sharedInstance.albumPlaceHolderImage
+	}
 }

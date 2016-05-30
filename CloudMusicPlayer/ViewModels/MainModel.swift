@@ -9,6 +9,7 @@
 import Foundation
 import RxSwift
 import RealmSwift
+import UIKit
 
 class MainModel {
 	static var sharedInstance: MainModel!
@@ -24,6 +25,10 @@ class MainModel {
 	init(player: RxPlayer) {
 		self.player = player
 	}
+	
+	lazy var albumPlaceHolderImage: UIImage = {
+		return UIImage(named: "Album Place Holder")!
+	}()
 	
 	var artists: MediaCollection<ArtistType, RealmArtist>? {
 		return (try? player.mediaLibrary.getArtists()) ?? nil
@@ -52,6 +57,42 @@ class MainModel {
 	
 	func addTracksToPlayList(tracks: [TrackType], playList: PlayListType) {
 		let _ = try? player.mediaLibrary.addTracksToPlayList(playList, tracks: tracks)
+	}
+	
+	func loadMetadataObjectByTrackIndex(index: Int) -> Observable<MediaItemMetadata?> {
+		return Observable.create { [weak self] observer in
+			guard let track = (try? self?.player.mediaLibrary.getTracks()[index]) ?? nil else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
+			
+			let metadata = MediaItemMetadata(resourceUid: track.uid,
+				artist: track.artist.name,
+				title: track.title,
+				album: track.album.name,
+				artwork: track.album.artwork,
+				duration: track.duration)
+			
+			observer.onNext(metadata)
+			observer.onCompleted()
+			
+			return NopDisposable.instance
+			}.subscribeOn(ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+	}
+	
+	func loadMetadataObjectByAlbumIndex(index: Int) -> Observable<MediaItemMetadata?> {
+		return Observable.create { [weak self] observer in
+			guard let album = (try? self?.player.mediaLibrary.getAlbums()[index]) ?? nil else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
+			
+			let metadata = MediaItemMetadata(resourceUid: "",
+				artist: album.artist.name,
+				title: nil,
+				album: album.name,
+				artwork: album.artwork,
+				duration: nil)
+			
+			observer.onNext(metadata)
+			observer.onCompleted()
+			
+			return NopDisposable.instance
+			}.subscribeOn(ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
 	}
 	
 	func cancelMetadataLoading() {

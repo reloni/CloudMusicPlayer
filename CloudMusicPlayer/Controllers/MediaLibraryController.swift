@@ -8,6 +8,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 class MediaLibraryController: UIViewController {
 	//let model = MediaLibraryModel(player: rxPlayer)
@@ -114,6 +115,21 @@ class MediaLibraryController: UIViewController {
 		}
 	}
 	
+	func createTaskForAddItemToPlayList(event: ControlEvent<Void>, artists: [ArtistType], albums: [AlbumType], tracks: [TrackType]) -> Observable<Void> {
+		return event.doOnNext { [unowned self] in
+			let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+			let addToPlayList = UIAlertAction(title: "Add to playlist", style: .Default) { [weak self] _ in
+				let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
+				selectController.model = AddItemsToPlayListModel(mainModel: MainModel.sharedInstance, artists: artists, albums: albums, tracks: tracks)
+				self?.presentViewController(selectController, animated: true, completion: nil)
+			}
+			let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+			alert.addAction(addToPlayList)
+			alert.addAction(cancel)
+			self.presentViewController(alert, animated: true, completion: nil)
+		}
+	}
+	
 	
 	func getArtistCell(indexPath: NSIndexPath) -> UITableViewCell {
 		let objects = MainModel.sharedInstance.artists
@@ -130,19 +146,7 @@ class MediaLibraryController: UIViewController {
 		if let artist = objects?[indexPath.row] {
 			cell.artistNameLabel.text = artist.name
 			cell.albumCountLabel.text = "Albums: \(artist.albums.count)"
-			cell.showMenuButton.rx_tap.bindNext { [unowned self] in
-				let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
-				let addToPlayList = UIAlertAction(title: "Add to playlist", style: .Default) { [weak self] _ in
-					let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
-					selectController.model = AddItemsToPlayListModel(mainModel: MainModel.sharedInstance, artists: [artist], albums: [], tracks: [])
-					self?.presentViewController(selectController, animated: true, completion: nil)
-				}
-				let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-				alert.addAction(addToPlayList)
-				alert.addAction(cancel)
-				self.presentViewController(alert, animated: true, completion: nil)
-				
-				}.addDisposableTo(cell.bag)
+			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [artist], albums: [], tracks: []).subscribe().addDisposableTo(cell.bag)
 		} else {
 			cell.artistNameLabel.text = "Unknown"
 		}
@@ -162,15 +166,19 @@ class MediaLibraryController: UIViewController {
 		
 		let cell = tableView.dequeueReusableCellWithIdentifier("AlbumCell", forIndexPath: indexPath) as! AlbumCell
 		
-		if let album = objects?[indexPath.row] ?? nil {
+		if let album = objects?[indexPath.row] {
 			cell.albumNameLabel.text = album.name
-			cell.artistNameLabel.text = album.artist.name
-			if let artwork = album.artwork, image = UIImage(data: artwork) {
+			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [album], tracks: []).subscribe().addDisposableTo(cell.bag)
+		} 
+		
+		MainModel.sharedInstance.loadMetadataObjectByAlbumIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
+			guard let meta = meta else { cell.albumNameLabel.text = "Unknown"; return }
+			
+			cell.artistNameLabel.text = meta.artist
+			if let artwork = meta.artwork, image = UIImage(data: artwork) {
 				cell.albumArtworkImage.image = image
 			}
-		} else {
-			cell.albumNameLabel.text = "Unknown"
-		}
+		}.addDisposableTo(cell.bag)
 		
 		return cell
 	}
@@ -187,16 +195,22 @@ class MediaLibraryController: UIViewController {
 		
 		let cell = tableView.dequeueReusableCellWithIdentifier("TrackCell", forIndexPath: indexPath) as! TrackCell
 		
-		if let track = objects?[indexPath.row] ?? nil {
+		if let track = objects?[indexPath.row] {
 			cell.trackTitleLabel.text = track.title
-			cell.albumAndArtistLabel.text = "\(track.album.name) - \(track.album.artist.name)"
-			if let artwork = track.album.artwork, image = UIImage(data: artwork) {
-				cell.albumArtworkImage.image = image
-			}
-		} else {
-			cell.trackTitleLabel.text = "Unknown"
+			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
 		}
 		
+		MainModel.sharedInstance.loadMetadataObjectByTrackIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
+			guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
+			
+			if let album = meta.album, artist = meta.artist {
+				cell.albumAndArtistLabel?.text = "\(album) - \(artist)"
+			}
+			if let artwork = meta.artwork, image = UIImage(data: artwork) {
+				cell.albumArtworkImage?.image = image
+			}
+		}.addDisposableTo(cell.bag)
+
 		return cell
 	}
 	

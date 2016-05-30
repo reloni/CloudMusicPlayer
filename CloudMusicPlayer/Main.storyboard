@@ -885,6 +885,7 @@
                                                     <outlet property="albumArtworkImage" destination="gRa-fF-jVO" id="oV9-TE-Ec8"/>
                                                     <outlet property="albumNameLabel" destination="tk7-Id-Svj" id="POU-mt-XhR"/>
                                                     <outlet property="artistNameLabel" destination="Ou0-Cx-zkI" id="6o9-sf-SDd"/>
+                                                    <outlet property="showMenuButton" destination="5cG-ED-TSS" id="5HR-3V-WxT"/>
                                                 </connections>
                                             </tableViewCell>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="TrackCell" id="8Jv-7P-9di" customClass="TrackCell" customModule="CloudMusicPlayer" customModuleProvider="target">
@@ -942,6 +943,7 @@
                                                 <connections>
                                                     <outlet property="albumAndArtistLabel" destination="Xef-jt-Od5" id="EKm-dD-4ty"/>
                                                     <outlet property="albumArtworkImage" destination="NAf-Xi-6u5" id="Pok-1F-9oq"/>
+                                                    <outlet property="showMenuButton" destination="yfs-EH-rFU" id="Nhq-vn-vA4"/>
                                                     <outlet property="trackTitleLabel" destination="KuU-gQ-55h" id="pM9-63-32A"/>
                                                 </connections>
                                             </tableViewCell>
