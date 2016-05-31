@@ -159,13 +159,10 @@ extension InternalPlayer : InternalPlayerType {
 	}
 	
 	@objc func finishPlayingItem(notification: NSNotification) {
-		print("start flush")
+		print("finishPlayingItem invoked")
 		flush()
-		print("finish flush")
 		eventsCallback(.FinishPlayingCurrentItem)
-		print("callback invoked")
 		hostPlayer.toNext(true)
-		print("to next invoked")
 	}
 	
 	@objc func playbackStalled(notification: NSNotification) {
@@ -181,10 +178,4 @@ extension InternalPlayer : InternalPlayerType {
 		print("failed play to end")
 		finishPlayingItem(notification)
 	}
-	
-	
-	
-	//AVPlayerItemPlaybackStalledNotification
-	//AVPlayerItemNewErrorLogEntryNotification
-	//AVPlayerItemFailedToPlayToEndTimeNotification
 }

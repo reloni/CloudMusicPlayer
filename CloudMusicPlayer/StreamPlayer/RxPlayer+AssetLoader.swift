@@ -143,7 +143,6 @@ extension Observable where Element : ResultType {
 			                                             internalSerialQueueName: "com.cloudmusicplayer.assetloader.serialscheduler.\(NSUUID().UUIDString)")
 			
 			return Observable<Result<Void>>.create { observer in
-				print("create asset loader")
 				let assetEvents = assetLoaderEvents.observeOn(scheduler).bindNext { e in
 					switch e {
 					case .DidCancelLoading(let loadingRequest):
