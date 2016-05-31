@@ -93,7 +93,9 @@ extension NSURLSession {
 	}
 	
 	public static var backgroundConfig: NSURLSessionConfiguration {
-		let config = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(NSUUID().UUIDString)
+		let sessionUid = NSUUID().UUIDString
+		print("create new background session: \(sessionUid)")
+		let config = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier("cloudmusicplayer.backgroundurlsession.\(sessionUid)")
 		config.sessionSendsLaunchEvents = true
 		config.discretionary = true
 		return config
