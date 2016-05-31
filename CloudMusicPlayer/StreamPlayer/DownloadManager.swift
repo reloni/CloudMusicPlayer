@@ -100,12 +100,48 @@ public class DownloadManager {
 		}
 	}
 	
+	internal func getPendingOrLocalTask(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> StreamDataTaskProtocol? {
+		if let runningTask = pendingTasks[identifier.streamResourceUid] {
+			runningTask.taskDependenciesCount += 1
+			if runningTask.priority.rawValue < priority.rawValue {
+				runningTask.priority = priority
+			}
+			
+			return runningTask.task
+		}
+		
+		if let file = fileStorage.getFromStorage(identifier.streamResourceUid), path = file.path {
+			let task = LocalFileStreamDataTask(uid: identifier.streamResourceUid, filePath: path,
+			                                   provider:	fileStorage.createCacheProvider(identifier.streamResourceUid,	targetMimeType: identifier.streamResourceContentType?.definition.MIME))
+			if let task = task {
+				let pending = PendingTask(task: task, priority: priority)
+				pendingTasks[identifier.streamResourceUid] = pending
+				return pending.task
+			}
+		}
+		
+		return nil
+	}
+	
 	internal func createDownloadTask(identifier: StreamResourceIdentifier, priority: PendingTaskPriority) -> Observable<StreamDataTaskProtocol?> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
-			let disposable = Observable<Void>.combineLatest(identifier.streamResourceUrl,
-			identifier.streamResourceType) { result in
+			// check pending tasks
+			if let task = object.getPendingOrLocalTask(identifier, priority: priority) {
+				observer.onNext(task)
+				observer.onCompleted()
+				return NopDisposable.instance
+			}
+			
+			let disposable = Observable<Void>.combineLatest(identifier.streamResourceUrl.observeOn(object.serialScheduler),
+			identifier.streamResourceType.observeOn(object.serialScheduler)) { result in
+				// check pending tasks again before create new one
+				if let task = object.getPendingOrLocalTask(identifier, priority: priority) {
+					observer.onNext(task)
+					observer.onCompleted()
+					return
+				}
 				
 				if let runningTask = object.pendingTasks[identifier.streamResourceUid] {
 					runningTask.taskDependenciesCount += 1

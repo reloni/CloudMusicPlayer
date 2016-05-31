@@ -92,7 +92,8 @@ class DownloadManagerTests: XCTestCase {
 		
 		for _ in 0...100 {
 			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
-				manager.createDownloadTask("https://somelink.com", priority: .Normal).subscribe().addDisposableTo(self.bag)
+				let fakeResource = FakeStreamResourceIdentifier(uid: "https://somelink.com")
+				manager.createDownloadTask(fakeResource, priority: .Normal).subscribe().addDisposableTo(self.bag)
 			}
 		}
 		
@@ -111,7 +112,8 @@ class DownloadManagerTests: XCTestCase {
 		
 		for _ in 0...10 {
 			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-				manager.createDownloadObservable("https://somelink.com", priority: .Normal).subscribe().addDisposableTo(self.bag)
+				let fakeResource = FakeStreamResourceIdentifier(uid: "https://somelink.com")
+				manager.createDownloadObservable(fakeResource, priority: .Normal).subscribe().addDisposableTo(self.bag)
 			}
 		}
 		
