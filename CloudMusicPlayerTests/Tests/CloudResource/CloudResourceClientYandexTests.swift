@@ -22,6 +22,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 	var oauthResource: OAuthType!
 	var httpClient: HttpClientProtocol!
 	var rootResource: CloudResource!
+	var streamObserver: NSURLSessionDataEventsObserver!
 	
 	override func setUp() {
 		super.setUp()
@@ -30,10 +31,13 @@ class CloudResourceClientYandexTests: XCTestCase {
 		Realm.Configuration.defaultConfiguration.inMemoryIdentifier = self.name
 		
 		bag = DisposeBag()
+		streamObserver = NSURLSessionDataEventsObserver()
 		request = FakeRequest()
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
-		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
+		utilities.fakeSession = session
+		utilities.streamObserver = streamObserver
+		httpClient = HttpClient(httpUtilities: utilities)
 		oauthResource = YandexOAuth(clientId: "fakeClientId", urlScheme: "fakeOauthResource", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
 		(oauthResource as! YandexOAuth).keychain.setString("", forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)
 			//OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
@@ -54,7 +58,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 			if case .resume(let tsk) = progress {
 				let json = JSON.getJsonFromFile("YandexRoot")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(json?.rawDataSafe(), nil, nil)
+					//tsk.completion?(json?.rawDataSafe(), nil, nil)
+					self.session.sendData(tsk, data: json?.rawDataSafe(), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -78,7 +83,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
+					//tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
+					self.session.sendError(tsk, error: NSError(domain: "TestDomain", code: 1, userInfo: nil), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -137,7 +143,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 				XCTAssertEqual(NSURL(baseUrl: item.resourcesUrl, parameters: item.getRequestParameters())?.absoluteString, tsk.originalRequest?.URL?.absoluteString, "Check invoke url")
 				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(json?.rawDataSafe(), nil, nil)
+					//tsk.completion?(json?.rawDataSafe(), nil, nil)
+					self.session.sendData(tsk, data: json?.rawDataSafe(), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -185,7 +192,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
+					//tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
+					self.session.sendError(tsk, error: NSError(domain: "TestDomain", code: 1, userInfo: nil), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -216,7 +224,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 			if case .resume(let tsk) = progress {
 				XCTAssertEqual(item.downloadResourceUrl, tsk.originalRequest?.URL, "Check invoke url")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(sendJson.rawDataSafe(), nil, nil)
+					//tsk.completion?(sendJson.rawDataSafe(), nil, nil)
+					self.session.sendData(tsk, data: sendJson.rawDataSafe(), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -249,7 +258,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 					var sendingJson = sendJson
 					// modify href, so it will not return
 					sendingJson["href"] = nil
-					tsk.completion?(sendingJson.rawDataSafe(), nil, nil)
+					//tsk.completion?(sendingJson.rawDataSafe(), nil, nil)
+					self.session.sendData(tsk, data: sendingJson.rawDataSafe(), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -286,7 +296,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 					"Check invoke url")
 				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(json?.rawDataSafe(), nil, nil)
+					//tsk.completion?(json?.rawDataSafe(), nil, nil)
+					self.session.sendData(tsk, data: json?.rawDataSafe(), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -406,7 +417,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 			if case .resume(let tsk) = progress {
 				let json = JSON.getJsonFromFile("YandexRoot")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(json?.rawDataSafe(), nil, nil)
+					//tsk.completion?(json?.rawDataSafe(), nil, nil)
+					self.session.sendData(tsk, data: json?.rawDataSafe(), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -442,7 +454,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 			if case .resume(let tsk) = progress {
 				let json = JSON.getJsonFromFile("YandexRoot")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(json?.rawDataSafe(), nil, nil)
+					//tsk.completion?(json?.rawDataSafe(), nil, nil)
+					self.session.sendData(tsk, data: json?.rawDataSafe(), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -489,7 +502,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 					"Check invoke url")
 				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(json?.rawDataSafe(), nil, nil)
+					//tsk.completion?(json?.rawDataSafe(), nil, nil)
+					self.session.sendData(tsk, data: json?.rawDataSafe(), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)
@@ -545,7 +559,8 @@ class CloudResourceClientYandexTests: XCTestCase {
 					"Check invoke url")
 				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(json?.rawDataSafe(), nil, nil)
+					//tsk.completion?(json?.rawDataSafe(), nil, nil)
+					self.session.sendData(tsk, data: json?.rawDataSafe(), streamObserver: self.streamObserver)
 				}
 			}
 			}.addDisposableTo(bag)

@@ -17,7 +17,6 @@ public enum HttpRequestResult {
 }
 
 public protocol HttpClientProtocol {
-	var urlSession: NSURLSessionProtocol { get }
 	var httpUtilities: HttpUtilitiesProtocol { get }
 	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<Result<JSON>>
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
@@ -25,14 +24,11 @@ public protocol HttpClientProtocol {
 }
 
 public class HttpClient {
-	public let urlSession: NSURLSessionProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
 	internal let scheduler = ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	
-	public init(urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
-	            httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
+	public init(httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
 		
-		self.urlSession = urlSession
 		self.httpUtilities = httpUtilities
 	}
 }
@@ -61,31 +57,39 @@ extension HttpClient : HttpClientProtocol {
 	
 	public func loadData(request: NSMutableURLRequestProtocol)
 		-> Observable<HttpRequestResult> {
-			//print("loadData: \(request.URL)")
 			return Observable.create { [weak self] observer in
 				guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 				
-				let task = object.urlSession.dataTaskWithRequest(request) { data, response, error in
-					if let error = error {
-						observer.onNext(.error(error))
-						observer.onCompleted()
-						return
-					}
-					
-					guard let data = data else {
-						observer.onNext(.success)
-						observer.onCompleted()
-						return
-					}
-					
-					observer.onNext(.successData(data))
+				let task = object.httpUtilities.createStreamDataTask(NSUUID().UUIDString,
+					request: request, sessionConfiguration: NSURLSession.backgroundConfig, cacheProvider: nil)
+				
+				let receivedData = NSMutableData()
+				
+				let disposable = task.taskProgress.catchError { error in
+					observer.onNext(.error(error))
 					observer.onCompleted()
+					return Observable.empty()
+					}.doOnCompleted { observer.onCompleted() }.bindNext { result in
+						if case Result.success(let box) = result {
+							if case StreamTaskEvents.ReceiveData(let data) = box.value {
+								receivedData.appendData(data)
+							} else if case StreamTaskEvents.Success = box.value {
+								if receivedData.length > 0 {
+									observer.onNext(.successData(receivedData))
+								} else {
+									observer.onNext(.success)
+								}
+							}
+						} else if case Result.error(let error) = result {
+							observer.onNext(.error(error))
+						}
 				}
 				
 				task.resume()
 				
 				return AnonymousDisposable {
 					task.cancel()
+					disposable.dispose()
 				}
 			}.observeOn(scheduler).shareReplay(0)
 	}
@@ -95,7 +99,7 @@ extension HttpClient : HttpClientProtocol {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
-			let task = object.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: object.urlSession.configuration,
+			let task = object.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: NSURLSession.backgroundConfig,
 				cacheProvider: cacheProvider)
 				
 			let disposable = task.taskProgress.catchError { error in

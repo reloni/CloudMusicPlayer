@@ -31,7 +31,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		utilities = FakeHttpUtilities()
 		utilities.fakeSession = session
 		utilities.streamObserver = streamObserver
-		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
+		httpClient = HttpClient(httpUtilities: utilities)
 		cacheTask = utilities.createStreamDataTask(NSUUID().UUIDString, request: request,
 		                                           sessionConfiguration: NSURLSession.defaultConfig,
 		                                           cacheProvider: MemoryCacheProvider(uid: NSUUID().UUIDString)) as! StreamDataTask
