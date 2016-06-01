@@ -135,6 +135,7 @@ extension Observable where Element : ResultType {
 				
 				let dataToRespond = data.subdataWithRange(range)
 				respondingDataRequest.respondWithData(dataToRespond)
+				print("respond with data range: \(range)")
 				
 				return Int64(respondingDataRequest.requestedLength) <= respondingDataRequest.currentOffset + responseLength - respondingDataRequest.requestedOffset
 			}
