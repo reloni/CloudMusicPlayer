@@ -116,6 +116,8 @@ extension InternalPlayer : InternalPlayerType {
 					NSNotificationCenter.defaultCenter().addObserver(object, selector:
 						#selector(object.failedToPlayToEnd), name: AVPlayerItemFailedToPlayToEndTimeNotification, object: object.playerItem as? AVPlayerItem)
 				}
+			} else if status == AVPlayerItemStatus.Failed {
+				print("player error: \((self?.nativePlayer as? AVPlayer)?.error?.localizedDescription)")
 			}
 			}.addDisposableTo(bag)
 		

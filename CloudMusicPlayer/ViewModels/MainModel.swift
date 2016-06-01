@@ -21,9 +21,31 @@ class MainModel {
 	var isMetadataLoadInProgress: Observable<Bool> {
 		return isMetadataLoadInProgressSubject
 	}
+	let userDefaults: NSUserDefaultsProtocol
 	
-	init(player: RxPlayer) {
+	init(player: RxPlayer, userDefaults: NSUserDefaultsProtocol) {
 		self.player = player
+		self.userDefaults = userDefaults
+	}
+	
+	var isShuffleEnabled: Bool {
+		get {
+			guard let value: Bool = userDefaults.loadData("isShuffleEnabled") else { return false }
+			return value
+		}
+		set {
+			userDefaults.saveData(newValue, forKey: "isShuffleEnabled")
+		}
+	}
+	
+	var isRepeatEnabled: Bool {
+		get {
+			guard let value: Bool = userDefaults.loadData("isRepeatEnabled") else { return false }
+			return value
+		}
+		set {
+			userDefaults.saveData(newValue, forKey: "isRepeatEnabled")
+		}
 	}
 	
 	lazy var albumPlaceHolderImage: UIImage = {
@@ -59,7 +81,7 @@ class MainModel {
 		let _ = try? player.mediaLibrary.addTracksToPlayList(playList, tracks: tracks)
 	}
 	
-	func loadMetadataObjectByTrackIndex(index: Int) -> Observable<MediaItemMetadata?> {
+	func loadMetadataObjectForTrackByIndex(index: Int) -> Observable<MediaItemMetadata?> {
 		return Observable.create { [weak self] observer in
 			guard let track = (try? self?.player.mediaLibrary.getTracks()[index]) ?? nil else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
 			
@@ -77,7 +99,7 @@ class MainModel {
 			}.subscribeOn(ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
 	}
 	
-	func loadMetadataObjectByAlbumIndex(index: Int) -> Observable<MediaItemMetadata?> {
+	func loadMetadataObjectForAlbumByIndex(index: Int) -> Observable<MediaItemMetadata?> {
 		return Observable.create { [weak self] observer in
 			guard let album = (try? self?.player.mediaLibrary.getAlbums()[index]) ?? nil else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
 			
@@ -93,6 +115,24 @@ class MainModel {
 			
 			return NopDisposable.instance
 			}.subscribeOn(ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+	}
+	
+	func loadMetadataObjectForTrackInPlayListByIndex(index: Int, playList: PlayListType) -> Observable<MediaItemMetadata?> {
+		return Observable.create { observer in
+			guard let track = playList.items[index] else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
+			
+			let metadata = MediaItemMetadata(resourceUid: track.uid,
+				artist: track.artist.name,
+				title: track.title,
+				album: track.album.name,
+				artwork: track.album.artwork,
+				duration: track.duration)
+			
+			observer.onNext(metadata)
+			observer.onCompleted()
+			
+			return NopDisposable.instance
+			}
 	}
 	
 	func cancelMetadataLoading() {

@@ -162,6 +162,7 @@ extension Observable where Element : ResultType {
 						switch box.value {
 						case .Success(let cacheProvider):
 							if let cacheProvider = cacheProvider { processRequests(cacheProvider) }
+							print("success. Pending tasks: \(resourceLoadingRequests.count)")
 							observer.onNext(Result.success(Box(value: Void())))
 							observer.onCompleted()
 						case .ReceiveResponse(let receivedResponse): response = receivedResponse

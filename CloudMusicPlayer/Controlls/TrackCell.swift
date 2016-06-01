@@ -16,11 +16,13 @@ class TrackCell: UITableViewCell {
 	@IBOutlet weak var albumAndArtistLabel: UILabel?
 	@IBOutlet weak var trackTitleLabel: UILabel!
 	@IBOutlet weak var showMenuButton: UIButton!
+	@IBOutlet weak var durationLabel: UILabel!
 	
 	override func prepareForReuse() {
 		bag = DisposeBag()
 		albumAndArtistLabel?.text = ""
 		trackTitleLabel.text = ""
+		durationLabel.text = "--:--"
 		albumArtworkImage?.image = MainModel.sharedInstance.albumPlaceHolderImage
 	}
 }

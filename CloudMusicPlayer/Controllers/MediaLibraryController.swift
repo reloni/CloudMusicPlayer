@@ -171,7 +171,7 @@ class MediaLibraryController: UIViewController {
 			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [album], tracks: []).subscribe().addDisposableTo(cell.bag)
 		} 
 		
-		MainModel.sharedInstance.loadMetadataObjectByAlbumIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
+		MainModel.sharedInstance.loadMetadataObjectForAlbumByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
 			guard let meta = meta else { cell.albumNameLabel.text = "Unknown"; return }
 			
 			cell.artistNameLabel.text = meta.artist
@@ -200,9 +200,10 @@ class MediaLibraryController: UIViewController {
 			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
 		}
 		
-		MainModel.sharedInstance.loadMetadataObjectByTrackIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
+		MainModel.sharedInstance.loadMetadataObjectForTrackByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
 			guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
 			
+			cell.durationLabel.text = meta.duration?.asTimeString
 			if let album = meta.album, artist = meta.artist {
 				cell.albumAndArtistLabel?.text = "\(album) - \(artist)"
 			}

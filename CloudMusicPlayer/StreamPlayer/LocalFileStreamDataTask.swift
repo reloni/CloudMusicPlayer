@@ -64,10 +64,21 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 			}
 			*/
 			
-			// respond with data chunks
 			var currentOffset = 0
+			
+//			if data.length >= 2 {
+//				cacheProvider.appendData(data.subdataWithRange(NSMakeRange(0, 2)))
+//				currentOffset += 2
+//				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+//					object.subject.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
+//				}
+//				NSThread.sleepForTimeInterval(0.1)
+//			}
+			// respond with data chunks
+			
 			let sendDataChunk = 1024 * 256
 			while true {
+				print("send data chunk")
 				if data.length - currentOffset > sendDataChunk {
 					let range = NSMakeRange(currentOffset, sendDataChunk)
 					currentOffset += sendDataChunk
@@ -77,8 +88,9 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 						object.subject.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
 					}
 					// delay next respond
-					NSThread.sleepForTimeInterval(0.01)
+					NSThread.sleepForTimeInterval(0.3)
 				} else {
+					print("send last data chunk")
 					let range = NSMakeRange(currentOffset, data.length - currentOffset)
 					let subdata = data.subdataWithRange(range)
 					cacheProvider.appendData(subdata)

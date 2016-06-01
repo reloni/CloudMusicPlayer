@@ -57,7 +57,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
 				httpUtilities: HttpUtilities()),
 			streamPlayerUtilities: StreamPlayerUtilities(),
-			mediaLibrary: RealmMediaLibrary()))
+			mediaLibrary: RealmMediaLibrary()), userDefaults: NSUserDefaults.standardUserDefaults())
 		MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
 		
 		let cloudResourceLoader = CloudResourceLoader(cacheProvider: RealmCloudResourceCacheProvider(),

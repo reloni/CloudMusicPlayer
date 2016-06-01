@@ -61,7 +61,7 @@ extension HttpClient : HttpClientProtocol {
 				guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 				
 				let task = object.httpUtilities.createStreamDataTask(NSUUID().UUIDString,
-					request: request, sessionConfiguration: NSURLSession.backgroundConfig, cacheProvider: nil)
+					request: request, sessionConfiguration: NSURLSession.defaultConfig, cacheProvider: nil)
 				
 				let receivedData = NSMutableData()
 				
@@ -99,7 +99,7 @@ extension HttpClient : HttpClientProtocol {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
-			let task = object.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: NSURLSession.backgroundConfig,
+			let task = object.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: NSURLSession.defaultConfig,
 				cacheProvider: cacheProvider)
 				
 			let disposable = task.taskProgress.catchError { error in
