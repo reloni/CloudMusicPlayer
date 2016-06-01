@@ -40,8 +40,8 @@ class PlayListInfoController: UIViewController {
 	}
 	
 	func getTrackCell(indexPath: NSIndexPath) -> UITableViewCell {
-		let objects = MainModel.sharedInstance.tracks
-		if let objects = objects where indexPath.row == objects.count {
+		let objects = model.playList.items
+		if  indexPath.row == objects.count {
 			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
 			cell.titleText = "Tracks"
@@ -51,7 +51,7 @@ class PlayListInfoController: UIViewController {
 		
 		let cell = tableView.dequeueReusableCellWithIdentifier("TrackCell", forIndexPath: indexPath) as! TrackCell
 		
-		if let track = objects?[indexPath.row] {
+		if let track = objects[indexPath.row] {
 			cell.trackTitleLabel.text = track.title
 			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
 		}
