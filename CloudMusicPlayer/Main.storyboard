@@ -340,6 +340,10 @@
                                 </constraints>
                                 <state key="normal" title="Log out"/>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wn8-yi-hFe">
+                                <rect key="frame" x="120" y="513" width="131" height="30"/>
+                                <state key="normal" title="Delete cached files"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -350,6 +354,8 @@
                             <constraint firstItem="ZQj-dD-Eiq" firstAttribute="top" secondItem="fF8-28-pwI" secondAttribute="bottom" constant="10" id="A9p-nH-uS8"/>
                             <constraint firstItem="TXC-Xg-JXJ" firstAttribute="top" secondItem="XaY-7Q-w1R" secondAttribute="bottom" constant="8" id="AxA-uv-bb3"/>
                             <constraint firstItem="hvi-un-XUX" firstAttribute="top" secondItem="nul-F2-fct" secondAttribute="bottom" constant="8" id="B5q-X1-0RL"/>
+                            <constraint firstItem="wn8-yi-hFe" firstAttribute="baseline" secondItem="nul-F2-fct" secondAttribute="baseline" id="CVL-Zi-rlm"/>
+                            <constraint firstItem="wn8-yi-hFe" firstAttribute="leading" secondItem="nul-F2-fct" secondAttribute="trailing" constant="8" id="DxN-Kq-2B1"/>
                             <constraint firstItem="Dhv-sb-VWm" firstAttribute="bottom" secondItem="XaY-7Q-w1R" secondAttribute="bottom" id="EhL-0T-p2p"/>
                             <constraint firstItem="fF8-28-pwI" firstAttribute="top" secondItem="nyi-xi-alP" secondAttribute="bottom" constant="8" id="EtX-gq-tRc"/>
                             <constraint firstItem="soC-Ii-Uy8" firstAttribute="baseline" secondItem="MJ2-Q0-13o" secondAttribute="baseline" id="FA6-18-G7O"/>
@@ -402,6 +408,7 @@
                     <tabBarItem key="tabBarItem" title="Settings" image="Settings" id="hae-Id-lbw"/>
                     <connections>
                         <outlet property="clearStorageButton" destination="nul-F2-fct" id="zrN-C8-JDU"/>
+                        <outlet property="deleteCachedFilesButton" destination="wn8-yi-hFe" id="hq8-ul-8EH"/>
                         <outlet property="googleLogInButton" destination="wkg-Et-KRw" id="od4-r7-SEO"/>
                         <outlet property="googleLogOutButton" destination="Tyf-Oz-Gi5" id="88v-pf-8VH"/>
                         <outlet property="logInButton" destination="soC-Ii-Uy8" id="gtB-gf-enc"/>

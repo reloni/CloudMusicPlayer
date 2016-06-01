@@ -22,6 +22,7 @@ class SettingsController: UIViewController {
 	@IBOutlet weak var tempStorageLabel: UILabel!
 	@IBOutlet weak var temporaryFolderLabel: UILabel!
 	@IBOutlet weak var clearStorageButton: UIButton!
+	@IBOutlet weak var deleteCachedFilesButton: UIButton!
 
 	let model = SettingsViewModel()
 	
@@ -79,7 +80,14 @@ class SettingsController: UIViewController {
 				self.temporaryFolderLabel.text = "\(Float64(size.temporary) / (1024 * 1024)) Mb"
 			}.addDisposableTo(bag)
 		
-		
+		deleteCachedFilesButton.rx_tap.flatMapLatest { _ -> Observable<StorageSize> in
+			MainModel.sharedInstance.player.downloadManager.fileStorage.clearStorage()
+			return MainModel.sharedInstance.player.downloadManager.fileStorage.calculateSize()
+			}.observeOn(MainScheduler.instance).bindNext { [weak self] size in
+				self?.permanentStorageLabel.text = "\(Float64(size.permanentStorage) / (1024 * 1024)) Mb"
+				self?.tempStorageLabel.text = "\(Float64(size.tempStorage) / (1024 * 1024)) Mb"
+				self?.temporaryFolderLabel.text = "\(Float64(size.temporary) / (1024 * 1024)) Mb"
+		}.addDisposableTo(bag)
 	}
 	
 	override func didReceiveMemoryWarning() {

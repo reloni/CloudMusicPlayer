@@ -93,7 +93,6 @@ extension Observable where Element : ResultType {
 					}()
 			}
 			
-			
 			// processing requests
 			func processRequests(cacheProvider: CacheProvider) {
 				resourceLoadingRequests.map { key, loadingRequest in
@@ -180,7 +179,7 @@ extension Observable where Element : ResultType {
 					streamEvents.dispose()
 				}
 				
-				}.flatMapLatest { result -> Observable<AssetLoadResult> in
+				}.subscribeOn(scheduler).flatMapLatest { result -> Observable<AssetLoadResult> in
 					if case Result.success = result {
 						print("return final data")
 						return Observable<AssetLoadResult>.just(Result.success(Box(value: (receivedResponse: response, utiType: getUtiType(), resultRequestCollection: resourceLoadingRequests))))

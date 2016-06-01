@@ -36,20 +36,22 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 	}
 	
 	public func resume() {
-		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-			guard let data = NSData(contentsOfFile: self.filePath.path!) else {
-				self.subject.onNext(StreamTaskEvents.Success(cache: nil).asResult())
-				self.subject.onCompleted()
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [weak self] in
+			guard let object = self, cacheProvider = object.cacheProvider else { return }
+			
+			guard let data = NSData(contentsOfFile: object.filePath.path!) else {
+				object.subject.onNext(StreamTaskEvents.Success(cache: nil).asResult())
+				object.subject.onCompleted()
 				return
 			}
 			
-			self.resumed = true
+			object.resumed = true
 			let response = LocalFileResponse(expectedContentLength: Int64(data.length),
-			                                 mimeType: ContentTypeDefinition.getMimeTypeFromFileExtension(self.filePath.pathExtension!))
+			                                 mimeType: ContentTypeDefinition.getMimeTypeFromFileExtension(object.filePath.pathExtension!))
 			
-			self.subject.onNext(StreamTaskEvents.ReceiveResponse(response).asResult())
+			object.subject.onNext(StreamTaskEvents.ReceiveResponse(response).asResult())
 			
-			print("append local data to cache provider: \(data.length)")
+			/*
 			self.cacheProvider?.appendData(data)
 			self.cacheProvider?.setContentMimeType(response.getMimeType())
 			
@@ -58,11 +60,35 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 				self.subject.onNext(StreamTaskEvents.CacheData(self.cacheProvider!).asResult())
 				NSThread.sleepForTimeInterval(0.01)
 			}
+			*/
 			
-			self.subject.onNext(StreamTaskEvents.Success(cache: nil).asResult())
+			// respond with data chunks
+			var currentOffset = 0
+			let sendDataChunk = 1024 * 256
+			while true {
+				if data.length - currentOffset > sendDataChunk {
+					let range = NSMakeRange(currentOffset, sendDataChunk)
+					currentOffset += sendDataChunk
+					let subdata = data.subdataWithRange(range)
+					cacheProvider.appendData(subdata)
+					dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+						object.subject.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
+					}
+					// delay next respond
+					NSThread.sleepForTimeInterval(0.01)
+				} else {
+					let range = NSMakeRange(currentOffset, data.length - currentOffset)
+					let subdata = data.subdataWithRange(range)
+					cacheProvider.appendData(subdata)
+					object.subject.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
+					break
+				}
+			}
+
+			object.subject.onNext(StreamTaskEvents.Success(cache: nil).asResult())
 			
-			self.resumed = false
-			self.subject.onCompleted()
+			object.resumed = false
+			object.subject.onCompleted()
 		}
 	}
 	
