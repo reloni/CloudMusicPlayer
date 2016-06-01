@@ -179,7 +179,7 @@ extension Observable where Element : ResultType {
 					streamEvents.dispose()
 				}
 				
-				}.subscribeOn(scheduler).flatMapLatest { result -> Observable<AssetLoadResult> in
+				}.flatMapLatest { result -> Observable<AssetLoadResult> in
 					if case Result.success = result {
 						print("return final data")
 						return Observable<AssetLoadResult>.just(Result.success(Box(value: (receivedResponse: response, utiType: getUtiType(), resultRequestCollection: resourceLoadingRequests))))

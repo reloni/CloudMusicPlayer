@@ -51,6 +51,8 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 			
 			object.subject.onNext(StreamTaskEvents.ReceiveResponse(response).asResult())
 			
+			cacheProvider.setContentMimeType(response.getMimeType())
+			
 			/*
 			self.cacheProvider?.appendData(data)
 			self.cacheProvider?.setContentMimeType(response.getMimeType())

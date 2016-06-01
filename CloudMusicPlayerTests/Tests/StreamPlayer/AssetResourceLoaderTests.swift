@@ -64,9 +64,9 @@ class AssetResourceLoaderTests: XCTestCase {
 				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
-					
+
 					self.streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
-				
+
 					self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
 			} else if case .cancel = progress {
@@ -78,7 +78,9 @@ class AssetResourceLoaderTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
+		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil)
+			.observeOn(SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+			.bindNext { e in
 			guard case Result.success(let box) = e else { return }
 			XCTAssertTrue(box.value.receivedResponse as? FakeResponse === fakeResponse, "Should cache correct response")
 			XCTAssertEqual("public.mp3", box.value.utiType, "Should get mime from response and convert to correct uti")
