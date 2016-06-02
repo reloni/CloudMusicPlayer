@@ -45,7 +45,7 @@ extension RxPlayer {
 		playerEventsSubject.onNext(.InitWithNewItems(currentItems))
 	}
 	
-	internal func shuffleQueue() {
+	internal func shuffleCurrentQueue() {
 		var items = itemsSet.array
 		items.shuffleInPlace()
 		itemsSet = NSMutableOrderedSet(array: items)
@@ -56,7 +56,7 @@ extension RxPlayer {
 	/// forceRestartQueue - if true, set first item in shuffled queue as current
 	public func shuffle(forceRestartQueue: Bool = false) {
 		current = nil
-		shuffleQueue()
+		shuffleCurrentQueue()
 		if forceRestartQueue {
 			toNext()
 		}
@@ -64,7 +64,15 @@ extension RxPlayer {
 	
 	/// Shuffle queue and preserve current item
 	public func shuffleAndContinue() {
-		shuffleQueue()
+		shuffleCurrentQueue()
+	}
+	
+	/// Shuffle queue and set current queue item as first
+	public func shuffleAndKeepCurrentItemFirst() {
+		shuffleCurrentQueue()
+		if let current = current {
+			addFirst(current.streamIdentifier)
+		}
 	}
 	
 	public func toNext(startPlaying: Bool = false) -> RxPlayerQueueItem? {

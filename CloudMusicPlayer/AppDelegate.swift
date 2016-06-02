@@ -54,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		#endif
 		
 		
-		let player = RxPlayer(repeatQueue: false,
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false,
 		                      downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
 														httpUtilities: HttpUtilities()),
 		                      streamPlayerUtilities: StreamPlayerUtilities(),
