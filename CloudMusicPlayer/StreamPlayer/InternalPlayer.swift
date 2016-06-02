@@ -160,16 +160,32 @@ extension InternalPlayer : InternalPlayerType {
 		}
 	}
 	
+	func switchToNextItem(force: Bool) {
+		if force || !isTimeChanging() {
+			print("flush and switch to next item")
+			flush()
+			eventsCallback(.FinishPlayingCurrentItem)
+			hostPlayer.toNext(true)
+		}
+	}
+	
+	func isTimeChanging() -> Bool {
+		guard let curTime = getCurrentTimeAndDuration()?.currentTime else { return false }
+		NSThread.sleepForTimeInterval(1)
+		guard let newTime = getCurrentTimeAndDuration()?.currentTime else { return false }
+		return curTime != newTime
+	}
+	
 	@objc func finishPlayingItem(notification: NSNotification) {
 		print("finishPlayingItem invoked")
-		flush()
-		eventsCallback(.FinishPlayingCurrentItem)
-		hostPlayer.toNext(true)
+		switchToNextItem(false)
 	}
 	
 	@objc func playbackStalled(notification: NSNotification) {
 		print("playback stalled")
-		finishPlayingItem(notification)
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [weak self] in
+			self?.switchToNextItem(false)
+		}
 	}
 	
 	@objc func newErrorLogEntry(notification: NSNotification) {

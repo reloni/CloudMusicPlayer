@@ -76,8 +76,11 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 //			}
 			// respond with data chunks
 			
-			let sendDataChunk = 1024 * 256
+			let sendDataChunk = 1024 * 64
 			while true {
+				if !object.resumed {
+					return
+				}
 				print("send data chunk")
 				if data.length - currentOffset > sendDataChunk {
 					let range = NSMakeRange(currentOffset, sendDataChunk)
@@ -88,7 +91,7 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 						object.subject.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
 					}
 					// delay next respond
-					NSThread.sleepForTimeInterval(0.3)
+					NSThread.sleepForTimeInterval(0.2)
 				} else {
 					print("send last data chunk")
 					let range = NSMakeRange(currentOffset, data.length - currentOffset)
