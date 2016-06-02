@@ -11,6 +11,25 @@ import Foundation
 import RxSwift
 import AVFoundation
 
+public class FakeStreamResourceIdentifier : StreamResourceIdentifier {
+	public var streamResourceUid: String
+	init(uid: String) {
+		streamResourceUid = uid
+	}
+	
+	public var streamResourceUrl: Observable<String> {
+		return Observable.create { observer in
+			observer.onNext(self.streamResourceUid)
+			
+			return NopDisposable.instance
+		}.observeOn(ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+	}
+	
+	public var streamResourceContentType: ContentType? {
+		return nil
+	}
+}
+
 public class FakeAVAssetResourceLoadingContentInformationRequest : AVAssetResourceLoadingContentInformationRequestProtocol {
 	public var byteRangeAccessSupported = false
 	public var contentLength: Int64 = 0
@@ -94,6 +113,10 @@ public class FakeInternalPlayer : InternalPlayerType {
 		self.hostPlayer = hostPlayer
 		self.eventsCallback = callback
 		self.nativePlayer = nativePlayer
+	}
+	
+	public func getCurrentTimeAndDuration() -> (currentTime: CMTime, duration: CMTime)? {
+		fatalError("getCurrentTimeAndDuration not implemented")
 	}
 }
 

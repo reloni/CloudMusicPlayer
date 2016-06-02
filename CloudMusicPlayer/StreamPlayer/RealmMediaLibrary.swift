@@ -166,6 +166,9 @@ extension RealmMediaLibrary : MediaLibraryType {
 	}
 	
 	public func createPlayList(name: String) throws -> PlayListType {
+		if name.isEmpty {
+			throw MediaLibraryErroros.emptyPlayListName
+		}
 		let realm = try getRealm()
 		let playList = RealmPlayList(uid: NSUUID().UUIDString, name: name)
 		try realm.write { realm.add(playList) }
@@ -200,7 +203,9 @@ extension RealmMediaLibrary : MediaLibraryType {
 		try realm.write {
 			tracks.forEach { track in
 				if let realmTrack = track as? RealmTrack {
-					realmPlayList.itemsInternal.append(realmTrack)
+					if realmPlayList.itemsInternal.filter("uid = %@", realmTrack.uid).count == 0 {
+						realmPlayList.itemsInternal.append(realmTrack)
+					}
 				}
 			}
 			

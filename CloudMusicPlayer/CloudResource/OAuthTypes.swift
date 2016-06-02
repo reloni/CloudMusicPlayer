@@ -43,6 +43,10 @@ public struct YandexOAuth {
 }
 
 extension YandexOAuth : OAuthType {
+	public var resourceDescription: String {
+		return "Yandex Disk"
+	}
+	
 	public var oauthTypeId: String {
 		return "\(YandexOAuth.id)_\(clientId)"
 	}
@@ -137,6 +141,10 @@ public struct GoogleOAuth {
 }
 
 extension GoogleOAuth : OAuthType {
+	public var resourceDescription: String {
+		return "Google Drive"
+	}
+	
 	public var oauthTypeId: String {
 		return "\(GoogleOAuth.id)_\(clientId)"
 	}
@@ -176,8 +184,9 @@ extension GoogleOAuth : OAuthType {
 				let request = HttpUtilities().createUrlRequest(tokenUrl)
 				request.setHttpMethod("POST")
 				let httpClient = HttpClient()
-				return httpClient.loadJsonData(request).flatMapLatest { response -> Observable<OAuthType> in
-					print(response)
+				return httpClient.loadJsonData(request).flatMapLatest { result -> Observable<OAuthType> in
+					guard case Result.success(let box) = result else { return Observable.empty() }
+					let response = box.value
 					if let accessToken = response["access_token"].string {
 						self.keychain.setString(accessToken, forAccount: self.tokenKeychainId, synchronizable: true, background: false)
 					}

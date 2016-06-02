@@ -38,23 +38,24 @@ class CloudResourcesStructureController: UIViewController {
 		navigationItem.title = viewModel.parent?.name ?? "/"
 		if let parent = viewModel.parent {
 			cloudResourceClient.loadChildResources(parent, loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
-				.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }
-				.bindNext { [weak self] resources in
-					self?.viewModel.resources = resources
-					self?.tableView.reloadData()
+				.bindNext { [weak self] result in
+					if case Result.success(let box) = result {
+						self?.viewModel.resources = box.value
+						self?.tableView.reloadData()
+					} else if case Result.error(let error) = result {
+						self?.showErrorLabel(error as NSError)
+					}
 				}.addDisposableTo(bag!)
 		} else if navigationController?.viewControllers.first == self {
-			//			YandexDiskCloudJsonResource.getRootResource(oauth: OAuthResourceManager.getYandexResource()).flatMapLatest { resource in
-			//				return cloudResourceClient.loadChildResources(resource, loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
-			//				}.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }.bindNext { [weak self] resources in
-			//					self?.viewModel.resources = resources
-			//					self?.tableView.reloadData()
-			//			}.addDisposableTo(bag!)
 			cloudResourceClient.loadChildResources(YandexDiskCloudJsonResource.getRootResource(oauth: YandexOAuth()),
 				loadMode: .CacheAndRemote).observeOn(MainScheduler.instance)
-				.doOnError { [unowned self] in self.showErrorLabel($0 as NSError) }.bindNext { [weak self] resources in
-					self?.viewModel.resources = resources
-					self?.tableView.reloadData()
+				.bindNext { [weak self] result in
+					if case Result.success(let box) = result {
+						self?.viewModel.resources = box.value
+						self?.tableView.reloadData()
+					}else if case Result.error(let error) = result {
+						self?.showErrorLabel(error as NSError)
+					}
 				}.addDisposableTo(bag!)
 		}
 	}
@@ -87,12 +88,10 @@ class CloudResourcesStructureController: UIViewController {
 	
 	func play(track: CloudAudioResource) {
 		if let identifier = track as? StreamResourceIdentifier {
-			rxPlayer.playUrl(identifier)
+			MainModel.sharedInstance.player.playUrl(identifier)
 		} else {
 			track.downloadUrl.bindNext { url in
-				//guard let url = result else { return }
-				rxPlayer.playUrl(url)
-				
+				MainModel.sharedInstance.player.playUrl(url)
 				}.addDisposableTo(bag!)
 		}
 	}
@@ -124,17 +123,17 @@ extension CloudResourcesStructureController : UITableViewDelegate {
 		if resource.type == .Folder {
 			// create new bag to dispose previous observers
 			cell.bag = DisposeBag()
-			cell.playButton.rx_tap.bindNext {
-				resource.loadChildResourcesRecursive().filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier }.toArray()
-					.bindNext { [weak self] items in
-						rxPlayer.initWithNewItems(items)
-						dispatch_async(dispatch_get_main_queue()) {
-							self?.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
-						}
-						rxPlayer.resume(true)
-						print("Player items count: \(rxPlayer.count)")
-				}.addDisposableTo(cell.bag)
-			}.addDisposableTo(cell.bag)
+//			cell.playButton.rx_tap.bindNext {
+//				resource.loadChildResourcesRecursive().filter { $0 is CloudAudioResource }.map { $0 as! StreamResourceIdentifier }.toArray()
+//					.bindNext { [weak self] items in
+//						MainModel.sharedInstance.player.initWithNewItems(items)
+//						dispatch_async(dispatch_get_main_queue()) {
+//							self?.performSegueWithIdentifier("ShowPlayerQueueSegue", sender: self)
+//						}
+//						MainModel.sharedInstance.player.resume(true)
+//						print("Player items count: \(MainModel.sharedInstance.playLists?.count)")
+//				}.addDisposableTo(cell.bag)
+//			}.addDisposableTo(cell.bag)
 		} else {
 			cell.playButton.hidden = true
 		}

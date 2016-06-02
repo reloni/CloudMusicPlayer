@@ -152,7 +152,7 @@ public class GoogleDriveCloudJsonResource : CloudResource {
 				return NopDisposable.instance
 			}
 			
-			let task = httpClient.loadJsonData(request).doOnError { observer.onError($0) }.bindNext { json in
+			let task = httpClient.loadJsonData(request).catchError { _ in return Observable.empty() }.bindNext { json in
 				if let data = GoogleDriveCloudJsonResource.deserializeResponseData(json, res: oauthResource, parent: forResource,
 					httpClient: httpClient, cacheProvider: cacheProvider) {
 					if let rootId = GoogleDriveCloudJsonResource.getRootFolderId(oauthResource, httpClient: httpClient),

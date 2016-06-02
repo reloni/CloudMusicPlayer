@@ -28,7 +28,7 @@ class DownloadManagerTests: XCTestCase {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 		let file = NSFileManager.temporaryDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).dat")
 		NSFileManager.defaultManager().createFileAtPath(file.path!, contents: nil, attributes: nil)
-		let task = manager.createDownloadTaskSync(file.path!, priority: .High)
+		let task = try! manager.createDownloadTask(file.path!, priority: .High).toBlocking().first()
 		XCTAssertTrue(task is LocalFileStreamDataTask, "Should create instance of LocalFileStreamDataTask")
 		XCTAssertEqual(1, manager.pendingTasks.count, "Should add task to pending tasks")
 		XCTAssertEqual(PendingTaskPriority.High, manager.pendingTasks.first?.1.priority, "Should create pending task with correct priority")
@@ -38,21 +38,21 @@ class DownloadManagerTests: XCTestCase {
 	func testNotCreateLocalFileStreamTaskForNotExistedFile() {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 		let file = NSFileManager.temporaryDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).dat")
-		let task = manager.createDownloadTaskSync(file.path!, priority: .Normal)
+		let task = try! manager.createDownloadTask(file.path!, priority: .Normal).toBlocking().first()
 		XCTAssertNil(task, "Should not create a task")
 		XCTAssertEqual(0, manager.pendingTasks.count, "Should not add task to pending tasks")
 	}
 	
 	func testCreateUrlStreamTask() {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
-		let task = manager.createDownloadTaskSync("https://somelink.com", priority: .Normal)
+		let task = try! manager.createDownloadTask("https://somelink.com", priority: .Normal).toBlocking().first()
 		XCTAssertTrue(task is StreamDataTask, "Should create instance of StreamDataTask")
 		XCTAssertEqual(1, manager.pendingTasks.count, "Should add task to pending tasks")
 	}
 	
 	func testNotCreateStreamTaskForIncorrectScheme() {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
-		let task = manager.createDownloadTaskSync("incorrect://somelink.com", priority: .Normal)
+		let task = try! manager.createDownloadTask("incorrect://somelink.com", priority: .Normal).toBlocking().first()
 		XCTAssertNil(task, "Should not create a task")
 		XCTAssertEqual(0, manager.pendingTasks.count, "Should not add task to pending tasks")
 	}
@@ -66,7 +66,7 @@ class DownloadManagerTests: XCTestCase {
 		manager.pendingTasks[newTask.uid] = PendingTask(task: newTask)
 		
 		// create download task for same file
-		let task = manager.createDownloadTaskSync(file.path!, priority: .Normal) as? LocalFileStreamDataTask
+		let task = try! manager.createDownloadTask(file.path!, priority: .Normal).toBlocking().first() as? LocalFileStreamDataTask
 		XCTAssertTrue(newTask === task, "Should return same instance of task")
 		XCTAssertEqual(1, manager.pendingTasks.count, "Should not add new task to pending tasks")
 		file.deleteFile()
@@ -81,7 +81,7 @@ class DownloadManagerTests: XCTestCase {
 		// save this file in fileStorageCache
 		fileStorage.tempStorageDictionary["https://somelink.com"] = file.lastPathComponent!
 		// create download task
-		let task = manager.createDownloadTaskSync("https://somelink.com", priority: .Normal)
+		let task = try! manager.createDownloadTask("https://somelink.com", priority: .Normal).toBlocking().first()
 		XCTAssertTrue(task is LocalFileStreamDataTask, "Should create instance of LocalFileStreamDataTask, because file exists in cache")
 		XCTAssertEqual(1, manager.pendingTasks.count, "Should add task to pending tasks")
 		let _ = try? NSFileManager.defaultManager().removeItemAtURL(file)
@@ -90,9 +90,10 @@ class DownloadManagerTests: XCTestCase {
 	func testThreadSafetyForCreationNewTask() {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 		
-		for _ in 0...10 {
-			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-				manager.createDownloadTaskSync("https://somelink.com", priority: .Normal)
+		for _ in 0...100 {
+			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
+				let fakeResource = FakeStreamResourceIdentifier(uid: "https://somelink.com")
+				manager.createDownloadTask(fakeResource, priority: .Normal).subscribe().addDisposableTo(self.bag)
 			}
 		}
 		
@@ -111,7 +112,8 @@ class DownloadManagerTests: XCTestCase {
 		
 		for _ in 0...10 {
 			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-				manager.createDownloadObservable("https://somelink.com", priority: .Normal).subscribe().addDisposableTo(self.bag)
+				let fakeResource = FakeStreamResourceIdentifier(uid: "https://somelink.com")
+				manager.createDownloadObservable(fakeResource, priority: .Normal).subscribe().addDisposableTo(self.bag)
 			}
 		}
 		
@@ -124,14 +126,15 @@ class DownloadManagerTests: XCTestCase {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 	
 		let errorExpectation = expectationWithDescription("Should send error message")
-		manager.createDownloadObservable("wrong://test.com", priority: .Normal).doOnError { error in
-			let error = error as NSError
-			XCTAssertEqual(error.code, DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue, "Check returned error with correct errorCode")
-			XCTAssertEqual(error.userInfo["Url"] as? String, "wrong://test.com", "Check returned correct url in error info")
-			XCTAssertEqual(error.userInfo["Uid"] as? String, "wrong://test.com", "Check returned correct uid in error info")
+		manager.createDownloadObservable("wrong://test.com", priority: .Normal).bindNext { result in
+			guard case Result.error(let errorType) = result else { return }
+			let error = (errorType as! CustomErrorType).error()
+			XCTAssertEqual(error.code, DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: "", uid: "").errorCode(), "Check returned error with correct errorCode")
+			//XCTAssertEqual(error.userInfo["url"] as? String, "wrong://test.com", "Check returned correct url in error info")
+			XCTAssertEqual(error.userInfo["uid"] as? String, "wrong://test.com", "Check returned correct uid in error info")
 				
 			errorExpectation.fulfill()
-		}.subscribe().addDisposableTo(bag)
+		}.addDisposableTo(bag)
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
@@ -139,15 +142,16 @@ class DownloadManagerTests: XCTestCase {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: HttpUtilities())
 		
 		let errorExpectation = expectationWithDescription("Should send error message")
-		manager.createDownloadObservable("/Path/To/Not/existed.file", priority: .Normal).doOnError { error in
-			let error = error as NSError
-			XCTAssertEqual(error.code, DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue, "Check returned error with correct errorCode")
-			XCTAssertEqual(error.userInfo["Url"] as? String, "/Path/To/Not/existed.file", "Check returned correct url in error info")
-			XCTAssertEqual(error.userInfo["Uid"] as? String, "/Path/To/Not/existed.file", "Check returned correct uid in error info")
+		manager.createDownloadObservable("/Path/To/Not/existed.file", priority: .Normal).bindNext { result in
+			guard case Result.error(let errorType) = result else { return }
+			let error = (errorType as! CustomErrorType).error()
+			XCTAssertEqual(error.code, DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: "", uid: "").errorCode(), "Check returned error with correct errorCode")
+			//XCTAssertEqual(error.userInfo["url"] as? String, "/Path/To/Not/existed.file", "Check returned correct url in error info")
+			XCTAssertEqual(error.userInfo["uid"] as? String, "/Path/To/Not/existed.file", "Check returned correct uid in error info")
 				
 			errorExpectation.fulfill()
 			
-			}.subscribe().addDisposableTo(bag)
+			}.addDisposableTo(bag)
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
@@ -180,13 +184,16 @@ class DownloadManagerTests: XCTestCase {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
 		
 		let successExpectation = expectationWithDescription("Should receive success message")
+		let cacheDataExpectation = expectationWithDescription("Should receive cache data event")
 		manager.createDownloadObservable("https://test.com", priority: .Normal).bindNext { e in
-			if case StreamTaskEvents.Success = e {
-				
+			guard case Result.success(let box) = e else { return }
+			if case StreamTaskEvents.Success = box.value {
 				successExpectation.fulfill()
+			} else if case StreamTaskEvents.CacheData(_) = box.value {
+				XCTAssertEqual(1, manager.pendingTasks.count, "Task should be in pending task during processing")
+				cacheDataExpectation.fulfill()
 			}
 		}.addDisposableTo(bag)
-		XCTAssertEqual(1, manager.pendingTasks.count, "Should add task to pending")
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		
@@ -223,12 +230,13 @@ class DownloadManagerTests: XCTestCase {
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
 		
 		let errorExpectation = expectationWithDescription("Should receive error message")
-		manager.createDownloadObservable("https://test.com", priority: .Normal).doOnError { error in
-			let error = error as NSError
+		manager.createDownloadObservable("https://test.com", priority: .Normal).bindNext { result in
+			guard case Result.error(let errorType) = result else { return }
+			let error = errorType as NSError
 			XCTAssertEqual(15, error.code, "Check receive error with correct code")
 			errorExpectation.fulfill()
-			}.subscribe().addDisposableTo(bag)
-		XCTAssertEqual(1, manager.pendingTasks.count, "Should add task to pending")
+			}.addDisposableTo(bag)
+		//XCTAssertEqual(1, manager.pendingTasks.count, "Should add task to pending")
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		
@@ -294,23 +302,35 @@ class DownloadManagerTests: XCTestCase {
 		
 		// first subscription
 		let successExpectation = expectationWithDescription("Should receive success message")
+		var cacheDataExpectation: XCTestExpectation? = expectationWithDescription("Should receive CacheData event for first subscription")
 		manager.createDownloadObservable("https://test.com", priority: .Normal).bindNext { e in
-			if case StreamTaskEvents.Success(let cacheProvider) = e {
+			guard case Result.success(let box) = e else { return }
+			if case StreamTaskEvents.Success(let cacheProvider) = box.value {
 				XCTAssert(sendedData.isEqualToData(cacheProvider?.getData() ?? NSData()))
 				successExpectation.fulfill()
+			} else if case StreamTaskEvents.CacheData = box.value {
+				XCTAssertEqual(1, manager.pendingTasks.count, "Should add only one task to pending")
+				cacheDataExpectation?.fulfill()
+				cacheDataExpectation = nil
 			}
 			}.addDisposableTo(bag)
 		
 		// second subscription
 		let successSecondObservableExpectation = expectationWithDescription("Should receive success message")
+		var cacheDataSecondExpectation: XCTestExpectation? = expectationWithDescription("Should receive CacheData event for second subscription")
 		manager.createDownloadObservable("https://test.com", priority: .Normal).bindNext { e in
-			if case StreamTaskEvents.Success(let cacheProvider) = e {
+			guard case Result.success(let box) = e else { return }
+			if case StreamTaskEvents.Success(let cacheProvider) = box.value {
 				XCTAssert(sendedData.isEqualToData(cacheProvider?.getData() ?? NSData()))
 				successSecondObservableExpectation.fulfill()
+			} else if case StreamTaskEvents.CacheData = box.value {
+				XCTAssertEqual(1, manager.pendingTasks.count, "Should add only one task to pending")
+				cacheDataSecondExpectation?.fulfill()
+				cacheDataSecondExpectation = nil
 			}
 			}.addDisposableTo(bag)
 		
-		XCTAssertEqual(1, manager.pendingTasks.count, "Should add only one task to pending")
+		
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		
@@ -327,9 +347,11 @@ class DownloadManagerTests: XCTestCase {
 
 		let manager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
 		
-		let observable = manager.createDownloadObservable("http://test.com", priority: .Normal).subscribe()
-		XCTAssertEqual(1, manager.pendingTasks.count, "Check add task to pending")
-		observable.dispose()
+		let disposable = manager.createDownloadObservable("http://test.com", priority: .Normal).subscribe()
+		NSThread.sleepForTimeInterval(0.2)
+		disposable.dispose()
+		NSThread.sleepForTimeInterval(0.2)
+		
 		XCTAssertEqual(0, manager.pendingTasks.count, "Check remove task from pending")
 		XCTAssertEqual(true, session.task?.isCancelled, "Check underlying task canceled")
 	}
@@ -346,17 +368,26 @@ class DownloadManagerTests: XCTestCase {
 		let firstObservable = manager.createDownloadObservable("http://test.com", priority: .Normal).subscribe()
 		let secondObservable = manager.createDownloadObservable("http://test.com", priority: .Normal).subscribe()
 		let thirdObservable = manager.createDownloadObservable("http://test.com", priority: .Normal).subscribe()
+		
+		NSThread.sleepForTimeInterval(0.2)
+		
 		XCTAssertEqual(1, manager.pendingTasks.count, "Check add task to pending")
 		
 		firstObservable.dispose()
+		NSThread.sleepForTimeInterval(0.2)
+		
 		XCTAssertEqual(1, manager.pendingTasks.count, "Check still has task in pending")
 		XCTAssertEqual(false, session.task?.isCancelled, "Check underlying task not canceled")
 		
 		secondObservable.dispose()
+		NSThread.sleepForTimeInterval(0.2)
+		
 		XCTAssertEqual(1, manager.pendingTasks.count, "Check still has task in pending")
 		XCTAssertEqual(false, session.task?.isCancelled, "Check underlying task not canceled")
 		
 		thirdObservable.dispose()
+		NSThread.sleepForTimeInterval(0.2)
+		
 		XCTAssertEqual(0, manager.pendingTasks.count, "Check remove task from pending")
 		XCTAssertEqual(true, session.task?.isCancelled, "Check underlying task canceled")
 	}
@@ -394,6 +425,7 @@ class DownloadManagerTests: XCTestCase {
 		// cancel current task
 		runningTask.cancel()
 		interval.onNext(1)
+		NSThread.sleepForTimeInterval(0.2)
 		XCTAssertEqual(true, newTask.resumed, "Check new task started after completion of previous task")
 	}
 }

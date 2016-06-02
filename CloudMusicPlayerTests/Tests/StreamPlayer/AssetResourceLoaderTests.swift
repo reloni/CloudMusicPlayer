@@ -31,7 +31,7 @@ class AssetResourceLoaderTests: XCTestCase {
 		utilities = FakeHttpUtilities()
 		utilities.fakeSession = session
 		utilities.streamObserver = streamObserver
-		httpClient = HttpClient(urlSession: session, httpUtilities: utilities)
+		httpClient = HttpClient(httpUtilities: utilities)
 		cacheTask = utilities.createStreamDataTask(NSUUID().UUIDString, request: request,
 		                                           sessionConfiguration: NSURLSession.defaultConfig,
 		                                           cacheProvider: MemoryCacheProvider(uid: NSUUID().UUIDString)) as! StreamDataTask
@@ -64,9 +64,9 @@ class AssetResourceLoaderTests: XCTestCase {
 				XCTAssertEqual(tsk.originalRequest?.URL, self.request.URL, "Check correct task url")
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [unowned self] in
 					self.avAssetObserver.publishSubject.onNext(.ShouldWaitForLoading(assetRequest))
-					
+
 					self.streamObserver.sessionEventsSubject.onNext(.didReceiveResponse(session: self.session, dataTask: tsk, response: fakeResponse, completion: { _ in }))
-				
+
 					self.streamObserver.sessionEventsSubject.onNext(.didCompleteWithError(session: self.session, dataTask: tsk, error: nil))
 				}
 			} else if case .cancel = progress {
@@ -78,9 +78,12 @@ class AssetResourceLoaderTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			XCTAssertTrue(e.receivedResponse as? FakeResponse === fakeResponse, "Should cache correct response")
-			XCTAssertEqual("public.mp3", e.utiType, "Should get mime from response and convert to correct uti")
+		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil)
+			.observeOn(SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+			.bindNext { e in
+			guard case Result.success(let box) = e else { return }
+			XCTAssertTrue(box.value.receivedResponse as? FakeResponse === fakeResponse, "Should cache correct response")
+			XCTAssertEqual("public.mp3", box.value.utiType, "Should get mime from response and convert to correct uti")
 			assetLoadCompletion.fulfill()
 			}.addDisposableTo(bag)
 		cacheTask.resume()
@@ -116,8 +119,9 @@ class AssetResourceLoaderTests: XCTestCase {
 			}.addDisposableTo(bag)
 		
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: ContentType.aac).bindNext { e in
-			XCTAssertTrue(e.receivedResponse as? FakeResponse === fakeResponse, "Should cache correct response")
-			XCTAssertEqual("public.aac-audio", e.utiType, "Should return correct overriden uti type")
+			guard case Result.success(let box) = e else { return }
+			XCTAssertTrue(box.value.receivedResponse as? FakeResponse === fakeResponse, "Should cache correct response")
+			XCTAssertEqual("public.aac-audio", box.value.utiType, "Should return correct overriden uti type")
 			assetLoadCompletion.fulfill()
 		}.addDisposableTo(bag)
 		cacheTask.resume()
@@ -132,7 +136,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		let expectation = expectationWithDescription("Should receive result from asset loader")
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			expectation.fulfill()
 			}.addDisposableTo(bag)
 		
@@ -153,7 +158,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			assetLoadingCompletion.fulfill()
 			}.addDisposableTo(bag)
 		
@@ -179,7 +185,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			assetLoadingCompletion.fulfill()
 			}.addDisposableTo(bag)
 		
@@ -237,7 +244,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			assetLoadingCompletion.fulfill()
 			}.addDisposableTo(bag)
 		
@@ -307,7 +315,8 @@ class AssetResourceLoaderTests: XCTestCase {
 		
 		var result: (receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])?
 		cacheTask.taskProgress.loadWithAsset(assetEvents: avAssetObserver.loaderEvents, targetAudioFormat: nil).bindNext { e in
-			result = e
+			guard case Result.success(let box) = e else { return }
+			result = box.value
 			assetLoadingCompletion.fulfill()
 			}.addDisposableTo(bag)
 		

@@ -35,8 +35,8 @@ public protocol CloudResource {
 	var resourcesUrl: String { get }
 	func getRequestHeaders() -> [String: String]?
 	func getRequestParameters() -> [String: String]?
-	func loadChildResources() -> Observable<JSON>
-	func loadChildResourcesRecursive() -> Observable<CloudResource>
+	func loadChildResources() -> Observable<Result<JSON>>
+	//func loadChildResourcesRecursive() -> Observable<CloudResource>
 	func deserializeResponse(json: JSON) -> [CloudResource]
 	func wrapRawData(json: JSON) -> CloudResource
 }

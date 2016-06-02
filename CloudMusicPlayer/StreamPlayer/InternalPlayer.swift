@@ -11,7 +11,7 @@ import RxSwift
 import AVFoundation
 
 public typealias AssetLoadResult =
-	(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])
+	Result<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
 
 public protocol InternalPlayerType {
 	func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult>
@@ -20,6 +20,7 @@ public protocol InternalPlayerType {
 	func resume()
 	var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> { get }
 	var nativePlayer: AVPlayerProtocol? { get }
+	func getCurrentTimeAndDuration() -> (currentTime: CMTime, duration: CMTime)?
 }
 
 public class InternalPlayer {
@@ -45,13 +46,18 @@ public class InternalPlayer {
 }
 
 extension InternalPlayer : InternalPlayerType {
+	public func getCurrentTimeAndDuration() -> (currentTime: CMTime, duration: CMTime)? {
+		guard let playerItem = self.playerItem, asset = self.asset else { return nil }
+		return (currentTime: playerItem.currentTime(), duration: asset.duration)
+	}
+	
 	public var currentTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else {
 				observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance
 			}
 			
-			return Observable<Int>.interval(1, scheduler: SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+			return Observable<Int>.interval(0.5, scheduler: SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
 				.bindNext { _ in
 					if let playerItem = object.playerItem, asset = object.asset {
 						observer.onNext((currentTime: playerItem.currentTime(), duration: asset.duration))
@@ -80,7 +86,14 @@ extension InternalPlayer : InternalPlayerType {
 	}
 	
 	internal func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol) {
-		stop()
+		flush()
+		
+		do {
+			try AVAudioSession.sharedInstance().setActive(true)
+			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+		} catch let error as NSError {
+			NSLog("Error setting session category %@", error.localizedDescription)
+		}
 		
 		self.asset = asset
 		self.playerItem = playerItem
@@ -96,13 +109,26 @@ extension InternalPlayer : InternalPlayerType {
 				if let object = self {
 					NSNotificationCenter.defaultCenter().addObserver(object, selector:
 						#selector(object.finishPlayingItem), name: AVPlayerItemDidPlayToEndTimeNotification, object: object.playerItem as? AVPlayerItem)
+					NSNotificationCenter.defaultCenter().addObserver(object, selector:
+						#selector(object.playbackStalled), name: AVPlayerItemPlaybackStalledNotification, object: object.playerItem as? AVPlayerItem)
+					NSNotificationCenter.defaultCenter().addObserver(object, selector:
+						#selector(object.newErrorLogEntry), name: AVPlayerItemNewErrorLogEntryNotification, object: object.playerItem as? AVPlayerItem)
+					NSNotificationCenter.defaultCenter().addObserver(object, selector:
+						#selector(object.failedToPlayToEnd), name: AVPlayerItemFailedToPlayToEndTimeNotification, object: object.playerItem as? AVPlayerItem)
 				}
+			} else if status == AVPlayerItemStatus.Failed {
+				print("player error: \((self?.nativePlayer as? AVPlayer)?.error?.localizedDescription)")
 			}
 			}.addDisposableTo(bag)
+		
+		hostPlayer.beginBackgroundTask()
 	}
 	
 	func flush() {
 		NSNotificationCenter.defaultCenter().removeObserver(self, name: AVPlayerItemDidPlayToEndTimeNotification, object: playerItem as? AVPlayerItem)
+		NSNotificationCenter.defaultCenter().removeObserver(self, name: AVPlayerItemPlaybackStalledNotification, object: playerItem as? AVPlayerItem)
+		NSNotificationCenter.defaultCenter().removeObserver(self, name: AVPlayerItemNewErrorLogEntryNotification, object: playerItem as? AVPlayerItem)
+		NSNotificationCenter.defaultCenter().removeObserver(self, name: AVPlayerItemFailedToPlayToEndTimeNotification, object: playerItem as? AVPlayerItem)
 		nativePlayer?.replaceCurrentItemWithPlayerItem(nil)
 		nativePlayer = nil
 		asset = nil
@@ -114,6 +140,7 @@ extension InternalPlayer : InternalPlayerType {
 	public func stop() {
 		flush()
 		eventsCallback(.Stopped)
+		hostPlayer.endBackgroundTask()
 	}
 	
 	public func pause() {
@@ -122,18 +149,35 @@ extension InternalPlayer : InternalPlayerType {
 			nativePlayer.setPlayerRate(0.0)
 			eventsCallback(.Paused)
 		}
+		hostPlayer.endBackgroundTask()
 	}
 	
 	public func resume() {
 		if let nativePlayer = nativePlayer {
 			nativePlayer.setPlayerRate(1.0)
 			eventsCallback(.Resumed)
+			hostPlayer.beginBackgroundTask()
 		}
 	}
 	
-	@objc func finishPlayingItem() {
+	@objc func finishPlayingItem(notification: NSNotification) {
+		print("finishPlayingItem invoked")
 		flush()
 		eventsCallback(.FinishPlayingCurrentItem)
 		hostPlayer.toNext(true)
+	}
+	
+	@objc func playbackStalled(notification: NSNotification) {
+		print("playback stalled")
+		finishPlayingItem(notification)
+	}
+	
+	@objc func newErrorLogEntry(notification: NSNotification) {
+		print("new error notification")
+	}
+	
+	@objc func failedToPlayToEnd(notification: NSNotification) {
+		print("failed play to end")
+		finishPlayingItem(notification)
 	}
 }

@@ -23,22 +23,22 @@ class StreamResourceIdentifierTests: XCTestCase {
 	
 	func testParseHttplUrl() {
 		let file = "http://Documents/File.txt"
-		if let content = file.streamResourceType {
-			XCTAssertEqual(content, StreamResourceType.HttpResource)
-		} else { XCTFail("Should return resource type") }
+		let content = try! file.streamResourceType.toBlocking().first()
+		XCTAssertEqual(content, StreamResourceType.HttpResource)
+		//} else { XCTFail("Should return resource type") }
 	}
 	
 	func testParseHttpsUrl() {
 		let file = "https://Documents/File.txt"
-		if let content = file.streamResourceType {
-			XCTAssertEqual(content, StreamResourceType.HttpsResource)
-		} else { XCTFail("Should return resource type") }
+		let content = try! file.streamResourceType.toBlocking().first()
+		XCTAssertEqual(content, StreamResourceType.HttpsResource)
+		//} else { XCTFail("Should return resource type") }
 	}
 	
 	func testParseLocalUrl() {
 		let file = NSFileManager.temporaryDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).dat")
 		NSFileManager.defaultManager().createFileAtPath(file.path!, contents: nil, attributes: nil)
-		if let content = file.path!.streamResourceType {
+		if let content = try! file.path!.streamResourceType.toBlocking().first() {
 			XCTAssertEqual(content, StreamResourceType.LocalResource)
 		} else { XCTFail("Should return resource type") }
 		let _ = try? NSFileManager.defaultManager().removeItemAtURL(file)
@@ -46,6 +46,6 @@ class StreamResourceIdentifierTests: XCTestCase {
 	
 	func testNotParseIncorrectUrl() {
 		let file = "/Documents/File.txt"
-		XCTAssertNil(file.streamResourceType)
+		XCTAssertNil(try! file.streamResourceType.toBlocking().first())
 	}
 }

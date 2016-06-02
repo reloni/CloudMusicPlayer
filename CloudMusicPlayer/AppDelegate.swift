@@ -10,10 +10,37 @@ import UIKit
 import CoreData
 import AVFoundation
 import RxSwift
+import MediaPlayer
+
+enum Storyboards : String {
+	case main = "Main"
+	case cloudAccounts = "CloudAccounts"
+	func getStoryboard() -> UIStoryboard {
+		switch self {
+		case .main: return UIStoryboard(name: rawValue, bundle: nil)
+		case .cloudAccounts: return UIStoryboard(name: rawValue, bundle: nil)
+		}
+	}
+}
+
+enum ViewControllers : String {
+	case rootTabBarController = "RootTabBarController"
+	case addToMediaLibraryNavigationController = "AddToMediaLibraryNavigationController"
+	case addToMediaLibraryController = "AddToMediaLibraryController"
+	case addItemsToPlayListController = "AddItemsToPlayListView"
+	func getController() -> UIViewController {
+		switch self {
+		case .rootTabBarController: return Storyboards.main.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
+		case .addToMediaLibraryNavigationController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
+		case .addToMediaLibraryController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
+		case .addItemsToPlayListController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
+		}
+	}
+}
 
 //var streamPlayer = StreamAudioPlayer(allowSaveCachedData: true)
-var rxPlayer = RxPlayer(repeatQueue: false, downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
-													httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: RealmMediaLibrary())
+//var rxPlayer = RxPlayer(repeatQueue: false, downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
+//													httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: RealmMediaLibrary())
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -26,22 +53,52 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			NSLog("Documents Path: %@", NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first ?? "")
 		#endif
 		
-		let _ = try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
 		
-		//let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Background)
+		let player = RxPlayer(repeatQueue: false,
+		                      downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
+														httpUtilities: HttpUtilities()),
+		                      streamPlayerUtilities: StreamPlayerUtilities(),
+		                      mediaLibrary: RealmMediaLibrary())
+		let cloudResourceClient = CloudResourceClient(cacheProvider: RealmCloudResourceCacheProvider())
+		MainModel.sharedInstance = MainModel(player: player, userDefaults: NSUserDefaults.standardUserDefaults(), cloudResourceClient: cloudResourceClient)
+		MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
 		
-		//rxPlayer.rx_observe().doOnError { print("StreamContentError \($0)") }.streamContent().doOnError { print("StreamContentError: \($0)") }.subscribe().addDisposableTo(bag)
-		//rxPlayer.rx_observe().doOnError { print("DispatchPlayerControlEventsError \($0)") }.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
-		//rxPlayer.startQueueDispatching().subscribe().addDisposableTo(bag)
-		//rxPlayer.rx_observe().dispatchQueue().subscribe().addDisposableTo(bag)
+		let cloudResourceLoader = CloudResourceLoader(cacheProvider: cloudResourceClient.cacheProvider!,
+		                                              rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier:
+																										YandexDiskCloudJsonResource.getRootResource(HttpClient(), oauth: YandexOAuth())])
+		MainModel.sharedInstance.player.streamResourceLoaders.append(cloudResourceLoader)
 		
-		//let a = Observable<Int>.interval(1, scheduler: MainScheduler.instance).subscribeNext { _ in
-				//print("Resource count \(RxSwift.resourceCount)")
+		//do {
+		//	try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
+		//	try AVAudioSession.sharedInstance().setActive(true)
+		//} catch let error as NSError {
+		//	NSLog("Error while set up audio session \(error.localizedDescription)")
 		//}
+		
+		MainModel.sharedInstance.player.playerEvents.bindNext { event in
+			print("player event: \(event)")
+			switch event {
+			//case PlayerEvents.CurrentItemChanged: fallthrough
+			case PlayerEvents.Stopped: fallthrough
+			case PlayerEvents.Paused: fallthrough
+			case PlayerEvents.Started: fallthrough
+			case PlayerEvents.Resumed:
+				guard let info = MainModel.sharedInstance.player.getCurrentItemMetadataForNowPlayingCenter() else {
+					MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = nil
+					break
+				}
+				MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = info
+			default: break
+			}
+		}.addDisposableTo(bag)
+		
 		
 //		Observable<Int>.interval(1, scheduler: MainScheduler.instance).bindNext { _ in
 //			print("Resource count: \(RxSwift.resourceCount)")
 //		}.addDisposableTo(bag)
+		
+		becomeFirstResponder()
+		UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
 		
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -50,6 +107,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		window?.makeKeyAndVisible()
 		
 		return true
+	}
+	
+	
+	
+	override func canBecomeFirstResponder() -> Bool {
+		return true
+	}
+	
+	override func remoteControlReceivedWithEvent(event: UIEvent?) {
+		if event?.type == .RemoteControl {
+			switch event!.subtype {
+			case UIEventSubtype.RemoteControlPlay: MainModel.sharedInstance.player.resume(true)
+			case UIEventSubtype.RemoteControlStop: MainModel.sharedInstance.player.pause()
+			case UIEventSubtype.RemoteControlPause: MainModel.sharedInstance.player.pause()
+			case UIEventSubtype.RemoteControlTogglePlayPause: print("remote control toggle play/pause")
+			case UIEventSubtype.RemoteControlNextTrack: MainModel.sharedInstance.player.toNext(true)
+			case UIEventSubtype.RemoteControlPreviousTrack: MainModel.sharedInstance.player.toPrevious(true)
+			default: super.remoteControlReceivedWithEvent(event)
+			}
+		} else {
+			super.remoteControlReceivedWithEvent(event)
+		}
 	}
 	
 	// вызывается при вызове приложения по URL схеме
@@ -89,20 +168,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func applicationWillResignActive(application: UIApplication) {
 		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
 		// Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+		print("applicationWillResignActive")
 	}
 
 	func applicationDidEnterBackground(application: UIApplication) {
 		// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
 		// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 		//SharedSettings.Instance.saveData()
+		print("applicationDidEnterBackground")
 	}
 
 	func applicationWillEnterForeground(application: UIApplication) {
 		// Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+		print("applicationWillEnterForeground")
 	}
 
 	func applicationDidBecomeActive(application: UIApplication) {
 		// Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+		print("applicationDidBecomeActive")
 	}
 
 	func applicationWillTerminate(application: UIApplication) {

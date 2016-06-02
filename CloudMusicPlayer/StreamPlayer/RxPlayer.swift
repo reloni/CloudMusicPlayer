@@ -36,6 +36,8 @@ public enum PlayerEvents : PlayerEventType {
 }
 
 public class RxPlayer {
+	internal var uiApplication: UIApplicationType?
+	internal var backgroundTaskIdentifier: Int?
 	public var streamResourceLoaders = [StreamResourceLoaderType]()
 	
 	internal lazy var eventsCallback: (PlayerEvents) -> () = {
@@ -81,7 +83,11 @@ public class RxPlayer {
 	}
 	
 	public var currentItemTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> {
-		return internalPlayer.currentTime.shareReplay(1)
+		return internalPlayer.currentTime.shareReplay(0)
+	}
+	
+	public func getCurrentItemTimeAndDuration() -> (currentTime: CMTime, duration: CMTime)? {
+		return internalPlayer.getCurrentTimeAndDuration()
 	}
 	
 	public lazy var playerEvents: Observable<PlayerEvents> = {
@@ -89,7 +95,6 @@ public class RxPlayer {
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			let first = object.playerEventsSubject.shareReplay(0).doOnError { print("Player event error \($0)") }.observeOn(object.serialScheduler).bindNext { e in
-				print("new player event: \(e)")
 				observer.onNext(e)
 			}
 			
@@ -104,16 +109,20 @@ public class RxPlayer {
 	internal func startStreamTask() {
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 			self.currentStreamTask?.dispose()
-			self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier)
-				.doOnError { [weak self] in
-					let error = $0 as NSError
-					self?.playerEventsSubject.onNext(.Error(error))
-					
-					// if this is unsupported url or not existed file, move to next item
-					if error.code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
+			self.currentStreamTask = self.internalPlayer.play(self.current!.streamIdentifier).doOnNext { [weak self] event in
+					//print("internal player event: \(event)")
+				if case Result.error(let error) = event {
+					if let customError = error as? CustomErrorType {
+						self?.playerEventsSubject.onNext(PlayerEvents.Error(customError.error()))
 						self?.toNext(true)
+					} else {
+						self?.playerEventsSubject.onNext(PlayerEvents.Error(error as NSError))
 					}
-					
+				}
+				}
+				.catchError { error in
+					print("catched error while playing: \((error as NSError).localizedDescription)")
+					return Observable.empty()
 				}.subscribe()
 		}
 	}

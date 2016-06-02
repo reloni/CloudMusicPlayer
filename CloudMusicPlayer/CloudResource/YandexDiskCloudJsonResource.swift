@@ -77,21 +77,25 @@ extension YandexDiskCloudJsonResource : CloudResource {
 		return ["path": uid]
 	}
 	
-	public func loadChildResources() -> Observable<JSON> {
+	public func loadChildResources() -> Observable<Result<JSON>> {
 		guard let request = createRequest() else {
 			return Observable.empty()
 		}
-		
+
 		return httpClient.loadJsonData(request)
 	}
 	
-	public func loadChildResourcesRecursive() -> Observable<CloudResource> {
-		return loadChildResources().flatMapLatest { json in
-			return self.deserializeResponse(json).toObservable()
-			}.flatMap { e -> Observable<CloudResource> in
-				return [e].toObservable().concat(e.loadChildResourcesRecursive())
-		}
-	}
+//	public func loadChildResourcesRecursive() -> Observable<CloudResource> {
+//		return loadChildResources().flatMapLatest { result -> Observable<CloudResource> in
+//			if case Result.success(let box) = result {
+//				return self.deserializeResponse(box.value).toObservable()
+//			}
+//			return Observable.empty()
+//			//return self.deserializeResponse(json).toObservable()
+//			}.flatMap { e -> Observable<CloudResource> in
+//				return [e].toObservable().concat(e.loadChildResourcesRecursive())
+//		}
+//	}
 	
 	public func deserializeResponse(json: JSON) -> [CloudResource] {
 		guard let items = json["_embedded"]["items"].array else {

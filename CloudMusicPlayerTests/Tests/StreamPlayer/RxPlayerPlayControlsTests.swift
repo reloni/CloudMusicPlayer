@@ -408,7 +408,8 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let errorExpectation = expectationWithDescription("Should rise error")
 		let correctCurrentItemExpectation = expectationWithDescription("Should switch to next item after error")
 		player.playerEvents.bindNext { e in
-			if case .Error(let error) = e where error.code == DownloadManagerError.UnsupportedUrlSchemeOrFileNotExists.rawValue {
+			
+			if case .Error(let error) = e where error.code == DownloadManagerErrors.unsupportedUrlSchemeOrFileNotExists(url: "", uid: "").errorCode() {
 				errorExpectation.fulfill()
 			} else if case PlayerEvents.CurrentItemChanged(let newItem) = e {
 				if newItem?.streamIdentifier.streamResourceUid == "https://test.com/track2.mp3" {
@@ -454,14 +455,15 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		httpUtilities.streamObserver = streamObserver
 		let session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		httpUtilities.fakeSession = session
-		let httpClient = HttpClient(urlSession: session, httpUtilities: httpUtilities)
+		let httpClient = HttpClient(httpUtilities: httpUtilities)
 		
 		session.task?.taskProgress.bindNext { e in
 			if case FakeDataTaskMethods.resume(let tsk) = e {
 				// send random url
 				let json: JSON =  ["href": "http://url.com"]
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					tsk.completion?(try? json.rawData(), nil, nil)
+					//tsk.completion?(try? json.rawData(), nil, nil)
+					session.sendData(tsk, data: try? json.rawData(), streamObserver: httpUtilities.streamObserver as! NSURLSessionDataEventsObserver)
 				}
 			}
 		}.addDisposableTo(bag)

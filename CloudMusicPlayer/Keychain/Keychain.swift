@@ -113,7 +113,7 @@ public struct Keychain : KeychainType {
 		} catch KeychainError.ItemNotFound {
 			// Ignore this error.
 		} catch let error {
-			NSLog("deleteAccount error: \(error)")
+			NSLog("keychain deleteAccount error: \(error)")
 		}
 	}
 	
@@ -132,7 +132,7 @@ public struct Keychain : KeychainType {
 			// Ignore this error, simply return nil.
 			return nil
 		} catch let error {
-			NSLog("dataForAccount error: \(error)")
+			NSLog("keychain dataForAccount error: \(error)")
 			return nil
 		}
 	}
@@ -156,6 +156,7 @@ public struct Keychain : KeychainType {
 				// Reasonable people may disagree with this approach.
 				deleteAccount(account)
 				
+				// TODO: Fidn way to save keychain tokens in memory and replace kSecAttrAccessibleAlwaysThisDeviceOnly with kSecAttrAccessibleWhenUnlocked
 				// Add it.
 				try SecItemWrapper.add([
 					kSecClass as String: kSecClassGenericPassword,
@@ -166,10 +167,10 @@ public struct Keychain : KeychainType {
 					kSecValueData as String: data,
 					kSecAttrAccessible as String: background ?
 						kSecAttrAccessibleAfterFirstUnlock :
-					kSecAttrAccessibleWhenUnlocked,
+					kSecAttrAccessibleAlwaysThisDeviceOnly,
 					])
 			} catch let error {
-				NSLog("setData error: \(error)")
+				NSLog("keychain setData error: \(error)")
 			}
 	}
 	

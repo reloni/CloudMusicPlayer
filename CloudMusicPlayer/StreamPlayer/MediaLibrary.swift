@@ -7,6 +7,25 @@
 //
 
 import Foundation
+import MediaPlayer
+
+public enum MediaLibraryErroros : CustomErrorType {
+	case emptyPlayListName
+	
+	public func errorDomain() -> String {
+		return "MediaLibraryDomain"
+	}
+	
+	public func errorCode() -> Int {
+		switch self {
+		case .emptyPlayListName: return 1
+		}
+	}
+	
+	public func errorDescription() -> String {
+		return "Play list name cannot be empty"
+	}
+}
 
 public protocol MediaLibraryType {
 	// metadata

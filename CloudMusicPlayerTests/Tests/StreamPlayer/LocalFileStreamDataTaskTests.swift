@@ -51,18 +51,19 @@ class LocalFileStreamDataTaskTests: XCTestCase {
 		var cacheDataExpectation: XCTestExpectation? = expectationWithDescription("Should cache data")
 		var successExpectation: XCTestExpectation? = expectationWithDescription("Should successifully complete")
 		
-		task?.taskProgress.bindNext { e in
-			if case StreamTaskEvents.ReceiveResponse(let response) = e {
+		task?.taskProgress.bindNext { result in
+			guard case Result.success(let box) = result else { return }
+			if case StreamTaskEvents.ReceiveResponse(let response) = box.value {
 				XCTAssertEqual(response.expectedContentLength, Int64(storedData.length))
 				XCTAssertEqual(response.MIMEType, "audio/mpeg")
 				receiveResponceExpectation?.fulfill()
 				receiveResponceExpectation = nil
-			} else if case StreamTaskEvents.CacheData(let provider) = e {
+			} else if case StreamTaskEvents.CacheData(let provider) = box.value {
 				XCTAssertTrue(provider.getData().isEqualToData(storedData))
 				XCTAssertEqual(provider.contentMimeType, "audio/mpeg")
 				cacheDataExpectation?.fulfill()
 				cacheDataExpectation = nil
-			} else if case StreamTaskEvents.Success = e {
+			} else if case StreamTaskEvents.Success = box.value {
 				successExpectation?.fulfill()
 				successExpectation = nil
 			}
@@ -88,11 +89,12 @@ class LocalFileStreamDataTaskTests: XCTestCase {
 		let successExpectation = expectationWithDescription("Should successifully complete")
 		
 		task?.taskProgress.bindNext { e in
-			if case StreamTaskEvents.ReceiveResponse = e {
+			guard case Result.success(let box) = e else { return }
+			if case StreamTaskEvents.ReceiveResponse = box.value {
 				XCTFail("Should not rise ReceiveResponse this event")
-			} else if case StreamTaskEvents.CacheData = e {
+			} else if case StreamTaskEvents.CacheData = box.value {
 				XCTFail("Should not rise CacheData this event")
-			} else if case StreamTaskEvents.Success(let provider) = e {
+			} else if case StreamTaskEvents.Success(let provider) = box.value {
 				XCTAssertNil(provider, "Should not send any provider")
 				successExpectation.fulfill()
 			}

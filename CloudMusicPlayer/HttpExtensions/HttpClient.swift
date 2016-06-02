@@ -11,101 +11,105 @@ import RxSwift
 import SwiftyJSON
 
 public enum HttpRequestResult {
-	case Success
-	case SuccessData(NSData)
+	case success
+	case successData(NSData)
+	case error(ErrorType)
 }
 
 public protocol HttpClientProtocol {
-	var urlSession: NSURLSessionProtocol { get }
 	var httpUtilities: HttpUtilitiesProtocol { get }
-	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<JSON>
+	func loadJsonData(request: NSMutableURLRequestProtocol) -> Observable<Result<JSON>>
 	func loadData(request: NSMutableURLRequestProtocol) -> Observable<HttpRequestResult>
-	//func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON>
-	func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?) -> Observable<StreamTaskEvents>
+	func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?) -> Observable<StreamTaskResult>
 }
 
 public class HttpClient {
-	public let urlSession: NSURLSessionProtocol
 	public let httpUtilities: HttpUtilitiesProtocol
+	internal let scheduler = ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	
-	public init(urlSession: NSURLSessionProtocol = NSURLSession(configuration: NSURLSession.defaultConfig),
-	            httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
-		self.urlSession = urlSession
+	public init(httpUtilities: HttpUtilitiesProtocol = HttpUtilities()) {
+		
 		self.httpUtilities = httpUtilities
 	}
-	
-//	internal func createRequestForCloudResource(resource: CloudResource) -> NSMutableURLRequestProtocol? {
-//		guard let request: NSMutableURLRequestProtocol =
-//			httpUtilities.createUrlRequest(resource.resourcesUrl, parameters: resource.getRequestParameters()) else {
-//				return nil
-//		}
-//		resource.getRequestHeaders()?.forEach { request.addValue($1, forHTTPHeaderField: $0) }
-//		return request
-//	}
 }
 
 extension HttpClient : HttpClientProtocol {
 	public func loadJsonData(request: NSMutableURLRequestProtocol)
-		-> Observable<JSON> {
-			return Observable.create { observer in
-				let task = self.loadData(request).doOnError { observer.onError($0) }.bindNext { result in
-					if case .SuccessData(let data) = result {
-						observer.onNext(JSON(data: data))
-					} //else if case .Success = result {
-						//observer.onNext(nil)
-					//}
+		-> Observable<Result<JSON>> {
+			return Observable.create { [weak self] observer in
+				guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+				let task = object.loadData(request).bindNext { result in
+					if case .successData(let data) = result {
+						observer.onNext(Result.success(Box(value: JSON(data: data))))
+					} else if case .error(let error) = result {
+						observer.onNext(Result.error(error))
+						observer.onCompleted()
+					}
+					
 					observer.onCompleted()
 				}
 				
 				return AnonymousDisposable {
 					task.dispose()
 				}
-			}.shareReplay(1)
+			}.shareReplay(0)
 	}
 	
 	public func loadData(request: NSMutableURLRequestProtocol)
 		-> Observable<HttpRequestResult> {
-			return Observable.create { [unowned self] observer in
+			return Observable.create { [weak self] observer in
+				guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 				
-				let task = self.urlSession.dataTaskWithRequest(request) { data, response, error in
-					if let error = error {
-						observer.onError(error)
-						return
-					}
-					
-					guard let data = data else {
-						observer.onNext(.Success)
-						observer.onCompleted()
-						return
-					}
-					
-					observer.onNext(.SuccessData(data))
+				let task = object.httpUtilities.createStreamDataTask(NSUUID().UUIDString,
+					request: request, sessionConfiguration: NSURLSession.defaultConfig, cacheProvider: nil)
+				
+				let receivedData = NSMutableData()
+				
+				let disposable = task.taskProgress.catchError { error in
+					observer.onNext(.error(error))
 					observer.onCompleted()
+					return Observable.empty()
+					}.doOnCompleted { observer.onCompleted() }.bindNext { result in
+						if case Result.success(let box) = result {
+							if case StreamTaskEvents.ReceiveData(let data) = box.value {
+								receivedData.appendData(data)
+							} else if case StreamTaskEvents.Success = box.value {
+								if receivedData.length > 0 {
+									observer.onNext(.successData(receivedData))
+								} else {
+									observer.onNext(.success)
+								}
+							}
+						} else if case Result.error(let error) = result {
+							observer.onNext(.error(error))
+						}
 				}
 				
 				task.resume()
 				
 				return AnonymousDisposable {
 					task.cancel()
+					disposable.dispose()
 				}
-			}.shareReplay(1)
+			}.observeOn(scheduler).shareReplay(0)
 	}
 	
-//	public func loadDataForCloudResource(resource: CloudResource) -> Observable<JSON> {
-//		guard let request = createRequestForCloudResource(resource) else { return Observable.empty() }
-//		return loadJsonData(request)
-//	}
-	
 	public func loadStreamData(request: NSMutableURLRequestProtocol, cacheProvider: CacheProvider?)
-		-> Observable<StreamTaskEvents> {
-		return Observable.create { [unowned self] observer in
-			let task = self.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: self.urlSession.configuration,
+		-> Observable<StreamTaskResult> {
+		return Observable.create { [weak self] observer in
+			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+			
+			let task = object.httpUtilities.createStreamDataTask(NSUUID().UUIDString, request: request, sessionConfiguration: NSURLSession.defaultConfig,
 				cacheProvider: cacheProvider)
 				
-			let disposable = task.taskProgress.doOnError { observer.onError($0) }.bindNext { result in
+			let disposable = task.taskProgress.catchError { error in
+				observer.onNext(Result.error(error))
+				observer.onCompleted()
+				return Observable.empty()
+			}.bindNext { result in
 				observer.onNext(result)
 				
-				if case .Success = result {
+				if case Result.success(let box) = result, case .Success = box.value {
 					observer.onCompleted()
 				}
 			}
@@ -116,6 +120,6 @@ extension HttpClient : HttpClientProtocol {
 				task.cancel()
 				disposable.dispose()
 			}
-		}.shareReplay(1)
+		}.observeOn(scheduler).shareReplay(0)
 	}
 }

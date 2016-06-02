@@ -91,6 +91,14 @@ extension NSURLSession {
 	public static var defaultConfig: NSURLSessionConfiguration {
 		return .defaultSessionConfiguration()
 	}
+	
+//	public static var backgroundConfig: NSURLSessionConfiguration {
+//		let sessionUid = NSUUID().UUIDString
+//		let config = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier("cloudmusicplayer.backgroundurlsession.\(sessionUid)")
+//		config.sessionSendsLaunchEvents = true
+//		config.discretionary = true
+//		return config
+//	}
 }
 
 

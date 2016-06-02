@@ -122,24 +122,24 @@ class MusicPlayerController: UIViewController {
 	
 	func bind() {
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {			
-			rxPlayer.currentItem.flatMapLatest { e -> Observable<MediaItemMetadataType?> in
-				//return e?.loadMetadata() ?? Observable.just(nil)
-				guard let e = e else { return Observable.just(nil) }
-				return rxPlayer.loadMetadata(e.streamIdentifier)
-				}.observeOn(MainScheduler.instance).bindNext { [weak self] meta in
-					print("new metadata")
-					guard let meta = meta else { return }
-					
-					self?.trackLabel.text = meta.title
-					self?.artistLabel.text = meta.artist
-					self?.albumLabel.text = meta.album
-					if let artwork = meta.artwork {
-						self?.image.image = UIImage(data: artwork)
-					}
-					self?.fullTimeLabel.text = meta.duration?.asTimeString
-			}.addDisposableTo(self.bag)
+//			rxPlayer.currentItem.flatMapLatest { e -> Observable<MediaItemMetadataType?> in
+//				//return e?.loadMetadata() ?? Observable.just(nil)
+//				guard let e = e else { return Observable.just(nil) }
+//				return rxPlayer.loadMetadata(e.streamIdentifier)
+//				}.observeOn(MainScheduler.instance).bindNext { [weak self] meta in
+//					print("new metadata")
+//					guard let meta = meta else { return }
+//					
+//					self?.trackLabel.text = meta.title
+//					self?.artistLabel.text = meta.artist
+//					self?.albumLabel.text = meta.album
+//					if let artwork = meta.artwork {
+//						self?.image.image = UIImage(data: artwork)
+//					}
+//					self?.fullTimeLabel.text = meta.duration?.asTimeString
+//			}.addDisposableTo(self.bag)
 			
-			rxPlayer.currentItemTime.observeOn(MainScheduler.instance).bindNext { [weak self] time in
+			MainModel.sharedInstance.player.currentItemTime.observeOn(MainScheduler.instance).bindNext { [weak self] time in
 				guard let time = time else { self?.currentTimeLabel.text = "0: 00"; return }
 				
 				self?.currentTimeLabel.text = time.currentTime?.asString
@@ -151,7 +151,7 @@ class MusicPlayerController: UIViewController {
 			}.addDisposableTo(self.bag)
 			
 			self.forwardButton.rx_tap.bindNext {
-				rxPlayer.toNext()
+				MainModel.sharedInstance.player.toNext()
 			}.addDisposableTo(self.bag)
 		}
 	}
