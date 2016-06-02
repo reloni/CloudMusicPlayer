@@ -74,9 +74,7 @@ extension MemoryCacheProvider : CacheProvider {
 	
 	public func saveData(destinationDirectory: NSURL, fileExtension: String?) -> NSURL? {
 		let path = destinationDirectory.URLByAppendingPathComponent("\(NSUUID().UUIDString).\(fileExtension ?? ContentTypeDefinition.getFileExtensionFromMime(contentMimeType ?? "") ?? "dat")")
-		print("save data length: \(cacheData.length) path: \(path)")
 		if cacheData.writeToURL(path, atomically: true) { return path }
-		print("something goes wrong while saving file")
 		return nil
 	}
 }

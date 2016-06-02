@@ -105,7 +105,6 @@ public class StreamDataTask {
 						if let error = error {
 							observer.onNext(Result.error(error))
 						} else {
-							print("complete datatask. Data length in cache: \(object.cacheProvider?.currentDataLength)")
 							observer.onNext(StreamTaskEvents.Success(cache: object.cacheProvider).asResult())
 						}
 

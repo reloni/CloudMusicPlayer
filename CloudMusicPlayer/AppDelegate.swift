@@ -53,14 +53,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			NSLog("Documents Path: %@", NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first ?? "")
 		#endif
 		
-		MainModel.sharedInstance = MainModel(player: RxPlayer(repeatQueue: false,
-			downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
-				httpUtilities: HttpUtilities()),
-			streamPlayerUtilities: StreamPlayerUtilities(),
-			mediaLibrary: RealmMediaLibrary()), userDefaults: NSUserDefaults.standardUserDefaults())
+		
+		let player = RxPlayer(repeatQueue: false,
+		                      downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
+														httpUtilities: HttpUtilities()),
+		                      streamPlayerUtilities: StreamPlayerUtilities(),
+		                      mediaLibrary: RealmMediaLibrary())
+		let cloudResourceClient = CloudResourceClient(cacheProvider: RealmCloudResourceCacheProvider())
+		MainModel.sharedInstance = MainModel(player: player, userDefaults: NSUserDefaults.standardUserDefaults(), cloudResourceClient: cloudResourceClient)
 		MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
 		
-		let cloudResourceLoader = CloudResourceLoader(cacheProvider: RealmCloudResourceCacheProvider(),
+		let cloudResourceLoader = CloudResourceLoader(cacheProvider: cloudResourceClient.cacheProvider!,
 		                                              rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier:
 																										YandexDiskCloudJsonResource.getRootResource(HttpClient(), oauth: YandexOAuth())])
 		MainModel.sharedInstance.player.streamResourceLoaders.append(cloudResourceLoader)

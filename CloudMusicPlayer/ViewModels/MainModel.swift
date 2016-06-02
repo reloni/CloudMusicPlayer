@@ -16,6 +16,7 @@ class MainModel {
 	
 	let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	let player: RxPlayer
+	let cloudResourceClient: CloudResourceClientType
 	var loadMetadataTasks = [String: Disposable]()
 	let isMetadataLoadInProgressSubject = BehaviorSubject<Bool>(value: false)
 	var isMetadataLoadInProgress: Observable<Bool> {
@@ -23,9 +24,10 @@ class MainModel {
 	}
 	let userDefaults: NSUserDefaultsProtocol
 	
-	init(player: RxPlayer, userDefaults: NSUserDefaultsProtocol) {
+	init(player: RxPlayer, userDefaults: NSUserDefaultsProtocol, cloudResourceClient: CloudResourceClientType) {
 		self.player = player
 		self.userDefaults = userDefaults
+		self.cloudResourceClient = cloudResourceClient
 	}
 	
 	var isShuffleEnabled: Bool {
@@ -40,10 +42,10 @@ class MainModel {
 	
 	var isRepeatEnabled: Bool {
 		get {
-			guard let value: Bool = userDefaults.loadData("isRepeatEnabled") else { return false }
-			return value
+			return player.repeatQueue
 		}
 		set {
+			player.repeatQueue = newValue
 			userDefaults.saveData(newValue, forKey: "isRepeatEnabled")
 		}
 	}
@@ -155,16 +157,26 @@ class MainModel {
 	}
 	
 	func createMetadataLoadTask(resources: [CloudResource]) -> Observable<Void> {
-		return Observable.create { observer in
+		return Observable.create { [weak self] observer in
+			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			let task = resources.toObservable().flatMap{ resource -> Observable<CloudResource> in
 				if resource is CloudAudioResource {
 					return Observable.just(resource)
 				} else {
-					return resource.loadChildResourcesRecursive()
+					
+					return object.cloudResourceClient.loadChildResourcesRecursive(resource, loadMode: CloudResourceLoadMode.RemoteOnly)
+						.flatMapLatest { result -> Observable<CloudResource> in
+							if case Result.success(let box) = result {
+								return box.value.toObservable()
+							} else {
+								return Observable.empty()
+							}
+					}
+					//return resource.loadChildResourcesRecursive()
 				}
 				}.filter { $0 is CloudAudioResource
 				}.map { item -> StreamResourceIdentifier in return item as! StreamResourceIdentifier
-				}.flatMap { self.player.loadMetadata($0) }.doOnCompleted { observer.onCompleted() }.subscribe()
+				}.flatMap { object.player.loadMetadata($0) }.doOnCompleted { observer.onCompleted() }.subscribe()
 			
 			return AnonymousDisposable {
 				task.dispose()

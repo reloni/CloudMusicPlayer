@@ -83,7 +83,11 @@ public class RxPlayer {
 	}
 	
 	public var currentItemTime: Observable<(currentTime: CMTime?, duration: CMTime?)?> {
-		return internalPlayer.currentTime.shareReplay(1)
+		return internalPlayer.currentTime.shareReplay(0)
+	}
+	
+	public func getCurrentItemTimeAndDuration() -> (currentTime: CMTime, duration: CMTime)? {
+		return internalPlayer.getCurrentTimeAndDuration()
 	}
 	
 	public lazy var playerEvents: Observable<PlayerEvents> = {

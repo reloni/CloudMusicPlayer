@@ -71,6 +71,8 @@ class SettingsController: UIViewController {
 		model.isGoogleSetUp.asDriver(onErrorJustReturn: false).drive(googleLogOutButton.rx_enabled).addDisposableTo(bag)
 		
 		clearStorageButton.rx_tap.flatMapLatest { _ -> Observable<StorageSize> in
+			let cloudResourceCache = RealmCloudResourceCacheProvider()
+			cloudResourceCache.clearCache()
 			MainModel.sharedInstance.player.downloadManager.fileStorage.clearStorage()
 			try! MainModel.sharedInstance.player.mediaLibrary.clearLibrary()
 			return MainModel.sharedInstance.player.downloadManager.fileStorage.calculateSize()

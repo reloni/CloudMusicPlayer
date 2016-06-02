@@ -33,11 +33,20 @@ class PlayerController: UIViewController {
 		playPauseButton.selected = MainModel.sharedInstance.player.playing
 		currentTimeLabel.text = "--:--"
 		fullTimeLabel.text = "--:--"
-		
-		
+		trackProgressSlider.setValue(0, animated: false)
 	}
 	
 	override func viewWillAppear(animated: Bool) {
+		playPauseButton.selected = MainModel.sharedInstance.player.playing
+		
+		if let currentTime = MainModel.sharedInstance.player.getCurrentItemTimeAndDuration() {
+			currentTimeLabel.text = currentTime.currentTime.asString
+			fullTimeLabel.text = currentTime.duration.asString
+			if let currSec = currentTime.currentTime.safeSeconds, fullSec = currentTime.duration.safeSeconds {
+				trackProgressSlider.setValue(Float(currSec / fullSec), animated: false)
+			}
+		}
+		
 		playPauseButton.selected = MainModel.sharedInstance.player.playing
 		forwardButton.rx_tap.bindNext {
 			MainModel.sharedInstance.player.toNext(true)
@@ -67,6 +76,8 @@ class PlayerController: UIViewController {
 				object.trackTitleLabel.text = meta.title
 				if let art = meta.artwork {
 					object.albumArtImage.image = UIImage(data: art)
+				} else {
+					object.albumArtImage.image = MainModel.sharedInstance.albumPlaceHolderImage
 				}
 				guard let artist = meta.artist, album = meta.album else { return }
 				object.albumAndArtistLabel.text = "\(album) - \(artist)"
@@ -75,17 +86,18 @@ class PlayerController: UIViewController {
 			//}.observeOn(MainScheduler.instance).bindTo(self.fullTimeLabel.rx_text).addDisposableTo(self.bag)
 		
 		MainModel.sharedInstance.player.currentItemTime.observeOn(MainScheduler.instance).bindNext { [weak self] time in
-			guard let time = time else { self?.currentTimeLabel.text = "--:--"; return }
+			guard let time = time else { self?.currentTimeLabel.text = "--:--"; self?.trackProgressSlider.value = 0; return }
 			
 			//dispatch_async(dispatch_get_main_queue()) { [weak self] in
-				self?.currentTimeLabel.text = time.currentTime?.asString
-				if let currentSec = time.currentTime?.safeSeconds, fullSec = time.duration?.safeSeconds {
-					self?.trackProgressSlider.setValue(Float(currentSec / fullSec), animated: true)
-				} else {
-					self?.trackProgressSlider.value = 0
-				}
+			self?.currentTimeLabel.text = time.currentTime?.asString
+			self?.fullTimeLabel.text = time.duration?.asString
+			if let currentSec = time.currentTime?.safeSeconds, fullSec = time.duration?.safeSeconds {
+				self?.trackProgressSlider.setValue(Float(currentSec / fullSec), animated: true)
+			} else {
+				self?.trackProgressSlider.value = 0
+			}
 			//}
-		}.addDisposableTo(self.bag)
+			}.addDisposableTo(self.bag)
 		
 		MainModel.sharedInstance.player.playerEvents.observeOn(MainScheduler.instance).bindNext { [weak self] e in
 			if case PlayerEvents.Started = e {

@@ -24,12 +24,16 @@ class MediaLibraryController: UIViewController {
 	var bag = DisposeBag()
 	
 	override func viewDidLoad() {
-		//processingMetadataItemsView.hidden = true
+		dispatch_async(dispatch_get_main_queue()) {
+			UIView.animateWithDuration(0.0, animations: { self.processingMetadataItemsView.hidden = true })
+		}
 	}
 	
 	override func viewWillAppear(animated: Bool) {
+
+		
 		segment.rx_value.bindNext { [weak self] _ in
-			self?.tableView.reloadData()
+			self?.tableView.reloadSections(NSIndexSet(index: 0), withRowAnimation: UITableViewRowAnimation.Automatic)
 			}.addDisposableTo(bag)
 		
 		addItemsBarButton.rx_tap.bindNext { [weak self] in
