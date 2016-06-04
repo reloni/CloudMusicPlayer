@@ -14,7 +14,7 @@ public typealias AssetLoadResult =
 	Result<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
 
 public protocol InternalPlayerType {
-	func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult>
+	func play(resource: StreamResourceIdentifier) -> Observable<Result<Void>>
 	func stop()
 	func pause()
 	func resume()
@@ -68,7 +68,7 @@ extension InternalPlayer : InternalPlayerType {
 		}
 	}
 	
-	public func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult> {
+	public func play(resource: StreamResourceIdentifier) -> Observable<Result<Void>> {
 		let asset = hostPlayer.streamPlayerUtilities.createavUrlAsset(NSURL(string: "fake://domain.com")!)
 		let observer = AVAssetResourceLoaderEventsObserver()
 		asset.getResourceLoader().setDelegate(observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))

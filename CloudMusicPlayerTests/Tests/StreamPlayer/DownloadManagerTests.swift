@@ -306,7 +306,7 @@ class DownloadManagerTests: XCTestCase {
 		manager.createDownloadObservable("https://test.com", priority: .Normal).bindNext { e in
 			guard case Result.success(let box) = e else { return }
 			if case StreamTaskEvents.Success(let cacheProvider) = box.value {
-				XCTAssert(sendedData.isEqualToData(cacheProvider?.getData() ?? NSData()))
+				XCTAssert(sendedData.isEqualToData(cacheProvider?.getCurrentData() ?? NSData()))
 				successExpectation.fulfill()
 			} else if case StreamTaskEvents.CacheData = box.value {
 				XCTAssertEqual(1, manager.pendingTasks.count, "Should add only one task to pending")
@@ -321,7 +321,7 @@ class DownloadManagerTests: XCTestCase {
 		manager.createDownloadObservable("https://test.com", priority: .Normal).bindNext { e in
 			guard case Result.success(let box) = e else { return }
 			if case StreamTaskEvents.Success(let cacheProvider) = box.value {
-				XCTAssert(sendedData.isEqualToData(cacheProvider?.getData() ?? NSData()))
+				XCTAssert(sendedData.isEqualToData(cacheProvider?.getCurrentData() ?? NSData()))
 				successSecondObservableExpectation.fulfill()
 			} else if case StreamTaskEvents.CacheData = box.value {
 				XCTAssertEqual(1, manager.pendingTasks.count, "Should add only one task to pending")

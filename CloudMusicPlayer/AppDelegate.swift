@@ -61,7 +61,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		                      mediaLibrary: RealmMediaLibrary())
 		let cloudResourceClient = CloudResourceClient(cacheProvider: RealmCloudResourceCacheProvider())
 		MainModel.sharedInstance = MainModel(player: player, userDefaults: NSUserDefaults.standardUserDefaults(), cloudResourceClient: cloudResourceClient)
-		MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
+		//MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
 		
 		let cloudResourceLoader = CloudResourceLoader(cacheProvider: cloudResourceClient.cacheProvider!,
 		                                              rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier:

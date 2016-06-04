@@ -77,11 +77,12 @@ public enum ContentType: String {
 extension Observable where Element : ResultType {
 	internal func loadWithAsset(assetEvents assetLoaderEvents: Observable<AssetLoadingEvents>,
 	                                        targetAudioFormat: ContentType? = nil)
-		-> Observable<AssetLoadResult> {//Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> {
+		-> Observable<Result<Void>> {//Observable<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])> {
 			
 			// local variables
 			var resourceLoadingRequests = [Int: AVAssetResourceLoadingRequestProtocol]()
 			var response: NSHTTPURLResponseProtocol?
+			var cacheProvider: CacheProvider?
 			
 			
 			// functions
@@ -103,7 +104,7 @@ extension Observable where Element : ResultType {
 					}
 					
 					if let dataRequest = loadingRequest.getDataRequest() {
-						if respondWithData(cacheProvider.getData(), respondingDataRequest: dataRequest) {
+						if respondWithData(cacheProvider.getCurrentData(), respondingDataRequest: dataRequest) {
 							loadingRequest.finishLoading()
 							return key
 						}
@@ -134,7 +135,6 @@ extension Observable where Element : ResultType {
 				
 				let dataToRespond = data.subdataWithRange(range)
 				respondingDataRequest.respondWithData(dataToRespond)
-				print("respond with data range: \(range)")
 				
 				return Int64(respondingDataRequest.requestedLength) <= respondingDataRequest.currentOffset + responseLength - respondingDataRequest.requestedOffset
 			}
@@ -147,26 +147,35 @@ extension Observable where Element : ResultType {
 					switch e {
 					case .DidCancelLoading(let loadingRequest):
 						resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
+						if let cacheProvider = cacheProvider {
+							processRequests(cacheProvider)
+						}
 					case .ShouldWaitForLoading(let loadingRequest):
 						if !loadingRequest.finished {
 							resourceLoadingRequests[loadingRequest.hash] = loadingRequest
+							if let cacheProvider = cacheProvider {
+								processRequests(cacheProvider)
+							}
 						}
 					}
 				}
 				
 				let streamEvents = self.observeOn(scheduler).catchError { error in
-					print("catch error in asset loader: \((error as NSError).localizedDescription)")
+					observer.onNext(Result.error(error))
+					observer.onCompleted()
 					return Observable.empty()
 					}.bindNext { e in
 					if case Result.success(let box) = e as! Result<StreamTaskEvents> {
 						switch box.value {
-						case .Success(let cacheProvider):
-							if let cacheProvider = cacheProvider { processRequests(cacheProvider) }
-							print("success. Pending tasks: \(resourceLoadingRequests.count)")
-							observer.onNext(Result.success(Box(value: Void())))
-							observer.onCompleted()
+						case .Success(let provider):
+							if let provider = provider {
+								cacheProvider = provider
+								processRequests(provider)
+							}
 						case .ReceiveResponse(let receivedResponse): response = receivedResponse
-						case .CacheData(let cacheProvider): processRequests(cacheProvider)
+						case .CacheData(let provider):
+							cacheProvider = provider
+							processRequests(provider)
 						default: break
 						}
 					} else if case Result.error(let error) = e as! Result<StreamTaskEvents> {
@@ -179,17 +188,6 @@ extension Observable where Element : ResultType {
 					assetEvents.dispose()
 					streamEvents.dispose()
 				}
-				
-				}.flatMapLatest { result -> Observable<AssetLoadResult> in
-					if case Result.success = result {
-						print("return final data")
-						return Observable<AssetLoadResult>.just(Result.success(Box(value: (receivedResponse: response, utiType: getUtiType(), resultRequestCollection: resourceLoadingRequests))))
-					} else if case Result.error(let error) = result {
-						print("return error from asset loader")
-						return Observable<AssetLoadResult>.just(Result.error(error))
-					} else {
-						return Observable<AssetLoadResult>.empty()
-					}
-				}.shareReplay(0)
+			}.shareReplay(0)
 	}
 }
