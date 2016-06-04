@@ -94,7 +94,7 @@ public class FakeInternalPlayer : InternalPlayerType {
 		eventsCallback(.Paused)
 	}
 	
-	public func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult> {
+	public func play(resource: StreamResourceIdentifier) -> Observable<Result<Void>> {
 		eventsCallback(.Started)
 		return Observable.empty()
 	}

@@ -145,18 +145,20 @@ extension Observable where Element : ResultType {
 			return Observable<Result<Void>>.create { observer in
 				let assetEvents = assetLoaderEvents.observeOn(scheduler).bindNext { e in
 					switch e {
-					case .DidCancelLoading(let loadingRequest):
+					case .didCancelLoading(let loadingRequest):
 						resourceLoadingRequests.removeValueForKey(loadingRequest.hash)
 						if let cacheProvider = cacheProvider {
 							processRequests(cacheProvider)
 						}
-					case .ShouldWaitForLoading(let loadingRequest):
+					case .shouldWaitForLoading(let loadingRequest):
 						if !loadingRequest.finished {
 							resourceLoadingRequests[loadingRequest.hash] = loadingRequest
 							if let cacheProvider = cacheProvider {
 								processRequests(cacheProvider)
 							}
 						}
+					case .observerDeinit:
+						observer.onCompleted()
 					}
 				}
 				
