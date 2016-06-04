@@ -53,7 +53,7 @@ class RxPlayerMetadataLoadTests: XCTestCase {
 		
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: FakeHttpUtilities())
 		
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -86,7 +86,7 @@ class RxPlayerMetadataLoadTests: XCTestCase {
 		httpUtilities.fakeSession = session
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -127,7 +127,7 @@ class RxPlayerMetadataLoadTests: XCTestCase {
 		httpUtilities.fakeSession = session
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: httpUtilities)
 		
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("https://testitem.com")
 		
@@ -174,7 +174,7 @@ class RxPlayerMetadataLoadTests: XCTestCase {
 		let storage = LocalNsUserDefaultsStorage()
 		let downloadManager = DownloadManager(saveData: false, fileStorage: storage, httpUtilities: HttpUtilities())
 
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		let item = player.addLast("wrong://testitem.com")
 		

@@ -41,7 +41,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	func testStartPlaying() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		XCTAssertFalse(player.playing, "Playing property should be false")
 		
@@ -78,7 +78,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
@@ -112,7 +112,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		//fakeInternalPlayer.nativePlayer = FakeNativePlayer()
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		// set fake native player instance,
 		// so RxPlayer will think, that player paused and will invoke resume method
@@ -147,7 +147,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		let playingItem = player.first!.streamIdentifier
@@ -187,7 +187,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
@@ -220,7 +220,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
@@ -243,7 +243,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer())
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		
 		//player.playerEvents.dispatchPlayerControlEvents().subscribe().addDisposableTo(bag)
 		//player.playerEvents.streamContent().subscribe().addDisposableTo(bag)
@@ -271,7 +271,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: FakeInternalPlayer(), downloadManager: downloadManager)
 		//let player = RxPlayer(items: ["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.toNext()
 		
@@ -303,7 +303,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let fakeInternalPlayer = FakeInternalPlayer()
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.toNext()
 		
@@ -332,7 +332,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let fakeInternalPlayer = FakeInternalPlayer()
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.current = player.last
 		
@@ -368,7 +368,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
 		//let fakeInternalPlayer = FakeInternalPlayer()
 		//let player = RxPlayer(repeatQueue: false, internalPlayer: fakeInternalPlayer, downloadManager: downloadManager)
-		let player = RxPlayer(repeatQueue: true, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: true, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: FakeStreamPlayerUtilities())
 		player.initWithNewItems(["https://test.com/track1.mp3", "https://test.com/track2.mp3", "https://test.com/track3.mp3"])
 		player.current = player.last
 		
@@ -403,7 +403,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testSendErrorMessageIfTryingToPlayUnsupportedUrl() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
 		
 		let errorExpectation = expectationWithDescription("Should rise error")
 		let correctCurrentItemExpectation = expectationWithDescription("Should switch to next item after error")
@@ -428,7 +428,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 	
 	func testSkipAllItemsIfAllUnsupported() {
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: FakeHttpUtilities())
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities())
 		
 		let correctCurrentItemExpectation = expectationWithDescription("Should switch to nil after errors")
 		player.playerEvents.bindNext { e in
@@ -493,7 +493,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		playList = try! lib.addTracksToPlayList(playList, tracks: try! lib.getTracks().map { $0 })
 		
 		let downloadManager = DownloadManager(saveData: false, fileStorage: LocalNsUserDefaultsStorage(), httpUtilities: httpUtilities)
-		let player = RxPlayer(repeatQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: lib)
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: lib)
 		let oauth = YandexOAuth()
 		let cloudResourceLoader = CloudResourceLoader(cacheProvider: RealmCloudResourceCacheProvider(),
 		    rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier: YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauth)])
