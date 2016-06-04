@@ -94,7 +94,7 @@ class MemoryCacheProviderTests: XCTestCase {
 				XCTAssertEqual(fakeResponse.MIMEType, cacheProvider?.contentMimeType, "Should have mime type same as mime type of request")
 				//XCTAssertEqual(cacheProvider?.getData().length, dataSended, "Should cache all sended data")
 				XCTAssertEqual(testData.count, receiveChunkCounter, "Should cache correct data chunk amount")
-				XCTAssertEqual(true, cacheProvider?.getData().isEqualToData(dataSended), "Sended data end cached data should be equal")
+				XCTAssertEqual(true, cacheProvider?.getCurrentData().isEqualToData(dataSended), "Sended data end cached data should be equal")
 				successExpectation.fulfill()
 			} else if case StreamTaskEvents.ReceiveData = box.value {
 				XCTFail("Shouldn't rise this event because CacheProvider was specified")
@@ -159,7 +159,7 @@ class MemoryCacheProviderTests: XCTestCase {
 				XCTAssertEqual(fakeResponse.MIMEType, cacheProvider?.contentMimeType, "Should have mime type same as mime type of request")
 				//XCTAssertEqual(cacheProvider?.getData().length, dataSended, "Should cache all sended data")
 				XCTAssertEqual(testData.count, receiveChunkCounter, "Should cache correct data chunk amount")
-				XCTAssertEqual(true, cacheProvider?.getData().isEqualToData(dataSended), "Sended data end cached data should be equal")
+				XCTAssertEqual(true, cacheProvider?.getCurrentData().isEqualToData(dataSended), "Sended data end cached data should be equal")
 				successExpectation.fulfill()
 			} else if case StreamTaskEvents.ReceiveData = box.value {
 				XCTFail("Shouldn't rise this event because CacheProvider was specified")
@@ -225,7 +225,7 @@ class MemoryCacheProviderTests: XCTestCase {
 		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
 		let testData = "Some test data string".dataUsingEncoding(NSUTF8StringEncoding)!
 		provider.appendData(testData)
-		XCTAssertTrue(testData.isEqualToData(provider.getData()), "Cached data should be equal to data sended in cache")
+		XCTAssertTrue(testData.isEqualToData(provider.getCurrentData()), "Cached data should be equal to data sended in cache")
 		let savedDataUrl = provider.saveData()
 		XCTAssertNotNil(savedDataUrl, "Should save data end return url")
 		XCTAssertEqual(savedDataUrl?.pathExtension, "dat", "Should set default file extension (dat)")

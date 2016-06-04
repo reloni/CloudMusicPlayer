@@ -51,54 +51,10 @@ extension LocalFileStreamDataTask : StreamDataTaskProtocol {
 			
 			object.subject.onNext(StreamTaskEvents.ReceiveResponse(response).asResult())
 			
-			cacheProvider.setContentMimeType(response.getMimeType())
+			cacheProvider.setContentMimeTypeIfEmpty(response.getMimeType())
+			cacheProvider.appendData(data)
 			
-			/*
-			self.cacheProvider?.appendData(data)
-			self.cacheProvider?.setContentMimeType(response.getMimeType())
-			
-			// simulate delay to be sure that player started loading
-			for _ in 0...5 {
-				self.subject.onNext(StreamTaskEvents.CacheData(self.cacheProvider!).asResult())
-				NSThread.sleepForTimeInterval(0.01)
-			}
-			*/
-			
-			var currentOffset = 0
-			
-//			if data.length >= 2 {
-//				cacheProvider.appendData(data.subdataWithRange(NSMakeRange(0, 2)))
-//				currentOffset += 2
-//				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-//					object.subject.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
-//				}
-//				NSThread.sleepForTimeInterval(0.1)
-//			}
-			// respond with data chunks
-			
-			let sendDataChunk = 1024 * 256
-			while true {
-				print("send data chunk")
-				if data.length - currentOffset > sendDataChunk {
-					let range = NSMakeRange(currentOffset, sendDataChunk)
-					currentOffset += sendDataChunk
-					let subdata = data.subdataWithRange(range)
-					cacheProvider.appendData(subdata)
-					dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-						object.subject.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
-					}
-					// delay next respond
-					NSThread.sleepForTimeInterval(0.3)
-				} else {
-					print("send last data chunk")
-					let range = NSMakeRange(currentOffset, data.length - currentOffset)
-					let subdata = data.subdataWithRange(range)
-					cacheProvider.appendData(subdata)
-					object.subject.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
-					break
-				}
-			}
-
+			object.subject.onNext(StreamTaskEvents.CacheData(cacheProvider).asResult())
 			object.subject.onNext(StreamTaskEvents.Success(cache: nil).asResult())
 			
 			object.resumed = false
