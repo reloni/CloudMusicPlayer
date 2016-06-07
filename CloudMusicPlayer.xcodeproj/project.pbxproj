@@ -683,6 +683,7 @@
 				6EEB98991C4EBE1700DD5B95 /* Resources */,
 				6E8AFD7F1C78DB3D00091B53 /* ShellScript */,
 				6E254DD21CE8935B0064A544 /* ShellScript */,
+				6E92EA9D1D07162800D977FE /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -851,6 +852,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/usr/local/bin/carthage copy-frameworks";
+		};
+		6E92EA9D1D07162800D977FE /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh ${SRCROOT}/BumpBuildNumber.sh";
 		};
 /* End PBXShellScriptBuildPhase section */
 
