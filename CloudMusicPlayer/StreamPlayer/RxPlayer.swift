@@ -20,6 +20,7 @@ public enum PlayerEvents : PlayerEventType {
 	case InitWithNewItems([RxPlayerQueueItem])
 	case CurrentItemChanged(RxPlayerQueueItem?)
 	case RepeatChanged(Bool)
+	case ShuffleChanged(Bool)
 	case ChangeItemsOrder(RxPlayer)
 	case PreparingToPlay(RxPlayerQueueItem)
 	case Resuming(RxPlayerQueueItem)
@@ -148,28 +149,35 @@ public class RxPlayer {
 		}
 	}
 	
-	public internal(set) var repeatQueue: Bool {
+	public var repeatQueue: Bool {
 		didSet {
 			playerEventsSubject.onNext(.RepeatChanged(repeatQueue))
 		}
 	}
 	
-	internal init(repeatQueue: Bool, downloadManager: DownloadManagerType,
+	public var shuffleQueue: Bool {
+		didSet {
+			playerEventsSubject.onNext(.ShuffleChanged(shuffleQueue))
+		}
+	}
+	
+	internal init(repeatQueue: Bool, shuffleQueue: Bool, downloadManager: DownloadManagerType,
 	              streamPlayerUtilities: StreamPlayerUtilitiesProtocol, mediaLibrary: MediaLibraryType = RealmMediaLibrary()) {
 		self.repeatQueue = repeatQueue
+		self.shuffleQueue = shuffleQueue
 		self.downloadManager = downloadManager
 		self.streamPlayerUtilities = streamPlayerUtilities
 		self.mediaLibrary = mediaLibrary
 	}
 	
-	public convenience init(repeatQueue: Bool = false, saveData: Bool = false) {
-		self.init(repeatQueue: repeatQueue,
+	public convenience init(repeatQueue: Bool = false, shuffleQueue: Bool = false, saveData: Bool = false) {
+		self.init(repeatQueue: repeatQueue, shuffleQueue: shuffleQueue,
 		          downloadManager: DownloadManager(saveData: saveData, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: saveData),
 								httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: RealmMediaLibrary())
 	}
 	
-	internal convenience init(repeatQueue: Bool = false, downloadManager: DownloadManagerType) {
-		self.init(repeatQueue: repeatQueue, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(),
+	internal convenience init(repeatQueue: Bool = false, shuffleQueue: Bool = false, downloadManager: DownloadManagerType) {
+		self.init(repeatQueue: repeatQueue, shuffleQueue: shuffleQueue, downloadManager: downloadManager, streamPlayerUtilities: StreamPlayerUtilities(),
 		          mediaLibrary: RealmMediaLibrary())
 	}
 	

@@ -54,26 +54,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		#endif
 		
 		
-		let player = RxPlayer(repeatQueue: false,
+		let player = RxPlayer(repeatQueue: false, shuffleQueue: false,
 		                      downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
 														httpUtilities: HttpUtilities()),
 		                      streamPlayerUtilities: StreamPlayerUtilities(),
 		                      mediaLibrary: RealmMediaLibrary())
-		let cloudResourceClient = CloudResourceClient(cacheProvider: RealmCloudResourceCacheProvider())
-		MainModel.sharedInstance = MainModel(player: player, userDefaults: NSUserDefaults.standardUserDefaults(), cloudResourceClient: cloudResourceClient)
-		//MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
 		
+		let cloudResourceClient = CloudResourceClient(cacheProvider: RealmCloudResourceCacheProvider())
 		let cloudResourceLoader = CloudResourceLoader(cacheProvider: cloudResourceClient.cacheProvider!,
 		                                              rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier:
 																										YandexDiskCloudJsonResource.getRootResource(HttpClient(), oauth: YandexOAuth())])
-		MainModel.sharedInstance.player.streamResourceLoaders.append(cloudResourceLoader)
+		player.streamResourceLoaders.append(cloudResourceLoader)
 		
-		//do {
-		//	try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
-		//	try AVAudioSession.sharedInstance().setActive(true)
-		//} catch let error as NSError {
-		//	NSLog("Error while set up audio session \(error.localizedDescription)")
-		//}
+		MainModel.sharedInstance = MainModel(player: player, userDefaults: NSUserDefaults.standardUserDefaults(), cloudResourceClient: cloudResourceClient)
+		
+		MainModel.sharedInstance.loadPlayerState()
+		
+		//MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
+		
+		do {
+			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
+			try AVAudioSession.sharedInstance().setActive(true)
+		} catch let error as NSError {
+			NSLog("Error while set up audio session \(error.localizedDescription)")
+		}
 		
 		MainModel.sharedInstance.player.playerEvents.bindNext { event in
 			print("player event: \(event)")
@@ -135,10 +139,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	// настраивается в  Info.plist в разделе URL types/URL Schemes
 	func application(application: UIApplication,
 	                 openURL url: NSURL, options: [String: AnyObject]) -> Bool {
-		//if let result = OAuthResourceManager().parseCallbackUrl(url.absoluteString) {
-		//	result.resource.tokenId = result.token
-		//	result.resource.saveResource()
-		//}
 		OAuthAuthenticator.sharedInstance.processCallbackUrl(url.absoluteString).doOnCompleted {
 			print("oauth authorization completed")
 			}.doOnNext { oauth in
@@ -147,28 +147,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	
 		return true
 	}
-//	func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
-////		if let result = OAuthResourceManager().parseCallbackUrl(url.absoluteString) {
-////			result.resource.tokenId = result.token
-////			result.resource.saveResource()
-////		}
-//		
-//		var options: [String: AnyObject] = [UIApplicationOpenURLOptionsSourceApplicationKey: sourceApplication!,
-//		                                    UIApplicationOpenURLOptionsAnnotationKey: annotation]
-//		let handled = GIDSignIn.sharedInstance().handleURL(url,
-//		                                                   sourceApplication: options[UIApplicationOpenURLOptionsSourceApplicationKey] as? String,
-//		                                                   annotation: options[UIApplicationOpenURLOptionsAnnotationKey])
-//		print(handled)
-//		// [1] Dismiss webview once url is passed to extract authorization code
-//		//UIApplication.sharedApplication().keyWindow?.rootViewController?.dismissViewControllerAnimated(true, completion: nil)
-//		
-//		return true
-//	}
 
 	func applicationWillResignActive(application: UIApplication) {
 		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
 		// Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
 		print("applicationWillResignActive")
+		
+		MainModel.sharedInstance.savePlayerState()
 	}
 
 	func applicationDidEnterBackground(application: UIApplication) {

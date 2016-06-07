@@ -17,7 +17,7 @@ extension RxPlayer {
 			current = first
 		} else {
 			playing = true
-			if let index = itemsSet.getIndexOfObject(url as! AnyObject) {
+			if let index = itemsSet.getIndexOfObject(url.asQueueSetItem()) {
 				// if found item queue, set this item as current
 				current = getItemAtPosition(index)
 			} else {
@@ -26,14 +26,18 @@ extension RxPlayer {
 		}
 	}
 	
-	public func playPlayList(playList: PlayListType, shuffle: Bool = false) {
-		let queueItems = playList.items.map { loadStreamItemByUid($0.uid) }
+	public func playPlayList(playList: PlayListType) {
+		playPlayList(playList, shuffle: shuffleQueue)
+	}
+	
+	public func playPlayList(playList: PlayListType, shuffle: Bool) {
+		let queueItems = playList.items.map { loadStreamResourceByUid($0.uid) }
 		initWithNewItems(queueItems, shuffle: shuffle)
 		playing = true
 		current = first
 	}
 	
-	internal func loadStreamItemByUid(itemUid: String) -> StreamResourceIdentifier {
+	public func loadStreamResourceByUid(itemUid: String) -> StreamResourceIdentifier {
 		for loader in streamResourceLoaders {
 			if let streamResource = loader.loadStreamResourceByUid(itemUid) {
 				return streamResource

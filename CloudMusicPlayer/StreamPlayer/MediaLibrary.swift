@@ -90,13 +90,6 @@ public protocol PlayListType {
 	var items: MediaCollection<TrackType, RealmTrack> { get }
 }
 
-public protocol AlbumCollectionType {
-	var count: Int { get }
-	var first: AlbumType? { get }
-	var last: AlbumType? { get }
-	subscript(index: Int) -> AlbumType { get }
-}
-
 public struct MediaItemMetadata : MediaItemMetadataType {
 	public internal(set) var resourceUid: String
 	public internal(set) var artist: String?

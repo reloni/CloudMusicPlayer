@@ -225,11 +225,6 @@ extension RealmMediaLibrary : MediaLibraryType {
 		guard let realmPlayList = realm.objects(RealmPlayList).filter("uid = %@", playList.uid).first else { return playList }
 		
 		try realm.write {
-			//tracks.forEach { track in
-			//	if let realmMetadataItemIndex = realmPlayList.itemsInternal.indexOf("uid = %@", track.uid) {
-			//		realmPlayList.itemsInternal.removeAtIndex(realmMetadataItemIndex)
-			//	}
-			//}
 			for track in tracks {
 				if let invalidated = (track as? RealmTrack)?.invalidated where invalidated { continue }
 				if let realmMetadataItemIndex = realmPlayList.itemsInternal.indexOf("uid = %@", track.uid) {

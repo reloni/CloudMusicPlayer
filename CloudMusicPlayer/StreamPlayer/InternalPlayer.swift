@@ -88,13 +88,6 @@ extension InternalPlayer : InternalPlayerType {
 	internal func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol) {
 		flush()
 		
-		do {
-			try AVAudioSession.sharedInstance().setActive(true)
-			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
-		} catch let error as NSError {
-			NSLog("Error setting session category %@", error.localizedDescription)
-		}
-		
 		self.asset = asset
 		self.playerItem = playerItem
 		self.observer = observer

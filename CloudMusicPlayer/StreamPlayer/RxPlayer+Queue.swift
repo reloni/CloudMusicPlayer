@@ -10,6 +10,30 @@ import Foundation
 import RxSwift
 import AVFoundation
 
+internal class QueueSetItem : NSObject {
+	let item: StreamResourceIdentifier
+	
+	init(item: StreamResourceIdentifier) {
+		self.item = item
+	}
+	
+	internal override func isEqual(object: AnyObject?) -> Bool {
+		guard let obj = object as? QueueSetItem else { return false }
+		
+		return obj.item.streamResourceUid == self.item.streamResourceUid
+	}
+	
+	internal override var hash: Int {
+		return item.streamResourceUid.hash
+	}
+}
+
+extension StreamResourceIdentifier {
+	internal func asQueueSetItem() -> QueueSetItem {
+		return QueueSetItem(item: self)
+	}
+}
+
 extension RxPlayer {	
 	public var first: RxPlayerQueueItem? {
 		return getItemAtPosition(0)
@@ -20,7 +44,7 @@ extension RxPlayer {
 	}
 	
 	public var currentItems: [RxPlayerQueueItem] {
-		return itemsSet.map { RxPlayerQueueItem(player: self, streamIdentifier: $0 as! StreamResourceIdentifier) }
+		return itemsSet.map { RxPlayerQueueItem(player: self, streamIdentifier: ($0 as! QueueSetItem).item) }
 	}
 	
 	public var count: Int {
@@ -33,19 +57,23 @@ extension RxPlayer {
 		initWithNewItems(items, shuffle: shuffle)
 	}
 	
-	public func initWithNewItems(items: [StreamResourceIdentifier], shuffle: Bool = false) {
+	public func initWithNewItems(items: [StreamResourceIdentifier]) {
+		initWithNewItems(items, shuffle: shuffleQueue)
+	}
+	
+	public func initWithNewItems(items: [StreamResourceIdentifier], shuffle: Bool) {
 		itemsSet.removeAllObjects()
 
 		current = nil
 		if shuffle {
-			itemsSet.addObjectsFromArray(items.map { $0 as! AnyObject }.shuffle())
+			itemsSet.addObjectsFromArray(items.map { $0.asQueueSetItem() }.shuffle())
 		} else {
-			itemsSet.addObjectsFromArray(items.map { $0 as! AnyObject })
+			itemsSet.addObjectsFromArray(items.map { $0.asQueueSetItem() })
 		}
 		playerEventsSubject.onNext(.InitWithNewItems(currentItems))
 	}
 	
-	internal func shuffleQueue() {
+	internal func shuffleCurrentQueue() {
 		var items = itemsSet.array
 		items.shuffleInPlace()
 		itemsSet = NSMutableOrderedSet(array: items)
@@ -56,7 +84,7 @@ extension RxPlayer {
 	/// forceRestartQueue - if true, set first item in shuffled queue as current
 	public func shuffle(forceRestartQueue: Bool = false) {
 		current = nil
-		shuffleQueue()
+		shuffleCurrentQueue()
 		if forceRestartQueue {
 			toNext()
 		}
@@ -64,7 +92,15 @@ extension RxPlayer {
 	
 	/// Shuffle queue and preserve current item
 	public func shuffleAndContinue() {
-		shuffleQueue()
+		shuffleCurrentQueue()
+	}
+	
+	/// Shuffle queue and set current queue item as first
+	public func shuffleAndKeepCurrentItemFirst() {
+		shuffleCurrentQueue()
+		if let current = current {
+			addFirst(current.streamIdentifier)
+		}
 	}
 	
 	public func toNext(startPlaying: Bool = false) -> RxPlayerQueueItem? {
@@ -98,7 +134,7 @@ extension RxPlayer {
 	}
 	
 	public func remove(item: StreamResourceIdentifier) {
-		guard let index = itemsSet.getIndexOfObject(item as! AnyObject) else { return }
+		guard let index = itemsSet.getIndexOfObject(item.asQueueSetItem()) else { return }
 		itemsSet.removeObjectAtIndex(index)
 		playerEventsSubject.onNext(.RemoveItem(RxPlayerQueueItem(player: self, streamIdentifier: item)))
 	}
@@ -107,18 +143,23 @@ extension RxPlayer {
 		remove(item.streamIdentifier)
 	}
 	
+	public func getQueueItemByUid(uid: String) -> RxPlayerQueueItem? {
+		let index = itemsSet.indexOfObject(uid.asQueueSetItem())
+		return getItemAtPosition(index)
+	}
+	
 	public func getItemAtPosition(position: Int) -> RxPlayerQueueItem? {
-		guard let item: StreamResourceIdentifier = itemsSet.getObjectAtIndex(position) else { return nil }
-		return RxPlayerQueueItem(player: self, streamIdentifier: item)
+		guard let item: QueueSetItem = itemsSet.getObjectAtIndex(position) else { return nil }
+		return RxPlayerQueueItem(player: self, streamIdentifier: item.item)
 	}
 	
 	public func getItemAfter(item: StreamResourceIdentifier) -> RxPlayerQueueItem? {
-		let index = itemsSet.indexOfObject(item as! AnyObject)
+		let index = itemsSet.indexOfObject(item.asQueueSetItem())
 		return getItemAtPosition(index + 1)
 	}
 	
 	public func getItemBefore(item: StreamResourceIdentifier) -> RxPlayerQueueItem? {
-		let index = itemsSet.indexOfObject(item as! AnyObject)
+		let index = itemsSet.indexOfObject(item.asQueueSetItem())
 		return getItemAtPosition(index - 1)
 	}
 	
@@ -133,7 +174,7 @@ extension RxPlayer {
 	/// Add item in queue after specified item.
 	/// If specified item doesn't exist, add to end
 	public func addAfter(itemToAdd: StreamResourceIdentifier, afterItem: StreamResourceIdentifier) -> RxPlayerQueueItem {
-		let index = itemsSet.getIndexOfObject(afterItem as! AnyObject) ?? itemsSet.count
+		let index = itemsSet.getIndexOfObject(afterItem.asQueueSetItem()) ?? itemsSet.count
 		return add(itemToAdd, index: index + 1)
 	}
 	
@@ -143,20 +184,20 @@ extension RxPlayer {
 	private func add(item: StreamResourceIdentifier, index: Int) -> RxPlayerQueueItem {
 		var addAtIndex = index
 		var isItemRemoved = false
-		if let currentIndex = itemsSet.getIndexOfObject(item as! AnyObject) {
+		if let currentIndex = itemsSet.getIndexOfObject(item.asQueueSetItem()) {
 			if currentIndex == index {
 				return RxPlayerQueueItem(player: self, streamIdentifier: item)
 			} else {
-				itemsSet.removeObject(item as! AnyObject)
+				itemsSet.removeObject(item.asQueueSetItem())
 				if addAtIndex > 0 { addAtIndex -= 1 }
 				isItemRemoved = true
 			}
 		}
 		
 		if 0..<itemsSet.count + 1 ~= index {
-			itemsSet.insertObject(item as! AnyObject, atIndex: addAtIndex)
+			itemsSet.insertObject(item.asQueueSetItem(), atIndex: addAtIndex)
 		} else {
-			itemsSet.addObject(item as! AnyObject)
+			itemsSet.addObject(item.asQueueSetItem())
 		}
 		
 		let queueItem = RxPlayerQueueItem(player: self, streamIdentifier: item)
