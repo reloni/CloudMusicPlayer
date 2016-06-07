@@ -40,37 +40,18 @@ extension StreamResourceIdentifier {
 				return Observable.empty()
 			}
 		}
-//		guard let url = streamResourceUrl else { return nil }
-//		if url.hasPrefix("https") {
-//			return .HttpsResource
-//		} else if url.hasPrefix("http") {
-//			return .HttpResource
-//		} else if NSFileManager.fileExistsAtPath(url) {
-//			return .LocalResource
-//		} else {
-//			return nil
-//		}
 	}
-//		guard let scheme = NSURLComponents(string: url)?.scheme else {
-//			if NSFileManager.fileExistsAtPath(url, isDirectory: false) {
-//				return .LocalResource
-//			} else { return nil }
-//		}
-//		
-//		switch scheme {
-//			case "http": return .HttpResource
-//			case "https": return .HttpsResource
-//			default: return nil
-//		}
-//	}
 }
 
 extension StreamHttpResourceIdentifier {
 	public var streamHttpHeaders: [String: String]? {
 		return nil
 	}
+	
+	public var hashValue: Int {
+		return 0
+	}
 }
-
 
 extension String : StreamResourceIdentifier {
 	public var streamResourceUid: String {
@@ -124,11 +105,11 @@ extension YandexDiskCloudAudioJsonResource : StreamResourceIdentifier {
 	}
 }
 
-extension YandexDiskCloudJsonResource : StreamHttpResourceIdentifier {
-	public var streamHttpHeaders: [String: String]? {
-		return getRequestHeaders()
-	}
-}
+//extension YandexDiskCloudJsonResource : StreamHttpResourceIdentifier {
+//	public var streamHttpHeaders: [String: String]? {
+//		return getRequestHeaders()
+//	}
+//}
 
 //extension GoogleDriveCloudAudioJsonResource : StreamResourceIdentifier {
 //	public var streamResourceUid: String {

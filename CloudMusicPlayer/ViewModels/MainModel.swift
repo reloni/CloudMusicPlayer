@@ -184,4 +184,22 @@ class MainModel {
 			}
 		}
 	}
+	
+	func loadPlayerState() {
+		do {
+			let playerPersistanceProvider = RealmRxPlayerPersistenceProvider()
+			try playerPersistanceProvider.loadPlayerState(player)
+		} catch let error as NSError {
+			NSLog("Error while load player state: \(error.localizedDescription)")
+		}
+	}
+	
+	func savePlayerState() {
+		do {
+			let persistance = RealmRxPlayerPersistenceProvider()
+			try persistance.savePlayerState(MainModel.sharedInstance.player)
+		} catch let error as NSError {
+			NSLog("Error while save player state: \(error.localizedDescription)")
+		}
+	}
 }
