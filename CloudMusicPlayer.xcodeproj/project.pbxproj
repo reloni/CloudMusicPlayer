@@ -681,9 +681,10 @@
 				6EEB98971C4EBE1700DD5B95 /* Sources */,
 				6EEB98981C4EBE1700DD5B95 /* Frameworks */,
 				6EEB98991C4EBE1700DD5B95 /* Resources */,
-				6E8AFD7F1C78DB3D00091B53 /* ShellScript */,
-				6E254DD21CE8935B0064A544 /* ShellScript */,
-				6E92EA9D1D07162800D977FE /* ShellScript */,
+				6E8AFD7F1C78DB3D00091B53 /* Copy frameworks */,
+				6E254DD21CE8935B0064A544 /* TODO */,
+				6E92EA9D1D07162800D977FE /* Increment build number */,
+				6E24CCB31D08185B00032FEB /* Copy frameworks for unit tests */,
 			);
 			buildRules = (
 			);
@@ -822,20 +823,37 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		6E254DD21CE8935B0064A544 /* ShellScript */ = {
+		6E24CCB31D08185B00032FEB /* Copy frameworks for unit tests */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Carthage/Build/iOS/RxTests.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/RxBlocking.framework",
+			);
+			name = "Copy frameworks for unit tests";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh ${SRCROOT}/Scripts/CarthageCopyDebugFrameworks.sh";
+		};
+		6E254DD21CE8935B0064A544 /* TODO */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = TODO;
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh ${SRCROOT}/TODOScript.sh";
+			shellScript = "/bin/sh ${SRCROOT}/Scripts/TODOScript.sh";
 		};
-		6E8AFD7F1C78DB3D00091B53 /* ShellScript */ = {
+		6E8AFD7F1C78DB3D00091B53 /* Copy frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -847,24 +865,26 @@
 				"$(SRCROOT)/Carthage/Build/iOS/Realm.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RealmSwift.framework",
 			);
+			name = "Copy frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/usr/local/bin/carthage copy-frameworks";
 		};
-		6E92EA9D1D07162800D977FE /* ShellScript */ = {
+		6E92EA9D1D07162800D977FE /* Increment build number */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Increment build number";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh ${SRCROOT}/BumpBuildNumber.sh";
+			shellScript = "/bin/sh ${SRCROOT}/Scripts/BumpBuildNumber.sh";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1118,7 +1138,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -1129,7 +1149,7 @@
 				OTHER_SWIFT_FLAGS = "-D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AntonEfimenko.CloudMusicPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "d2fed0c9-d5ee-4719-a5ea-60429f51a120";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1144,7 +1164,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Anton Efimenko (SJMSRXG797)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -1155,7 +1175,7 @@
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AntonEfimenko.CloudMusicPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "d2fed0c9-d5ee-4719-a5ea-60429f51a120";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
 				TARGETED_DEVICE_FAMILY = 1;
