@@ -73,7 +73,7 @@ extension RxPlayer {
 				}.bindNext { e in
 				if case Result.success(let box) = e {
 					if case StreamTaskEvents.CacheData(let prov) = box.value {
-						receivedDataLen = prov.getData().length
+						receivedDataLen = prov.getCurrentData().length
 						if receivedDataLen >= 1024 * 256 {
 							if let file = downloadManager.fileStorage.saveToTemporaryFolder(prov) {
 								let metadata = object.loadFileMetadata(resource, file: file, utilities: utilities)

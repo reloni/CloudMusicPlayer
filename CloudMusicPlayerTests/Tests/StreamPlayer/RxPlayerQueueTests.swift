@@ -146,6 +146,14 @@ class RxPlayerQueueTests: XCTestCase {
 		XCTAssertNil(currentItem, "Check CurrentItemChanged was rised and send nil as current item")
 	}
 	
+	func testInitWithShuffledNewItemsIfShuffleQueueIsTrue() {
+		let queue = RxPlayer()
+		// set default shuffle as true
+		queue.shuffleQueue = true
+		queue.initWithNewItems(audioItems)
+		XCTAssertNotEqual(audioItems.map { $0.streamResourceUid }, queue.currentItems.map { $0.streamIdentifier.streamResourceUid }, "Queue should has shuffled items")
+	}
+	
 	func testResetCurrentItemAfterInitWithNewItems() {
 		let queue = RxPlayer(items: audioItems)
 		queue.toNext()
@@ -249,7 +257,8 @@ class RxPlayerQueueTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		let addedItem = queue.addLast(audioItems[1])
+		//let addedItem = queue.addLast(audioItems[1])
+		let addedItem = queue.addLast(FakeStreamResourceIdentifier(uid: audioItems[1].streamResourceUid))
 		XCTAssertEqual(audioItems.count, queue.count, "Check items count not changed")
 		XCTAssertEqual(addedItem.streamIdentifier.streamResourceUid, audioItems[1].streamResourceUid, "Check method return correct item (that was already in queue")
 	}
@@ -672,5 +681,11 @@ class RxPlayerQueueTests: XCTestCase {
 
 		XCTAssertEqual(queue.first?.streamIdentifier.streamResourceUid, audioItems.first?.streamResourceUid)
 		XCTAssertFalse(queue.playing)
+	}
+	
+	func testFindItemByUid() {
+		let player = RxPlayer(items: ["http://test.com", "http://test2.com", FakeStreamResourceIdentifier(uid: "http://test3.com")])
+		XCTAssertNotNil(player.getQueueItemByUid("http://test.com"))
+		XCTAssertNotNil(player.getQueueItemByUid("http://test3.com"))
 	}
 }

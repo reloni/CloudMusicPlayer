@@ -59,7 +59,7 @@ class LocalFileStreamDataTaskTests: XCTestCase {
 				receiveResponceExpectation?.fulfill()
 				receiveResponceExpectation = nil
 			} else if case StreamTaskEvents.CacheData(let provider) = box.value {
-				XCTAssertTrue(provider.getData().isEqualToData(storedData))
+				XCTAssertTrue(provider.getCurrentData().isEqualToData(storedData))
 				XCTAssertEqual(provider.contentMimeType, "audio/mpeg")
 				cacheDataExpectation?.fulfill()
 				cacheDataExpectation = nil

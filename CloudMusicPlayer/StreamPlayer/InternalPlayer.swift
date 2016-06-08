@@ -10,11 +10,11 @@ import Foundation
 import RxSwift
 import AVFoundation
 
-public typealias AssetLoadResult =
-	Result<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
+//public typealias AssetLoadResult =
+//	Result<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
 
 public protocol InternalPlayerType {
-	func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult>
+	func play(resource: StreamResourceIdentifier) -> Observable<Result<Void>>
 	func stop()
 	func pause()
 	func resume()
@@ -68,7 +68,7 @@ extension InternalPlayer : InternalPlayerType {
 		}
 	}
 	
-	public func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult> {
+	public func play(resource: StreamResourceIdentifier) -> Observable<Result<Void>> {
 		let asset = hostPlayer.streamPlayerUtilities.createavUrlAsset(NSURL(string: "fake://domain.com")!)
 		let observer = AVAssetResourceLoaderEventsObserver()
 		asset.getResourceLoader().setDelegate(observer, queue: dispatch_get_global_queue(QOS_CLASS_UTILITY, 0))
@@ -87,13 +87,6 @@ extension InternalPlayer : InternalPlayerType {
 	
 	internal func play(playerItem: AVPlayerItemProtocol, asset: AVURLAssetProtocol, observer: AVAssetResourceLoaderEventsObserverProtocol) {
 		flush()
-		
-		do {
-			try AVAudioSession.sharedInstance().setActive(true)
-			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
-		} catch let error as NSError {
-			NSLog("Error setting session category %@", error.localizedDescription)
-		}
 		
 		self.asset = asset
 		self.playerItem = playerItem
@@ -160,16 +153,32 @@ extension InternalPlayer : InternalPlayerType {
 		}
 	}
 	
+	func switchToNextItem(force: Bool) {
+		if force || !isTimeChanging() {
+			print("flush and switch to next item")
+			flush()
+			eventsCallback(.FinishPlayingCurrentItem)
+			hostPlayer.toNext(true)
+		}
+	}
+	
+	func isTimeChanging() -> Bool {
+		guard let curTime = getCurrentTimeAndDuration()?.currentTime else { return false }
+		NSThread.sleepForTimeInterval(1)
+		guard let newTime = getCurrentTimeAndDuration()?.currentTime else { return false }
+		return curTime != newTime
+	}
+	
 	@objc func finishPlayingItem(notification: NSNotification) {
 		print("finishPlayingItem invoked")
-		flush()
-		eventsCallback(.FinishPlayingCurrentItem)
-		hostPlayer.toNext(true)
+		switchToNextItem(false)
 	}
 	
 	@objc func playbackStalled(notification: NSNotification) {
 		print("playback stalled")
-		finishPlayingItem(notification)
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [weak self] in
+			self?.switchToNextItem(false)
+		}
 	}
 	
 	@objc func newErrorLogEntry(notification: NSNotification) {

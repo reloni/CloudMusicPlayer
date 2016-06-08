@@ -20,7 +20,8 @@ public class RxPlayerQueueItem {
 	public let streamIdentifier: StreamResourceIdentifier
 	public let player: RxPlayer
 	public var inQueue: Bool {
-		return player.itemsSet.indexOfObject(streamIdentifier as! AnyObject) != NSNotFound
+		return player.getQueueItemByUid(streamIdentifier.streamResourceUid) != nil
+		//return player.itemsSet.indexOfObject(streamIdentifier.asQueueSetItem()) != NSNotFound
 	}
 	
 	public init(player: RxPlayer, streamIdentifier: StreamResourceIdentifier) {

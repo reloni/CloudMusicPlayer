@@ -38,7 +38,7 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 			XCTAssertEqual(true, file.fileExists(), "Check file existance")
 			XCTAssertEqual("dat", file.pathExtension, "Check default extension of file")
 			if let savedData = NSData(contentsOfURL: file) {
-				XCTAssertTrue(savedData.isEqualToData(provider.getData()), "Check saved data equal to cached data")
+				XCTAssertTrue(savedData.isEqualToData(provider.getCurrentData()), "Check saved data equal to cached data")
 			} else {
 				XCTFail("Unable to load saved data")
 			}
@@ -59,7 +59,7 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 			XCTAssertEqual(true, file.fileExists(), "Check file existance")
 			XCTAssertEqual("mp3", file.pathExtension, "Check extension of file")
 			if let savedData = NSData(contentsOfURL: file) {
-				XCTAssertTrue(savedData.isEqualToData(provider.getData()), "Check saved data equal to cached data")
+				XCTAssertTrue(savedData.isEqualToData(provider.getCurrentData()), "Check saved data equal to cached data")
 			} else {
 				XCTFail("Unable to load saved data")
 			}

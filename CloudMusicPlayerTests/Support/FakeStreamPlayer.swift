@@ -30,6 +30,19 @@ public class FakeStreamResourceIdentifier : StreamResourceIdentifier {
 	}
 }
 
+public class FakeStreamResourceLoader : StreamResourceLoaderType {
+	var items: [String]
+	public func loadStreamResourceByUid(uid: String) -> StreamResourceIdentifier? {
+		if items.contains(uid) {
+			return FakeStreamResourceIdentifier(uid: uid)
+		}
+		return nil
+	}
+	public init(items: [String] = []) {
+		self.items = items
+	}
+}
+
 public class FakeAVAssetResourceLoadingContentInformationRequest : AVAssetResourceLoadingContentInformationRequestProtocol {
 	public var byteRangeAccessSupported = false
 	public var contentLength: Int64 = 0
@@ -94,7 +107,7 @@ public class FakeInternalPlayer : InternalPlayerType {
 		eventsCallback(.Paused)
 	}
 	
-	public func play(resource: StreamResourceIdentifier) -> Observable<AssetLoadResult> {
+	public func play(resource: StreamResourceIdentifier) -> Observable<Result<Void>> {
 		eventsCallback(.Started)
 		return Observable.empty()
 	}
