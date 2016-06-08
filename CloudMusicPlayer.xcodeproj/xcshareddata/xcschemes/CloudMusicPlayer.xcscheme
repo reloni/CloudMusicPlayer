@@ -20,6 +20,20 @@
                ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "NO"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6EEB98BC1C4EBE1700DD5B95"
+               BuildableName = "CloudMusicPlayerUITests.xctest"
+               BlueprintName = "CloudMusicPlayerUITests"
+               ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -36,16 +50,6 @@
                BlueprintIdentifier = "6EEB98B11C4EBE1700DD5B95"
                BuildableName = "CloudMusicPlayerTests.xctest"
                BlueprintName = "CloudMusicPlayerTests"
-               ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6EEB98BC1C4EBE1700DD5B95"
-               BuildableName = "CloudMusicPlayerUITests.xctest"
-               BlueprintName = "CloudMusicPlayerUITests"
                ReferencedContainer = "container:CloudMusicPlayer.xcodeproj">
             </BuildableReference>
          </TestableReference>

@@ -17,6 +17,7 @@ DerivedData
 !default.perspectivev3
 xcuserdata
 
+
 ## Other
 *.xccheckout
 *.moved-aside
@@ -68,3 +69,4 @@ Carthage/Build/iOS/*.dSYM
 fastlane/report.xml
 fastlane/screenshots
 .idea
+CloudMusicPlayer.app.dSYM.zip
