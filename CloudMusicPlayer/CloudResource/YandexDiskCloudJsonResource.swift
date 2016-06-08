@@ -10,6 +10,11 @@ import Foundation
 import SwiftyJSON
 import RxSwift
 
+public enum YandexDiskError : ErrorType {
+	case tooManyRequests
+	case unknown(title: String)
+}
+
 public class YandexDiskCloudJsonResource {
 	public static func getRootResource(httpClient: HttpClientProtocol = HttpClient(),
 	                                   oauth: OAuthType) -> CloudResource {
@@ -92,6 +97,15 @@ extension YandexDiskCloudJsonResource : CloudResource {
 		
 		return items.map { item -> CloudResource in
 			return wrapRawData(item)
+		}
+	}
+	
+	internal func checkError(response: JSON) -> YandexDiskError? {
+		guard let errorTitle = response["error"].string else { return nil }
+		
+		switch errorTitle {
+			case "TooManyRequestsError": return YandexDiskError.tooManyRequests
+			default: return YandexDiskError.unknown(title: errorTitle)
 		}
 	}
 	

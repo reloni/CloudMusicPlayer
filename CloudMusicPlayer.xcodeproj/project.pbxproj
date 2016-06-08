@@ -106,7 +106,6 @@
 		6EAFAD821CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */; };
 		6EAFBDA81CF0BF6B00066E19 /* PlayListInfoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAFBDA71CF0BF6B00066E19 /* PlayListInfoController.swift */; };
 		6EAFBDAA1CF0BFD600066E19 /* PlayListInfoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAFBDA91CF0BFD600066E19 /* PlayListInfoModel.swift */; };
-		6EB1929B1CC3B0A200FF3024 /* cover_placeholder.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 6EB1929A1CC3B0A200FF3024 /* cover_placeholder.jpg */; };
 		6EB1929D1CC3B45D00FF3024 /* PlayerQueueController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB1929C1CC3B45D00FF3024 /* PlayerQueueController.swift */; };
 		6EB1929F1CC3BC8100FF3024 /* QueueTrackCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB1929E1CC3BC8100FF3024 /* QueueTrackCell.swift */; };
 		6EB8C2F81C5019FD0064A00B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 6EB8C2F71C5019FD0064A00B /* .gitignore */; };
@@ -256,7 +255,6 @@
 		6EAFAD811CA137B1008A0177 /* AVAssetResourceLoaderEventsObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAssetResourceLoaderEventsObserver.swift; sourceTree = "<group>"; };
 		6EAFBDA71CF0BF6B00066E19 /* PlayListInfoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayListInfoController.swift; sourceTree = "<group>"; };
 		6EAFBDA91CF0BFD600066E19 /* PlayListInfoModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayListInfoModel.swift; sourceTree = "<group>"; };
-		6EB1929A1CC3B0A200FF3024 /* cover_placeholder.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = cover_placeholder.jpg; sourceTree = "<group>"; };
 		6EB1929C1CC3B45D00FF3024 /* PlayerQueueController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerQueueController.swift; sourceTree = "<group>"; };
 		6EB1929E1CC3BC8100FF3024 /* QueueTrackCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QueueTrackCell.swift; sourceTree = "<group>"; };
 		6EB8C2F71C5019FD0064A00B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
@@ -545,15 +543,6 @@
 			path = CloudMusicPlayer/Models;
 			sourceTree = SOURCE_ROOT;
 		};
-		6EB192991CC3B05800FF3024 /* Img */ = {
-			isa = PBXGroup;
-			children = (
-				6EB1929A1CC3B0A200FF3024 /* cover_placeholder.jpg */,
-			);
-			name = Img;
-			path = CloudMusicPlayer/Img;
-			sourceTree = SOURCE_ROOT;
-		};
 		6ECBBC781CA3D5CC0053DBFB /* StreamPlayer */ = {
 			isa = PBXGroup;
 			children = (
@@ -616,7 +605,6 @@
 			isa = PBXGroup;
 			children = (
 				6E54CBCA1CF19D6700033075 /* Core */,
-				6EB192991CC3B05800FF3024 /* Img */,
 				6E12B9131C6F835C00E93FFB /* Extensions */,
 				6EE0CCC41C96C96E002F4D9D /* HttpExtensions */,
 				6E0A028A1C8A0C8B00AD9B38 /* StreamPlayer */,
@@ -792,7 +780,6 @@
 			files = (
 				6EB8C2F81C5019FD0064A00B /* .gitignore in Resources */,
 				6EEB98AC1C4EBE1700DD5B95 /* LaunchScreen.storyboard in Resources */,
-				6EB1929B1CC3B0A200FF3024 /* cover_placeholder.jpg in Resources */,
 				6EEB98A91C4EBE1700DD5B95 /* Assets.xcassets in Resources */,
 				6E088A7A1CEDB89A001EED50 /* CloudAccounts.storyboard in Resources */,
 				6EA500841C53E6F100B9ED11 /* Main.storyboard in Resources */,
