@@ -72,13 +72,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		//MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
 		
-		do {
-			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
-			try AVAudioSession.sharedInstance().setActive(true)
-		} catch let error as NSError {
-			NSLog("Error while set up audio session \(error.localizedDescription)")
-		}
-		
 		MainModel.sharedInstance.player.playerEvents.bindNext { event in
 			print("player event: \(event)")
 			switch event {
