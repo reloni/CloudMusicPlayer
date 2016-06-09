@@ -11,6 +11,9 @@ import SwiftyJSON
 import RxSwift
 
 public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, CloudAudioResource {
+	internal var downloadUrlErrorRetryDelayTime: Double = 1
+	internal var downloadUrlRetryMaxAttemptCount = 5
+	
 	internal var downloadResourceUrl: NSURL? {
 		return NSURL(baseUrl: resourcesUrl + "/download", parameters: getRequestParameters())
 	}
@@ -21,17 +24,31 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 		}
 		
 		let request = httpClient.httpUtilities.createUrlRequest(url, headers: getRequestHeaders())
-		return Observable.create { [unowned self] observer in
-			let task = self.httpClient.loadJsonData(request)
-				.doOnCompleted { _ in observer.onCompleted() }.bindNext { result in
-					if case Result.success(let box) = result {
-						if let href = box.value["href"].string {
-							observer.onNext(href)
-						}
-					} else if case Result.error(let error) = result {
-						print("yandex file url error: \(error)")
-						observer.onCompleted()
+		return Observable.create { [weak self] observer in
+			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
+			
+			let task = object.httpClient.loadJsonData(request).flatMapLatest { result -> Observable<String?> in
+				if case Result.success(let box) = result {
+					// check server side error
+					if let error = object.checkError(box.value) { return Observable.error(error) }
+					
+					if let href = box.value["href"].string {
+						return Observable.just(href)
 					}
+				} else if case Result.error(let error) = result {
+					return Observable.error(error)
+				}
+				// if no error returned and no href key in JSON, return nil
+				return Observable.just(nil)
+				}.retryWithDelay(object.downloadUrlErrorRetryDelayTime, maxAttemptCount: object.downloadUrlRetryMaxAttemptCount, retryReturnObject: "") { error in
+				if case YandexDiskError.tooManyRequests = error {
+					return true
+				}
+				return false
+				}.doOnError { _ in observer.onCompleted() }.bindNext { link in
+					guard let link = link else { observer.onCompleted(); return }
+					observer.onNext(link)
+					observer.onCompleted()
 			}
 			
 			return AnonymousDisposable {
