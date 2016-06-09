@@ -12,27 +12,16 @@ import RxCocoa
 
 class PlayListInfoController: UIViewController {
 	var model: PlayListInfoModel!
-	//@IBOutlet weak var playListNameLabel: UILabel!
-	//@IBOutlet weak var playButton: UIButton!
-	//@IBOutlet weak var addBarButton: UIBarButtonItem!
 	@IBOutlet weak var tableView: UITableView!
-	//@IBOutlet weak var shuffleButton: UIButton!
 	@IBOutlet weak var repeatButton: UIButton!
-	//@IBOutlet weak var downloadButton: UIButton!
-	//@IBOutlet weak var menuButton: UIButton!
 	
 	var bag = DisposeBag()
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		//playListNameLabel.text = model.playList.name
 	}
 	
 	override func viewWillAppear(animated: Bool) {
-		//playButton.rx_tap.bindNext { [weak self] in
-		//	guard let object = self else { return }
-		//MainModel.sharedInstance.player.playPlayList(object.model.playList)
-		//}.addDisposableTo(bag)
 	}
 	
 	override func viewWillDisappear(animated: Bool) {
@@ -78,11 +67,25 @@ class PlayListInfoController: UIViewController {
 		if let art = model.playList.items.first?.album.artwork {
 			cell.playListImage?.image = UIImage(data: art)
 		}
+		cell.shuffleButton?.selected = MainModel.sharedInstance.player.shuffleQueue
+		cell.repeatButton?.selected = MainModel.sharedInstance.player.repeatQueue
 		
 		cell.playButton?.rx_tap.bindNext { [weak self] in
 			guard let object = self else { return }
-			MainModel.sharedInstance.player.playPlayList(object.model.playList)
+			MainModel.sharedInstance.playPlayList(object.model.playList)
 		}.addDisposableTo(cell.bag)
+		
+		cell.shuffleButton?.rx_tap.observeOn(MainScheduler.instance).bindNext {
+			guard let button = cell.shuffleButton else { return }
+			button.selected = !button.selected
+			MainModel.sharedInstance.player.shuffleQueue = button.selected
+		}.addDisposableTo(cell.bag)
+		
+		cell.repeatButton?.rx_tap.observeOn(MainScheduler.instance).bindNext {
+			guard let button = cell.repeatButton else { return }
+			button.selected = !button.selected
+			MainModel.sharedInstance.player.repeatQueue = button.selected
+			}.addDisposableTo(cell.bag)
 		
 		return cell
 	}
@@ -114,5 +117,11 @@ extension PlayListInfoController : UITableViewDelegate {
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		return getCell(indexPath)
+	}
+	
+	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+		guard indexPath.row < model.playList.items.count else { return }
+		let selectedTrack = model.playList.items[indexPath.row]
+		MainModel.sharedInstance.playPlayList(model.playList, startWith: selectedTrack)
 	}
 }

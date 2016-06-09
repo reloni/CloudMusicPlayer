@@ -30,23 +30,13 @@ class MainModel {
 		self.cloudResourceClient = cloudResourceClient
 	}
 	
-	var isShuffleEnabled: Bool {
+	/// Uid of current track container playing (uid of Artist, Album or PlayList)
+	var currentPlayingContainerUid: String? {
 		get {
-			guard let value: Bool = userDefaults.loadData("isShuffleEnabled") else { return false }
-			return value
+			return userDefaults.loadData("currentPlayingContainerUid")
 		}
 		set {
-			userDefaults.saveData(newValue, forKey: "isShuffleEnabled")
-		}
-	}
-	
-	var isRepeatEnabled: Bool {
-		get {
-			return player.repeatQueue
-		}
-		set {
-			player.repeatQueue = newValue
-			userDefaults.saveData(newValue, forKey: "isRepeatEnabled")
+			userDefaults.saveData(newValue ?? "", forKey: "currentPlayingContainerUid")
 		}
 	}
 	
@@ -81,6 +71,11 @@ class MainModel {
 	
 	func addTracksToPlayList(tracks: [TrackType], playList: PlayListType) {
 		let _ = try? player.mediaLibrary.addTracksToPlayList(playList, tracks: tracks)
+	}
+	
+	func playPlayList(playList: PlayListType, startWith: TrackType? = nil) {
+		currentPlayingContainerUid = playList.uid
+		player.playPlayList(playList, startWithTrack: startWith)
 	}
 	
 	func loadMetadataObjectForTrackByIndex(index: Int) -> Observable<MediaItemMetadata?> {

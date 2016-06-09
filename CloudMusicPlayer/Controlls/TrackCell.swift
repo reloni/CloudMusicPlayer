@@ -17,6 +17,8 @@ class TrackCell: UITableViewCell {
 	@IBOutlet weak var trackTitleLabel: UILabel!
 	@IBOutlet weak var showMenuButton: UIButton!
 	@IBOutlet weak var durationLabel: UILabel!
+	@IBOutlet weak var trackCurrentTimeProgressView: UIProgressView?
+	@IBOutlet weak var trackCurrentTimeProgressStackView: UIStackView?
 	
 	override func prepareForReuse() {
 		bag = DisposeBag()
@@ -24,5 +26,7 @@ class TrackCell: UITableViewCell {
 		trackTitleLabel.text = ""
 		durationLabel.text = "--:--"
 		albumArtworkImage?.image = MainModel.sharedInstance.albumPlaceHolderImage
+		trackCurrentTimeProgressView?.setProgress(0, animated: false)
+		//trackCurrentTimeProgressStackView.
 	}
 }
