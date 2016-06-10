@@ -175,7 +175,9 @@ class MediaLibraryController: UIViewController {
 			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [album], tracks: []).subscribe().addDisposableTo(cell.bag)
 		} 
 		
-		MainModel.sharedInstance.loadMetadataObjectForAlbumByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
+		MainModel.sharedInstance.loadMetadataObjectForAlbumByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { [weak cell] meta in
+			guard let cell = cell else { return }
+			
 			guard let meta = meta else { cell.albumNameLabel.text = "Unknown"; return }
 			
 			cell.artistNameLabel.text = meta.artist
@@ -204,7 +206,9 @@ class MediaLibraryController: UIViewController {
 			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
 		}
 		
-		MainModel.sharedInstance.loadMetadataObjectForTrackByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
+		MainModel.sharedInstance.loadMetadataObjectForTrackByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { [weak cell] meta in
+			guard let cell = cell else { return }
+			
 			guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
 			
 			cell.durationLabel.text = meta.duration?.asTimeString
@@ -233,6 +237,12 @@ class MediaLibraryController: UIViewController {
 		
 		if let pl = objects?[indexPath.row] ?? nil {
 			cell.playListNameLabel.text = pl.name
+			DispatchQueue.async(.MainQueue) { [weak cell] in
+				cell?.itemsCountLabel?.text = "Tracks: \(pl.items.count)"
+				if let art = pl.items.first?.album.artwork {
+					cell?.playListImage?.image = UIImage(data: art)
+				}
+			}
 		} else {
 			cell.playListNameLabel.text = "Unknown"
 		}

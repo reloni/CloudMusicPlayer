@@ -87,6 +87,7 @@
 		6E89443B1CD1F77900BCE0B1 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8944391CD1F77900BCE0B1 /* Realm.framework */; };
 		6E89443C1CD1F77900BCE0B1 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E89443A1CD1F77900BCE0B1 /* RealmSwift.framework */; };
 		6E89443E1CD22BD800BCE0B1 /* RxPlayer+LoadMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E89443D1CD22BD800BCE0B1 /* RxPlayer+LoadMetadata.swift */; };
+		6E897D371D0AD9DD0085D0BC /* GCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E897D361D0AD9DD0085D0BC /* GCD.swift */; };
 		6E8AFD821C78DBC200091B53 /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8AFD801C78DBC200091B53 /* RxSwift.framework */; };
 		6E8AFD831C78DBC200091B53 /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8AFD811C78DBC200091B53 /* RxCocoa.framework */; };
 		6E8AFD861C78E17C00091B53 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8AFD851C78E17C00091B53 /* SettingsViewModel.swift */; };
@@ -238,6 +239,7 @@
 		6E8944391CD1F77900BCE0B1 /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Realm.framework; path = Carthage/Build/iOS/Realm.framework; sourceTree = "<group>"; };
 		6E89443A1CD1F77900BCE0B1 /* RealmSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RealmSwift.framework; path = Carthage/Build/iOS/RealmSwift.framework; sourceTree = "<group>"; };
 		6E89443D1CD22BD800BCE0B1 /* RxPlayer+LoadMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RxPlayer+LoadMetadata.swift"; sourceTree = "<group>"; };
+		6E897D361D0AD9DD0085D0BC /* GCD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GCD.swift; sourceTree = "<group>"; };
 		6E8AFD801C78DBC200091B53 /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
 		6E8AFD811C78DBC200091B53 /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxCocoa.framework; path = Carthage/Build/iOS/RxCocoa.framework; sourceTree = "<group>"; };
 		6E8AFD851C78E17C00091B53 /* SettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
@@ -520,6 +522,7 @@
 				6E54CBCB1CF19D8E00033075 /* CustomErrorType.swift */,
 				6E54CBCD1CF1A10F00033075 /* Result.swift */,
 				6E24CCB41D0948A500032FEB /* Observable+retryWhenWithDelay.swift */,
+				6E897D361D0AD9DD0085D0BC /* GCD.swift */,
 			);
 			name = Core;
 			path = CloudMusicPlayer/Core;
@@ -956,6 +959,7 @@
 				6EAFBDAA1CF0BFD600066E19 /* PlayListInfoModel.swift in Sources */,
 				6E088A7E1CEDD42B001EED50 /* NewAccountCell.swift in Sources */,
 				6EB1929F1CC3BC8100FF3024 /* QueueTrackCell.swift in Sources */,
+				6E897D371D0AD9DD0085D0BC /* GCD.swift in Sources */,
 				6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */,
 				6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */,
 				6EC57F3A1CFCB3D300A2F056 /* RxPlayer+Background.swift in Sources */,

@@ -9,22 +9,29 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import AVFoundation
 
 class PlayListInfoController: UIViewController {
 	var model: PlayListInfoModel!
 	@IBOutlet weak var tableView: UITableView!
-	@IBOutlet weak var repeatButton: UIButton!
-	
+
 	var bag = DisposeBag()
+	
+	let trackProgressBarHeight = CGFloat(integerLiteral: 2)
+	let trackCellHeight = CGFloat(integerLiteral: 55)
+	let lastCellHeight = CGFloat(integerLiteral: 30)
+	
+	var isCurrentPlayListPlaying: Bool {
+		return model.playList.uid == MainModel.sharedInstance.currentPlayingContainerUid &&
+			MainModel.sharedInstance.player.playing
+	}
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 	}
 	
-	override func viewWillAppear(animated: Bool) {
-	}
-	
 	override func viewWillDisappear(animated: Bool) {
+		super.viewWillDisappear(animated)
 		bag = DisposeBag()
 	}
 	
@@ -39,22 +46,67 @@ class PlayListInfoController: UIViewController {
 		}
 		
 		let cell = tableView.dequeueReusableCellWithIdentifier("TrackCell", forIndexPath: indexPath) as! TrackCell
+		cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = CGFloat(integerLiteral: 0)
 		
-		if let track = objects[indexPath.row] {
-			cell.trackTitleLabel.text = track.title
-			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
-		}
+		guard let track = objects[indexPath.row] else { return cell }
 		
-		MainModel.sharedInstance.loadMetadataObjectForTrackInPlayListByIndex(indexPath.row, playList: model.playList).observeOn(MainScheduler.instance).bindNext { meta in
-			guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
+		cell.trackTitleLabel.text = track.title
+		createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
+		
+		
+		MainModel.sharedInstance.loadMetadataObjectForTrackInPlayListByIndex(indexPath.row, playList: model.playList).observeOn(MainScheduler.instance)
+			.bindNext { [weak cell] meta in
+				guard let cell = cell else { return }
+				guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
+				
+				cell.durationLabel.text = meta.duration?.asTimeString
+				if let album = meta.album, artist = meta.artist {
+					cell.albumAndArtistLabel?.text = "\(album) - \(artist)"
+				}
+				if let artwork = meta.artwork, image = UIImage(data: artwork) {
+					cell.albumArtworkImage?.image = image
+				}
+			}.addDisposableTo(cell.bag)
+		
+		MainModel.sharedInstance.player.currentItem.observeOn(MainScheduler.instance).flatMapLatest { [weak self, weak cell] item -> Observable<Bool> in
+			guard let cell = cell, object = self else { return Observable.empty() }
 			
-			cell.durationLabel.text = meta.duration?.asTimeString
-			if let album = meta.album, artist = meta.artist {
-				cell.albumAndArtistLabel?.text = "\(album) - \(artist)"
+			let animate = {
+				UIView.animateWithDuration(0.9, delay: 0, usingSpringWithDamping: 0.2,
+					initialSpringVelocity: 10.0, options: [.CurveEaseOut], animations: {
+						cell.layoutIfNeeded()
+					}, completion: nil)
 			}
-			if let artwork = meta.artwork, image = UIImage(data: artwork) {
-				cell.albumArtworkImage?.image = image
+			
+			if let item = item where track.uid == item.streamIdentifier.streamResourceUid {
+				if cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant != object.trackProgressBarHeight {
+					cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = object.trackProgressBarHeight
+					animate()
+				}
+				return Observable.just(true)
+			} else {
+				if cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant != 0 {
+					cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = CGFloat(integerLiteral: 0)
+					animate()
+				}
+				return Observable.just(false)
 			}
+			}.observeOn(ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+			.flatMapLatest { isCurrent -> Observable<(currentTime: CMTime?, duration: CMTime?)?> in
+				if isCurrent {
+					return MainModel.sharedInstance.player.currentItemTime
+				} else {
+					return Observable.just(nil)
+				}
+			}.observeOn(MainScheduler.instance).bindNext { [weak cell] time in
+				guard let cell = cell else { return }
+				
+				guard let time = time, currentSec = time.currentTime?.safeSeconds, fullSec = time.duration?.safeSeconds else {
+					cell.trackCurrentTimeProgressView?.setProgress(0, animated: true)
+					return
+				}
+				
+				cell.trackCurrentTimeProgressView?.setProgress(Float(currentSec / fullSec), animated: true)
 			}.addDisposableTo(cell.bag)
 		
 		return cell
@@ -64,28 +116,38 @@ class PlayListInfoController: UIViewController {
 		let cell = tableView.dequeueReusableCellWithIdentifier("PlayListHeaderCell") as! PlayListCell
 		cell.playListNameLabel.text = model.playList.name
 		cell.itemsCountLabel?.text = "Tracks: \(model.playList.items.count)"
+		cell.playButton?.selected = isCurrentPlayListPlaying
 		if let art = model.playList.items.first?.album.artwork {
 			cell.playListImage?.image = UIImage(data: art)
 		}
 		cell.shuffleButton?.selected = MainModel.sharedInstance.player.shuffleQueue
 		cell.repeatButton?.selected = MainModel.sharedInstance.player.repeatQueue
 		
-		cell.playButton?.rx_tap.bindNext { [weak self] in
-			guard let object = self else { return }
-			MainModel.sharedInstance.playPlayList(object.model.playList)
-		}.addDisposableTo(cell.bag)
-		
-		cell.shuffleButton?.rx_tap.observeOn(MainScheduler.instance).bindNext {
-			guard let button = cell.shuffleButton else { return }
+		cell.shuffleButton?.rx_tap.observeOn(MainScheduler.instance).bindNext { [weak cell] in
+			guard let button = cell?.shuffleButton else { return }
 			button.selected = !button.selected
 			MainModel.sharedInstance.player.shuffleQueue = button.selected
 		}.addDisposableTo(cell.bag)
 		
-		cell.repeatButton?.rx_tap.observeOn(MainScheduler.instance).bindNext {
-			guard let button = cell.repeatButton else { return }
+		cell.repeatButton?.rx_tap.observeOn(MainScheduler.instance).bindNext { [weak cell] in
+			guard let button = cell?.repeatButton else { return }
 			button.selected = !button.selected
 			MainModel.sharedInstance.player.repeatQueue = button.selected
 			}.addDisposableTo(cell.bag)
+		
+		cell.playButton?.rx_tap.observeOn(MainScheduler.instance).bindNext { [weak cell, weak self] in
+			guard let cell = cell, object = self else { return }
+			if object.isCurrentPlayListPlaying {
+				MainModel.sharedInstance.player.pause()
+			} else if MainModel.sharedInstance.currentPlayingContainerUid == object.model.playList.uid &&
+				MainModel.sharedInstance.player.currentItems.count == object.model.playList.items.count {
+				MainModel.sharedInstance.player.resume(true)
+			} else {
+				MainModel.sharedInstance.playPlayList(object.model.playList)
+			}
+			
+			cell.playButton?.selected = MainModel.sharedInstance.player.playing
+		}.addDisposableTo(cell.bag)
 		
 		return cell
 	}
@@ -113,6 +175,14 @@ extension PlayListInfoController : UITableViewDelegate {
 	
 	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return model.playList.items.count + 1
+	}
+	
+	func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+		if indexPath.row == model.playList.items.count {
+			return lastCellHeight
+		} else {
+			return trackCellHeight
+		}
 	}
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
