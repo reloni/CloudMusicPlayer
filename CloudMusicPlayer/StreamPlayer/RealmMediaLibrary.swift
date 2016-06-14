@@ -106,7 +106,7 @@ public class RealmMediaLibrary {
 
 extension RealmMediaLibrary : MediaLibraryType {
 	public func getArtists() throws -> MediaCollection<ArtistType, RealmArtist> {
-		return try MediaCollection<ArtistType, RealmArtist>(realmCollection: AnyRealmCollection(getRealm().objects(RealmArtist)))
+		return try SynchronizedMediaCollection<ArtistType, RealmArtist>(realmCollection: AnyRealmCollection(getRealm().objects(RealmArtist)), mediaLibrary: self)
 	}
 	
 	public func getAlbums() throws -> MediaCollection<AlbumType, RealmAlbum> {
@@ -136,7 +136,8 @@ extension RealmMediaLibrary : MediaLibraryType {
 	}
 	
 	public func getTrackByUid(resource: StreamResourceIdentifier) throws -> TrackType? {
-		return try getRealm().objects(RealmTrack).filter("uid = %@", resource.streamResourceUid).first
+		//return try getRealm().objects(RealmTrack).filter("uid = %@", resource.streamResourceUid).first
+		return try getRealm().objectForPrimaryKey(RealmTrack.self, key: resource.streamResourceUid)?.wrap(self)
 	}
 	
 	public func getMetadataObjectByUid(resource: StreamResourceIdentifier) throws -> MediaItemMetadata? {
@@ -252,11 +253,55 @@ extension RealmMediaLibrary : MediaLibraryType {
 	
 	public func renamePlayList(playList: PlayListType, newName: String) throws {
 		if let invalidated = (playList as? RealmPlayList)?.invalidated where invalidated { return }
-		guard let realmPl = try getPlayListByUid(playList.uid) else { return }
+		guard let realmPl = try getPlayListByUid(playList.uid) as? RealmPlayList else { return }
 		try getRealm().write {
-			var pl = realmPl
-			pl.name = newName
+			//var pl = realmPl
+			realmPl.name = newName
 		}
+	}
+}
+
+public protocol RealmEntityWrapperType { }
+
+public class RealmEntityWrapper<T: Object> : RealmEntityWrapperType {
+	internal let cachedUid: String
+	internal let mediaLibrary: RealmMediaLibrary
+	internal let realmObject: T
+	internal init(realmObject: T, uid: String, mediaLibrary: RealmMediaLibrary) {
+		self.realmObject = realmObject
+		cachedUid = uid
+		self.mediaLibrary = mediaLibrary
+	}
+	public func synchronize() -> T {
+		do {
+			return try mediaLibrary.getRealm().objectForPrimaryKey(T.self, key: cachedUid) ?? realmObject
+		} catch {
+			return realmObject
+		}
+	}
+}
+
+public protocol RealmWrapableType {
+	func wrap(mediaLibrary: RealmMediaLibrary) -> RealmEntityWrapperType
+}
+extension RealmArtist : RealmWrapableType {
+	public func wrap(mediaLibrary: RealmMediaLibrary) -> RealmEntityWrapperType {
+		return RealmArtistWrapper(realmArtist: self, mediaLibrary: mediaLibrary)
+	}
+}
+extension RealmAlbum : RealmWrapableType {
+	public func wrap(mediaLibrary: RealmMediaLibrary) -> RealmEntityWrapperType {
+		return RealmAlbumWrapper(realmAlbum: self, mediaLibrary: mediaLibrary)
+	}
+}
+extension RealmTrack : RealmWrapableType {
+	public func wrap(mediaLibrary: RealmMediaLibrary) -> RealmEntityWrapperType {
+		return RealmTrackWrapper(realmTrack: self, mediaLibrary: mediaLibrary)
+	}
+}
+extension RealmPlayList : RealmWrapableType {
+	public func wrap(mediaLibrary: RealmMediaLibrary) -> RealmEntityWrapperType {
+		return RealmPlayListWrapper(realmPlayList: self, mediaLibrary: mediaLibrary)
 	}
 }
 
@@ -295,6 +340,30 @@ public class RealmArtist: Object, ArtistType {
 	
 	override public static func primaryKey() -> String? {
 		return "uid"
+	}
+}
+
+extension RealmArtist {
+	func wrap(mediaLibrary: RealmMediaLibrary) -> RealmArtistWrapper {
+		return RealmArtistWrapper(realmArtist: self, mediaLibrary: mediaLibrary)
+	}
+}
+
+public class RealmArtistWrapper : RealmEntityWrapper<RealmArtist>, ArtistType {
+	internal init(realmArtist: RealmArtist, mediaLibrary: RealmMediaLibrary) {
+		super.init(realmObject: realmArtist, uid: realmArtist.uid, mediaLibrary: mediaLibrary)
+	}
+	
+	public var name: String {
+		return realmObject.name
+	}
+	
+	public var albums: MediaCollection<AlbumType, RealmAlbum> {
+		return realmObject.albums
+	}
+	
+	public func synchronize() -> ArtistType {
+		return super.synchronize()
 	}
 }
 
@@ -340,6 +409,29 @@ public class RealmAlbum: Object, AlbumType {
 	
 	override public static func primaryKey() -> String? {
 		return "uid"
+	}
+}
+
+extension RealmAlbum {
+	func wrap(mediaLibrary: RealmMediaLibrary) -> RealmAlbumWrapper {
+		return RealmAlbumWrapper(realmAlbum: self, mediaLibrary: mediaLibrary)
+	}
+}
+
+public class RealmAlbumWrapper : RealmEntityWrapper<RealmAlbum>, AlbumType {
+	internal init(realmAlbum: RealmAlbum, mediaLibrary: RealmMediaLibrary) {
+		super.init(realmObject: realmAlbum, uid: realmAlbum.uid, mediaLibrary: mediaLibrary)
+	}
+	
+	public var artwork: NSData? { return realmObject.artwork }
+	public var artist: ArtistType { return realmObject.artist }
+	public var tracks: MediaCollection<TrackType, RealmTrack> {
+		return SynchronizedMediaCollection(realmCollection: AnyRealmCollection(realmObject.tracksInternal), mediaLibrary: mediaLibrary)
+	}
+	public var name: String { return realmObject.name }
+	
+	public func synchronize() -> AlbumType {
+		return super.synchronize()
 	}
 }
 
@@ -390,6 +482,42 @@ public class RealmTrack: Object, TrackType {
 	}
 }
 
+extension RealmTrack {
+	func wrap(mediaLibrary: RealmMediaLibrary) -> RealmTrackWrapper {
+		return RealmTrackWrapper(realmTrack: self, mediaLibrary: mediaLibrary)
+	}
+}
+
+public class RealmTrackWrapper : RealmEntityWrapper<RealmTrack>, TrackType {
+	internal init(realmTrack: RealmTrack, mediaLibrary: RealmMediaLibrary) {
+		super.init(realmObject: realmTrack, uid: realmTrack.uid, mediaLibrary: mediaLibrary)
+	}
+	
+	public var uid: String {
+		return realmObject.uid
+	}
+	
+	public var title: String {
+		return realmObject.title
+	}
+	
+	public var duration: Float {
+		return realmObject.duration
+	}
+	
+	public var album: AlbumType {
+		return realmObject.albumInternal!.wrap(mediaLibrary)
+	}
+	
+	public var artist: ArtistType {
+		return realmObject.albumInternal!.artistInternal!.wrap(mediaLibrary)
+	}
+	
+	public func synchronize() -> TrackType {
+		return super.synchronize()
+	}
+}
+
 public class RealmPlayList : Object, PlayListType {
 	public internal(set) dynamic var uid: String
 	public dynamic var name: String
@@ -428,6 +556,22 @@ public class RealmPlayList : Object, PlayListType {
 	}
 }
 
+extension RealmPlayList {
+	func wrap(mediaLibrary: RealmMediaLibrary) -> RealmPlayListWrapper {
+		return RealmPlayListWrapper(realmPlayList: self, mediaLibrary: mediaLibrary)
+	}
+}
+
+public class RealmPlayListWrapper : RealmEntityWrapper<RealmPlayList>, PlayListType {
+	internal init(realmPlayList: RealmPlayList, mediaLibrary: RealmMediaLibrary) {
+		super.init(realmObject: realmPlayList, uid: realmPlayList.uid, mediaLibrary: mediaLibrary)
+	}
+	
+	public var uid: String { return realmObject.uid }
+	public var name: String { return realmObject.name }
+	public var items: MediaCollection<TrackType, RealmTrack> { return realmObject.items }
+}
+
 public class MediaCollection<ExposedType, InternalType: Object> : SequenceType {
 	public typealias Generator = MediaCollectionGenerator<ExposedType, InternalType>
 	internal let realmCollection: AnyRealmCollection<InternalType>
@@ -443,6 +587,33 @@ public class MediaCollection<ExposedType, InternalType: Object> : SequenceType {
 	
 	public func generate() -> MediaCollection.Generator {
 		return MediaCollectionGenerator(collection: self)
+	}
+}
+
+public class SynchronizedMediaCollection<ExposedType, InternalType: Object> : MediaCollection<ExposedType, InternalType> {
+	internal let mediaLibrary: RealmMediaLibrary
+	public init(realmCollection: AnyRealmCollection<InternalType>, mediaLibrary: RealmMediaLibrary) {
+		self.mediaLibrary = mediaLibrary
+		super.init(realmCollection: realmCollection)
+	}
+	
+	internal func wrapSynchronizedObject(object: ExposedType?) -> ExposedType? {
+		switch object {
+		case let object as RealmWrapableType: return object.wrap(mediaLibrary) as? ExposedType
+		default: return object
+		}
+	}
+	
+	public override subscript (index: Int) -> ExposedType? {
+		return wrapSynchronizedObject(super[index])
+	}
+	
+	override public var first: ExposedType? {
+		return wrapSynchronizedObject(super.first)
+	}
+	
+	override public var last: ExposedType? {
+		return wrapSynchronizedObject(super.last)
 	}
 }
 

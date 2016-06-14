@@ -726,4 +726,34 @@ class RealmMediaLibraryTests: XCTestCase {
 		let realm = try! Realm()
 		XCTAssertEqual(0, realm.objects(RealmPlayList).count)
 	}
+	
+	func testAccessPropertyFromAnotherThread() {
+		let lib = RealmMediaLibrary()
+		
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid1", artist: "Test artist1", title: "Test title1", album: "test album1",
+			artwork: "test artwork1".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.1), updateExistedObjects: true)
+
+		let track = try! lib.getTrackByUid("testuid1")!
+		//let track = RealmTrackWrapper(realmTrack: findedTrack, mediaLibrary: lib)
+		let album = track.album
+		let artist = try! lib.getArtists().first!
+		
+		let track2 = album.tracks.first!
+		//let artist = RealmArtistWrapper(realmArtist: findedArtist, mediaLibrary: lib)
+		
+		XCTAssertEqual(track.uid, "testuid1")
+		XCTAssertEqual(artist.albums.first?.name, "test album1")
+		
+		let expectation = expectationWithDescription("Access from another thread")
+		DispatchQueue.async(.Utility) {
+			XCTAssertEqual(track.synchronize().uid, "testuid1")
+			XCTAssertEqual(album.synchronize().name, "test album1")
+			XCTAssertEqual(track2.synchronize().title, "Test title1")
+			//let t = artist.albums.count
+			XCTAssertEqual(artist.synchronize().albums.first?.name, "test album1")
+			expectation.fulfill()
+		}
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
 }

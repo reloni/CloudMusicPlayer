@@ -58,6 +58,12 @@ public protocol MediaLibraryType {
 public protocol ArtistType {
 	var name: String { get }
 	var albums: MediaCollection<AlbumType, RealmAlbum> { get }
+	func synchronize() -> ArtistType
+}
+extension ArtistType {
+	public func synchronize() -> ArtistType {
+		return self
+	}
 }
 
 public protocol AlbumType {
@@ -65,6 +71,12 @@ public protocol AlbumType {
 	var tracks: MediaCollection<TrackType, RealmTrack> { get }
 	var name: String { get }
 	var artwork: NSData? { get }
+	func synchronize() -> AlbumType
+}
+extension AlbumType {
+	public func synchronize() -> AlbumType {
+		return self
+	}
 }
 
 public protocol TrackType {
@@ -73,6 +85,12 @@ public protocol TrackType {
 	var duration: Float { get }
 	var album: AlbumType { get }
 	var artist: ArtistType { get }
+	func synchronize() -> TrackType
+}
+extension TrackType {
+	public func synchronize() -> TrackType {
+		return self
+	}
 }
 
 public protocol MediaItemMetadataType {
@@ -86,7 +104,7 @@ public protocol MediaItemMetadataType {
 
 public protocol PlayListType {
 	var uid: String { get }
-	var name: String { get set }
+	var name: String { get }
 	var items: MediaCollection<TrackType, RealmTrack> { get }
 }
 
