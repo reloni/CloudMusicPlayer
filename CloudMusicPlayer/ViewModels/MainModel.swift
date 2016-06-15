@@ -44,19 +44,19 @@ class MainModel {
 		return UIImage(named: "Album Place Holder")!
 	}()
 	
-	var artists: MediaCollection<ArtistType, RealmArtist>? {
+	var artists: MediaCollection<ArtistType>? {
 		return (try? player.mediaLibrary.getArtists()) ?? nil
 	}
 	
-	var albums: MediaCollection<AlbumType, RealmAlbum>? {
+	var albums: MediaCollection<AlbumType>? {
 		return (try? player.mediaLibrary.getAlbums()) ?? nil
 	}
 
-	var tracks: MediaCollection<TrackType, RealmTrack>? {
+	var tracks: MediaCollection<TrackType>? {
 		return (try? player.mediaLibrary.getTracks()) ?? nil
 	}
 	
-	var playLists: MediaCollection<PlayListType, RealmPlayList>? {
+	var playLists: MediaCollection<PlayListType>? {
 		return (try? player.mediaLibrary.getPlayLists()) ?? nil
 	}
 	

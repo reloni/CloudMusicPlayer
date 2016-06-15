@@ -726,4 +726,53 @@ class RealmMediaLibraryTests: XCTestCase {
 		let realm = try! Realm()
 		XCTAssertEqual(0, realm.objects(RealmPlayList).count)
 	}
+	
+	func testAccessFromAnotherThread() {
+		let lib = RealmMediaLibrary()
+		
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid1", artist: "Test artist1", title: "Test title1", album: "test album1",
+			artwork: "test artwork1".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.1), updateExistedObjects: true)
+
+		let track = try! lib.getTracks().first!
+		let album = try! lib.getAlbums().first!
+		let artist = try! lib.getArtists().first!
+		
+		let pl = try! lib.createPlayList("test pl")
+
+		try! lib.addTracksToPlayList(pl, tracks: [track])
+		
+		let expectation = expectationWithDescription("Access from another thread")
+
+		DispatchQueue.async(.Utility) {
+			// trying to access properties
+			// if synchronization don't work exception will be thrown
+			
+			let _ = track.synchronize().album.artist.name
+			let _ = track.synchronize().artist.name
+			let _ = track.synchronize().artist.albums.count
+			let _ = album.synchronize().artist.name
+			let _ = album.synchronize().tracks.count
+			let _ = artist.synchronize().albums.count
+			let _ = artist.synchronize().name
+			let _ = pl.synchronize().items.count
+			let _ = pl.synchronize().name
+			
+			expectation.fulfill()
+		}
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testSequence() {
+		let lib = RealmMediaLibrary()
+		
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid1", artist: "Test artist1", title: "Test title1", album: "test album1",
+			artwork: "test artwork1".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.1), updateExistedObjects: true)
+		
+		let album = try! lib.getAlbums().first!
+		let artist = try! lib.getArtists().first!
+		
+		XCTAssertEqual("Test title1", album.tracks.map { $0.title }.first)
+		XCTAssertEqual("test album1", artist.albums.map { $0.name }.first)
+	}
 }
