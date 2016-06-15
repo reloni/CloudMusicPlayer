@@ -43,10 +43,15 @@ class PlayListInfoModel {
 		return playList.synchronize().uid == mainModel.currentPlayingContainerUid && mainModel.player.playing
 	}
 	
-	func togglePlayerState(startPlayingWith: TrackType? = nil) {
-		if checkPlaying() && mainModel.currentPlayingContainerUid == playList.uid {
+	func togglePlayerState(play: Bool, startPlayingWith: TrackType? = nil) {
+		guard play else { mainModel.player.pause(); return }
+		
+		if checkPlaying() &&
+			mainModel.currentPlayingContainerUid == playList.uid &&
+			mainModel.player.current?.streamIdentifier.streamResourceUid == startPlayingWith?.uid {
 			mainModel.player.pause()
 		} else if mainModel.currentPlayingContainerUid == playList.uid &&
+			mainModel.player.current?.streamIdentifier.streamResourceUid == startPlayingWith?.uid &&
 			mainModel.player.currentItems.count == playList.items.count {
 			mainModel.player.resume(true)
 		} else {

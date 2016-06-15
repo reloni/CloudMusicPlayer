@@ -133,7 +133,7 @@ class PlayListInfoController: UIViewController {
 		
 		cell.playButton?.rx_tap.observeOn(MainScheduler.instance).bindNext { [weak self] in
 			guard let object = self else { return }
-			object.model.togglePlayerState()
+			object.model.togglePlayerState(!object.model.mainModel.player.playing)
 		}.addDisposableTo(cell.bag)
 		
 		if let playButton = cell.playButton {
@@ -187,6 +187,6 @@ extension PlayListInfoController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 		guard indexPath.row < model.playList.items.count else { return }
 		let selectedTrack = model.playList.items[indexPath.row]
-		model.togglePlayerState(selectedTrack)
+		model.togglePlayerState(!model.mainModel.player.playing, startPlayingWith: selectedTrack)
 	}
 }
