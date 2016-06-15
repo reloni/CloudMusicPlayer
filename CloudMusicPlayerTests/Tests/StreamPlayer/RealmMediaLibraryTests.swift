@@ -762,4 +762,17 @@ class RealmMediaLibraryTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
+	
+	func testSequence() {
+		let lib = RealmMediaLibrary()
+		
+		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid1", artist: "Test artist1", title: "Test title1", album: "test album1",
+			artwork: "test artwork1".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.1), updateExistedObjects: true)
+		
+		let album = try! lib.getAlbums().first!
+		let artist = try! lib.getArtists().first!
+		
+		XCTAssertEqual("Test title1", album.tracks.map { $0.title }.first)
+		XCTAssertEqual("test album1", artist.albums.map { $0.name }.first)
+	}
 }
