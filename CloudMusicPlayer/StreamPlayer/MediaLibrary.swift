@@ -93,6 +93,18 @@ extension TrackType {
 	}
 }
 
+public protocol PlayListType {
+	var uid: String { get }
+	var name: String { get }
+	var items: MediaCollection<TrackType, RealmTrack> { get }
+	func synchronize() -> PlayListType
+}
+extension PlayListType {
+	public func synchronize() -> PlayListType {
+		return self
+	}
+}
+
 public protocol MediaItemMetadataType {
 	var resourceUid: String { get }
 	var artist: String? { get }
@@ -100,12 +112,6 @@ public protocol MediaItemMetadataType {
 	var album: String? { get }
 	var artwork: NSData? { get }
 	var duration: Float? { get }
-}
-
-public protocol PlayListType {
-	var uid: String { get }
-	var name: String { get }
-	var items: MediaCollection<TrackType, RealmTrack> { get }
 }
 
 public struct MediaItemMetadata : MediaItemMetadataType {

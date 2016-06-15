@@ -727,30 +727,36 @@ class RealmMediaLibraryTests: XCTestCase {
 		XCTAssertEqual(0, realm.objects(RealmPlayList).count)
 	}
 	
-	func testAccessPropertyFromAnotherThread() {
+	func testAccessFromAnotherThread() {
 		let lib = RealmMediaLibrary()
 		
 		try! lib.saveMetadata(MediaItemMetadata(resourceUid: "testuid1", artist: "Test artist1", title: "Test title1", album: "test album1",
 			artwork: "test artwork1".dataUsingEncoding(NSUTF8StringEncoding), duration: 1.1), updateExistedObjects: true)
 
-		let track = try! lib.getTrackByUid("testuid1")!
-		//let track = RealmTrackWrapper(realmTrack: findedTrack, mediaLibrary: lib)
-		let album = track.album
+		let track = try! lib.getTracks().first!
+		let album = try! lib.getAlbums().first!
 		let artist = try! lib.getArtists().first!
 		
-		let track2 = album.tracks.first!
-		//let artist = RealmArtistWrapper(realmArtist: findedArtist, mediaLibrary: lib)
-		
-		XCTAssertEqual(track.uid, "testuid1")
-		XCTAssertEqual(artist.albums.first?.name, "test album1")
+		let pl = try! lib.createPlayList("test pl")
+
+		try! lib.addTracksToPlayList(pl, tracks: [track])
 		
 		let expectation = expectationWithDescription("Access from another thread")
+
 		DispatchQueue.async(.Utility) {
-			XCTAssertEqual(track.synchronize().uid, "testuid1")
-			XCTAssertEqual(album.synchronize().name, "test album1")
-			XCTAssertEqual(track2.synchronize().title, "Test title1")
-			//let t = artist.albums.count
-			XCTAssertEqual(artist.synchronize().albums.first?.name, "test album1")
+			// trying to access properties
+			// if synchronization don't work exception will be thrown
+			
+			let _ = track.synchronize().album.artist.name
+			let _ = track.synchronize().artist.name
+			let _ = track.synchronize().artist.albums.count
+			let _ = album.synchronize().artist.name
+			let _ = album.synchronize().tracks.count
+			let _ = artist.synchronize().albums.count
+			let _ = artist.synchronize().name
+			let _ = pl.synchronize().items.count
+			let _ = pl.synchronize().name
+			
 			expectation.fulfill()
 		}
 		
