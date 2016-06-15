@@ -18,14 +18,10 @@ class PlayListInfoController: UIViewController {
 	var bag = DisposeBag()
 	
 	let trackProgressBarHeight = CGFloat(integerLiteral: 2)
-	let trackCellHeight = CGFloat(integerLiteral: 55)
-	let lastCellHeight = CGFloat(integerLiteral: 30)
-	
-	var isCurrentPlayListPlaying: Bool {
-		return model.playList.uid == MainModel.sharedInstance.currentPlayingContainerUid &&
-			MainModel.sharedInstance.player.playing
-	}
-	
+	let playListCellHeight = CGFloat(integerLiteral: 90)
+	let trackCellHeight = CGFloat(integerLiteral: 65)
+	let lastCellHeight = CGFloat(integerLiteral: 25)
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 	}
@@ -116,7 +112,7 @@ class PlayListInfoController: UIViewController {
 		let cell = tableView.dequeueReusableCellWithIdentifier("PlayListHeaderCell") as! PlayListCell
 		cell.playListNameLabel.text = model.playList.name
 		cell.itemsCountLabel?.text = "Tracks: \(model.playList.items.count)"
-		cell.playButton?.selected = isCurrentPlayListPlaying
+		cell.playButton?.selected = model.checkPlaying()
 		if let art = model.playList.items.first?.album.artwork {
 			cell.playListImage?.image = UIImage(data: art)
 		}
@@ -135,19 +131,14 @@ class PlayListInfoController: UIViewController {
 			MainModel.sharedInstance.player.repeatQueue = button.selected
 			}.addDisposableTo(cell.bag)
 		
-		cell.playButton?.rx_tap.observeOn(MainScheduler.instance).bindNext { [weak cell, weak self] in
-			guard let cell = cell, object = self else { return }
-			if object.isCurrentPlayListPlaying {
-				MainModel.sharedInstance.player.pause()
-			} else if MainModel.sharedInstance.currentPlayingContainerUid == object.model.playList.uid &&
-				MainModel.sharedInstance.player.currentItems.count == object.model.playList.items.count {
-				MainModel.sharedInstance.player.resume(true)
-			} else {
-				MainModel.sharedInstance.playPlayList(object.model.playList)
-			}
-			
-			cell.playButton?.selected = MainModel.sharedInstance.player.playing
+		cell.playButton?.rx_tap.observeOn(MainScheduler.instance).bindNext { [weak self] in
+			guard let object = self else { return }
+			object.model.togglePlayerState()
 		}.addDisposableTo(cell.bag)
+		
+		if let playButton = cell.playButton {
+			model.playing.asDriver(onErrorJustReturn: false).drive(playButton.rx_selected).addDisposableTo(cell.bag)
+		}
 		
 		return cell
 	}
@@ -169,6 +160,10 @@ class PlayListInfoController: UIViewController {
 }
 
 extension PlayListInfoController : UITableViewDelegate {
+	func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+		return playListCellHeight
+	}
+	
 	func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
 		return getPlayListCell()
 	}
@@ -192,6 +187,6 @@ extension PlayListInfoController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 		guard indexPath.row < model.playList.items.count else { return }
 		let selectedTrack = model.playList.items[indexPath.row]
-		MainModel.sharedInstance.playPlayList(model.playList, startWith: selectedTrack)
+		model.togglePlayerState(selectedTrack)
 	}
 }

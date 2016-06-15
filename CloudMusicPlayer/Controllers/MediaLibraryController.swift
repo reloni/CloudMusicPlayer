@@ -75,7 +75,7 @@ class MediaLibraryController: UIViewController {
 		if segue.identifier == "ShowPlayListInfo" && segment.selectedSegmentIndex == 3 {
 			guard let index = tableView.indexPathForSelectedRow, playList = MainModel.sharedInstance.playLists?[index.row] else { return }
 			guard let controller = segue.destinationViewController as? PlayListInfoController else { return }
-			controller.model = PlayListInfoModel(playList: playList)
+			controller.model = PlayListInfoModel(mainModel: MainModel.sharedInstance, playList: playList)
 		}
 	}
 	
