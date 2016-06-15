@@ -18,17 +18,25 @@ class PlayListInfoModel {
 		self.playList = playList
 	}
 	
+	var playListActive: Bool {
+		return mainModel.currentPlayingContainerUid == playList.synchronize().uid
+	}
+	
+	func checkPlayListPlaying() -> Bool {
+		return playListActive && mainModel.player.playing
+	}
+	
 	var playing: Observable<Bool> {
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
-			observer.onNext(object.checkPlaying())
+			observer.onNext(object.checkPlayListPlaying())
 			
 			let disposable = object.mainModel.player.playerEvents.bindNext { event in
 				switch event {
 				case .Paused: fallthrough
 				case .Stopped: fallthrough
 				case .Resumed: fallthrough
-				case .Started: observer.onNext(object.checkPlaying())
+				case .Started: observer.onNext(object.checkPlayListPlaying())
 				default: break
 				}
 			}
@@ -39,23 +47,38 @@ class PlayListInfoModel {
 		}
 	}
 	
-	func checkPlaying() -> Bool {
-		return playList.synchronize().uid == mainModel.currentPlayingContainerUid && mainModel.player.playing
-	}
-	
-	func togglePlayerState(play: Bool, startPlayingWith: TrackType? = nil) {
-		guard play else { mainModel.player.pause(); return }
+	func togglePlayer(play: Bool, track: TrackType? = nil) {
+		// if should pause player and track not specified, simply pause and exit
+		if !play { mainModel.player.pause(); return }
 		
-		if checkPlaying() &&
-			mainModel.currentPlayingContainerUid == playList.uid &&
-			mainModel.player.current?.streamIdentifier.streamResourceUid == startPlayingWith?.uid {
-			mainModel.player.pause()
-		} else if mainModel.currentPlayingContainerUid == playList.uid &&
-			mainModel.player.current?.streamIdentifier.streamResourceUid == startPlayingWith?.uid &&
-			mainModel.player.currentItems.count == playList.items.count {
-			mainModel.player.resume(true)
+		let player = mainModel.player
+		
+		// check new track specified
+		guard let newTrack = track?.synchronize() else {
+			// if should pause, simply do that
+			if playListActive {
+				// if track not specified and player play current play list, simply resume
+				player.resume(true)
+			} else {
+				// else spart playing current play list
+				mainModel.playPlayList(playList)
+			}
+			return
+		}
+		
+		// if play list not active, simply start playing this play list
+		guard playListActive && player.currentItems.count == playList.items.count else {
+			mainModel.playPlayList(playList, startWith: newTrack); return
+		}
+		
+		if player.current?.streamIdentifier.streamResourceUid == newTrack.uid {
+			// if player current item equals to specified track, resume
+			player.resume(true)
 		} else {
-			mainModel.playPlayList(playList, startWith: startPlayingWith)
+			// else, set specified track as current and resume
+			if let queueItem = player.getQueueItemByUid(newTrack.uid) {
+				player.play(queueItem)
+			}
 		}
 	}
 }

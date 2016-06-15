@@ -112,7 +112,7 @@ class PlayListInfoController: UIViewController {
 		let cell = tableView.dequeueReusableCellWithIdentifier("PlayListHeaderCell") as! PlayListCell
 		cell.playListNameLabel.text = model.playList.name
 		cell.itemsCountLabel?.text = "Tracks: \(model.playList.items.count)"
-		cell.playButton?.selected = model.checkPlaying()
+		cell.playButton?.selected = model.checkPlayListPlaying()
 		if let art = model.playList.items.first?.album.artwork {
 			cell.playListImage?.image = UIImage(data: art)
 		}
@@ -133,7 +133,11 @@ class PlayListInfoController: UIViewController {
 		
 		cell.playButton?.rx_tap.observeOn(MainScheduler.instance).bindNext { [weak self] in
 			guard let object = self else { return }
-			object.model.togglePlayerState(!object.model.mainModel.player.playing)
+			if object.model.playListActive {
+				object.model.togglePlayer(!object.model.mainModel.player.playing)
+			} else {
+				object.model.togglePlayer(true)
+			}
 		}.addDisposableTo(cell.bag)
 		
 		if let playButton = cell.playButton {
@@ -187,6 +191,14 @@ extension PlayListInfoController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 		guard indexPath.row < model.playList.items.count else { return }
 		let selectedTrack = model.playList.items[indexPath.row]
-		model.togglePlayerState(!model.mainModel.player.playing, startPlayingWith: selectedTrack)
+		
+		let player = model.mainModel.player
+		let trackIsCurrent = selectedTrack?.uid == player.current?.streamIdentifier.streamResourceUid
+		
+		if trackIsCurrent {
+			model.togglePlayer(!player.playing, track: selectedTrack)
+		} else {
+			model.togglePlayer(true, track: selectedTrack)
+		}
 	}
 }

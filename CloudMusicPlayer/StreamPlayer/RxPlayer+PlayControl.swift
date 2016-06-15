@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 extension RxPlayer {
-	public func playUrl(url: StreamResourceIdentifier, clearQueue: Bool = true) {
+	public func play(url: StreamResourceIdentifier, clearQueue: Bool = true) {
 		if clearQueue {
 			initWithNewItems([url])
 			playing = true
@@ -26,40 +26,35 @@ extension RxPlayer {
 		}
 	}
 	
-	//public func playPlayList(playList: PlayListType) {
-	//	playPlayList(playList, shuffle: shuffleQueue)
-	//}
-	
-	//public func playPlayList(playList: PlayListType, shuffle: Bool) {
-		//let queueItems = playList.items.map { loadStreamResourceByUid($0.uid) }
-		//initWithNewItems(queueItems, shuffle: shuffle)
-		//playing = true
-		//current = first
-	//}
-	
-	func playPlayList(playList: PlayListType, startWithTrack: TrackType? = nil) {
-		playPlayList(playList, shuffle: shuffleQueue, startWithTrack: startWithTrack)
+	func play(playList: PlayListType, startWithTrack: TrackType? = nil) {
+		play(playList, shuffle: shuffleQueue, startWithTrack: startWithTrack)
 	}
 	
-	func playPlayList(playList: PlayListType, shuffle: Bool, startWithTrack: TrackType? = nil) {
+	func play(playList: PlayListType, shuffle: Bool, startWithTrack: TrackType? = nil) {
 		let items = playList.items.map { loadStreamResourceByUid($0.uid) }
 		var startWithItem: StreamResourceIdentifier? = nil
 		if let startWithTrack = startWithTrack {
 			startWithItem = loadStreamResourceByUid(startWithTrack.uid)
 		}
-		playItems(items, startWithItem: startWithItem)
+		play(items, startWithItem: startWithItem)
 	}
 	
-	func playItems(items: [StreamResourceIdentifier], startWithItem: StreamResourceIdentifier? = nil) {
-		playItems(items, shuffle: shuffleQueue, startWithItem: startWithItem)
+	func play(items: [StreamResourceIdentifier], startWithItem: StreamResourceIdentifier? = nil) {
+		play(items, shuffle: shuffleQueue, startWithItem: startWithItem)
 	}
 	
-	func playItems(items: [StreamResourceIdentifier], shuffle: Bool, startWithItem: StreamResourceIdentifier? = nil) {
+	func play(items: [StreamResourceIdentifier], shuffle: Bool, startWithItem: StreamResourceIdentifier? = nil) {
 		initWithNewItems(items)
 		if let startWithItem = startWithItem, item = getQueueItemByUid(startWithItem.streamResourceUid) {
 			current = item
 		}
 		resume(true)
+	}
+	
+	func play(item: RxPlayerQueueItem) {
+		guard item.inQueue else { return }
+		playing = true
+		current = item
 	}
 	
 	public func loadStreamResourceByUid(itemUid: String) -> StreamResourceIdentifier {

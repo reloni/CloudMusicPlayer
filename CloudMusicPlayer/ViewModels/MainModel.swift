@@ -75,7 +75,7 @@ class MainModel {
 	
 	func playPlayList(playList: PlayListType, startWith: TrackType? = nil) {
 		currentPlayingContainerUid = playList.uid
-		player.playPlayList(playList, startWithTrack: startWith)
+		player.play(playList, startWithTrack: startWith)
 	}
 	
 	func loadMetadataObjectForTrackByIndex(index: Int) -> Observable<MediaItemMetadata?> {
