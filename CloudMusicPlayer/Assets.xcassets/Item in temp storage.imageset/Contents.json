@@ -7,10 +7,12 @@
     },
     {
       "idiom" : "iphone",
+      "filename" : "Clouds Filled-50.png",
       "scale" : "2x"
     },
     {
       "idiom" : "iphone",
+      "filename" : "Clouds Filled-75.png",
       "scale" : "3x"
     }
   ],
