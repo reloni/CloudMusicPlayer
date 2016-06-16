@@ -15,6 +15,12 @@ public struct StorageSize {
 	let permanentStorage: UInt64
 }
 
+public enum CachedItemState {
+	case inPermanentStorage
+	case inTempStorage
+	case notExisted
+}
+
 public protocol LocalStorageType {
 	func createCacheProvider(uid: String, targetMimeType: String?) -> CacheProvider
 	/// Directory for temp storage.
@@ -28,6 +34,7 @@ public protocol LocalStorageType {
 	var permanentStorageDirectory: NSURL { get }
 	var tempStorageDiskSpace: UInt { get }
 	func calculateSize() -> Observable<StorageSize>
+	func getItemState(identifier: StreamResourceIdentifier) -> CachedItemState
 	func clearTempStorage()
 	func clearPermanentStorage()
 	func clearTemporaryDirectory()
@@ -82,6 +89,16 @@ public class LocalNsUserDefaultsStorage {
 }
 
 extension LocalNsUserDefaultsStorage : LocalStorageType {
+	public func getItemState(identifier: StreamResourceIdentifier) -> CachedItemState {
+		if tempStorageDictionary.keys.contains(identifier.streamResourceUid) {
+			return .inTempStorage
+		} else if permanentStorageDictionary.keys.contains(identifier.streamResourceUid) {
+			return .inPermanentStorage
+		} else {
+			return .notExisted
+		}
+	}
+	
 	internal func saveTo(destination: NSURL, provider: CacheProvider) -> NSURL? {
 		return provider.saveData(destination,
 		                                   fileExtension: ContentTypeDefinition.getFileExtensionFromMime(provider.contentMimeType ?? ""))

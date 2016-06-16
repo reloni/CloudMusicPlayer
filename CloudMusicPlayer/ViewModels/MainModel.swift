@@ -44,6 +44,18 @@ class MainModel {
 		return UIImage(named: "Album Place Holder")!
 	}()
 	
+	lazy var itemInCloudImage: UIImage = {
+		return UIImage(named: "Item in cloud")!
+	}()
+	
+	lazy var itemInTempStorageImage: UIImage = {
+		return UIImage(named: "Item in temp storage")!
+	}()
+	
+	lazy var itemInPermanentStorageImage: UIImage = {
+		return UIImage(named: "Item in permanent storage")!
+	}()
+	
 	var artists: MediaCollection<ArtistType>? {
 		return (try? player.mediaLibrary.getArtists()) ?? nil
 	}

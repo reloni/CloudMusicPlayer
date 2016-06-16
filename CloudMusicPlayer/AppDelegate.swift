@@ -75,11 +75,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		MainModel.sharedInstance.player.playerEvents.bindNext { event in
 			print("player event: \(event)")
 			switch event {
-			case PlayerEvents.FinishPlayingCurrentItem: MainModel.sharedInstance.savePlayerState()
 			case PlayerEvents.Stopped: fallthrough
 			case PlayerEvents.Paused: fallthrough
 			case PlayerEvents.Started: fallthrough
 			case PlayerEvents.Resumed:
+				MainModel.sharedInstance.savePlayerState()
+				
 				guard let info = MainModel.sharedInstance.player.getCurrentItemMetadataForNowPlayingCenter() else {
 					MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = nil
 					break

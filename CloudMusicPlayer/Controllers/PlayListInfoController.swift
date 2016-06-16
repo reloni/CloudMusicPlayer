@@ -42,8 +42,20 @@ class PlayListInfoController: UIViewController {
 		guard let track = objects[indexPath.row] else { return cell }
 		
 		cell.trackTitleLabel.text = track.title
-		createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
 		
+		
+		cell.showMenuButton.rx_tap.bindNext { [weak self] in
+			guard let object = self else { return }
+			let alert = object.createMenu(track)
+			alert.view.setNeedsLayout()
+			object.presentViewController(alert, animated: true, completion: nil)
+		}.addDisposableTo(cell.bag)
+		
+		switch model.mainModel.player.downloadManager.fileStorage.getItemState(track.uid) {
+		case .notExisted: cell.storageStatusImage?.image = model.mainModel.itemInCloudImage
+		case .inPermanentStorage: cell.storageStatusImage?.image = model.mainModel.itemInPermanentStorageImage
+		case .inTempStorage: cell.storageStatusImage?.image = model.mainModel.itemInTempStorageImage
+		}
 		
 		MainModel.sharedInstance.loadMetadataObjectForTrackInPlayListByIndex(indexPath.row, playList: model.playList).observeOn(MainScheduler.instance)
 			.bindNext { [weak cell] meta in
@@ -138,19 +150,27 @@ class PlayListInfoController: UIViewController {
 		return cell
 	}
 	
-	func createTaskForAddItemToPlayList(event: ControlEvent<Void>, artists: [ArtistType], albums: [AlbumType], tracks: [TrackType]) -> Observable<Void> {
-		return event.doOnNext { [unowned self] in
-			let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
-			let addToPlayList = UIAlertAction(title: "Add to playlist", style: .Default) { [weak self] _ in
-				let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
-				selectController.model = AddItemsToPlayListModel(mainModel: MainModel.sharedInstance, artists: artists, albums: albums, tracks: tracks)
-				self?.presentViewController(selectController, animated: true, completion: nil)
+	func createMenu(forTrack: TrackType) -> UIAlertController {
+		let track = forTrack.synchronize()
+		
+		let alert = UIAlertController(title: "Choose action", message: nil, preferredStyle: .ActionSheet)
+		
+		if model.mainModel.player.downloadManager.fileStorage.getItemState(track.uid) == CachedItemState.inPermanentStorage {
+			let action = UIAlertAction(title: "Delete", style: .Default) { _ in
+				print("delete item")
 			}
-			let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-			alert.addAction(addToPlayList)
-			alert.addAction(cancel)
-			self.presentViewController(alert, animated: true, completion: nil)
+			alert.addAction(action)
+		} else {
+			let action = UIAlertAction(title: "Save", style: .Default) { _ in
+				print("save item")
+			}
+			alert.addAction(action)
 		}
+		
+		let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+		alert.addAction(cancel)
+
+		return alert
 	}
 }
 

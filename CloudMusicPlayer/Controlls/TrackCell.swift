@@ -19,6 +19,8 @@ class TrackCell: UITableViewCell {
 	@IBOutlet weak var durationLabel: UILabel!
 	@IBOutlet weak var trackCurrentTimeProgressView: UIProgressView?
 	@IBOutlet weak var trackCurrentTimeProgressStackViewHeightConstraint: NSLayoutConstraint?
+	@IBOutlet weak var storageStatusImage: UIImageView?
+	@IBOutlet weak var cloudServiceImage: UIImageView?
 	
 	override func prepareForReuse() {
 		bag = DisposeBag()

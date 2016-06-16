@@ -902,14 +902,19 @@
                                                                         <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="245" verticalHuggingPriority="245" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="1Bb-i0-t0a">
                                                                             <rect key="frame" x="0.0" y="55" width="495" height="25"/>
                                                                             <subviews>
-                                                                                <view alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="249" verticalHuggingPriority="249" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="tnS-SM-APP">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="270" height="25"/>
+                                                                                <view alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="248" verticalHuggingPriority="248" horizontalCompressionResistancePriority="748" verticalCompressionResistancePriority="748" translatesAutoresizingMaskIntoConstraints="NO" id="tnS-SM-APP">
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="225" height="25"/>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                                 </view>
-                                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dec-qc-bXn">
-                                                                                    <rect key="frame" x="290" y="0.0" width="25" height="25"/>
+                                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" verticalHuggingPriority="249" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dec-qc-bXn">
+                                                                                    <rect key="frame" x="245" y="0.0" width="25" height="25"/>
                                                                                     <state key="normal" image="Play small"/>
                                                                                     <state key="selected" image="Pause small"/>
+                                                                                </button>
+                                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sYK-oO-wG5">
+                                                                                    <rect key="frame" x="290" y="0.0" width="25" height="25"/>
+                                                                                    <state key="normal" image="Flight mode off"/>
+                                                                                    <state key="selected" image="Flight mode on"/>
                                                                                 </button>
                                                                                 <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JL9-6b-ro6">
                                                                                     <rect key="frame" x="335" y="0.0" width="25" height="25"/>
@@ -964,19 +969,19 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="yEY-KN-xH4">
-                                                            <rect key="frame" x="0.0" y="0.0" width="600" height="55"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="600" height="54"/>
                                                             <subviews>
                                                                 <view contentMode="scaleToFill" horizontalHuggingPriority="252" verticalHuggingPriority="253" translatesAutoresizingMaskIntoConstraints="NO" id="xVl-jH-4jg">
-                                                                    <rect key="frame" x="10" y="5" width="45" height="45"/>
+                                                                    <rect key="frame" x="10" y="5" width="44" height="44"/>
                                                                     <subviews>
                                                                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="252" verticalHuggingPriority="252" image="Album Place Holder" translatesAutoresizingMaskIntoConstraints="NO" id="zx2-lr-4KQ">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="45" height="45"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="44" height="44"/>
                                                                         </imageView>
                                                                         <view alpha="0.69999999999999996" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nm5-Xq-b3s">
-                                                                            <rect key="frame" x="0.0" y="34" width="45" height="11"/>
+                                                                            <rect key="frame" x="0.0" y="33" width="44" height="11"/>
                                                                             <subviews>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="752" verticalCompressionResistancePriority="752" text="Duration" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bQY-eB-eSH">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="45" height="11"/>
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="44" height="11"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="thin" pointSize="9"/>
                                                                                     <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                                     <nil key="highlightedColor"/>
@@ -1005,25 +1010,25 @@
                                                                     </constraints>
                                                                 </view>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" verticalHuggingPriority="248" horizontalCompressionResistancePriority="747" verticalCompressionResistancePriority="747" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="qAT-2l-qSd">
-                                                                    <rect key="frame" x="65" y="5" width="490" height="45"/>
+                                                                    <rect key="frame" x="64" y="5" width="456" height="44"/>
                                                                     <subviews>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YJB-7x-aIL">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="490" height="27"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="456" height="26"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
                                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" text="Album and artist" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dnk-Y7-YiB">
-                                                                            <rect key="frame" x="0.0" y="29" width="490" height="12"/>
+                                                                            <rect key="frame" x="0.0" y="28" width="456" height="12"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
                                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
                                                                         <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="8AN-MO-O3S">
-                                                                            <rect key="frame" x="0.0" y="43" width="490" height="2"/>
+                                                                            <rect key="frame" x="0.0" y="42" width="456" height="2"/>
                                                                             <subviews>
                                                                                 <progressView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="748" verticalCompressionResistancePriority="748" progress="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="z5s-2r-hT6">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="490" height="2"/>
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="456" height="2"/>
                                                                                 </progressView>
                                                                             </subviews>
                                                                             <constraints>
@@ -1033,8 +1038,26 @@
                                                                     </subviews>
                                                                     <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                                 </stackView>
+                                                                <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="748" verticalCompressionResistancePriority="748" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="hwm-b8-dAW">
+                                                                    <rect key="frame" x="530" y="5" width="25" height="44"/>
+                                                                    <subviews>
+                                                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="253" verticalHuggingPriority="253" horizontalCompressionResistancePriority="752" verticalCompressionResistancePriority="752" image="Item in cloud" translatesAutoresizingMaskIntoConstraints="NO" id="z16-wA-vGp">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="25" height="22"/>
+                                                                        </imageView>
+                                                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="255" verticalHuggingPriority="255" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" image="Yandex disk" translatesAutoresizingMaskIntoConstraints="NO" id="B1d-M3-BbA">
+                                                                            <rect key="frame" x="0.0" y="22" width="25" height="22"/>
+                                                                        </imageView>
+                                                                        <view contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iCl-Wu-4UD">
+                                                                            <rect key="frame" x="0.0" y="44" width="25" height="0.0"/>
+                                                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                                        </view>
+                                                                    </subviews>
+                                                                    <constraints>
+                                                                        <constraint firstItem="z16-wA-vGp" firstAttribute="height" secondItem="B1d-M3-BbA" secondAttribute="height" id="bxa-eW-yiN"/>
+                                                                    </constraints>
+                                                                </stackView>
                                                                 <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MNA-RI-nbt">
-                                                                    <rect key="frame" x="565" y="5" width="25" height="45"/>
+                                                                    <rect key="frame" x="565" y="5" width="25" height="44"/>
                                                                     <state key="normal" image="Cell Menu"/>
                                                                 </button>
                                                             </subviews>
@@ -1053,8 +1076,10 @@
                                                 <connections>
                                                     <outlet property="albumAndArtistLabel" destination="dnk-Y7-YiB" id="DpB-HG-sko"/>
                                                     <outlet property="albumArtworkImage" destination="zx2-lr-4KQ" id="jDu-ay-4I7"/>
+                                                    <outlet property="cloudServiceImage" destination="B1d-M3-BbA" id="pN4-sD-vbM"/>
                                                     <outlet property="durationLabel" destination="bQY-eB-eSH" id="6gG-1s-KiX"/>
                                                     <outlet property="showMenuButton" destination="MNA-RI-nbt" id="Ie2-zZ-EMj"/>
+                                                    <outlet property="storageStatusImage" destination="z16-wA-vGp" id="Eei-Ag-ftP"/>
                                                     <outlet property="trackCurrentTimeProgressStackViewHeightConstraint" destination="8GV-n1-cAW" id="N1R-Gc-AL0"/>
                                                     <outlet property="trackCurrentTimeProgressView" destination="z5s-2r-hT6" id="TJB-00-qPX"/>
                                                     <outlet property="trackTitleLabel" destination="YJB-7x-aIL" id="Hyq-hd-o8e"/>
@@ -1266,6 +1291,8 @@
         <image name="Cloud" width="33" height="33"/>
         <image name="Empty White" width="33" height="33"/>
         <image name="Fast Forward" width="33" height="33"/>
+        <image name="Flight mode off" width="25" height="25"/>
+        <image name="Flight mode on" width="25" height="25"/>
         <image name="High volume" width="25" height="25"/>
         <image name="Item in cloud" width="25" height="25"/>
         <image name="List" width="25" height="25"/>
@@ -1282,5 +1309,6 @@
         <image name="Settings" width="33" height="33"/>
         <image name="Shuffle" width="25" height="25"/>
         <image name="Shuffle Selected" width="25" height="25"/>
+        <image name="Yandex disk" width="25" height="25"/>
     </resources>
 </document>
