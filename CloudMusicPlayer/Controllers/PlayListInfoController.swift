@@ -16,11 +16,6 @@ class PlayListInfoController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
 
 	var bag = DisposeBag()
-	
-	let trackProgressBarHeight = CGFloat(integerLiteral: 2)
-	let playListCellHeight = CGFloat(integerLiteral: 90)
-	let trackCellHeight = CGFloat(integerLiteral: 65)
-	let lastCellHeight = CGFloat(integerLiteral: 25)
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -75,8 +70,8 @@ class PlayListInfoController: UIViewController {
 			}
 			
 			if let item = item where track.uid == item.streamIdentifier.streamResourceUid && object.model.playList.uid == object.model.mainModel.currentPlayingContainerUid {
-				if cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant != object.trackProgressBarHeight {
-					cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = object.trackProgressBarHeight
+				if cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant != ViewConstants.trackProgressBarHeight {
+					cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = ViewConstants.trackProgressBarHeight
 					animate()
 				}
 				return Observable.just(true)
@@ -161,7 +156,7 @@ class PlayListInfoController: UIViewController {
 
 extension PlayListInfoController : UITableViewDelegate {
 	func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-		return playListCellHeight
+		return ViewConstants.playListHeaderHeight
 	}
 	
 	func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -174,9 +169,9 @@ extension PlayListInfoController : UITableViewDelegate {
 	
 	func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
 		if indexPath.row == model.playList.items.count {
-			return lastCellHeight
+			return ViewConstants.itemsCountCellHeight
 		} else {
-			return trackCellHeight
+			return ViewConstants.commonCellHeight
 		}
 	}
 	

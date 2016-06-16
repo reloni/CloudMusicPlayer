@@ -50,12 +50,12 @@ extension MainModel {
 		currentPlayingContainerUid = container.uid
 		
 		switch container {
-		case let pl as PlayListType: play(pl, track: track)
+		case let pl as PlayListType: playPlayList(pl, track: track)
 		default: break
 		}
 	}
 	
-	func play(playList: PlayListType, track: TrackType? = nil) {
+	func playPlayList(playList: PlayListType, track: TrackType? = nil) {
 		player.play(playList, startWithTrack: track)
 	}
 }
