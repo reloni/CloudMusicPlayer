@@ -74,7 +74,7 @@ class PlayListInfoController: UIViewController {
 					}, completion: nil)
 			}
 			
-			if let item = item where track.uid == item.streamIdentifier.streamResourceUid {
+			if let item = item where track.uid == item.streamIdentifier.streamResourceUid && object.model.playList.uid == object.model.mainModel.currentPlayingContainerUid {
 				if cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant != object.trackProgressBarHeight {
 					cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = object.trackProgressBarHeight
 					animate()
@@ -133,11 +133,7 @@ class PlayListInfoController: UIViewController {
 		
 		cell.playButton?.rx_tap.observeOn(MainScheduler.instance).bindNext { [weak self] in
 			guard let object = self else { return }
-			if object.model.playListActive {
-				object.model.togglePlayer(!object.model.mainModel.player.playing)
-			} else {
-				object.model.togglePlayer(true)
-			}
+			object.model.mainModel.togglePlayer(object.model.playList)
 		}.addDisposableTo(cell.bag)
 		
 		if let playButton = cell.playButton {
@@ -191,14 +187,7 @@ extension PlayListInfoController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 		guard indexPath.row < model.playList.items.count else { return }
 		let selectedTrack = model.playList.items[indexPath.row]
-		
-		let player = model.mainModel.player
-		let trackIsCurrent = selectedTrack?.uid == player.current?.streamIdentifier.streamResourceUid
-		
-		if trackIsCurrent {
-			model.togglePlayer(!player.playing, track: selectedTrack)
-		} else {
-			model.togglePlayer(true, track: selectedTrack)
-		}
+
+		model.mainModel.togglePlayer(model.playList, track: selectedTrack)
 	}
 }

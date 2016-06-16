@@ -437,9 +437,9 @@ public class RealmArtistWrapper : RealmEntityWrapper<RealmArtist>, ArtistType {
 		super.init(realmObject: realmArtist, uid: realmArtist.uid, mediaLibrary: mediaLibrary)
 	}
 	
-	public var name: String {
-		return realmObject.name
-	}
+	public var name: String { return realmObject.name }
+	
+	public var uid: String { return realmObject.uid }
 	
 	public var albums: MediaCollection<AlbumType> {
 		return SynchronizedRealmMediaCollection(realmCollection: AnyRealmCollection(realmObject.albumsInternal), mediaLibrary: mediaLibrary)
@@ -455,6 +455,7 @@ public class RealmAlbumWrapper : RealmEntityWrapper<RealmAlbum>, AlbumType {
 		super.init(realmObject: realmAlbum, uid: realmAlbum.uid, mediaLibrary: mediaLibrary)
 	}
 	
+	public var uid: String { return realmObject.uid }
 	public var artwork: NSData? { return realmObject.artwork }
 	public var artist: ArtistType { return realmObject.artistInternal!.wrapToEntityWrapper(mediaLibrary) as! RealmArtistWrapper }
 	public var tracks: MediaCollection<TrackType> {

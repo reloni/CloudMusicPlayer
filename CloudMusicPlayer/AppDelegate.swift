@@ -75,7 +75,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		MainModel.sharedInstance.player.playerEvents.bindNext { event in
 			print("player event: \(event)")
 			switch event {
-			//case PlayerEvents.CurrentItemChanged: fallthrough
+			case PlayerEvents.FinishPlayingCurrentItem: MainModel.sharedInstance.savePlayerState()
 			case PlayerEvents.Stopped: fallthrough
 			case PlayerEvents.Paused: fallthrough
 			case PlayerEvents.Started: fallthrough
@@ -146,7 +146,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
 		print("applicationWillResignActive")
 		
-		MainModel.sharedInstance.savePlayerState()
+		//MainModel.sharedInstance.savePlayerState()
 	}
 
 	func applicationDidEnterBackground(application: UIApplication) {

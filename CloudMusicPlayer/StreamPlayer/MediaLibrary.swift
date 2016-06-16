@@ -55,7 +55,12 @@ public protocol MediaLibraryType {
 	func clearLibrary() throws
 }
 
-public protocol ArtistType {
+public protocol TrackContainerType {
+	var uid: String { get }
+}
+
+public protocol ArtistType : TrackContainerType {
+	var uid: String { get }
 	var name: String { get }
 	var albums: MediaCollection<AlbumType> { get }
 	func synchronize() -> ArtistType
@@ -66,7 +71,8 @@ extension ArtistType {
 	}
 }
 
-public protocol AlbumType {
+public protocol AlbumType : TrackContainerType {
+	var uid: String { get }
 	var artist: ArtistType { get }
 	var tracks: MediaCollection<TrackType> { get }
 	var name: String { get }
@@ -93,7 +99,7 @@ extension TrackType {
 	}
 }
 
-public protocol PlayListType {
+public protocol PlayListType : TrackContainerType {
 	var uid: String { get }
 	var name: String { get }
 	var items: MediaCollection<TrackType> { get }

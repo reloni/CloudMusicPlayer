@@ -58,6 +58,8 @@
 		6E4319761CBFAF2E007CC9AB /* Float.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4319751CBFAF2E007CC9AB /* Float.swift */; };
 		6E4319781CBFBD6C007CC9AB /* RxPlayerQueueItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4319771CBFBD6C007CC9AB /* RxPlayerQueueItem.swift */; };
 		6E43197B1CBFC0A8007CC9AB /* MetadataTest.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6E43197A1CBFC0A8007CC9AB /* MetadataTest.mp3 */; };
+		6E4D7B291D129830008527E2 /* MainModel+LoadMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D7B281D129830008527E2 /* MainModel+LoadMetadata.swift */; };
+		6E4D7B2B1D129899008527E2 /* MainModel+Playback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D7B2A1D129899008527E2 /* MainModel+Playback.swift */; };
 		6E5130911CD9F26800C15C2D /* CloudResourceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5130901CD9F26800C15C2D /* CloudResourceClient.swift */; };
 		6E5159021CA3D61D001FD036 /* FakeStreamPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5159011CA3D61D001FD036 /* FakeStreamPlayer.swift */; };
 		6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5254491C676BE900CA5463 /* NSUserDefaults.swift */; };
@@ -209,6 +211,8 @@
 		6E4319751CBFAF2E007CC9AB /* Float.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Float.swift; sourceTree = "<group>"; };
 		6E4319771CBFBD6C007CC9AB /* RxPlayerQueueItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxPlayerQueueItem.swift; sourceTree = "<group>"; };
 		6E43197A1CBFC0A8007CC9AB /* MetadataTest.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = MetadataTest.mp3; sourceTree = "<group>"; };
+		6E4D7B281D129830008527E2 /* MainModel+LoadMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainModel+LoadMetadata.swift"; sourceTree = "<group>"; };
+		6E4D7B2A1D129899008527E2 /* MainModel+Playback.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainModel+Playback.swift"; sourceTree = "<group>"; };
 		6E5130901CD9F26800C15C2D /* CloudResourceClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudResourceClient.swift; sourceTree = "<group>"; };
 		6E5159011CA3D61D001FD036 /* FakeStreamPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeStreamPlayer.swift; sourceTree = "<group>"; };
 		6E5254491C676BE900CA5463 /* NSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSUserDefaults.swift; sourceTree = "<group>"; };
@@ -532,6 +536,8 @@
 			isa = PBXGroup;
 			children = (
 				6E29026F1CF4A022001C7661 /* MainModel.swift */,
+				6E4D7B281D129830008527E2 /* MainModel+LoadMetadata.swift */,
+				6E4D7B2A1D129899008527E2 /* MainModel+Playback.swift */,
 				6E8AFD851C78E17C00091B53 /* SettingsViewModel.swift */,
 				6EA638771C7A002200DD85A6 /* CloudResourcesViewModel.swift */,
 				6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */,
@@ -910,6 +916,7 @@
 				6EA638761C79FF4C00DD85A6 /* CloudResourcesStructureController.swift in Sources */,
 				6E38CE111CE4C0B300B103C7 /* StreamResourceLoader.swift in Sources */,
 				6E8490BE1CA92B7E00366361 /* AudioItemMetadata.swift in Sources */,
+				6E4D7B291D129830008527E2 /* MainModel+LoadMetadata.swift in Sources */,
 				6ED920601CCA4B8000900CCB /* MediaLibrary.swift in Sources */,
 				6E8554571CEB5AFB00A6FC4E /* KeychainExtensions.swift in Sources */,
 				6EECECD01C97EE54007B37CC /* HttpUtilities.swift in Sources */,
@@ -948,6 +955,7 @@
 				6E85544F1CEB272300A6FC4E /* OAuth.swift in Sources */,
 				6E24CCB51D0948A500032FEB /* Observable+retryWhenWithDelay.swift in Sources */,
 				6E6DDE471C8DBA59001AE510 /* NSTimer.swift in Sources */,
+				6E4D7B2B1D129899008527E2 /* MainModel+Playback.swift in Sources */,
 				6E182ED81C81E76300730C59 /* YandexDiskCloudJsonResource.swift in Sources */,
 				6E08530E1CB7D83F0004E193 /* RxPlayer+Queue.swift in Sources */,
 				6EF7476C1CBABC23008AA08B /* DownloadManager.swift in Sources */,
