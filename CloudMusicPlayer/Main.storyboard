@@ -879,68 +879,84 @@
                                                             <rect key="frame" x="0.0" y="0.0" width="600" height="90"/>
                                                             <subviews>
                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" image="Album Place Holder" translatesAutoresizingMaskIntoConstraints="NO" id="X7X-ZO-nAe">
-                                                                    <rect key="frame" x="10" y="5" width="80" height="80"/>
+                                                                    <rect key="frame" x="10" y="0.0" width="90" height="90"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" secondItem="X7X-ZO-nAe" secondAttribute="height" multiplier="1:1" id="yvd-LZ-bjH"/>
                                                                     </constraints>
                                                                 </imageView>
-                                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="BFr-ZB-J9V">
-                                                                    <rect key="frame" x="95" y="5" width="495" height="80"/>
+                                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="BFr-ZB-J9V">
+                                                                    <rect key="frame" x="105" y="0.0" width="485" height="90"/>
                                                                     <subviews>
-                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PlayList name" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pn4-xM-weR">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="495" height="17"/>
-                                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="236" verticalHuggingPriority="236" horizontalCompressionResistancePriority="999" verticalCompressionResistancePriority="999" text="PlayList name" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pn4-xM-weR">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="485" height="33"/>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
-                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Items count" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xFQ-X8-8E3">
-                                                                            <rect key="frame" x="0.0" y="17" width="495" height="38"/>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="237" verticalHuggingPriority="237" horizontalCompressionResistancePriority="998" verticalCompressionResistancePriority="998" text="Items count" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xFQ-X8-8E3">
+                                                                            <rect key="frame" x="0.0" y="43" width="485" height="12"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
                                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
-                                                                        <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="245" verticalHuggingPriority="245" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="1Bb-i0-t0a">
-                                                                            <rect key="frame" x="0.0" y="55" width="495" height="25"/>
+                                                                        <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="249" verticalCompressionResistancePriority="249" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="1Bb-i0-t0a">
+                                                                            <rect key="frame" x="0.0" y="65" width="485" height="25"/>
                                                                             <subviews>
-                                                                                <view alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="248" verticalHuggingPriority="248" horizontalCompressionResistancePriority="748" verticalCompressionResistancePriority="748" translatesAutoresizingMaskIntoConstraints="NO" id="tnS-SM-APP">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="220" height="25"/>
+                                                                                <view alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="tnS-SM-APP">
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="260" height="25"/>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                                 </view>
-                                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" verticalHuggingPriority="249" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dec-qc-bXn">
-                                                                                    <rect key="frame" x="240" y="0.0" width="25" height="25"/>
+                                                                                <button opaque="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dec-qc-bXn">
+                                                                                    <rect key="frame" x="280" y="0.0" width="25" height="25"/>
+                                                                                    <constraints>
+                                                                                        <constraint firstAttribute="width" secondItem="Dec-qc-bXn" secondAttribute="height" multiplier="1:1" id="SO7-Sx-qhD"/>
+                                                                                    </constraints>
                                                                                     <state key="normal" image="Play small"/>
                                                                                     <state key="selected" image="Pause small"/>
                                                                                 </button>
-                                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sYK-oO-wG5">
-                                                                                    <rect key="frame" x="285" y="0.0" width="25" height="25"/>
+                                                                                <button opaque="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sYK-oO-wG5">
+                                                                                    <rect key="frame" x="325" y="0.0" width="25" height="25"/>
+                                                                                    <constraints>
+                                                                                        <constraint firstAttribute="width" secondItem="sYK-oO-wG5" secondAttribute="height" multiplier="1:1" id="QJD-50-f1v"/>
+                                                                                    </constraints>
                                                                                     <state key="normal" image="Flight mode off"/>
                                                                                     <state key="selected" image="Flight mode on"/>
                                                                                 </button>
-                                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JL9-6b-ro6">
-                                                                                    <rect key="frame" x="330" y="0.0" width="25" height="25"/>
+                                                                                <button opaque="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JL9-6b-ro6">
+                                                                                    <rect key="frame" x="370" y="0.0" width="25" height="25"/>
+                                                                                    <constraints>
+                                                                                        <constraint firstAttribute="width" secondItem="JL9-6b-ro6" secondAttribute="height" multiplier="1:1" id="d0H-MN-3ZV"/>
+                                                                                    </constraints>
                                                                                     <state key="normal" image="Shuffle"/>
                                                                                     <state key="selected" image="Shuffle Selected"/>
                                                                                 </button>
-                                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="752" verticalCompressionResistancePriority="752" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="liM-f1-KHx">
-                                                                                    <rect key="frame" x="375" y="0.0" width="25" height="25"/>
+                                                                                <button opaque="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="liM-f1-KHx">
+                                                                                    <rect key="frame" x="415" y="0.0" width="25" height="25"/>
+                                                                                    <constraints>
+                                                                                        <constraint firstAttribute="width" secondItem="liM-f1-KHx" secondAttribute="height" multiplier="1:1" id="C4p-PG-WGg"/>
+                                                                                    </constraints>
                                                                                     <state key="normal" image="Repeat"/>
                                                                                     <state key="selected" image="Repeat Selected"/>
                                                                                 </button>
-                                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="253" verticalHuggingPriority="253" horizontalCompressionResistancePriority="753" verticalCompressionResistancePriority="753" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZDX-wD-m8q">
-                                                                                    <rect key="frame" x="420" y="0.0" width="25" height="25"/>
+                                                                                <button opaque="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZDX-wD-m8q">
+                                                                                    <rect key="frame" x="460" y="0.0" width="25" height="25"/>
+                                                                                    <constraints>
+                                                                                        <constraint firstAttribute="width" secondItem="ZDX-wD-m8q" secondAttribute="height" multiplier="1:1" id="Cdl-ak-EuL"/>
+                                                                                    </constraints>
                                                                                     <state key="normal" image="Item in cloud"/>
                                                                                 </button>
-                                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="189-go-3ku">
-                                                                                    <rect key="frame" x="465" y="0.0" width="25" height="25"/>
-                                                                                    <state key="normal" image="Cell Menu"/>
-                                                                                </button>
                                                                             </subviews>
-                                                                            <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="5"/>
+                                                                            <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                                         </stackView>
                                                                     </subviews>
+                                                                    <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                                 </stackView>
+                                                                <button hidden="YES" opaque="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="189-go-3ku">
+                                                                    <rect key="frame" x="590" y="0.0" width="0.0" height="90"/>
+                                                                    <state key="normal" image="Cell Menu"/>
+                                                                </button>
                                                             </subviews>
-                                                            <edgeInsets key="layoutMargins" top="5" left="10" bottom="5" right="10"/>
+                                                            <edgeInsets key="layoutMargins" top="0.0" left="10" bottom="0.0" right="10"/>
                                                         </stackView>
                                                     </subviews>
                                                     <constraints>
@@ -948,6 +964,7 @@
                                                         <constraint firstItem="H8j-YL-68J" firstAttribute="top" secondItem="LVb-pS-gkN" secondAttribute="top" id="gai-5v-sdg"/>
                                                         <constraint firstAttribute="bottom" secondItem="H8j-YL-68J" secondAttribute="bottom" id="juk-eK-CzX"/>
                                                         <constraint firstItem="H8j-YL-68J" firstAttribute="leading" secondItem="LVb-pS-gkN" secondAttribute="leading" id="uMH-pQ-hsm"/>
+                                                        <constraint firstItem="1Bb-i0-t0a" firstAttribute="height" relation="lessThanOrEqual" secondItem="LVb-pS-gkN" secondAttribute="height" multiplier="0.3" id="wk4-2B-zSx"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
                                                 <edgeInsets key="layoutMargins" top="8" left="0.0" bottom="8" right="8"/>
@@ -969,7 +986,7 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="600" height="54.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
-                                                        <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="yEY-KN-xH4">
+                                                        <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="yEY-KN-xH4">
                                                             <rect key="frame" x="0.0" y="0.0" width="600" height="54"/>
                                                             <subviews>
                                                                 <view contentMode="scaleToFill" horizontalHuggingPriority="252" verticalHuggingPriority="253" translatesAutoresizingMaskIntoConstraints="NO" id="xVl-jH-4jg">
@@ -1011,19 +1028,19 @@
                                                                     </constraints>
                                                                 </view>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" verticalHuggingPriority="248" horizontalCompressionResistancePriority="747" verticalCompressionResistancePriority="747" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="qAT-2l-qSd">
-                                                                    <rect key="frame" x="64" y="5" width="481" height="44"/>
+                                                                    <rect key="frame" x="59" y="5" width="492" height="44"/>
                                                                     <subviews>
                                                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="r5c-d7-j7N">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="481" height="17"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="492" height="17"/>
                                                                             <subviews>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" text="Track title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YJB-7x-aIL">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="421" height="17"/>
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="432" height="17"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
                                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
                                                                                 <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="3" verticalCompressionResistancePriority="3" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="WR2-MJ-bwG">
-                                                                                    <rect key="frame" x="426" y="0.0" width="55" height="17"/>
+                                                                                    <rect key="frame" x="437" y="0.0" width="55" height="17"/>
                                                                                     <subviews>
                                                                                         <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="255" verticalHuggingPriority="255" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" image="Item in cloud" translatesAutoresizingMaskIntoConstraints="NO" id="z16-wA-vGp">
                                                                                             <rect key="frame" x="0.0" y="0.0" width="25" height="17"/>
@@ -1036,16 +1053,16 @@
                                                                             </subviews>
                                                                         </stackView>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" text="Album and artist" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dnk-Y7-YiB">
-                                                                            <rect key="frame" x="0.0" y="19" width="481" height="21"/>
+                                                                            <rect key="frame" x="0.0" y="19" width="492" height="21"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
                                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
                                                                         <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="8AN-MO-O3S">
-                                                                            <rect key="frame" x="0.0" y="42" width="481" height="2"/>
+                                                                            <rect key="frame" x="0.0" y="42" width="492" height="2"/>
                                                                             <subviews>
                                                                                 <progressView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="748" verticalCompressionResistancePriority="748" progress="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="z5s-2r-hT6">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="481" height="2"/>
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="492" height="2"/>
                                                                                 </progressView>
                                                                             </subviews>
                                                                             <constraints>
@@ -1055,13 +1072,15 @@
                                                                     </subviews>
                                                                     <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                                 </stackView>
-                                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MNA-RI-nbt">
-                                                                    <rect key="frame" x="555" y="5" width="35" height="44"/>
-                                                                    <inset key="contentEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                                                <button opaque="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MNA-RI-nbt">
+                                                                    <rect key="frame" x="556" y="5" width="44" height="44"/>
+                                                                    <constraints>
+                                                                        <constraint firstAttribute="width" secondItem="MNA-RI-nbt" secondAttribute="height" multiplier="1:1" id="1Kq-FN-Yal"/>
+                                                                    </constraints>
                                                                     <state key="normal" image="Cell Menu"/>
                                                                 </button>
                                                             </subviews>
-                                                            <edgeInsets key="layoutMargins" top="5" left="10" bottom="5" right="10"/>
+                                                            <edgeInsets key="layoutMargins" top="5" left="10" bottom="5" right="0.0"/>
                                                         </stackView>
                                                     </subviews>
                                                     <constraints>
