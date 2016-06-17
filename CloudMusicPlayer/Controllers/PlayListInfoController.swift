@@ -155,7 +155,7 @@ class PlayListInfoController: UIViewController {
 		
 		let alert = UIAlertController(title: "Choose action", message: nil, preferredStyle: .ActionSheet)
 		
-		if model.mainModel.player.downloadManager.fileStorage.getItemState(track.uid) == CachedItemState.inPermanentStorage {
+		if model.mainModel.player.downloadManager.fileStorage.getItemState(track.uid) == .inPermanentStorage {
 			let action = UIAlertAction(title: "Delete", style: .Default) { _ in
 				print("delete item")
 			}

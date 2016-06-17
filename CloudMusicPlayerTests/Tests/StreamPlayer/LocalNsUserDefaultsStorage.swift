@@ -8,18 +8,30 @@
 
 import XCTest
 import RxBlocking
+import RxSwift
 @testable import CloudMusicPlayer
 
 class LocalNsUserDefaultsStorageTests: XCTestCase {
+	var tempStorageDir: NSURL!
+	var permanentStorageDir: NSURL!
+	var temporaryDir: NSURL!
 	
 	override func setUp() {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
+		
+		tempStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorageDir")!
+		permanentStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "PermanentStorageDir")!
+		temporaryDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TemporaryDir")!
 	}
 	
 	override func tearDown() {
 		// Put teardown code here. This method is called after the invocation of each test method in the class.
 		super.tearDown()
+		
+		tempStorageDir.deleteFile()
+		permanentStorageDir.deleteFile()
+		temporaryDir.deleteFile()
 	}
 	
 	func testPaths() {
@@ -33,7 +45,19 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		let storage = LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: false, userDefaults: FakeNSUserDefaults())
 		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString)
 		provider.appendData("some data".dataUsingEncoding(NSUTF8StringEncoding)!)
+		
+		let bag = DisposeBag()
+		let expectation = expectationWithDescription("Should send event about new cached item")
+		storage.itemStateChanged.bindNext { result in
+			if result.uid == provider.uid && result.from == CacheState.notExisted && result.to == .inTempStorage {
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
 		let file = storage.saveToTempStorage(provider)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		if let file = file {
 			XCTAssertEqual(true, file.fileExists(), "Check file existance")
 			XCTAssertEqual("dat", file.pathExtension, "Check default extension of file")
@@ -54,7 +78,19 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		let storage = LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: false, userDefaults: FakeNSUserDefaults())
 		let provider = MemoryCacheProvider(uid: NSUUID().UUIDString, contentMimeType: "audio/mpeg")
 		provider.appendData("some data".dataUsingEncoding(NSUTF8StringEncoding)!)
+		
+		let bag = DisposeBag()
+		let expectation = expectationWithDescription("Should send event about new cached item")
+		storage.itemStateChanged.bindNext { result in
+			if result.uid == provider.uid && result.from == CacheState.notExisted && result.to == .inPermanentStorage {
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
 		let file = storage.saveToPermanentStorage(provider)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
 		if let file = file {
 			XCTAssertEqual(true, file.fileExists(), "Check file existance")
 			XCTAssertEqual("mp3", file.pathExtension, "Check extension of file")
@@ -170,11 +206,7 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		cachedInTempFile?.deleteFile()
 	}
 	
-	func testCalculateStorageSize() {
-		let tempStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorageDir")!
-		let permanentStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "PermanentStorageDir")!
-		let temporaryDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TemporaryDir")!
-		
+	func testCalculateStorageSize() {	
 		let firstData = "first data".dataUsingEncoding(NSUTF8StringEncoding)!
 		let secondData = "second data".dataUsingEncoding(NSUTF8StringEncoding)!
 		
@@ -192,17 +224,9 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		XCTAssertEqual(size?.tempStorage, UInt64(firstData.length + secondData.length))
 		XCTAssertEqual(size?.permanentStorage, UInt64(firstData.length))
 		XCTAssertEqual(size?.temporary, UInt64(secondData.length))
-		
-		tempStorageDir.deleteFile()
-		permanentStorageDir.deleteFile()
-		temporaryDir.deleteFile()
 	}
 	
 	func testClearStorage() {
-		let tempStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TempStorageDir")!
-		let permanentStorageDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "PermanentStorageDir")!
-		let temporaryDir = NSFileManager.getOrCreateSubDirectory(NSFileManager.documentsDirectory, subDirName: "TemporaryDir")!
-		
 		let firstData = "first data".dataUsingEncoding(NSUTF8StringEncoding)!
 		let secondData = "second data".dataUsingEncoding(NSUTF8StringEncoding)!
 		
@@ -214,16 +238,93 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		secondData.writeToURL(temporaryDir.URLByAppendingPathComponent("second.dat"), atomically: true)
 		
 		let storage = LocalNsUserDefaultsStorage(tempStorageDirectory: tempStorageDir, permanentStorageDirectory: permanentStorageDir,
-		                                         temporaryDirectory: temporaryDir)
+																						 temporaryDirectory: temporaryDir)
+		
+		let clearTempStorageExpectation = expectationWithDescription("Should send event when temp storage cleared")
+		let clearPermanentStorageExpectation = expectationWithDescription("Should send event when permanent storage cleared")
+		
+		let bag = DisposeBag()
+		storage.storageCleared.bindNext { type in
+			if type == StorageType.permanent {
+				clearPermanentStorageExpectation.fulfill()
+			} else if type == StorageType.temp {
+				clearTempStorageExpectation.fulfill()
+			}
+		}.addDisposableTo(bag)
 		
 		storage.clearStorage()
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
 		
 		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(tempStorageDir)?.count)
 		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(permanentStorageDir)?.count)
 		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(temporaryDir)?.count)
+	}
+	
+	func testDeleteFileFromStorage() {
+		let firstData = "first data".dataUsingEncoding(NSUTF8StringEncoding)!
+		let cacheProvider = MemoryCacheProvider(uid: "test", contentMimeType: "audio/mpeg")
+		cacheProvider.appendData(firstData)
+	
+		let storage = LocalNsUserDefaultsStorage(tempStorageDirectory: tempStorageDir, permanentStorageDirectory: permanentStorageDir,
+		                                         temporaryDirectory: temporaryDir, persistInformationAboutSavedFiles: true, userDefaults: FakeNSUserDefaults())
+		storage.saveToTempStorage(cacheProvider)
 		
-		tempStorageDir.deleteFile()
-		permanentStorageDir.deleteFile()
-		temporaryDir.deleteFile()
+		let currentCacheState = storage.getItemState(cacheProvider.uid)
+		XCTAssertEqual(CacheState.inTempStorage, currentCacheState)
+		
+		let bag = DisposeBag()
+		let expectation = expectationWithDescription("Should change item cache state")
+		
+		storage.itemStateChanged.bindNext { result in
+			if result.uid == cacheProvider.uid && result.from == currentCacheState && result.to == CacheState.notExisted {
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		storage.deleteItem(cacheProvider.uid)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+	}
+	
+	func testMoveFileToPermanentStorage() {
+		let firstData = "first data".dataUsingEncoding(NSUTF8StringEncoding)!
+		let cacheProvider = MemoryCacheProvider(uid: "test", contentMimeType: "audio/mpeg")
+		cacheProvider.appendData(firstData)
+		
+		let storage = LocalNsUserDefaultsStorage(tempStorageDirectory: tempStorageDir, permanentStorageDirectory: permanentStorageDir,
+		                                         temporaryDirectory: temporaryDir, persistInformationAboutSavedFiles: true, userDefaults: FakeNSUserDefaults())
+		
+		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(tempStorageDir)?.count)
+		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(permanentStorageDir)?.count)
+		
+		storage.saveToTempStorage(cacheProvider)
+		
+		XCTAssertEqual(1, NSFileManager.defaultManager().contentsOfDirectoryAtURL(tempStorageDir)?.count)
+		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(permanentStorageDir)?.count)
+		
+		let currentCacheState = storage.getItemState(cacheProvider.uid)
+		XCTAssertEqual(CacheState.inTempStorage, currentCacheState)
+		
+		let bag = DisposeBag()
+		let expectation = expectationWithDescription("Should change item cache state")
+		
+		storage.itemStateChanged.bindNext { result in
+			if result.uid == cacheProvider.uid && result.from == currentCacheState && result.to == CacheState.inPermanentStorage {
+				expectation.fulfill()
+			}
+		}.addDisposableTo(bag)
+		
+		storage.moveToPermanentStorage(cacheProvider.uid)
+		
+		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(tempStorageDir)?.count)
+		XCTAssertEqual(1, NSFileManager.defaultManager().contentsOfDirectoryAtURL(permanentStorageDir)?.count)
+	}
+	
+	func testCorrectCheckCacheStateOfNotExistedItem() {
+		let storage = LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: false, userDefaults: FakeNSUserDefaults())
+		XCTAssertEqual(CacheState.notExisted, storage.getItemState("notexisted"))
 	}
 }
