@@ -123,6 +123,13 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 		
 		if let url = getFromStorage(uid) {
 			url.deleteFile()
+			
+			if currentState == .inTempStorage {
+				tempStorageDictionary[uid] = nil
+			} else {
+				permanentStorageDictionary[uid] = nil
+			}
+			
 			itemStateChangedSubject.onNext((uid: uid, from: currentState, to: CacheState.notExisted))
 		}
 	}
@@ -132,6 +139,7 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 		
 		do {
 			try NSFileManager.defaultManager().moveItemAtURL(url, toURL: permanentStorageDirectory.URLByAppendingPathComponent(fileName))
+			moveFileInformationToPermanentDictionary(uid)
 			itemStateChangedSubject.onNext((uid: uid, from: CacheState.inTempStorage, to: CacheState.inPermanentStorage))
 		} catch let error as NSError {
 			NSLog("Error while moving to permanent storage: %@", error.localizedDescription)
@@ -181,6 +189,16 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 		return nil
 	}
 	
+	internal func moveFileInformationToPermanentDictionary(uid: String) {
+		if let path = tempStorageDictionary[uid] {
+			permanentStorageDictionary[uid] = path
+		}
+		tempStorageDictionary[uid] = nil
+		
+		userDefaults.saveData(tempStorageDictionary, forKey: LocalNsUserDefaultsStorage.tempFileStorageId)
+		userDefaults.saveData(permanentStorageDictionary, forKey: LocalNsUserDefaultsStorage.permanentFileStorageId)
+	}
+	
 	public func saveToTemporaryFolder(provider: CacheProvider) -> NSURL? {
 		return saveTo(temporaryDirectory, provider: provider)
 	}
@@ -222,11 +240,19 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 	
 	public func clearTempStorage() {
 		clearDirectory(tempStorageDirectory)
+		tempStorageDictionary.removeAll()
+		if saveData {
+			userDefaults.saveData(tempStorageDictionary, forKey: LocalNsUserDefaultsStorage.tempFileStorageId)
+		}
 		storageClearedSubject.onNext(.temp)
 	}
 	
 	public func clearPermanentStorage() {
 		clearDirectory(permanentStorageDirectory)
+		permanentStorageDictionary.removeAll()
+		if saveData {
+			userDefaults.saveData(permanentStorageDictionary, forKey: LocalNsUserDefaultsStorage.permanentFileStorageId)
+		}
 		storageClearedSubject.onNext(.permanent)
 	}
 	

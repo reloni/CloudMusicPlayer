@@ -51,13 +51,22 @@ class PlayListInfoController: UIViewController {
 			object.presentViewController(alert, animated: true, completion: nil)
 		}.addDisposableTo(cell.bag)
 		
-		switch model.mainModel.player.downloadManager.fileStorage.getItemState(track.uid) {
-		case .notExisted: cell.storageStatusImage?.image = model.mainModel.itemInCloudImage
-		case .inPermanentStorage: cell.storageStatusImage?.image = model.mainModel.itemInPermanentStorageImage
-		case .inTempStorage: cell.storageStatusImage?.image = model.mainModel.itemInTempStorageImage
-		}
+		let trackUid = track.uid
+		cell.storageStatusImage?.image = model.mainModel.player.downloadManager.fileStorage.getItemState(trackUid).getImage()
 		
-		MainModel.sharedInstance.loadMetadataObjectForTrackInPlayListByIndex(indexPath.row, playList: model.playList).observeOn(MainScheduler.instance)
+		model.mainModel.player.downloadManager.fileStorage.itemStateChanged.bindNext { [weak cell] result in
+			guard let cell = cell where result.uid == trackUid else { return }
+		
+			DispatchQueue.async(.MainQueue) {
+					cell.storageStatusImage?.image = result.to.getImage()
+			}
+		}.addDisposableTo(cell.bag)
+		
+		model.mainModel.player.downloadManager.fileStorage.storageCleared.observeOn(MainScheduler.instance).bindNext { [weak cell] _ in
+			cell?.storageStatusImage?.image = CacheState.notExisted.getImage()
+		}.addDisposableTo(cell.bag)
+		
+		model.mainModel.loadMetadataObjectForTrackInPlayListByIndex(indexPath.row, playList: model.playList).observeOn(MainScheduler.instance)
 			.bindNext { [weak cell] meta in
 				guard let cell = cell else { return }
 				guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
@@ -71,7 +80,7 @@ class PlayListInfoController: UIViewController {
 				}
 			}.addDisposableTo(cell.bag)
 		
-		MainModel.sharedInstance.player.currentItem.observeOn(MainScheduler.instance).flatMapLatest { [weak self, weak cell] item -> Observable<Bool> in
+		model.mainModel.player.currentItem.observeOn(MainScheduler.instance).flatMapLatest { [weak self, weak cell] item -> Observable<Bool> in
 			guard let cell = cell, object = self else { return Observable.empty() }
 			
 			let animate = {
@@ -151,20 +160,25 @@ class PlayListInfoController: UIViewController {
 	}
 	
 	func createMenu(forTrack: TrackType) -> UIAlertController {
-		let track = forTrack.synchronize()
+		let trackUid = forTrack.synchronize().uid
 		
 		let alert = UIAlertController(title: "Choose action", message: nil, preferredStyle: .ActionSheet)
 		
-		if model.mainModel.player.downloadManager.fileStorage.getItemState(track.uid) == .inPermanentStorage {
-			let action = UIAlertAction(title: "Delete", style: .Default) { _ in
-				print("delete item")
-			}
-			alert.addAction(action)
-		} else {
-			let action = UIAlertAction(title: "Save", style: .Default) { _ in
-				print("save item")
-			}
-			alert.addAction(action)
+		switch model.mainModel.player.downloadManager.fileStorage.getItemState(trackUid) {
+		case .inPermanentStorage: alert.addAction(UIAlertAction(title: "Delete", style: .Default, handler: { [weak self] _ in
+			self?.model.mainModel.player.downloadManager.fileStorage.deleteItem(trackUid)
+				}))
+		case .inTempStorage:
+			alert.addAction(UIAlertAction(title: "Save", style: .Default, handler: { [weak self] _ in
+			self?.model.mainModel.player.downloadManager.fileStorage.moveToPermanentStorage(trackUid)
+				}))
+			
+			alert.addAction(UIAlertAction(title: "Delete from cache", style: .Default, handler: { [weak self] _ in
+				self?.model.mainModel.player.downloadManager.fileStorage.deleteItem(trackUid)
+				}))
+		case .notExisted: alert.addAction(UIAlertAction(title: "Download", style: .Default, handler: { _ in
+			print("download")
+				}))
 		}
 		
 		let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)

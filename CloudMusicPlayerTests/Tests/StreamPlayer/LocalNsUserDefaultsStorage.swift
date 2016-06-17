@@ -227,18 +227,29 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 	}
 	
 	func testClearStorage() {
-		let firstData = "first data".dataUsingEncoding(NSUTF8StringEncoding)!
-		let secondData = "second data".dataUsingEncoding(NSUTF8StringEncoding)!
+		//let firstData = "first data".dataUsingEncoding(NSUTF8StringEncoding)!
+		let data = "second data".dataUsingEncoding(NSUTF8StringEncoding)!
 		
-		firstData.writeToURL(tempStorageDir.URLByAppendingPathComponent("first.dat"), atomically: true)
-		secondData.writeToURL(tempStorageDir.URLByAppendingPathComponent("second.dat"), atomically: true)
+		//firstData.writeToURL(tempStorageDir.URLByAppendingPathComponent("first.dat"), atomically: true)
+		//secondData.writeToURL(tempStorageDir.URLByAppendingPathComponent("second.dat"), atomically: true)
 		
-		firstData.writeToURL(permanentStorageDir.URLByAppendingPathComponent("first.dat"), atomically: true)
+		//firstData.writeToURL(permanentStorageDir.URLByAppendingPathComponent("first.dat"), atomically: true)
 		
-		secondData.writeToURL(temporaryDir.URLByAppendingPathComponent("second.dat"), atomically: true)
+		data.writeToURL(temporaryDir.URLByAppendingPathComponent("test.dat"), atomically: true)
 		
 		let storage = LocalNsUserDefaultsStorage(tempStorageDirectory: tempStorageDir, permanentStorageDirectory: permanentStorageDir,
-																						 temporaryDirectory: temporaryDir)
+																						 temporaryDirectory: temporaryDir, persistInformationAboutSavedFiles: true, userDefaults: FakeNSUserDefaults())
+		
+		storage.saveToTempStorage(MemoryCacheProvider(uid: "firstfile"))
+		storage.saveToTempStorage(MemoryCacheProvider(uid: "secondfile"))
+		storage.saveToPermanentStorage(MemoryCacheProvider(uid: "thirdfile"))
+		
+		XCTAssertEqual(2, storage.tempStorageDictionary.count)
+		XCTAssertEqual(1, storage.permanentStorageDictionary.count)
+		
+		XCTAssertEqual(2, NSFileManager.defaultManager().contentsOfDirectoryAtURL(tempStorageDir)?.count)
+		XCTAssertEqual(1, NSFileManager.defaultManager().contentsOfDirectoryAtURL(permanentStorageDir)?.count)
+		XCTAssertEqual(1, NSFileManager.defaultManager().contentsOfDirectoryAtURL(temporaryDir)?.count)
 		
 		let clearTempStorageExpectation = expectationWithDescription("Should send event when temp storage cleared")
 		let clearPermanentStorageExpectation = expectationWithDescription("Should send event when permanent storage cleared")
@@ -255,6 +266,9 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		storage.clearStorage()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertEqual(0, storage.tempStorageDictionary.count)
+		XCTAssertEqual(0, storage.permanentStorageDictionary.count)
 		
 		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(tempStorageDir)?.count)
 		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(permanentStorageDir)?.count)
@@ -285,6 +299,9 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		storage.deleteItem(cacheProvider.uid)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertEqual(0, storage.tempStorageDictionary.count)
+		XCTAssertEqual(0, storage.permanentStorageDictionary.count)
 	}
 	
 	func testMoveFileToPermanentStorage() {
@@ -303,6 +320,9 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		XCTAssertEqual(1, NSFileManager.defaultManager().contentsOfDirectoryAtURL(tempStorageDir)?.count)
 		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(permanentStorageDir)?.count)
 		
+		XCTAssertEqual(1, storage.tempStorageDictionary.count)
+		XCTAssertEqual(0, storage.permanentStorageDictionary.count)
+		
 		let currentCacheState = storage.getItemState(cacheProvider.uid)
 		XCTAssertEqual(CacheState.inTempStorage, currentCacheState)
 		
@@ -318,6 +338,11 @@ class LocalNsUserDefaultsStorageTests: XCTestCase {
 		storage.moveToPermanentStorage(cacheProvider.uid)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
+		
+		XCTAssertEqual(0, storage.tempStorageDictionary.count)
+		XCTAssertEqual(1, storage.permanentStorageDictionary.count)
+		
+		XCTAssertEqual(CacheState.inPermanentStorage, storage.getItemState(cacheProvider.uid))
 		
 		XCTAssertEqual(0, NSFileManager.defaultManager().contentsOfDirectoryAtURL(tempStorageDir)?.count)
 		XCTAssertEqual(1, NSFileManager.defaultManager().contentsOfDirectoryAtURL(permanentStorageDir)?.count)
