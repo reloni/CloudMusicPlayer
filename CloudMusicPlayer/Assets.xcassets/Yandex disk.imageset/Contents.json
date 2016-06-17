@@ -7,10 +7,12 @@
     },
     {
       "idiom" : "iphone",
+      "filename" : "YD-50.png",
       "scale" : "2x"
     },
     {
       "idiom" : "iphone",
+      "filename" : "YD-75.png",
       "scale" : "3x"
     }
   ],
