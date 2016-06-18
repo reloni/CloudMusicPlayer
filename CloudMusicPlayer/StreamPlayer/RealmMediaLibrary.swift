@@ -268,7 +268,7 @@ extension RealmMediaLibrary : MediaLibraryType {
 // Realm entities
 
 public class RealmArtist: Object, ArtistType {
-	public internal(set) dynamic var uid: String = NSUUID().UUIDString
+	public internal(set) dynamic var uid: String = ""//NSUUID().UUIDString
 	public internal(set) dynamic var name: String = ""
 	public let albumsInternal = List<RealmAlbum>()
 	
@@ -300,7 +300,7 @@ public class RealmArtist: Object, ArtistType {
 }
 
 public class RealmAlbum: Object, AlbumType {
-	public internal(set) dynamic var uid: String = NSUUID().UUIDString
+	public internal(set) dynamic var uid: String = ""//NSUUID().UUIDString
 	public internal(set) dynamic var name: String = ""
 	public internal(set) dynamic var artwork: NSData? = nil
 	internal dynamic var artistInternal: RealmArtist?
@@ -338,7 +338,7 @@ public class RealmAlbum: Object, AlbumType {
 }
 
 public class RealmTrack: Object, TrackType {
-	public internal(set) dynamic var uid: String = NSUUID().UUIDString
+	public internal(set) dynamic var uid: String = ""//NSUUID().UUIDString
 	public internal(set) dynamic var title: String = ""
 	public internal(set) dynamic var duration: Float = 0
 	public internal(set) dynamic var albumInternal: RealmAlbum?
@@ -376,7 +376,7 @@ public class RealmTrack: Object, TrackType {
 }
 
 public class RealmPlayList : Object, PlayListType {
-	public internal(set) dynamic var uid: String = NSUUID().UUIDString
+	public internal(set) dynamic var uid: String = ""//NSUUID().UUIDString
 	public dynamic var name: String = ""
 	internal let itemsInternal = List<RealmTrack>()
 	

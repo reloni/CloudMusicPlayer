@@ -73,7 +73,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		//MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
 		
 		MainModel.sharedInstance.player.playerEvents.bindNext { event in
-			print("player event: \(event)")
 			switch event {
 			case PlayerEvents.Stopped: fallthrough
 			case PlayerEvents.Paused: fallthrough
