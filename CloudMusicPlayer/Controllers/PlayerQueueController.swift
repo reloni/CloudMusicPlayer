@@ -111,9 +111,9 @@ class PlayerQueueController: UIViewController {
 
 extension PlayerQueueController : UITableViewDelegate {
 	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-		if let item = MainModel.sharedInstance.player.getItemAtPosition(indexPath.row) {
-			MainModel.sharedInstance.player.playUrl(item.streamIdentifier, clearQueue: false)
-		}
+		//if let item = MainModel.sharedInstance.player.getItemAtPosition(indexPath.row) {
+			//MainModel.sharedInstance.player.playUrl(item.streamIdentifier, clearQueue: false)
+		//}
 
 	}
 	

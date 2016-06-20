@@ -88,7 +88,6 @@ class PlayerController: UIViewController {
 		MainModel.sharedInstance.player.currentItemTime.observeOn(MainScheduler.instance).bindNext { [weak self] time in
 			guard let time = time else { self?.currentTimeLabel.text = "--:--"; self?.trackProgressSlider.value = 0; return }
 			
-			//dispatch_async(dispatch_get_main_queue()) { [weak self] in
 			self?.currentTimeLabel.text = time.currentTime?.asString
 			self?.fullTimeLabel.text = time.duration?.asString
 			if let currentSec = time.currentTime?.safeSeconds, fullSec = time.duration?.safeSeconds {
@@ -96,8 +95,7 @@ class PlayerController: UIViewController {
 			} else {
 				self?.trackProgressSlider.value = 0
 			}
-			//}
-			}.addDisposableTo(self.bag)
+		}.addDisposableTo(self.bag)
 		
 		MainModel.sharedInstance.player.playerEvents.observeOn(MainScheduler.instance).bindNext { [weak self] e in
 			if case PlayerEvents.Started = e {

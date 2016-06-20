@@ -72,21 +72,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		//MainModel.sharedInstance.player.setUIApplication(UIApplication.sharedApplication())
 		
-		do {
-			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
-			try AVAudioSession.sharedInstance().setActive(true)
-		} catch let error as NSError {
-			NSLog("Error while set up audio session \(error.localizedDescription)")
-		}
-		
 		MainModel.sharedInstance.player.playerEvents.bindNext { event in
-			print("player event: \(event)")
 			switch event {
-			//case PlayerEvents.CurrentItemChanged: fallthrough
 			case PlayerEvents.Stopped: fallthrough
 			case PlayerEvents.Paused: fallthrough
 			case PlayerEvents.Started: fallthrough
 			case PlayerEvents.Resumed:
+				MainModel.sharedInstance.savePlayerState()
+				
 				guard let info = MainModel.sharedInstance.player.getCurrentItemMetadataForNowPlayingCenter() else {
 					MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = nil
 					break
@@ -153,7 +146,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
 		print("applicationWillResignActive")
 		
-		MainModel.sharedInstance.savePlayerState()
+		//MainModel.sharedInstance.savePlayerState()
 	}
 
 	func applicationDidEnterBackground(application: UIApplication) {

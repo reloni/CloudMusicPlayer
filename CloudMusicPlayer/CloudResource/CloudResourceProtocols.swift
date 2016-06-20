@@ -26,7 +26,6 @@ public protocol CloudResource {
 	var resourceTypeIdentifier: String { get }
 	var raw: JSON { get }
 	var oAuthResource: OAuthType { get }
-	//var parent: CloudResource? { get }
 	var uid: String { get }
 	var name: String { get }
 	var type: CloudResourceType { get }
@@ -36,7 +35,6 @@ public protocol CloudResource {
 	func getRequestHeaders() -> [String: String]?
 	func getRequestParameters() -> [String: String]?
 	func loadChildResources() -> Observable<Result<JSON>>
-	//func loadChildResourcesRecursive() -> Observable<CloudResource>
 	func deserializeResponse(json: JSON) -> [CloudResource]
 	func wrapRawData(json: JSON) -> CloudResource
 }

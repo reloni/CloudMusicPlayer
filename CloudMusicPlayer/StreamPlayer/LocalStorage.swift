@@ -15,7 +15,20 @@ public struct StorageSize {
 	let permanentStorage: UInt64
 }
 
+public enum CacheState {
+	case inPermanentStorage
+	case inTempStorage
+	case notExisted
+}
+
+public enum StorageType {
+	case temp
+	case permanent
+}
+
 public protocol LocalStorageType {
+	var itemStateChanged: Observable<(uid: String, from: CacheState, to: CacheState)> { get }
+	var storageCleared: Observable<StorageType> { get }
 	func createCacheProvider(uid: String, targetMimeType: String?) -> CacheProvider
 	/// Directory for temp storage.
 	/// Data may be deleted from this directory if it's size exceeds allowable size (set by tempStorageDiskSpace)
@@ -28,6 +41,9 @@ public protocol LocalStorageType {
 	var permanentStorageDirectory: NSURL { get }
 	var tempStorageDiskSpace: UInt { get }
 	func calculateSize() -> Observable<StorageSize>
+	func getItemState(uid: String) -> CacheState
+	func deleteItem(uid: String)
+	func moveToPermanentStorage(uid: String)
 	func clearTempStorage()
 	func clearPermanentStorage()
 	func clearTemporaryDirectory()
@@ -38,6 +54,8 @@ public class LocalNsUserDefaultsStorage {
 	internal static let tempFileStorageId = "CMP_TempFileStorageDictionary"
 	internal static let permanentFileStorageId = "CMP_PermanentFileStorageDictionary"
 	
+	internal let itemStateChangedSubject = PublishSubject<(uid: String, from: CacheState, to: CacheState)>()
+	internal let storageClearedSubject = PublishSubject<StorageType>()
 	internal var tempStorageDictionary = [String: String]()
 	internal var permanentStorageDictionary = [String: String]()
 	internal let saveData: Bool
@@ -82,6 +100,52 @@ public class LocalNsUserDefaultsStorage {
 }
 
 extension LocalNsUserDefaultsStorage : LocalStorageType {
+	public var storageCleared: Observable<StorageType> {
+		return storageClearedSubject.observeOn(ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+	}
+	
+	public var itemStateChanged: Observable<(uid: String, from: CacheState, to: CacheState)> {
+		return itemStateChangedSubject.observeOn(ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
+	}
+	
+	public func getItemState(uid: String) -> CacheState {
+		if tempStorageDictionary.keys.contains(uid) {
+			return .inTempStorage
+		} else if permanentStorageDictionary.keys.contains(uid) {
+			return .inPermanentStorage
+		} else {
+			return .notExisted
+		}
+	}
+	
+	public func deleteItem(uid: String) {
+		let currentState = getItemState(uid)
+		
+		if let url = getFromStorage(uid) {
+			url.deleteFile()
+			
+			if currentState == .inTempStorage {
+				tempStorageDictionary[uid] = nil
+			} else {
+				permanentStorageDictionary[uid] = nil
+			}
+			
+			itemStateChangedSubject.onNext((uid: uid, from: currentState, to: CacheState.notExisted))
+		}
+	}
+	
+	public func moveToPermanentStorage(uid: String) {
+		guard let url = getFromStorage(uid), fileName = url.lastPathComponent where getItemState(uid) == .inTempStorage else { return }
+		
+		do {
+			try NSFileManager.defaultManager().moveItemAtURL(url, toURL: permanentStorageDirectory.URLByAppendingPathComponent(fileName))
+			moveFileInformationToPermanentDictionary(uid)
+			itemStateChangedSubject.onNext((uid: uid, from: CacheState.inTempStorage, to: CacheState.inPermanentStorage))
+		} catch let error as NSError {
+			NSLog("Error while moving to permanent storage: %@", error.localizedDescription)
+		}
+	}
+	
 	internal func saveTo(destination: NSURL, provider: CacheProvider) -> NSURL? {
 		return provider.saveData(destination,
 		                                   fileExtension: ContentTypeDefinition.getFileExtensionFromMime(provider.contentMimeType ?? ""))
@@ -92,8 +156,11 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 	}
 	
 	public func saveToTempStorage(provider: CacheProvider) -> NSURL? {
+		let currentState = getItemState(provider.uid)
+		
 		if let file = saveTo(tempStorageDirectory, provider: provider), fileName = file.lastPathComponent {
 			tempStorageDictionary[provider.uid] = fileName
+			itemStateChangedSubject.onNext((uid: provider.uid, from: currentState, to: CacheState.inTempStorage))
 			
 			if saveData {
 				userDefaults.saveData(tempStorageDictionary, forKey: LocalNsUserDefaultsStorage.tempFileStorageId)
@@ -106,9 +173,12 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 	}
 	
 	public func saveToPermanentStorage(provider: CacheProvider) -> NSURL? {
+		let currentState = getItemState(provider.uid)
+		
 		if let file = saveTo(permanentStorageDirectory, provider: provider), fileName = file.lastPathComponent {
 			permanentStorageDictionary[provider.uid] = fileName
-			
+			itemStateChangedSubject.onNext((uid: provider.uid, from: currentState, to: CacheState.inPermanentStorage))
+
 			if saveData {
 				userDefaults.saveData(permanentStorageDictionary, forKey: LocalNsUserDefaultsStorage.permanentFileStorageId)
 			}
@@ -117,6 +187,16 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 		}
 		
 		return nil
+	}
+	
+	internal func moveFileInformationToPermanentDictionary(uid: String) {
+		if let path = tempStorageDictionary[uid] {
+			permanentStorageDictionary[uid] = path
+		}
+		tempStorageDictionary[uid] = nil
+		
+		userDefaults.saveData(tempStorageDictionary, forKey: LocalNsUserDefaultsStorage.tempFileStorageId)
+		userDefaults.saveData(permanentStorageDictionary, forKey: LocalNsUserDefaultsStorage.permanentFileStorageId)
 	}
 	
 	public func saveToTemporaryFolder(provider: CacheProvider) -> NSURL? {
@@ -160,10 +240,20 @@ extension LocalNsUserDefaultsStorage : LocalStorageType {
 	
 	public func clearTempStorage() {
 		clearDirectory(tempStorageDirectory)
+		tempStorageDictionary.removeAll()
+		if saveData {
+			userDefaults.saveData(tempStorageDictionary, forKey: LocalNsUserDefaultsStorage.tempFileStorageId)
+		}
+		storageClearedSubject.onNext(.temp)
 	}
 	
 	public func clearPermanentStorage() {
 		clearDirectory(permanentStorageDirectory)
+		permanentStorageDictionary.removeAll()
+		if saveData {
+			userDefaults.saveData(permanentStorageDictionary, forKey: LocalNsUserDefaultsStorage.permanentFileStorageId)
+		}
+		storageClearedSubject.onNext(.permanent)
 	}
 	
 	public func clearTemporaryDirectory() {

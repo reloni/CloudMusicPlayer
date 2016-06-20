@@ -17,6 +17,10 @@ class TrackCell: UITableViewCell {
 	@IBOutlet weak var trackTitleLabel: UILabel!
 	@IBOutlet weak var showMenuButton: UIButton!
 	@IBOutlet weak var durationLabel: UILabel!
+	@IBOutlet weak var trackCurrentTimeProgressView: UIProgressView?
+	@IBOutlet weak var trackCurrentTimeProgressStackViewHeightConstraint: NSLayoutConstraint?
+	@IBOutlet weak var storageStatusImage: UIImageView?
+	@IBOutlet weak var cloudServiceImage: UIImageView?
 	
 	override func prepareForReuse() {
 		bag = DisposeBag()
@@ -24,5 +28,23 @@ class TrackCell: UITableViewCell {
 		trackTitleLabel.text = ""
 		durationLabel.text = "--:--"
 		albumArtworkImage?.image = MainModel.sharedInstance.albumPlaceHolderImage
+		trackCurrentTimeProgressView?.setProgress(0, animated: false)
+		trackCurrentTimeProgressStackViewHeightConstraint?.constant = CGFloat(integerLiteral: 0)
+	}
+	
+	override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
+		/*id hitView = [super hitTest:point withEvent:event];
+		
+		if (hitView == self) {
+			return nil;
+		} else {
+			return hitView;
+		}*/
+		let hitView = super.hitTest(point, withEvent: event)
+		if (hitView == self) {
+			return nil
+		} else {
+			return hitView
+		}
 	}
 }

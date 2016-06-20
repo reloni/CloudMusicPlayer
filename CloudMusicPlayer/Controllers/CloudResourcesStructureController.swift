@@ -87,13 +87,13 @@ class CloudResourcesStructureController: UIViewController {
 	}
 	
 	func play(track: CloudAudioResource) {
-		if let identifier = track as? StreamResourceIdentifier {
-			MainModel.sharedInstance.player.playUrl(identifier)
-		} else {
-			track.downloadUrl.bindNext { url in
-				MainModel.sharedInstance.player.playUrl(url)
-				}.addDisposableTo(bag!)
-		}
+//		if let identifier = track as? StreamResourceIdentifier {
+//			MainModel.sharedInstance.player.playUrl(identifier)
+//		} else {
+//			track.downloadUrl.bindNext { url in
+//				MainModel.sharedInstance.player.playUrl(url)
+//				}.addDisposableTo(bag!)
+//		}
 	}
 }
 
