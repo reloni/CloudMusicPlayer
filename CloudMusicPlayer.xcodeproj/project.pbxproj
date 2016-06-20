@@ -118,6 +118,7 @@
 		6EB8C2F81C5019FD0064A00B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 6EB8C2F71C5019FD0064A00B /* .gitignore */; };
 		6EBCBA4A1CD51759007AE9DA /* SJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBCBA491CD51759007AE9DA /* SJSON.swift */; };
 		6EBCBA4C1CD5198A007AE9DA /* SJSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBCBA4B1CD5198A007AE9DA /* SJSONTests.swift */; };
+		6EBF3B171D1822DA0039D4C7 /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBF3B161D1822DA0039D4C7 /* ContainerViewController.swift */; };
 		6EBFE0FB1CAA7C7D0003D12C /* StreamResourceIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */; };
 		6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */; };
 		6EC021201C8B3E0200E30BE1 /* MusicPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */; };
@@ -275,6 +276,7 @@
 		6EBCBA491CD51759007AE9DA /* SJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SJSON.swift; sourceTree = "<group>"; };
 		6EBCBA4B1CD5198A007AE9DA /* SJSONTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SJSONTests.swift; sourceTree = "<group>"; };
 		6EBE02191CD62ED300FBB3FD /* GoogleDriveCloudJsonResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogleDriveCloudJsonResource.swift; sourceTree = "<group>"; };
+		6EBF3B161D1822DA0039D4C7 /* ContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		6EBFE0FA1CAA7C7D0003D12C /* StreamResourceIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamResourceIdentifier.swift; sourceTree = "<group>"; };
 		6EBFE0FC1CAAC7130003D12C /* NSMutableOrderedSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSMutableOrderedSet.swift; sourceTree = "<group>"; };
 		6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicPlayerViewModel.swift; sourceTree = "<group>"; };
@@ -453,6 +455,7 @@
 				6E0EB27B1CFB476600F7CE2E /* MusicPlayerController.swift */,
 				6E0EB27D1CFB479F00F7CE2E /* PlayerController.swift */,
 				6E8B06211CFC34E700889D64 /* AddItemsToPlayListController.swift */,
+				6EBF3B161D1822DA0039D4C7 /* ContainerViewController.swift */,
 			);
 			name = Controllers;
 			path = CloudMusicPlayer/Controllers;
@@ -959,6 +962,7 @@
 				6E21C9761CEC871B00614B0F /* TrackCell.swift in Sources */,
 				6E088A801CEDD43D001EED50 /* ExistedAccountCell.swift in Sources */,
 				6E0EB27E1CFB479F00F7CE2E /* PlayerController.swift in Sources */,
+				6EBF3B171D1822DA0039D4C7 /* ContainerViewController.swift in Sources */,
 				6E85544F1CEB272300A6FC4E /* OAuth.swift in Sources */,
 				6E24CCB51D0948A500032FEB /* Observable+retryWhenWithDelay.swift in Sources */,
 				6E6DDE471C8DBA59001AE510 /* NSTimer.swift in Sources */,

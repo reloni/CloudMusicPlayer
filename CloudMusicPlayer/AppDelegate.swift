@@ -28,12 +28,14 @@ enum ViewControllers : String {
 	case addToMediaLibraryNavigationController = "AddToMediaLibraryNavigationController"
 	case addToMediaLibraryController = "AddToMediaLibraryController"
 	case addItemsToPlayListController = "AddItemsToPlayListView"
+	case universalTableVeiw = "UniversalTableVeiw"
 	func getController() -> UIViewController {
 		switch self {
 		case .rootTabBarController: return Storyboards.main.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
 		case .addToMediaLibraryNavigationController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
 		case .addToMediaLibraryController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
 		case .addItemsToPlayListController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
+		case .universalTableVeiw: return Storyboards.main.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
 		}
 	}
 }
