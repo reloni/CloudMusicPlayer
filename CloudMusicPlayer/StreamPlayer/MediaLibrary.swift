@@ -29,10 +29,10 @@ public enum MediaLibraryErroros : CustomErrorType {
 
 public protocol MediaLibraryType {
 	// metadata
-	func getArtists() throws -> MediaCollection<ArtistType, RealmArtist>
-	func getAlbums() throws -> MediaCollection<AlbumType, RealmAlbum>
-	func getTracks() throws -> MediaCollection<TrackType, RealmTrack>
-	func getPlayLists() throws -> MediaCollection<PlayListType, RealmPlayList>
+	func getArtists() throws -> MediaCollection<ArtistType>
+	func getAlbums() throws -> MediaCollection<AlbumType>
+	func getTracks() throws -> MediaCollection<TrackType>
+	func getPlayLists() throws -> MediaCollection<PlayListType>
 	func getTrackByUid(resource: StreamResourceIdentifier) throws -> TrackType?
 	func getMetadataObjectByUid(resource: StreamResourceIdentifier) throws -> MediaItemMetadata?
 	func saveMetadata(metadata: MediaItemMetadataType, updateExistedObjects: Bool) throws -> TrackType?
@@ -55,16 +55,34 @@ public protocol MediaLibraryType {
 	func clearLibrary() throws
 }
 
-public protocol ArtistType {
-	var name: String { get }
-	var albums: MediaCollection<AlbumType, RealmAlbum> { get }
+public protocol TrackContainerType {
+	var uid: String { get }
 }
 
-public protocol AlbumType {
+public protocol ArtistType : TrackContainerType {
+	var uid: String { get }
+	var name: String { get }
+	var albums: MediaCollection<AlbumType> { get }
+	func synchronize() -> ArtistType
+}
+extension ArtistType {
+	public func synchronize() -> ArtistType {
+		return self
+	}
+}
+
+public protocol AlbumType : TrackContainerType {
+	var uid: String { get }
 	var artist: ArtistType { get }
-	var tracks: MediaCollection<TrackType, RealmTrack> { get }
+	var tracks: MediaCollection<TrackType> { get }
 	var name: String { get }
 	var artwork: NSData? { get }
+	func synchronize() -> AlbumType
+}
+extension AlbumType {
+	public func synchronize() -> AlbumType {
+		return self
+	}
 }
 
 public protocol TrackType {
@@ -73,6 +91,24 @@ public protocol TrackType {
 	var duration: Float { get }
 	var album: AlbumType { get }
 	var artist: ArtistType { get }
+	func synchronize() -> TrackType
+}
+extension TrackType {
+	public func synchronize() -> TrackType {
+		return self
+	}
+}
+
+public protocol PlayListType : TrackContainerType {
+	var uid: String { get }
+	var name: String { get }
+	var items: MediaCollection<TrackType> { get }
+	func synchronize() -> PlayListType
+}
+extension PlayListType {
+	public func synchronize() -> PlayListType {
+		return self
+	}
 }
 
 public protocol MediaItemMetadataType {
@@ -82,12 +118,6 @@ public protocol MediaItemMetadataType {
 	var album: String? { get }
 	var artwork: NSData? { get }
 	var duration: Float? { get }
-}
-
-public protocol PlayListType {
-	var uid: String { get }
-	var name: String { get set }
-	var items: MediaCollection<TrackType, RealmTrack> { get }
 }
 
 public struct MediaItemMetadata : MediaItemMetadataType {
@@ -105,4 +135,32 @@ public struct MediaItemMetadata : MediaItemMetadataType {
 		self.artwork = artwork
 		self.duration = duration
 	}
+}
+
+public class MediaCollection<T>  : SequenceType {
+	public typealias Generator = MediaCollectionGenerator<T>
+	public var first: T? { fatalError("Should be overriden") }
+	public var last: T? { fatalError("Should be overriden") }
+	public var count: Int { fatalError("Should be overriden") }
+	public subscript (index: Int) -> T? { fatalError("Should be overriden")	}
+	public func generate() -> MediaCollection.Generator { fatalError("Should be overriden") }
+}
+
+public class MediaCollectionGenerator<T> : GeneratorType {
+	public typealias Element = T
+	let collection: CollectionWrapperType
+	var currentIndex = 0
+	init(collection: CollectionWrapperType) {
+		self.collection = collection
+	}
+	public func next() -> MediaCollectionGenerator.Element? {
+		currentIndex += 1
+		if currentIndex > collection.count { return nil }
+		return collection[currentIndex - 1] as? T
+	}
+}
+
+public protocol CollectionWrapperType {
+	var count: Int { get }
+	subscript (index: Int) -> AnyObject? { get }
 }

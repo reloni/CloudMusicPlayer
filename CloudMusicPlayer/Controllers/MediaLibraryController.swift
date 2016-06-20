@@ -11,8 +11,6 @@ import RxSwift
 import RxCocoa
 
 class MediaLibraryController: UIViewController {
-	//let model = MediaLibraryModel(player: rxPlayer)
-	
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var segment: UISegmentedControl!
 	@IBOutlet weak var addItemsBarButton: UIBarButtonItem!
@@ -30,8 +28,6 @@ class MediaLibraryController: UIViewController {
 	}
 	
 	override func viewWillAppear(animated: Bool) {
-
-		
 		segment.rx_value.bindNext { [weak self] _ in
 			self?.tableView.reloadSections(NSIndexSet(index: 0), withRowAnimation: UITableViewRowAnimation.Automatic)
 			}.addDisposableTo(bag)
@@ -75,7 +71,7 @@ class MediaLibraryController: UIViewController {
 		if segue.identifier == "ShowPlayListInfo" && segment.selectedSegmentIndex == 3 {
 			guard let index = tableView.indexPathForSelectedRow, playList = MainModel.sharedInstance.playLists?[index.row] else { return }
 			guard let controller = segue.destinationViewController as? PlayListInfoController else { return }
-			controller.model = PlayListInfoModel(playList: playList)
+			controller.model = PlayListInfoModel(mainModel: MainModel.sharedInstance, playList: playList)
 		}
 	}
 	
@@ -175,7 +171,9 @@ class MediaLibraryController: UIViewController {
 			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [album], tracks: []).subscribe().addDisposableTo(cell.bag)
 		} 
 		
-		MainModel.sharedInstance.loadMetadataObjectForAlbumByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
+		MainModel.sharedInstance.loadMetadataObjectForAlbumByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { [weak cell] meta in
+			guard let cell = cell else { return }
+			
 			guard let meta = meta else { cell.albumNameLabel.text = "Unknown"; return }
 			
 			cell.artistNameLabel.text = meta.artist
@@ -204,7 +202,9 @@ class MediaLibraryController: UIViewController {
 			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
 		}
 		
-		MainModel.sharedInstance.loadMetadataObjectForTrackByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { meta in
+		MainModel.sharedInstance.loadMetadataObjectForTrackByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { [weak cell] meta in
+			guard let cell = cell else { return }
+			
 			guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
 			
 			cell.durationLabel.text = meta.duration?.asTimeString
@@ -233,6 +233,25 @@ class MediaLibraryController: UIViewController {
 		
 		if let pl = objects?[indexPath.row] ?? nil {
 			cell.playListNameLabel.text = pl.name
+			
+			cell.menuButton.rx_tap.bindNext { [weak self] in
+				let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+				let playPlayList = UIAlertAction(title: "Play", style: .Default) { _ in
+					MainModel.sharedInstance.play(pl)
+				}
+				let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+				alert.addAction(playPlayList)
+				alert.addAction(cancel)
+				
+				self?.presentViewController(alert, animated: true, completion: nil)
+			}.addDisposableTo(cell.bag)
+			
+			DispatchQueue.async(.MainQueue) { [weak cell] in
+				cell?.itemsCountLabel?.text = "Tracks: \(pl.items.count)"
+				if let art = pl.items.first?.album.artwork {
+					cell?.playListImage?.image = UIImage(data: art)
+				}
+			}
 		} else {
 			cell.playListNameLabel.text = "Unknown"
 		}
@@ -252,6 +271,14 @@ extension MediaLibraryController : UITableViewDelegate {
 }
 
 extension MediaLibraryController : UITableViewDataSource {
+	func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+		if indexPath.row == getItemsForSegment() {
+			return ViewConstants.itemsCountCellHeight
+		} else {
+			return ViewConstants.commonCellHeight
+		}
+	}
+	
 	func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
 		if segment.selectedSegmentIndex == 3 {
 			if indexPath.row != MainModel.sharedInstance.playLists?.count {
