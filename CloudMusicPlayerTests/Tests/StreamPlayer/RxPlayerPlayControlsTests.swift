@@ -67,7 +67,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 			currentItemChangeExpectation.fulfill()
 		}.addDisposableTo(bag)
 		
-		player.playUrl(playingItem)
+		player.play(playingItem)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		
@@ -96,7 +96,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		player.playUrl(playingItem)
+		player.play(playingItem)
 		player.pause()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
@@ -134,7 +134,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 			}
 			}.addDisposableTo(bag)
 		
-		player.playUrl(playingItem)
+		player.play(playingItem)
 		player.pause()
 		player.resume()
 		
@@ -206,7 +206,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 			}.addDisposableTo(bag)
 		
 		
-		player.playUrl(playingItem)
+		player.play(playingItem)
 		
 		player.stop()
 		
@@ -292,7 +292,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 			}
 		}.addDisposableTo(bag)
 		
-		player.playUrl(newItem, clearQueue: false)
+		player.play(newItem, clearQueue: false)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		
@@ -499,7 +499,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		    rootCloudResources: [YandexDiskCloudJsonResource.typeIdentifier: YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauth)])
 		player.streamResourceLoaders.append(cloudResourceLoader)
 		
-		player.playPlayList(playList)
+		player.play(playList)
 		
 		XCTAssertEqual(player.currentItems.count, 3, "Check queue has three items")
 		XCTAssertTrue(player.playing)

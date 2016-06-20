@@ -551,7 +551,7 @@ class RxPlayerQueueTests: XCTestCase {
 		
 		// play url that exists in queue and set clearQueue to false
 		// so order of items should be preserved
-		player.playUrl(audioItems[1], clearQueue: false)
+		player.play(audioItems[1], clearQueue: false)
 		
 		XCTAssertEqual(audioItems[1].streamResourceUid, player.current?.streamIdentifier.streamResourceUid, "Check correct current item")
 		XCTAssertEqual(audioItems.map { $0.streamResourceUid }, player.currentItems.map { $0.streamIdentifier.streamResourceUid }, "Check order of items in queue")

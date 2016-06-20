@@ -2,15 +2,17 @@
   "images" : [
     {
       "idiom" : "iphone",
+      "filename" : "iPhone-25.png",
       "scale" : "1x"
     },
     {
       "idiom" : "iphone",
+      "filename" : "iPhone-50.png",
       "scale" : "2x"
     },
     {
       "idiom" : "iphone",
-      "filename" : "Cloud Storage-75-2.png",
+      "filename" : "iPhone-75.png",
       "scale" : "3x"
     }
   ],

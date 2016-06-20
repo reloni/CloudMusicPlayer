@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 extension RxPlayer {
-	public func playUrl(url: StreamResourceIdentifier, clearQueue: Bool = true) {
+	public func play(url: StreamResourceIdentifier, clearQueue: Bool = true) {
 		if clearQueue {
 			initWithNewItems([url])
 			playing = true
@@ -26,15 +26,35 @@ extension RxPlayer {
 		}
 	}
 	
-	public func playPlayList(playList: PlayListType) {
-		playPlayList(playList, shuffle: shuffleQueue)
+	func play(playList: PlayListType, startWithTrack: TrackType? = nil) {
+		play(playList, shuffle: shuffleQueue, startWithTrack: startWithTrack)
 	}
 	
-	public func playPlayList(playList: PlayListType, shuffle: Bool) {
-		let queueItems = playList.items.map { loadStreamResourceByUid($0.uid) }
-		initWithNewItems(queueItems, shuffle: shuffle)
+	func play(playList: PlayListType, shuffle: Bool, startWithTrack: TrackType? = nil) {
+		let items = playList.items.map { loadStreamResourceByUid($0.uid) }
+		var startWithItem: StreamResourceIdentifier? = nil
+		if let startWithTrack = startWithTrack {
+			startWithItem = loadStreamResourceByUid(startWithTrack.uid)
+		}
+		play(items, startWithItem: startWithItem)
+	}
+	
+	func play(items: [StreamResourceIdentifier], startWithItem: StreamResourceIdentifier? = nil) {
+		play(items, shuffle: shuffleQueue, startWithItem: startWithItem)
+	}
+	
+	func play(items: [StreamResourceIdentifier], shuffle: Bool, startWithItem: StreamResourceIdentifier? = nil) {
+		initWithNewItems(items)
+		if let startWithItem = startWithItem, item = getQueueItemByUid(startWithItem.streamResourceUid) {
+			current = item
+		}
+		resume(true)
+	}
+	
+	func play(item: RxPlayerQueueItem) {
+		guard item.inQueue else { return }
 		playing = true
-		current = first
+		current = item
 	}
 	
 	public func loadStreamResourceByUid(itemUid: String) -> StreamResourceIdentifier {

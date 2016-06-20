@@ -100,7 +100,6 @@ public class RxPlayer {
 			}
 			
 			return AnonymousDisposable {
-				print("Dispose player events")
 				first.dispose()
 			}
 		}.shareReplay(0)
