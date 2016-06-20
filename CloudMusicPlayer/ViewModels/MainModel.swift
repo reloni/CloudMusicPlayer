@@ -14,6 +14,7 @@ import UIKit
 class MainModel {
 	static var sharedInstance: MainModel!
 	
+	var latestShuffleMode: Bool
 	let serialScheduler = SerialDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility)
 	let player: RxPlayer
 	let cloudResourceClient: CloudResourceClientType
@@ -28,6 +29,7 @@ class MainModel {
 		self.player = player
 		self.userDefaults = userDefaults
 		self.cloudResourceClient = cloudResourceClient
+		latestShuffleMode = player.shuffleQueue
 	}
 	
 	/// Uid of current track container playing (uid of Artist, Album or PlayList)
@@ -82,6 +84,9 @@ class MainModel {
 	}
 	
 	func addTracksToPlayList(tracks: [TrackType], playList: PlayListType) {
+		if playList.uid == currentPlayingContainerUid {
+			currentPlayingContainerUid = ""
+		}
 		let _ = try? player.mediaLibrary.addTracksToPlayList(playList, tracks: tracks)
 	}
 	
@@ -89,6 +94,7 @@ class MainModel {
 		do {
 			let playerPersistanceProvider = RealmRxPlayerPersistenceProvider()
 			try playerPersistanceProvider.loadPlayerState(player)
+			latestShuffleMode = player.shuffleQueue
 		} catch let error as NSError {
 			NSLog("Error while load player state: \(error.localizedDescription)")
 		}

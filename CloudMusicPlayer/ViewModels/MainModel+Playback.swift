@@ -9,6 +9,10 @@
 import Foundation
 
 extension MainModel {
+	var shuffleModeChanged: Bool {
+		return latestShuffleMode != player.shuffleQueue
+	}
+	
 	func togglePlayer() {
 		if player.playing {
 			player.pause()
@@ -34,6 +38,11 @@ extension MainModel {
 	func togglePlayer(container: TrackContainerType, track: TrackType? = nil) {
 		guard player.count > 0 else {	play(container, track: track); return }
 		
+		guard !shuffleModeChanged else {
+			play(container, track: track)
+			return
+		}
+		
 		if let track = track where container.uid == currentPlayingContainerUid {
 			// if track specified and playing current container
 			toggleTrack(track)
@@ -48,6 +57,7 @@ extension MainModel {
 	
 	func play(container: TrackContainerType, track: TrackType? = nil) {
 		currentPlayingContainerUid = container.uid
+		latestShuffleMode = player.shuffleQueue
 		
 		switch container {
 		case let pl as PlayListType: playPlayList(pl, track: track)
