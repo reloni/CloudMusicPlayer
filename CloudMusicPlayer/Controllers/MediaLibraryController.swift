@@ -11,7 +11,8 @@ import RxSwift
 import RxCocoa
 
 class MediaLibraryController: UIViewController {
-	@IBOutlet weak var tableView: UITableView!
+	//@IBOutlet weak var tableView: UITableView!
+	var tableViewController: UniversalTableViewController!
 	@IBOutlet weak var segment: UISegmentedControl!
 	@IBOutlet weak var addItemsBarButton: UIBarButtonItem!
 	@IBOutlet weak var processingMetadataItemsCountLabel: UILabel!
@@ -28,8 +29,8 @@ class MediaLibraryController: UIViewController {
 	}
 	
 	override func viewWillAppear(animated: Bool) {
-		segment.rx_value.bindNext { [weak self] _ in
-			self?.tableView.reloadSections(NSIndexSet(index: 0), withRowAnimation: UITableViewRowAnimation.Automatic)
+		segment.rx_value.skip(1).bindNext { [weak self] _ in
+			self?.tableViewController.tableView.reloadSections(NSIndexSet(index: 0), withRowAnimation: UITableViewRowAnimation.Automatic)
 			}.addDisposableTo(bag)
 		
 		addItemsBarButton.rx_tap.bindNext { [weak self] in
@@ -59,8 +60,6 @@ class MediaLibraryController: UIViewController {
 		cancelMetadataLoadButton.rx_tap.bindNext {
 			MainModel.sharedInstance.cancelMetadataLoading()
 			}.addDisposableTo(bag)
-		
-		tableView.reloadData()
 	}
 	
 	override func viewWillDisappear(animated: Bool) {
@@ -68,11 +67,18 @@ class MediaLibraryController: UIViewController {
 	}
 	
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-		if segue.identifier == "ShowPlayListInfo" && segment.selectedSegmentIndex == 3 {
-			guard let index = tableView.indexPathForSelectedRow, playList = MainModel.sharedInstance.playLists?[index.row] else { return }
+		if segue.identifier == Segues.mediaLibraryControllerToPlayListInfo.rawValue && segment.selectedSegmentIndex == 3 {
+			guard let index = tableViewController.tableView.indexPathForSelectedRow, playList = MainModel.sharedInstance.playLists?[index.row] else { return }
 			guard let controller = segue.destinationViewController as? PlayListInfoController else { return }
 			controller.model = PlayListInfoModel(mainModel: MainModel.sharedInstance, playList: playList)
 		}
+		
+		guard let controller = segue.destinationViewController as? UniversalTableViewController
+			where segue.identifier == Segues.mediaLibraryControllerEmbeddedTable.rawValue else { return }
+		
+		tableViewController = controller
+		tableViewController.tableDelegate = self
+		tableViewController.tableDataSource = self
 	}
 	
 	func showNewAlbumNameAlert() {
@@ -84,7 +90,7 @@ class MediaLibraryController: UIViewController {
 			if let newPlayListName = alert.textFields?.first?.text {
 				do {
 					try MainModel.sharedInstance.player.mediaLibrary.createPlayList(newPlayListName)
-					self?.tableView.reloadData()
+					self?.tableViewController.tableView.reloadData()
 				} catch { }
 			}
 		}
@@ -134,14 +140,14 @@ class MediaLibraryController: UIViewController {
 	func getArtistCell(indexPath: NSIndexPath) -> UITableViewCell {
 		let objects = MainModel.sharedInstance.artists
 		if let objects = objects where indexPath.row == objects.count {
-			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+			let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
 			cell.titleText = "Artists"
 			cell.refreshTitle()
 			return cell
 		}
 		
-		let cell = tableView.dequeueReusableCellWithIdentifier("ArtistCell", forIndexPath: indexPath) as! ArtistCell
+		let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("ArtistCell", forIndexPath: indexPath) as! ArtistCell
 		
 		if let artist = objects?[indexPath.row] {
 			cell.artistNameLabel.text = artist.name
@@ -157,14 +163,14 @@ class MediaLibraryController: UIViewController {
 	func getAlbumCell(indexPath: NSIndexPath) -> UITableViewCell {
 		let objects = MainModel.sharedInstance.albums
 		if let objects = objects where indexPath.row == objects.count {
-			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+			let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
 			cell.titleText = "Albums"
 			cell.refreshTitle()
 			return cell
 		}
 		
-		let cell = tableView.dequeueReusableCellWithIdentifier("AlbumCell", forIndexPath: indexPath) as! AlbumCell
+		let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("AlbumCell", forIndexPath: indexPath) as! AlbumCell
 		
 		if let album = objects?[indexPath.row] {
 			cell.albumNameLabel.text = album.name
@@ -188,21 +194,26 @@ class MediaLibraryController: UIViewController {
 	func getTrackCell(indexPath: NSIndexPath) -> UITableViewCell {
 		let objects = MainModel.sharedInstance.tracks
 		if let objects = objects where indexPath.row == objects.count {
-			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+			let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
 			cell.titleText = "Tracks"
 			cell.refreshTitle()
 			return cell
 		}
 		
-		let cell = tableView.dequeueReusableCellWithIdentifier("TrackCell", forIndexPath: indexPath) as! TrackCell
+		let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("TrackCell", forIndexPath: indexPath) as! TrackCell
+		cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = CGFloat(integerLiteral: 0)
 		
-		if let track = objects?[indexPath.row] {
-			cell.trackTitleLabel.text = track.title
-			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
-		}
+		guard let track = objects?[indexPath.row] else { return cell }
 		
-		MainModel.sharedInstance.loadMetadataObjectForTrackByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { [weak cell] meta in
+		let trackUid = track.uid
+		cell.storageStatusImage?.image = MainModel.sharedInstance.player.downloadManager.fileStorage.getItemState(trackUid).getImage()
+		
+		cell.trackTitleLabel.text = track.title
+		createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
+		
+		MainModel.sharedInstance.loadMetadataObjectForTrackByIndex(indexPath.row).subscribeOn(ConcurrentDispatchQueueScheduler.utility)
+			.observeOn(MainScheduler.instance).bindNext { [weak cell] meta in
 			guard let cell = cell else { return }
 			
 			guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
@@ -215,6 +226,8 @@ class MediaLibraryController: UIViewController {
 				cell.albumArtworkImage?.image = image
 			}
 		}.addDisposableTo(cell.bag)
+		
+		tableViewController.subscribeTrackCellToDefaultEvents(cell, trackUid: trackUid, containerUid: "AllTracks", mainModel: MainModel.sharedInstance)
 
 		return cell
 	}
@@ -222,14 +235,14 @@ class MediaLibraryController: UIViewController {
 	func getPlayListCell(indexPath: NSIndexPath) -> UITableViewCell {
 		let objects = MainModel.sharedInstance.playLists
 		if let objects = objects where indexPath.row == objects.count {
-			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+			let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
 			cell.titleText = "Play lists"
 			cell.refreshTitle()
 			return cell
 		}
 		
-		let cell = tableView.dequeueReusableCellWithIdentifier("PlayListCell", forIndexPath: indexPath) as! PlayListCell
+		let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("PlayListCell", forIndexPath: indexPath) as! PlayListCell
 		
 		if let pl = objects?[indexPath.row] ?? nil {
 			cell.playListNameLabel.text = pl.name
@@ -267,6 +280,15 @@ extension MediaLibraryController : UITableViewDelegate {
 	
 	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		return getCell(indexPath)
+	}
+	
+	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+		guard let controller = ViewControllers.playListInfoView.getController() as? PlayListInfoController,
+			playList = MainModel.sharedInstance.playLists?[indexPath.row] where segment.selectedSegmentIndex == 3 && indexPath.row < getItemsForSegment() else { return }
+		
+		controller.model = PlayListInfoModel(mainModel: MainModel.sharedInstance, playList: playList)
+	
+		navigationController?.pushViewController(controller, animated: true)
 	}
 }
 

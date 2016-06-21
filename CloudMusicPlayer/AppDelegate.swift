@@ -12,34 +12,6 @@ import AVFoundation
 import RxSwift
 import MediaPlayer
 
-enum Storyboards : String {
-	case main = "Main"
-	case cloudAccounts = "CloudAccounts"
-	func getStoryboard() -> UIStoryboard {
-		switch self {
-		case .main: return UIStoryboard(name: rawValue, bundle: nil)
-		case .cloudAccounts: return UIStoryboard(name: rawValue, bundle: nil)
-		}
-	}
-}
-
-enum ViewControllers : String {
-	case rootTabBarController = "RootTabBarController"
-	case addToMediaLibraryNavigationController = "AddToMediaLibraryNavigationController"
-	case addToMediaLibraryController = "AddToMediaLibraryController"
-	case addItemsToPlayListController = "AddItemsToPlayListView"
-	case universalTableVeiw = "UniversalTableVeiw"
-	func getController() -> UIViewController {
-		switch self {
-		case .rootTabBarController: return Storyboards.main.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
-		case .addToMediaLibraryNavigationController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
-		case .addToMediaLibraryController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
-		case .addItemsToPlayListController: return Storyboards.cloudAccounts.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
-		case .universalTableVeiw: return Storyboards.main.getStoryboard().instantiateViewControllerWithIdentifier(rawValue)
-		}
-	}
-}
-
 //var streamPlayer = StreamAudioPlayer(allowSaveCachedData: true)
 //var rxPlayer = RxPlayer(repeatQueue: false, downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
 //													httpUtilities: HttpUtilities()), streamPlayerUtilities: StreamPlayerUtilities(), mediaLibrary: RealmMediaLibrary())
