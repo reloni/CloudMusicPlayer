@@ -130,7 +130,6 @@ class YandexCloudResourceTests: XCTestCase {
 		var attemptsCounter = 0
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
-				print(tsk.originalRequest?.URL)
 				//tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
 				var sendData: NSData!
 				if attemptsCounter < 3 {
@@ -163,12 +162,12 @@ class YandexCloudResourceTests: XCTestCase {
 	func testNotReturnDownloadUrlDueToErrors() {
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
-				print(tsk.originalRequest?.URL)
-				//tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
-				var sendData: NSData!
 				let jsonError: JSON = ["message": "Слишком много запросов", "error": "TooManyRequestsError", "description": "Too Many Requests"]
-				sendData = jsonError.rawDataSafe()!
-
+				guard let sendData = jsonError.rawDataSafe() else {
+					XCTFail("Error while creating error JSON")
+					return
+				}
+				
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 					self.session.sendData(tsk, data: sendData, streamObserver: self.streamObserver)
 				}

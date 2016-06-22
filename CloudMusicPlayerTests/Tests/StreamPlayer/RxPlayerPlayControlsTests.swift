@@ -460,7 +460,7 @@ class RxPlayerPlayControlsTests: XCTestCase {
 		session.task?.taskProgress.bindNext { e in
 			if case FakeDataTaskMethods.resume(let tsk) = e {
 				// send random url
-				let json: JSON =  ["href": "http://url.com"]
+				let json: JSON =  JSON(["href": "http://url.com"])
 				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 					//tsk.completion?(try? json.rawData(), nil, nil)
 					session.sendData(tsk, data: try? json.rawData(), streamObserver: httpUtilities.streamObserver as! NSURLSessionDataEventsObserver)

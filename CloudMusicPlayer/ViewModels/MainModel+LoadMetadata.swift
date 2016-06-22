@@ -48,7 +48,7 @@ extension MainModel {
 	
 	func loadMetadataObjectForTrackInPlayListByIndex(index: Int, playList: PlayListType) -> Observable<MediaItemMetadata?> {
 		return Observable.create { observer in
-			guard let track = playList.items[index] else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
+			guard let track = playList.synchronize().items[index] else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
 			
 			let metadata = MediaItemMetadata(resourceUid: track.uid,
 				artist: track.artist.name,
