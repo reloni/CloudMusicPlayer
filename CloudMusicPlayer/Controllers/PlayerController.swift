@@ -64,7 +64,8 @@ class PlayerController: UIViewController {
 			}
 			}.addDisposableTo(bag)
 		
-		MainModel.sharedInstance.player.currentItem.flatMapLatest { e -> Observable<Result<MediaItemMetadataType?>> in
+		MainModel.sharedInstance.player.currentItem.observeOn(ConcurrentDispatchQueueScheduler.utility)
+			.flatMapLatest { e -> Observable<Result<MediaItemMetadataType?>> in
 			guard let e = e else { return Observable.empty() }
 			return MainModel.sharedInstance.player.loadMetadata(e.streamIdentifier)
 			//return e?.loadMetadata() ?? Observable.just(nil)

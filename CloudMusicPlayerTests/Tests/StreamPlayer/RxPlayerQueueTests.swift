@@ -688,4 +688,12 @@ class RxPlayerQueueTests: XCTestCase {
 		XCTAssertNotNil(player.getQueueItemByUid("http://test.com"))
 		XCTAssertNotNil(player.getQueueItemByUid("http://test3.com"))
 	}
+	
+	func testPlayItemsWhenStartItemSpecifiedMoveThisItemToFirstPlace() {
+		let queue = RxPlayer()
+		queue.play(audioItems, startWithItem: audioItems.last)
+		
+		XCTAssertEqual(audioItems.count, queue.count)
+		XCTAssertEqual(queue.first?.streamIdentifier.streamResourceUid, audioItems.last?.streamResourceUid)
+	}
 }

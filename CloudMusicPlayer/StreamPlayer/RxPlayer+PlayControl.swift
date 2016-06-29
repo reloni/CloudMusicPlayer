@@ -46,6 +46,7 @@ extension RxPlayer {
 	func play(items: [StreamResourceIdentifier], shuffle: Bool, startWithItem: StreamResourceIdentifier? = nil) {
 		initWithNewItems(items)
 		if let startWithItem = startWithItem, item = getQueueItemByUid(startWithItem.streamResourceUid) {
+			addFirst(startWithItem)
 			current = item
 		}
 		resume(true)

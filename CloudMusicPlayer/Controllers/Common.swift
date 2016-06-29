@@ -43,6 +43,7 @@ enum Segues : String {
 	case mediaLibraryControllerEmbeddedTable = "MediaLibrarySceneShowTable"
 	case playListInfoControllerEmbeddedTable = "PlayListSceneShowTracksTable"
 	case mediaLibraryControllerToPlayListInfo = "ShowPlayListInfo"
+	case playerQueueControllerEmbeddedTable = "PlayerQueueSceneShowTable"
 }
 
 struct ViewConstants {

@@ -24,10 +24,10 @@ extension MainModel {
 	/// Toggle player state with specified track
 	/// If current track in player equals to specified track, toggles player (play or pause track)
 	/// If current track in palyer not equal to specified track, tries to found that track in queue and if success starts play this track
-	func toggleTrack(track: TrackType) {
-		if player.current?.streamIdentifier.streamResourceUid == track.uid {
+	func toggleTrack(trackUid: String) {
+		if player.current?.streamIdentifier.streamResourceUid == trackUid {
 			togglePlayer()
-		} else if let queueItem = player.getQueueItemByUid(track.uid) {
+		} else if let queueItem = player.getQueueItemByUid(trackUid) {
 			player.play(queueItem)
 		} else {
 			// if didn't found starting track, forse resume
@@ -45,7 +45,7 @@ extension MainModel {
 		
 		if let track = track where container.uid == currentPlayingContainerUid {
 			// if track specified and playing current container
-			toggleTrack(track)
+			toggleTrack(track.uid)
 		} else if container.uid == currentPlayingContainerUid {
 			// if playing current container and track not specified
 			togglePlayer()

@@ -69,6 +69,7 @@
 		6E54CBCC1CF19D8E00033075 /* CustomErrorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E54CBCB1CF19D8E00033075 /* CustomErrorType.swift */; };
 		6E54CBCE1CF1A10F00033075 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E54CBCD1CF1A10F00033075 /* Result.swift */; };
 		6E5B8A2F1CE35A3200785D76 /* RealmMediaLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5B8A2E1CE35A3200785D76 /* RealmMediaLibraryTests.swift */; };
+		6E5E0F5E1D23AD04001F9CB8 /* PlayerQueueController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E0F5D1D23AD04001F9CB8 /* PlayerQueueController.swift */; };
 		6E6311161CA3D844006C0072 /* AssetResourceLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6311151CA3D844006C0072 /* AssetResourceLoaderTests.swift */; };
 		6E658BD81CB81FAF0011354C /* RxPlayer+PlayControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E658BD71CB81FAF0011354C /* RxPlayer+PlayControl.swift */; };
 		6E66B6361C9F3477004C466D /* NSURLSessionProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66B6351C9F3477004C466D /* NSURLSessionProtocolTests.swift */; };
@@ -121,6 +122,7 @@
 		6EC021201C8B3E0200E30BE1 /* MusicPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */; };
 		6EC4A4231C8D81750030476D /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC4A4221C8D81750030476D /* Dictionary.swift */; };
 		6EC57F3A1CFCB3D300A2F056 /* RxPlayer+Background.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC57F391CFCB3D300A2F056 /* RxPlayer+Background.swift */; };
+		6EC8C28F1D23E82700A69C08 /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8C28E1D23E82700A69C08 /* UIImage.swift */; };
 		6ED920601CCA4B8000900CCB /* MediaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED9205F1CCA4B8000900CCB /* MediaLibrary.swift */; };
 		6EDB49831CBE419900F82E02 /* NSURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDB49821CBE419900F82E02 /* NSURL.swift */; };
 		6EDB49851CBE489700F82E02 /* FakeNSUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDB49841CBE489700F82E02 /* FakeNSUserDefaults.swift */; };
@@ -222,6 +224,7 @@
 		6E54CBCB1CF19D8E00033075 /* CustomErrorType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomErrorType.swift; sourceTree = "<group>"; };
 		6E54CBCD1CF1A10F00033075 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		6E5B8A2E1CE35A3200785D76 /* RealmMediaLibraryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmMediaLibraryTests.swift; sourceTree = "<group>"; };
+		6E5E0F5D1D23AD04001F9CB8 /* PlayerQueueController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerQueueController.swift; sourceTree = "<group>"; };
 		6E6311151CA3D844006C0072 /* AssetResourceLoaderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetResourceLoaderTests.swift; sourceTree = "<group>"; };
 		6E658BD71CB81FAF0011354C /* RxPlayer+PlayControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RxPlayer+PlayControl.swift"; sourceTree = "<group>"; };
 		6E66B6351C9F3477004C466D /* NSURLSessionProtocolTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURLSessionProtocolTests.swift; sourceTree = "<group>"; };
@@ -277,6 +280,7 @@
 		6EC0211F1C8B3E0200E30BE1 /* MusicPlayerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicPlayerViewModel.swift; sourceTree = "<group>"; };
 		6EC4A4221C8D81750030476D /* Dictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
 		6EC57F391CFCB3D300A2F056 /* RxPlayer+Background.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RxPlayer+Background.swift"; sourceTree = "<group>"; };
+		6EC8C28E1D23E82700A69C08 /* UIImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		6ED9205F1CCA4B8000900CCB /* MediaLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaLibrary.swift; sourceTree = "<group>"; };
 		6EDB49821CBE419900F82E02 /* NSURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSURL.swift; sourceTree = "<group>"; };
 		6EDB49841CBE489700F82E02 /* FakeNSUserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeNSUserDefaults.swift; sourceTree = "<group>"; };
@@ -431,6 +435,7 @@
 				6E8554561CEB5AFB00A6FC4E /* KeychainExtensions.swift */,
 				6E8554581CEB5B3900A6FC4E /* OAuthExtensions.swift */,
 				6E4A14F11D13FF5800515616 /* CacheState.swift */,
+				6EC8C28E1D23E82700A69C08 /* UIImage.swift */,
 			);
 			name = Extensions;
 			path = CloudMusicPlayer/Extensions;
@@ -446,6 +451,7 @@
 				6E088A811CEE051E001EED50 /* AddToMediaLibraryController.swift */,
 				6EAFBDA71CF0BF6B00066E19 /* PlayListInfoController.swift */,
 				6E0EB27D1CFB479F00F7CE2E /* PlayerController.swift */,
+				6E5E0F5D1D23AD04001F9CB8 /* PlayerQueueController.swift */,
 				6E8B06211CFC34E700889D64 /* AddItemsToPlayListController.swift */,
 				6E2DEEDB1D1921D50066ABFD /* UniversalTableViewController.swift */,
 			);
@@ -945,6 +951,7 @@
 				6E52544A1C676BE900CA5463 /* NSUserDefaults.swift in Sources */,
 				6EE5F8761C550877004CF20C /* SettingsController.swift in Sources */,
 				6E8490C01CA9399600366361 /* StreamPlayerUtilities.swift in Sources */,
+				6EC8C28F1D23E82700A69C08 /* UIImage.swift in Sources */,
 				6E3572F01CBD003B008FAC87 /* LocalFileStreamDataTask.swift in Sources */,
 				6E088A7C1CEDD278001EED50 /* CloudAccountsController.swift in Sources */,
 				6E882ACD1D006B8D0040F529 /* PlayerStatePersistenceProvider.swift in Sources */,
@@ -969,6 +976,7 @@
 				6EAFBDAA1CF0BFD600066E19 /* PlayListInfoModel.swift in Sources */,
 				6E088A7E1CEDD42B001EED50 /* NewAccountCell.swift in Sources */,
 				6EB1929F1CC3BC8100FF3024 /* QueueTrackCell.swift in Sources */,
+				6E5E0F5E1D23AD04001F9CB8 /* PlayerQueueController.swift in Sources */,
 				6E897D371D0AD9DD0085D0BC /* GCD.swift in Sources */,
 				6EBFE0FD1CAAC7130003D12C /* NSMutableOrderedSet.swift in Sources */,
 				6E07F0F41C9B250C001027EA /* HttpExtensions.swift in Sources */,
