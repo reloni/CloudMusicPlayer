@@ -174,6 +174,7 @@ class MediaLibraryController: UIViewController {
 		
 		if let album = objects?[indexPath.row] {
 			cell.albumNameLabel.text = album.name
+			cell.tracksCountLabel.text = "Tracks: \(album.tracks.count)"
 			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [album], tracks: []).subscribe().addDisposableTo(cell.bag)
 		} 
 		

@@ -61,11 +61,26 @@ extension MainModel {
 		
 		switch container {
 		case let pl as PlayListType: playPlayList(pl, track: track)
+		case let album as AlbumType: playAlbum(album, track: track)
+		case let artist as ArtistType: playArtist(artist, track: track)
 		default: break
 		}
 	}
 	
 	func playPlayList(playList: PlayListType, track: TrackType? = nil) {
 		player.play(playList, startWithTrack: track)
+	}
+	
+	func playArtist(artist: ArtistType, track: TrackType? = nil) {
+		var tracks = [TrackType]()
+		for album in artist.albums {
+			tracks.appendContentsOf(album.tracks.map { $0 })
+		}
+		
+		player.play(tracks, startWithTrack: track)
+	}
+	
+	func playAlbum(album: AlbumType, track: TrackType? = nil) {
+		player.play(album.tracks.map { $0 }, startWithTrack: track)
 	}
 }

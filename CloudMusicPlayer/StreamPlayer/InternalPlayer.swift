@@ -10,9 +10,6 @@ import Foundation
 import RxSwift
 import AVFoundation
 
-//public typealias AssetLoadResult =
-//	Result<(receivedResponse: NSHTTPURLResponseProtocol?, utiType: String?, resultRequestCollection: [Int: AVAssetResourceLoadingRequestProtocol])>
-
 public protocol InternalPlayerType {
 	func play(resource: StreamResourceIdentifier) -> Observable<Result<Void>>
 	func stop()
@@ -28,7 +25,6 @@ public class InternalPlayer {
 	var observer: AVAssetResourceLoaderEventsObserverProtocol?
 	let eventsCallback: (PlayerEvents) -> ()
 	
-	var currentTimeDisposable: Disposable?
 	var bag: DisposeBag
 	var asset: AVURLAssetProtocol?
 	var playerItem: AVPlayerItemProtocol?
@@ -80,7 +76,9 @@ extension InternalPlayer : InternalPlayerType {
 			assetEvents: observer.loaderEvents,
 			targetAudioFormat: resource.streamResourceContentType)
 		
-		play(playerItem, asset: asset, observer: observer)
+		DispatchQueue.async(.Utility) { [weak self, playerItem, asset, observer] in
+			self?.play(playerItem, asset: asset, observer: observer)
+		}
 		
 		return task
 	}
@@ -91,6 +89,7 @@ extension InternalPlayer : InternalPlayerType {
 		// setup audio session
 		do {
 			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, withOptions: .DefaultToSpeaker)
+			try AVAudioSession.sharedInstance().setMode(AVAudioSessionModeDefault)
 			try AVAudioSession.sharedInstance().setActive(true)
 		} catch let error as NSError {
 			NSLog("Error while set up audio session \(error.localizedDescription)")
@@ -102,7 +101,7 @@ extension InternalPlayer : InternalPlayerType {
 		self.nativePlayer = AVPlayer(playerItem: playerItem as! AVPlayerItem)
 		
 		nativePlayer?.internalItemStatus.bindNext { [weak self] status in
-			print("player status: \(status?.rawValue)")
+			//print("player status: \(status?.rawValue)")
 			if status == AVPlayerItemStatus.ReadyToPlay {
 				self?.nativePlayer?.play()
 				self?.eventsCallback(.Started)
@@ -118,7 +117,8 @@ extension InternalPlayer : InternalPlayerType {
 						#selector(object.failedToPlayToEnd), name: AVPlayerItemFailedToPlayToEndTimeNotification, object: object.playerItem as? AVPlayerItem)
 				}
 			} else if status == AVPlayerItemStatus.Failed {
-				print("player error: \((self?.nativePlayer as? AVPlayer)?.error?.localizedDescription)")
+				NSLog("player error: \((self?.nativePlayer as? AVPlayer)?.error?.localizedDescription)")
+				self?.flush()
 			}
 			}.addDisposableTo(bag)
 		
@@ -135,7 +135,12 @@ extension InternalPlayer : InternalPlayerType {
 		asset = nil
 		playerItem = nil
 		bag = DisposeBag()
-		currentTimeDisposable?.dispose()
+		
+		do {
+			try AVAudioSession.sharedInstance().setActive(false, withOptions: AVAudioSessionSetActiveOptions.NotifyOthersOnDeactivation)
+		} catch let error as NSError {
+			NSLog("Error while deactivating up audio session \(error.localizedDescription)")
+		}
 	}
 	
 	public func stop() {
@@ -146,7 +151,6 @@ extension InternalPlayer : InternalPlayerType {
 	
 	public func pause() {
 		if let nativePlayer = nativePlayer {
-			currentTimeDisposable?.dispose()
 			nativePlayer.setPlayerRate(0.0)
 			eventsCallback(.Paused)
 		}
@@ -163,7 +167,6 @@ extension InternalPlayer : InternalPlayerType {
 	
 	func switchToNextItem(force: Bool) {
 		if force || !isTimeChanging() {
-			print("flush and switch to next item")
 			flush()
 			eventsCallback(.FinishPlayingCurrentItem)
 			hostPlayer.toNext(true)
@@ -178,23 +181,20 @@ extension InternalPlayer : InternalPlayerType {
 	}
 	
 	@objc func finishPlayingItem(notification: NSNotification) {
-		print("finishPlayingItem invoked")
 		switchToNextItem(false)
 	}
 	
 	@objc func playbackStalled(notification: NSNotification) {
-		print("playback stalled")
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [weak self] in
 			self?.switchToNextItem(false)
 		}
 	}
 	
 	@objc func newErrorLogEntry(notification: NSNotification) {
-		print("new error notification")
+		
 	}
 	
 	@objc func failedToPlayToEnd(notification: NSNotification) {
-		print("failed play to end")
 		finishPlayingItem(notification)
 	}
 }

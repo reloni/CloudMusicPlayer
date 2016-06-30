@@ -67,17 +67,17 @@
                                                 <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="G3S-Al-o05">
                                                     <rect key="frame" x="0.0" y="0.0" width="600" height="55"/>
                                                     <subviews>
-                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="rAe-uO-fLV">
-                                                            <rect key="frame" x="10" y="5" width="545" height="45"/>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="rAe-uO-fLV">
+                                                            <rect key="frame" x="10" y="2" width="545" height="51"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Artist name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Khh-90-FHR">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="545" height="33"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="545" height="30"/>
                                                                     <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" text="Albums count" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E0B-Jh-vHH">
-                                                                    <rect key="frame" x="0.0" y="33" width="545" height="12"/>
+                                                                    <rect key="frame" x="0.0" y="30" width="545" height="21"/>
                                                                     <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <nil key="highlightedColor"/>
@@ -86,12 +86,12 @@
                                                             <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                         </stackView>
                                                         <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oZn-v2-4Uo">
-                                                            <rect key="frame" x="565" y="5" width="25" height="45"/>
+                                                            <rect key="frame" x="565" y="2" width="25" height="51"/>
                                                             <size key="titleShadowOffset" width="2.2250738585072014e-308" height="0.0"/>
                                                             <state key="normal" image="Cell Menu"/>
                                                         </button>
                                                     </subviews>
-                                                    <edgeInsets key="layoutMargins" top="5" left="10" bottom="5" right="10"/>
+                                                    <edgeInsets key="layoutMargins" top="2" left="10" bottom="2" right="10"/>
                                                 </stackView>
                                             </subviews>
                                             <constraints>
@@ -116,39 +116,45 @@
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="54.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="2a5-ee-wJx">
+                                                <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="2a5-ee-wJx">
                                                     <rect key="frame" x="0.0" y="0.0" width="600" height="55"/>
                                                     <subviews>
                                                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" image="Album Place Holder" translatesAutoresizingMaskIntoConstraints="NO" id="use-zS-Ci6">
-                                                            <rect key="frame" x="10" y="5" width="45" height="45"/>
+                                                            <rect key="frame" x="10" y="2" width="51" height="51"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" secondItem="use-zS-Ci6" secondAttribute="height" multiplier="1:1" id="vus-Es-VTe"/>
                                                             </constraints>
                                                         </imageView>
-                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="TVY-Jd-inp">
-                                                            <rect key="frame" x="65" y="5" width="490" height="45"/>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="TVY-Jd-inp">
+                                                            <rect key="frame" x="66" y="2" width="494" height="51"/>
                                                             <subviews>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Album title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YaU-36-M7e">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="490" height="17"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1" verticalHuggingPriority="1" text="Album title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YaU-36-M7e">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="494" height="19"/>
                                                                     <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="249" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" text="Artist name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cYi-W6-BrJ">
-                                                                    <rect key="frame" x="0.0" y="17" width="490" height="28"/>
-                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="2" verticalHuggingPriority="2" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" text="Artist name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cYi-W6-BrJ">
+                                                                    <rect key="frame" x="0.0" y="19" width="494" height="16"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="12"/>
+                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="3" verticalHuggingPriority="3" text="Tracks count" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IIR-ZC-Gmq">
+                                                                    <rect key="frame" x="0.0" y="35" width="494" height="16"/>
+                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="12"/>
                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                             </subviews>
                                                             <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                         </stackView>
-                                                        <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ym3-3S-ZnE">
-                                                            <rect key="frame" x="565" y="5" width="25" height="45"/>
+                                                        <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="245" verticalHuggingPriority="245" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ym3-3S-ZnE">
+                                                            <rect key="frame" x="565" y="2" width="25" height="51"/>
                                                             <state key="normal" image="Cell Menu"/>
                                                         </button>
                                                     </subviews>
-                                                    <edgeInsets key="layoutMargins" top="5" left="10" bottom="5" right="10"/>
+                                                    <edgeInsets key="layoutMargins" top="2" left="10" bottom="2" right="10"/>
                                                 </stackView>
                                             </subviews>
                                             <constraints>
@@ -171,6 +177,7 @@
                                             <outlet property="albumNameLabel" destination="YaU-36-M7e" id="RDH-au-ffL"/>
                                             <outlet property="artistNameLabel" destination="cYi-W6-BrJ" id="8AL-OV-R2X"/>
                                             <outlet property="showMenuButton" destination="Ym3-3S-ZnE" id="93X-t2-vrX"/>
+                                            <outlet property="tracksCountLabel" destination="IIR-ZC-Gmq" id="iVP-hz-U66"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="TrackCell" id="fjb-8y-HFR" customClass="TrackCell" customModule="CloudMusicPlayer" customModuleProvider="target">
@@ -184,19 +191,19 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="600" height="55"/>
                                                     <subviews>
                                                         <view contentMode="scaleToFill" horizontalHuggingPriority="252" verticalHuggingPriority="253" translatesAutoresizingMaskIntoConstraints="NO" id="4EE-jf-ayb">
-                                                            <rect key="frame" x="10" y="5" width="45" height="45"/>
+                                                            <rect key="frame" x="10" y="2" width="51" height="51"/>
                                                             <subviews>
                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="252" verticalHuggingPriority="252" image="Album Place Holder" translatesAutoresizingMaskIntoConstraints="NO" id="U0c-rz-7xl">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="45" height="45"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="51" height="51"/>
                                                                 </imageView>
                                                                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PH9-Z6-NS8">
-                                                                    <rect key="frame" x="0.0" y="31" width="45" height="13.5"/>
+                                                                    <rect key="frame" x="0.0" y="35.5" width="51" height="15.5"/>
                                                                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.40000000000000002" contentMode="center" id="18J-K8-meP">
-                                                                        <rect key="frame" x="0.0" y="0.0" width="45" height="13.5"/>
+                                                                        <rect key="frame" x="0.0" y="0.0" width="51" height="15.5"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <subviews>
                                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0hA-md-k86">
-                                                                                <rect key="frame" x="0.0" y="0.0" width="45" height="13.5"/>
+                                                                                <rect key="frame" x="0.0" y="0.0" width="51" height="15.5"/>
                                                                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                                                 <nil key="highlightedColor"/>
                                                                             </label>
@@ -226,25 +233,30 @@
                                                             </constraints>
                                                         </view>
                                                         <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="200" verticalHuggingPriority="200" horizontalCompressionResistancePriority="747" verticalCompressionResistancePriority="747" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Jjj-ta-5Ce">
-                                                            <rect key="frame" x="60" y="5" width="450" height="45"/>
+                                                            <rect key="frame" x="66" y="2" width="454" height="51"/>
                                                             <subviews>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Track title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="Umr-jj-xFY">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="450" height="17"/>
-                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
-                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                </label>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="249" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" text="Album and artist" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="fVg-GC-S3Z">
-                                                                    <rect key="frame" x="0.0" y="19" width="450" height="22"/>
-                                                                    <fontDescription key="fontDescription" type="system" weight="thin" pointSize="12"/>
-                                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                </label>
+                                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Gbp-EX-3gd">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="454" height="47"/>
+                                                                    <subviews>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Track title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Umr-jj-xFY">
+                                                                            <rect key="frame" x="0.0" y="0.0" width="454" height="24"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
+                                                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="249" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" text="Album and artist" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fVg-GC-S3Z">
+                                                                            <rect key="frame" x="0.0" y="26" width="454" height="21"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="12"/>
+                                                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                    </subviews>
+                                                                </stackView>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="8Uw-H8-gHw">
-                                                                    <rect key="frame" x="0.0" y="43" width="450" height="2"/>
+                                                                    <rect key="frame" x="0.0" y="49" width="454" height="2"/>
                                                                     <subviews>
                                                                         <progressView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="748" verticalCompressionResistancePriority="748" progress="0.10000000149011612" translatesAutoresizingMaskIntoConstraints="NO" id="egV-Sh-dCF">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="450" height="2"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="454" height="2"/>
                                                                         </progressView>
                                                                     </subviews>
                                                                     <constraints>
@@ -255,16 +267,16 @@
                                                             <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                                         </stackView>
                                                         <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="700" verticalCompressionResistancePriority="700" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="6v4-bw-DYu">
-                                                            <rect key="frame" x="515" y="5" width="35" height="45"/>
+                                                            <rect key="frame" x="525" y="2" width="35" height="51"/>
                                                             <subviews>
                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="752" verticalHuggingPriority="752" image="Item in cloud" translatesAutoresizingMaskIntoConstraints="NO" id="77e-nq-Ssb">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="15" height="45"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="15" height="51"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="15" id="kgJ-HU-Be5"/>
                                                                     </constraints>
                                                                 </imageView>
                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="753" verticalHuggingPriority="753" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" image="Yandex disk" translatesAutoresizingMaskIntoConstraints="NO" id="Xdi-B7-ECb">
-                                                                    <rect key="frame" x="20" y="0.0" width="15" height="45"/>
+                                                                    <rect key="frame" x="20" y="0.0" width="15" height="51"/>
                                                                 </imageView>
                                                             </subviews>
                                                             <constraints>
@@ -272,14 +284,11 @@
                                                             </constraints>
                                                         </stackView>
                                                         <button opaque="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eFO-Y6-oXK">
-                                                            <rect key="frame" x="555" y="5" width="45" height="45"/>
-                                                            <constraints>
-                                                                <constraint firstAttribute="width" secondItem="eFO-Y6-oXK" secondAttribute="height" multiplier="1:1" id="DDT-hF-EVH"/>
-                                                            </constraints>
+                                                            <rect key="frame" x="565" y="2" width="25" height="51"/>
                                                             <state key="normal" image="Cell Menu"/>
                                                         </button>
                                                     </subviews>
-                                                    <edgeInsets key="layoutMargins" top="5" left="10" bottom="5" right="0.0"/>
+                                                    <edgeInsets key="layoutMargins" top="2" left="10" bottom="2" right="10"/>
                                                 </stackView>
                                             </subviews>
                                             <constraints>
@@ -303,33 +312,33 @@
                                             <outlet property="trackTitleLabel" destination="Umr-jj-xFY" id="aVM-dt-wPK"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="PlayListCell" id="XvI-Bk-X72" customClass="PlayListCell" customModule="CloudMusicPlayer" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="PlayListCell" id="XvI-Bk-X72" customClass="PlayListCell" customModule="CloudMusicPlayer" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="248" width="600" height="55"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="XvI-Bk-X72" id="cFK-F8-q7F">
-                                            <rect key="frame" x="0.0" y="0.0" width="567" height="54.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="54.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="lPl-cg-Z5B">
-                                                    <rect key="frame" x="0.0" y="0.0" width="567" height="55"/>
+                                                <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="lPl-cg-Z5B">
+                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="55"/>
                                                     <subviews>
                                                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Album Place Holder" translatesAutoresizingMaskIntoConstraints="NO" id="USx-vc-4KX">
-                                                            <rect key="frame" x="10" y="5" width="45" height="45"/>
+                                                            <rect key="frame" x="10" y="2" width="51" height="51"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" secondItem="USx-vc-4KX" secondAttribute="height" multiplier="1:1" id="JYw-HW-FmO"/>
                                                             </constraints>
                                                         </imageView>
-                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="b9k-tD-eo1">
-                                                            <rect key="frame" x="65" y="5" width="457" height="45"/>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="b9k-tD-eo1">
+                                                            <rect key="frame" x="66" y="2" width="494" height="51"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" text="Play list name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ieQ-A8-MRp">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="457" height="33"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="494" height="30"/>
                                                                     <fontDescription key="fontDescription" type="system" weight="thin" pointSize="14"/>
                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tracks count" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u2h-FJ-xDD">
-                                                                    <rect key="frame" x="0.0" y="33" width="457" height="12"/>
+                                                                    <rect key="frame" x="0.0" y="30" width="494" height="21"/>
                                                                     <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <nil key="highlightedColor"/>
@@ -337,11 +346,11 @@
                                                             </subviews>
                                                         </stackView>
                                                         <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Fm-6e-5Yy">
-                                                            <rect key="frame" x="532" y="5" width="25" height="45"/>
+                                                            <rect key="frame" x="565" y="2" width="25" height="51"/>
                                                             <state key="normal" image="Cell Menu"/>
                                                         </button>
                                                     </subviews>
-                                                    <edgeInsets key="layoutMargins" top="5" left="10" bottom="5" right="10"/>
+                                                    <edgeInsets key="layoutMargins" top="2" left="10" bottom="2" right="10"/>
                                                 </stackView>
                                             </subviews>
                                             <constraints>
@@ -376,17 +385,17 @@
                                                                 <constraint firstAttribute="width" secondItem="fhY-yX-6Jf" secondAttribute="height" multiplier="1:1" id="kPX-XP-TFD"/>
                                                             </constraints>
                                                         </imageView>
-                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="CsC-1x-dGj">
+                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="CsC-1x-dGj">
                                                             <rect key="frame" x="105" y="0.0" width="485" height="90"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="236" verticalHuggingPriority="236" horizontalCompressionResistancePriority="999" verticalCompressionResistancePriority="999" text="PlayList name" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sq4-Ie-XKK">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="485" height="33"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="485" height="23"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="237" verticalHuggingPriority="237" horizontalCompressionResistancePriority="998" verticalCompressionResistancePriority="998" text="Items count" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xCR-lU-SYL">
-                                                                    <rect key="frame" x="0.0" y="43" width="485" height="12"/>
+                                                                    <rect key="frame" x="0.0" y="33" width="485" height="22"/>
                                                                     <fontDescription key="fontDescription" type="system" weight="thin" pointSize="10"/>
                                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <nil key="highlightedColor"/>

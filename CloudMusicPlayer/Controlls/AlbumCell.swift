@@ -16,10 +16,12 @@ class AlbumCell: UITableViewCell {
 	@IBOutlet weak var artistNameLabel: UILabel!
 	@IBOutlet weak var albumArtworkImage: UIImageView!
 	@IBOutlet weak var showMenuButton: UIButton!
+	@IBOutlet weak var tracksCountLabel: UILabel!
 	
 	override func prepareForReuse() {
 		albumNameLabel.text = ""
 		artistNameLabel.text = ""
+		tracksCountLabel.text = ""
 		albumArtworkImage.image = MainModel.sharedInstance.albumPlaceHolderImage
 		bag = DisposeBag()
 	}
