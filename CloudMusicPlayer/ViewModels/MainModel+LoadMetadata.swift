@@ -48,7 +48,25 @@ extension MainModel {
 	
 	func loadMetadataObjectForTrackInPlayListByIndex(index: Int, playList: PlayListType) -> Observable<MediaItemMetadata?> {
 		return Observable.create { observer in
-			guard let track = playList.items[index] else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
+			guard let track = playList.synchronize().items[index] else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
+			
+			let metadata = MediaItemMetadata(resourceUid: track.uid,
+				artist: track.artist.name,
+				title: track.title,
+				album: track.album.name,
+				artwork: track.album.artwork,
+				duration: track.duration)
+			
+			observer.onNext(metadata)
+			observer.onCompleted()
+			
+			return NopDisposable.instance
+		}
+	}
+	
+	func loadMetadataObjectForTrackByUid(uid: String) -> Observable<MediaItemMetadata?> {
+		return Observable.create { [weak self] observer in
+			guard let track = (try? self?.player.mediaLibrary.getTrackByUid(uid)) ?? nil else { observer.onNext(nil); observer.onCompleted(); return NopDisposable.instance }
 			
 			let metadata = MediaItemMetadata(resourceUid: track.uid,
 				artist: track.artist.name,

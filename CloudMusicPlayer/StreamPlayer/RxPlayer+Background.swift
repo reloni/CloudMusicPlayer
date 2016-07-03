@@ -20,11 +20,11 @@ extension RxPlayer {
 	}
 	
 	internal func beginBackgroundTask(application: UIApplicationType) {
-		print("bagin background task")
+		//print("bagin background task")
 		let currentIdentifier = backgroundTaskIdentifier
 		
 		backgroundTaskIdentifier = application.beginBackgroundTaskWithExpirationHandler { [weak self] in
-			print("end background task callback invoked")
+			//print("end background task callback invoked")
 			if let backgroundTaskIdentifier = self?.backgroundTaskIdentifier {
 				application.endBackgroundTask(backgroundTaskIdentifier)
 			}
@@ -42,7 +42,7 @@ extension RxPlayer {
 	}
 	
 	internal func endBackgroundTask(application: UIApplicationType) {
-		print("end background task")
+		//print("end background task")
 		if let backgroundTaskIdentifier = backgroundTaskIdentifier {
 			if backgroundTaskIdentifier != UIBackgroundTaskInvalid {
 				application.endBackgroundTask(backgroundTaskIdentifier)

@@ -13,7 +13,8 @@ import AVFoundation
 
 class PlayListInfoController: UIViewController {
 	var model: PlayListInfoModel!
-	@IBOutlet weak var tableView: UITableView!
+	//@IBOutlet weak var tableView: UITableView!
+	var tableViewController: UniversalTableViewController!
 
 	var bag = DisposeBag()
 
@@ -26,23 +27,31 @@ class PlayListInfoController: UIViewController {
 		bag = DisposeBag()
 	}
 	
+	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+		guard let controller = segue.destinationViewController as? UniversalTableViewController
+			where segue.identifier == Segues.playListInfoControllerEmbeddedTable.rawValue else { return }
+		
+		tableViewController = controller
+		tableViewController.tableDelegate = self
+		tableViewController.tableDataSource = self
+	}
+	
 	func getCell(indexPath: NSIndexPath) -> UITableViewCell {
 		let objects = model.playList.items
 		if  indexPath.row == objects.count {
-			let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+			let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
 			cell.itemsCount = UInt(objects.count)
 			cell.titleText = "Tracks"
 			cell.refreshTitle()
 			return cell
 		}
 		
-		let cell = tableView.dequeueReusableCellWithIdentifier("TrackCell", forIndexPath: indexPath) as! TrackCell
+		let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("TrackCell", forIndexPath: indexPath) as! TrackCell
 		cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = CGFloat(integerLiteral: 0)
 		
 		guard let track = objects[indexPath.row] else { return cell }
 		
 		cell.trackTitleLabel.text = track.title
-		
 		
 		cell.showMenuButton.rx_tap.bindNext { [weak self] in
 			guard let object = self else { return }
@@ -54,19 +63,10 @@ class PlayListInfoController: UIViewController {
 		let trackUid = track.uid
 		cell.storageStatusImage?.image = model.mainModel.player.downloadManager.fileStorage.getItemState(trackUid).getImage()
 		
-		model.mainModel.player.downloadManager.fileStorage.itemStateChanged.bindNext { [weak cell] result in
-			guard let cell = cell where result.uid == trackUid else { return }
+		tableViewController.subscribeTrackCellToDefaultEvents(cell, trackUid: trackUid, containerUid: model.playList.uid, mainModel: model.mainModel)
 		
-			DispatchQueue.async(.MainQueue) {
-					cell.storageStatusImage?.image = result.to.getImage()
-			}
-		}.addDisposableTo(cell.bag)
-		
-		model.mainModel.player.downloadManager.fileStorage.storageCleared.observeOn(MainScheduler.instance).bindNext { [weak cell] _ in
-			cell?.storageStatusImage?.image = CacheState.notExisted.getImage()
-		}.addDisposableTo(cell.bag)
-		
-		model.mainModel.loadMetadataObjectForTrackInPlayListByIndex(indexPath.row, playList: model.playList).observeOn(MainScheduler.instance)
+		model.mainModel.loadMetadataObjectForTrackInPlayListByIndex(indexPath.row, playList: model.playList)
+			.subscribeOn(ConcurrentDispatchQueueScheduler.utility).observeOn(MainScheduler.instance)
 			.bindNext { [weak cell] meta in
 				guard let cell = cell else { return }
 				guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
@@ -80,52 +80,11 @@ class PlayListInfoController: UIViewController {
 				}
 			}.addDisposableTo(cell.bag)
 		
-		model.mainModel.player.currentItem.observeOn(MainScheduler.instance).flatMapLatest { [weak self, weak cell] item -> Observable<Bool> in
-			guard let cell = cell, object = self else { return Observable.empty() }
-			
-			let animate = {
-				UIView.animateWithDuration(0.9, delay: 0, usingSpringWithDamping: 0.2,
-					initialSpringVelocity: 10.0, options: [.CurveEaseOut], animations: {
-						cell.layoutIfNeeded()
-					}, completion: nil)
-			}
-			
-			if let item = item where track.uid == item.streamIdentifier.streamResourceUid && object.model.playList.uid == object.model.mainModel.currentPlayingContainerUid {
-				if cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant != ViewConstants.trackProgressBarHeight {
-					cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = ViewConstants.trackProgressBarHeight
-					animate()
-				}
-				return Observable.just(true)
-			} else {
-				if cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant != 0 {
-					cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = CGFloat(integerLiteral: 0)
-					animate()
-				}
-				return Observable.just(false)
-			}
-			}.observeOn(ConcurrentDispatchQueueScheduler(globalConcurrentQueueQOS: DispatchQueueSchedulerQOS.Utility))
-			.flatMapLatest { isCurrent -> Observable<(currentTime: CMTime?, duration: CMTime?)?> in
-				if isCurrent {
-					return MainModel.sharedInstance.player.currentItemTime
-				} else {
-					return Observable.just(nil)
-				}
-			}.observeOn(MainScheduler.instance).bindNext { [weak cell] time in
-				guard let cell = cell else { return }
-				
-				guard let time = time, currentSec = time.currentTime?.safeSeconds, fullSec = time.duration?.safeSeconds else {
-					cell.trackCurrentTimeProgressView?.setProgress(0, animated: true)
-					return
-				}
-				
-				cell.trackCurrentTimeProgressView?.setProgress(Float(currentSec / fullSec), animated: true)
-			}.addDisposableTo(cell.bag)
-		
 		return cell
 	}
 	
 	func getPlayListCell() -> UITableViewCell {
-		let cell = tableView.dequeueReusableCellWithIdentifier("PlayListHeaderCell") as! PlayListCell
+		let cell = tableViewController.tableView.dequeueReusableCellWithIdentifier("PlayListHeaderCell") as! PlayListCell
 		cell.playListNameLabel.text = model.playList.name
 		cell.itemsCountLabel?.text = "Tracks: \(model.playList.items.count)"
 		cell.playButton?.selected = model.checkPlayListPlaying()
@@ -187,6 +146,8 @@ class PlayListInfoController: UIViewController {
 		return alert
 	}
 }
+
+extension PlayListInfoController : UITableViewDataSource { }
 
 extension PlayListInfoController : UITableViewDelegate {
 	func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

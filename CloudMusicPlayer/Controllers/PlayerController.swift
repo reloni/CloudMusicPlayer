@@ -30,6 +30,10 @@ class PlayerController: UIViewController {
 		trackProgressSlider.setThumbImage(UIImage(named: "Slider thumb"), forState: .Normal)
 		volumeSlider.setThumbImage(UIImage(named: "Slider thumb"), forState: .Normal)
 		
+		resetUI()
+	}
+	
+	func resetUI() {
 		playPauseButton.selected = MainModel.sharedInstance.player.playing
 		currentTimeLabel.text = "--:--"
 		fullTimeLabel.text = "--:--"
@@ -39,11 +43,15 @@ class PlayerController: UIViewController {
 	override func viewWillAppear(animated: Bool) {
 		playPauseButton.selected = MainModel.sharedInstance.player.playing
 		
-		if let currentTime = MainModel.sharedInstance.player.getCurrentItemTimeAndDuration() {
-			currentTimeLabel.text = currentTime.currentTime.asString
-			fullTimeLabel.text = currentTime.duration.asString
-			if let currSec = currentTime.currentTime.safeSeconds, fullSec = currentTime.duration.safeSeconds {
-				trackProgressSlider.setValue(Float(currSec / fullSec), animated: false)
+		DispatchQueue.async(.Utility) {
+			if let currentTime = MainModel.sharedInstance.player.getCurrentItemTimeAndDuration() {
+				DispatchQueue.async(.MainQueue) { [weak self] in
+					self?.currentTimeLabel.text = currentTime.currentTime.asString
+					self?.fullTimeLabel.text = currentTime.duration.asString
+					if let currSec = currentTime.currentTime.safeSeconds, fullSec = currentTime.duration.safeSeconds {
+						self?.trackProgressSlider.setValue(Float(currSec / fullSec), animated: false)
+					}
+				}
 			}
 		}
 		
@@ -62,12 +70,14 @@ class PlayerController: UIViewController {
 			} else {
 				MainModel.sharedInstance.player.resume(true)
 			}
-			}.addDisposableTo(bag)
+		}.addDisposableTo(bag)
 		
-		MainModel.sharedInstance.player.currentItem.flatMapLatest { e -> Observable<Result<MediaItemMetadataType?>> in
+		let concurrentScheduler = ConcurrentDispatchQueueScheduler.utility
+		
+		MainModel.sharedInstance.player.currentItem.subscribeOn(concurrentScheduler).observeOn(concurrentScheduler)
+			.flatMapLatest { e -> Observable<Result<MediaItemMetadataType?>> in
 			guard let e = e else { return Observable.empty() }
 			return MainModel.sharedInstance.player.loadMetadata(e.streamIdentifier)
-			//return e?.loadMetadata() ?? Observable.just(nil)
 			}.map { result -> MediaItemMetadataType? in
 				if case Result.success(let box) = result { return box.value } else { return nil }
 			}.observeOn(MainScheduler.instance).bindNext { [weak self] meta in
@@ -83,9 +93,8 @@ class PlayerController: UIViewController {
 				object.albumAndArtistLabel.text = "\(album) - \(artist)"
 				
 		}.addDisposableTo(bag)
-			//}.observeOn(MainScheduler.instance).bindTo(self.fullTimeLabel.rx_text).addDisposableTo(self.bag)
 		
-		MainModel.sharedInstance.player.currentItemTime.observeOn(MainScheduler.instance).bindNext { [weak self] time in
+		MainModel.sharedInstance.player.currentItemTime.subscribeOn(concurrentScheduler).observeOn(MainScheduler.instance).bindNext { [weak self] time in
 			guard let time = time else { self?.currentTimeLabel.text = "--:--"; self?.trackProgressSlider.value = 0; return }
 			
 			self?.currentTimeLabel.text = time.currentTime?.asString
@@ -97,7 +106,7 @@ class PlayerController: UIViewController {
 			}
 		}.addDisposableTo(self.bag)
 		
-		MainModel.sharedInstance.player.playerEvents.observeOn(MainScheduler.instance).bindNext { [weak self] e in
+		MainModel.sharedInstance.player.playerEvents.subscribeOn(concurrentScheduler).observeOn(MainScheduler.instance).bindNext { [weak self] e in
 			if case PlayerEvents.Started = e {
 				self?.playPauseButton.selected = true
 			} else if case PlayerEvents.Paused = e {
