@@ -32,6 +32,44 @@ class UniversalTableViewController: UIViewController {
 		// Dispose of any resources that can be recreated.
 	}
 	
+	func getLastItemCell(text: String, itemsCount: uint, indexPath: NSIndexPath) -> LastItemCell {
+		let cell = tableView.dequeueReusableCellWithIdentifier("LastItemCell", forIndexPath: indexPath) as! LastItemCell
+		cell.itemsCount = UInt(itemsCount)
+		cell.titleText = text
+		cell.refreshTitle()
+		return cell
+	}
+
+	
+	func getTrackCell(track: TrackType, indexPath: NSIndexPath, mainModel: MainModel) -> TrackCell {
+		let cell = tableView.dequeueReusableCellWithIdentifier("TrackCell", forIndexPath: indexPath) as! TrackCell
+				
+		cell.trackCurrentTimeProgressStackViewHeightConstraint?.constant = CGFloat(integerLiteral: 0)
+		
+		let syncTrack = track.synchronize()
+		cell.trackTitleLabel.text = syncTrack.title
+		
+		let trackUid = syncTrack.uid
+		cell.storageStatusImage?.image = mainModel.player.downloadManager.fileStorage.getItemState(trackUid).getImage()
+		
+		mainModel.loadMetadataObjectForTrackByUid(trackUid)
+			.subscribeOn(ConcurrentDispatchQueueScheduler.utility).observeOn(MainScheduler.instance)
+			.bindNext { [weak cell] meta in
+				guard let cell = cell else { return }
+				guard let meta = meta else { cell.trackTitleLabel.text = "Unknown"; return }
+				
+				cell.durationLabel.text = meta.duration?.asTimeString
+				if let album = meta.album, artist = meta.artist {
+					cell.albumAndArtistLabel?.text = "\(album) - \(artist)"
+				}
+				if let artwork = meta.artwork, image = UIImage(data: artwork) {
+					cell.albumArtworkImage?.image = image
+				}
+			}.addDisposableTo(cell.bag)
+		
+		return cell
+	}
+	
 	func subscribeTrackCellToDefaultEvents(cell: TrackCell, trackUid: String, containerUid: String, mainModel: MainModel) {
 		mainModel.player.downloadManager.fileStorage.itemStateChanged.bindNext { [weak cell] result in
 			guard let cell = cell where result.uid == trackUid else { return }
@@ -88,5 +126,65 @@ class UniversalTableViewController: UIViewController {
 				
 				cell.trackCurrentTimeProgressView?.setProgress(Float(currentSec / fullSec), animated: true)
 			}.addDisposableTo(cell.bag)
+	}
+}
+
+extension UIAlertAction {
+	static func mediaActionsTrackDefaultDeleteAction(trackUid: String, model: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Delete", style: .Default) { _ in
+			model.player.downloadManager.fileStorage.deleteItem(trackUid)
+		}
+	}
+	
+	static func mediaActionsTrackDefaultSaveAction(trackUid: String, model: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Save", style: .Default) { _ in
+			model.player.downloadManager.fileStorage.moveToPermanentStorage(trackUid)
+		}
+	}
+	
+	static func mediaActionsTrackDefaultDeleteFromCacheAction(trackUid: String, model: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Delete from cache", style: .Default) { _ in
+			model.player.downloadManager.fileStorage.deleteItem(trackUid)
+		}
+	}
+	
+	static func mediaActionsTrackDefaultDownloadAction(trackUid: String, model: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Download", style: .Default) { _ in
+			
+		}
+	}
+	
+	static func mediaActionsPlayContainer(container: TrackContainerType, mainModel: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Paly", style: .Default) { _ in
+			mainModel.play(container)
+		}
+	}
+	
+	static func mediaActionsCancel(handler: ((UIAlertAction) -> Void)? = nil) -> UIAlertAction {
+		return UIAlertAction(title: "Cancel", style: .Cancel, handler: handler)
+	}
+	
+	static func mediaActionsAddAlbumToPlayList(album: AlbumType, presentator: UIViewController, mainModel: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Add to playlist", style: .Default) { _ in
+			let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
+			selectController.model = AddItemsToPlayListModel(mainModel: mainModel, artists: [], albums: [album], tracks: [])
+			presentator.presentViewController(selectController, animated: true, completion: nil)
+		}
+	}
+	
+	static func mediaActionsAddArtistToPlayList(artist: ArtistType, presentator: UIViewController, mainModel: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Add to playlist", style: .Default) { _ in
+			let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
+			selectController.model = AddItemsToPlayListModel(mainModel: mainModel, artists: [artist], albums: [], tracks: [])
+			presentator.presentViewController(selectController, animated: true, completion: nil)
+		}
+	}
+	
+	static func mediaActionsAddTrackToPlayList(track: TrackType, presentator: UIViewController, mainModel: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Add to playlist", style: .Default) { _ in
+			let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
+			selectController.model = AddItemsToPlayListModel(mainModel: mainModel, artists: [], albums: [], tracks: [track])
+			presentator.presentViewController(selectController, animated: true, completion: nil)
+		}
 	}
 }

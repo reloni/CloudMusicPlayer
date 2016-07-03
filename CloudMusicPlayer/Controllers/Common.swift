@@ -9,6 +9,14 @@
 import Foundation
 import UIKit
 
+internal extension UIViewController {
+	func presentActionSheet(actions: [UIAlertAction], animated: Bool = true, completion: (() -> ())? = nil) {
+		let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+		actions.forEach { alert.addAction($0) }
+		presentViewController(alert, animated: animated, completion: completion)
+	}
+}
+
 enum Storyboards : String {
 	case main = "Main"
 	case cloudAccounts = "CloudAccounts"
@@ -43,6 +51,7 @@ enum Segues : String {
 	case mediaLibraryControllerEmbeddedTable = "MediaLibrarySceneShowTable"
 	case playListInfoControllerEmbeddedTable = "PlayListSceneShowTracksTable"
 	case mediaLibraryControllerToPlayListInfo = "ShowPlayListInfo"
+	case playerQueueControllerEmbeddedTable = "PlayerQueueSceneShowTable"
 }
 
 struct ViewConstants {

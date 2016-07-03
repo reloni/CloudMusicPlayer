@@ -31,7 +31,18 @@ extension RxPlayer {
 	}
 	
 	func play(playList: PlayListType, shuffle: Bool, startWithTrack: TrackType? = nil) {
-		let items = playList.items.map { loadStreamResourceByUid($0.uid) }
+		//let items = playList.items.map { loadStreamResourceByUid($0.uid) }
+		//var startWithItem: StreamResourceIdentifier? = nil
+		//if let startWithTrack = startWithTrack {
+		//	startWithItem = loadStreamResourceByUid(startWithTrack.uid)
+		//}
+		//play(items, startWithItem: startWithItem)
+		let tracks = playList.items.map { $0 }
+		play(tracks, startWithTrack: startWithTrack)
+	}
+	
+	func play(tracks: [TrackType], startWithTrack: TrackType? = nil) {
+		let items = tracks.map { loadStreamResourceByUid($0.uid) }
 		var startWithItem: StreamResourceIdentifier? = nil
 		if let startWithTrack = startWithTrack {
 			startWithItem = loadStreamResourceByUid(startWithTrack.uid)
@@ -46,6 +57,7 @@ extension RxPlayer {
 	func play(items: [StreamResourceIdentifier], shuffle: Bool, startWithItem: StreamResourceIdentifier? = nil) {
 		initWithNewItems(items)
 		if let startWithItem = startWithItem, item = getQueueItemByUid(startWithItem.streamResourceUid) {
+			addFirst(startWithItem)
 			current = item
 		}
 		resume(true)

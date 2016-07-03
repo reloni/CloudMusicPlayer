@@ -121,22 +121,6 @@ class MediaLibraryController: UIViewController {
 		}
 	}
 	
-	func createTaskForAddItemToPlayList(event: ControlEvent<Void>, artists: [ArtistType], albums: [AlbumType], tracks: [TrackType]) -> Observable<Void> {
-		return event.doOnNext { [unowned self] in
-			let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
-			let addToPlayList = UIAlertAction(title: "Add to playlist", style: .Default) { [weak self] _ in
-				let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
-				selectController.model = AddItemsToPlayListModel(mainModel: MainModel.sharedInstance, artists: artists, albums: albums, tracks: tracks)
-				self?.presentViewController(selectController, animated: true, completion: nil)
-			}
-			let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-			alert.addAction(addToPlayList)
-			alert.addAction(cancel)
-			self.presentViewController(alert, animated: true, completion: nil)
-		}
-	}
-	
-	
 	func getArtistCell(indexPath: NSIndexPath) -> UITableViewCell {
 		let objects = MainModel.sharedInstance.artists
 		if let objects = objects where indexPath.row == objects.count {
@@ -152,7 +136,13 @@ class MediaLibraryController: UIViewController {
 		if let artist = objects?[indexPath.row] {
 			cell.artistNameLabel.text = artist.name
 			cell.albumCountLabel.text = "Albums: \(artist.albums.count)"
-			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [artist], albums: [], tracks: []).subscribe().addDisposableTo(cell.bag)
+			cell.showMenuButton.rx_tap.bindNext { [weak self] in
+				guard let object = self else { return }
+				object.presentActionSheet(
+					[UIAlertAction.mediaActionsPlayContainer(artist, mainModel: MainModel.sharedInstance),
+					UIAlertAction.mediaActionsAddArtistToPlayList(artist, presentator: object, mainModel: MainModel.sharedInstance),
+					UIAlertAction.mediaActionsCancel()])
+			}.addDisposableTo(cell.bag)
 		} else {
 			cell.artistNameLabel.text = "Unknown"
 		}
@@ -174,7 +164,14 @@ class MediaLibraryController: UIViewController {
 		
 		if let album = objects?[indexPath.row] {
 			cell.albumNameLabel.text = album.name
-			createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [album], tracks: []).subscribe().addDisposableTo(cell.bag)
+			cell.tracksCountLabel.text = "Tracks: \(album.tracks.count)"
+			cell.showMenuButton.rx_tap.bindNext { [weak self] in
+				guard let object = self else { return }
+				object.presentActionSheet(
+					[UIAlertAction.mediaActionsPlayContainer(album, mainModel: MainModel.sharedInstance),
+						UIAlertAction.mediaActionsAddAlbumToPlayList(album, presentator: object, mainModel: MainModel.sharedInstance),
+						UIAlertAction.mediaActionsCancel()])
+				}.addDisposableTo(cell.bag)
 		} 
 		
 		MainModel.sharedInstance.loadMetadataObjectForAlbumByIndex(indexPath.row).observeOn(MainScheduler.instance).bindNext { [weak cell] meta in
@@ -210,7 +207,12 @@ class MediaLibraryController: UIViewController {
 		cell.storageStatusImage?.image = MainModel.sharedInstance.player.downloadManager.fileStorage.getItemState(trackUid).getImage()
 		
 		cell.trackTitleLabel.text = track.title
-		createTaskForAddItemToPlayList(cell.showMenuButton.rx_tap, artists: [], albums: [], tracks: [track]).subscribe().addDisposableTo(cell.bag)
+		cell.showMenuButton.rx_tap.bindNext { [weak self] in
+			guard let object = self else { return }
+			object.presentActionSheet(
+					[UIAlertAction.mediaActionsAddTrackToPlayList(track, presentator: object, mainModel: MainModel.sharedInstance),
+					UIAlertAction.mediaActionsCancel()])
+			}.addDisposableTo(cell.bag)
 		
 		MainModel.sharedInstance.loadMetadataObjectForTrackByIndex(indexPath.row).subscribeOn(ConcurrentDispatchQueueScheduler.utility)
 			.observeOn(MainScheduler.instance).bindNext { [weak cell] meta in
