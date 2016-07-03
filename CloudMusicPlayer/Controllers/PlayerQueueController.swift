@@ -27,11 +27,11 @@ class PlayerQueueController: UIViewController {
 		let alert = UIAlertController(title: "Choose action", message: nil, preferredStyle: .ActionSheet)
 		
 		switch mainModel.player.downloadManager.fileStorage.getItemState(trackUid) {
-		case .inPermanentStorage: alert.addAction(UIAlertAction.trackDefaultDeleteAction(trackUid, model: mainModel))
+		case .inPermanentStorage: alert.addAction(UIAlertAction.mediaActionsTrackDefaultDeleteAction(trackUid, model: mainModel))
 		case .inTempStorage:
-			alert.addAction(UIAlertAction.trackDefaultSaveAction(trackUid, model: mainModel))
-			alert.addAction(UIAlertAction.trackDefaultDeleteAction(trackUid, model: mainModel))
-		case .notExisted: alert.addAction(UIAlertAction.trackDefaultDownloadAction(trackUid, model: mainModel))
+			alert.addAction(UIAlertAction.mediaActionsTrackDefaultSaveAction(trackUid, model: mainModel))
+			alert.addAction(UIAlertAction.mediaActionsTrackDefaultDeleteAction(trackUid, model: mainModel))
+		case .notExisted: alert.addAction(UIAlertAction.mediaActionsTrackDefaultDownloadAction(trackUid, model: mainModel))
 		}
 		
 		let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)

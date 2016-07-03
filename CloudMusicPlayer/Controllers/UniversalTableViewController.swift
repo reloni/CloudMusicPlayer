@@ -130,27 +130,61 @@ class UniversalTableViewController: UIViewController {
 }
 
 extension UIAlertAction {
-	static func trackDefaultDeleteAction(trackUid: String, model: MainModel) -> UIAlertAction {
+	static func mediaActionsTrackDefaultDeleteAction(trackUid: String, model: MainModel) -> UIAlertAction {
 		return UIAlertAction(title: "Delete", style: .Default) { _ in
 			model.player.downloadManager.fileStorage.deleteItem(trackUid)
 		}
 	}
 	
-	static func trackDefaultSaveAction(trackUid: String, model: MainModel) -> UIAlertAction {
+	static func mediaActionsTrackDefaultSaveAction(trackUid: String, model: MainModel) -> UIAlertAction {
 		return UIAlertAction(title: "Save", style: .Default) { _ in
 			model.player.downloadManager.fileStorage.moveToPermanentStorage(trackUid)
 		}
 	}
 	
-	static func trackDefaultDeleteFromCacheAction(trackUid: String, model: MainModel) -> UIAlertAction {
+	static func mediaActionsTrackDefaultDeleteFromCacheAction(trackUid: String, model: MainModel) -> UIAlertAction {
 		return UIAlertAction(title: "Delete from cache", style: .Default) { _ in
 			model.player.downloadManager.fileStorage.deleteItem(trackUid)
 		}
 	}
 	
-	static func trackDefaultDownloadAction(trackUid: String, model: MainModel) -> UIAlertAction {
+	static func mediaActionsTrackDefaultDownloadAction(trackUid: String, model: MainModel) -> UIAlertAction {
 		return UIAlertAction(title: "Download", style: .Default) { _ in
 			
+		}
+	}
+	
+	static func mediaActionsPlayContainer(container: TrackContainerType, mainModel: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Paly", style: .Default) { _ in
+			mainModel.play(container)
+		}
+	}
+	
+	static func mediaActionsCancel(handler: ((UIAlertAction) -> Void)? = nil) -> UIAlertAction {
+		return UIAlertAction(title: "Cancel", style: .Cancel, handler: handler)
+	}
+	
+	static func mediaActionsAddAlbumToPlayList(album: AlbumType, presentator: UIViewController, mainModel: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Add to playlist", style: .Default) { _ in
+			let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
+			selectController.model = AddItemsToPlayListModel(mainModel: mainModel, artists: [], albums: [album], tracks: [])
+			presentator.presentViewController(selectController, animated: true, completion: nil)
+		}
+	}
+	
+	static func mediaActionsAddArtistToPlayList(artist: ArtistType, presentator: UIViewController, mainModel: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Add to playlist", style: .Default) { _ in
+			let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
+			selectController.model = AddItemsToPlayListModel(mainModel: mainModel, artists: [artist], albums: [], tracks: [])
+			presentator.presentViewController(selectController, animated: true, completion: nil)
+		}
+	}
+	
+	static func mediaActionsAddTrackToPlayList(track: TrackType, presentator: UIViewController, mainModel: MainModel) -> UIAlertAction {
+		return UIAlertAction(title: "Add to playlist", style: .Default) { _ in
+			let selectController = ViewControllers.addItemsToPlayListController.getController() as! AddItemsToPlayListController
+			selectController.model = AddItemsToPlayListModel(mainModel: mainModel, artists: [], albums: [], tracks: [track])
+			presentator.presentViewController(selectController, animated: true, completion: nil)
 		}
 	}
 }
